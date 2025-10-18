@@ -15,19 +15,33 @@ echo -e "${GREEN}Starting server security setup...${NC}"
 
 # 1. Create non-root user with sudo privileges
 echo -e "${YELLOW}Creating deployment user...${NC}"
-useradd -m -s /bin/bash deploy
+if id "deploy" &>/dev/null; then
+    echo -e "${GREEN}User 'deploy' already exists, skipping creation...${NC}"
+else
+    useradd -m -s /bin/bash deploy
+    echo -e "${GREEN}User 'deploy' created successfully${NC}"
+fi
+
+# Ensure deploy user is in sudo group
 usermod -aG sudo deploy
 
 # Configure passwordless sudo for deploy user
+echo -e "${YELLOW}Configuring passwordless sudo...${NC}"
 echo "deploy ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/deploy
 chmod 440 /etc/sudoers.d/deploy
 
 # Set up SSH directory for deploy user
+echo -e "${YELLOW}Configuring SSH access for deploy user...${NC}"
 mkdir -p /home/deploy/.ssh
 chmod 700 /home/deploy/.ssh
-cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
-chmod 600 /home/deploy/.ssh/authorized_keys
-chown -R deploy:deploy /home/deploy/.ssh
+if [ -f /root/.ssh/authorized_keys ]; then
+    cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
+    chmod 600 /home/deploy/.ssh/authorized_keys
+    chown -R deploy:deploy /home/deploy/.ssh
+    echo -e "${GREEN}SSH keys copied successfully${NC}"
+else
+    echo -e "${RED}Warning: /root/.ssh/authorized_keys not found!${NC}"
+fi
 
 # 2. Configure SSH security
 echo -e "${YELLOW}Hardening SSH configuration...${NC}"
