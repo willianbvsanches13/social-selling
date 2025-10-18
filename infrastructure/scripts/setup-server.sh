@@ -18,6 +18,10 @@ echo -e "${YELLOW}Creating deployment user...${NC}"
 useradd -m -s /bin/bash deploy
 usermod -aG sudo deploy
 
+# Configure passwordless sudo for deploy user
+echo "deploy ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/deploy
+chmod 440 /etc/sudoers.d/deploy
+
 # Set up SSH directory for deploy user
 mkdir -p /home/deploy/.ssh
 chmod 700 /home/deploy/.ssh
