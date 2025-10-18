@@ -513,23 +513,23 @@ chmod +x verify-setup.sh
 
 ## Acceptance Criteria
 
-- [ ] VPS accessible via SSH key only (no password authentication)
-- [ ] Docker Engine version >= 24.0 installed and running
-- [ ] Docker Compose v2 installed (plugin mode)
-- [ ] UFW firewall active with rules:
-  - [ ] Port 22 (SSH) open
-  - [ ] Port 80 (HTTP) open
-  - [ ] Port 443 (HTTPS) open
-  - [ ] All other ports blocked
-- [ ] fail2ban installed and monitoring SSH (maxretry=3, bantime=7200s)
-- [ ] Automatic security updates enabled with daily checks
-- [ ] Deploy user created with sudo privileges and docker group membership
-- [ ] Root login disabled via SSH
-- [ ] Password authentication disabled via SSH
-- [ ] Can execute `docker ps` without sudo as deploy user
-- [ ] Server hostname set to `social-selling-prod`
-- [ ] System timezone configured correctly
-- [ ] All verification checks pass (`verify-setup.sh`)
+- [x] VPS accessible via SSH key only (no password authentication)
+- [x] Docker Engine version >= 24.0 installed and running
+- [x] Docker Compose v2 installed (plugin mode)
+- [x] UFW firewall active with rules:
+  - [x] Port 22 (SSH) open
+  - [x] Port 80 (HTTP) open
+  - [x] Port 443 (HTTPS) open
+  - [x] All other ports blocked
+- [x] fail2ban installed and monitoring SSH (maxretry=3, bantime=7200s)
+- [x] Automatic security updates enabled with daily checks
+- [x] Deploy user created with sudo privileges and docker group membership
+- [x] Root login disabled via SSH
+- [x] Password authentication disabled via SSH
+- [x] Can execute `docker ps` without sudo as deploy user
+- [x] Server hostname set to `social-selling-prod`
+- [x] System timezone configured correctly
+- [x] All verification checks pass (`verify-setup.sh`)
 
 ---
 
