@@ -18,6 +18,7 @@ const storage_module_1 = require("./infrastructure/storage/storage.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const notification_module_1 = require("./modules/notification/notification.module");
 const user_module_1 = require("./modules/user/user.module");
+const instagram_module_1 = require("./modules/instagram/instagram.module");
 const http_logger_middleware_1 = require("./common/middleware/http-logger.middleware");
 const configuration_1 = require("./config/configuration");
 let AppModule = class AppModule {
@@ -40,6 +41,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             notification_module_1.NotificationModule,
             user_module_1.UserModule,
+            instagram_module_1.InstagramModule,
             health_module_1.HealthModule,
         ],
         controllers: [app_controller_1.AppController],

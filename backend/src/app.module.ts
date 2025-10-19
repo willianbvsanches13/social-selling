@@ -9,6 +9,7 @@ import { StorageModule } from './infrastructure/storage/storage.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { UserModule } from './modules/user/user.module';
+import { InstagramModule } from './modules/instagram/instagram.module';
 import { HttpLoggerMiddleware } from './common/middleware/http-logger.middleware';
 import configuration from './config/configuration';
 
@@ -25,6 +26,7 @@ import configuration from './config/configuration';
     AuthModule,
     NotificationModule,
     UserModule,
+    InstagramModule,
     HealthModule,
   ],
   controllers: [AppController],

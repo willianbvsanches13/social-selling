@@ -130,7 +130,7 @@
 15. **IG-001**: Instagram OAuth Connection Flow
     - Prioridade: P0
     - Dependências: BE-007
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO**
 
 16. **IG-002**: Instagram API Token Management
     - Prioridade: P0

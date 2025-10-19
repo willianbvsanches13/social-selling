@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/api": {
+    "/": {
       "get": {
         "operationId": "AppController_getHello",
         "parameters": [],
@@ -15,7 +15,7 @@
         ]
       }
     },
-    "/api/auth/register": {
+    "/auth/register": {
       "post": {
         "description": "Creates a new user account with email and password",
         "operationId": "AuthController_register",
@@ -54,7 +54,7 @@
         ]
       }
     },
-    "/api/auth/login": {
+    "/auth/login": {
       "post": {
         "description": "Authenticates user and returns JWT access token, refresh token, and sets session cookie",
         "operationId": "AuthController_login",
@@ -102,7 +102,7 @@
         ]
       }
     },
-    "/api/auth/refresh": {
+    "/auth/refresh": {
       "post": {
         "description": "Generates a new access token using a valid refresh token",
         "operationId": "AuthController_refreshToken",
@@ -138,7 +138,7 @@
         ]
       }
     },
-    "/api/auth/logout": {
+    "/auth/logout": {
       "post": {
         "description": "Invalidates refresh token and clears session cookie",
         "operationId": "AuthController_logout",
@@ -172,7 +172,7 @@
         ]
       }
     },
-    "/api/auth/me": {
+    "/auth/me": {
       "get": {
         "description": "Returns the profile of the authenticated user",
         "operationId": "AuthController_getCurrentUser",
@@ -196,7 +196,7 @@
         ]
       }
     },
-    "/api/auth/sessions": {
+    "/auth/sessions": {
       "get": {
         "description": "Returns list of all active sessions for the authenticated user",
         "operationId": "AuthController_getUserSessions",
@@ -220,7 +220,7 @@
         ]
       }
     },
-    "/api/auth/sessions/{sessionId}": {
+    "/auth/sessions/{sessionId}": {
       "delete": {
         "description": "Revokes a specific session by ID",
         "operationId": "AuthController_revokeSession",
@@ -254,7 +254,7 @@
         ]
       }
     },
-    "/api/users/me": {
+    "/users/me": {
       "get": {
         "operationId": "UserController_getProfile",
         "parameters": [],
@@ -332,7 +332,7 @@
         ]
       }
     },
-    "/api/users/me/change-password": {
+    "/users/me/change-password": {
       "post": {
         "operationId": "UserController_changePassword",
         "parameters": [],
@@ -368,7 +368,7 @@
         ]
       }
     },
-    "/api/users/verify-email": {
+    "/users/verify-email": {
       "post": {
         "operationId": "UserController_sendVerificationEmail",
         "parameters": [],
@@ -394,7 +394,7 @@
         ]
       }
     },
-    "/api/users/verify-email/{token}": {
+    "/users/verify-email/{token}": {
       "get": {
         "operationId": "UserController_verifyEmail",
         "parameters": [
@@ -426,7 +426,7 @@
         ]
       }
     },
-    "/api/users/me/stats": {
+    "/users/me/stats": {
       "get": {
         "operationId": "UserController_getUserStats",
         "parameters": [],
@@ -446,6 +446,134 @@
         "summary": "Get user statistics",
         "tags": [
           "User Management"
+        ]
+      }
+    },
+    "/instagram/oauth/authorize": {
+      "get": {
+        "operationId": "InstagramController_initiateOAuth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns authorization URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authorizationUrl": {
+                      "type": "string",
+                      "example": "https://api.instagram.com/oauth/authorize?..."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Initiate Instagram OAuth flow",
+        "tags": [
+          "Instagram Integration"
+        ]
+      }
+    },
+    "/instagram/oauth/callback": {
+      "get": {
+        "operationId": "InstagramController_handleOAuthCallback",
+        "parameters": [
+          {
+            "name": "code",
+            "required": false,
+            "in": "query",
+            "description": "Authorization code from Instagram",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "description": "CSRF state token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "error",
+            "required": false,
+            "in": "query",
+            "description": "Error code if user denied access",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Redirects to frontend"
+          }
+        },
+        "summary": "Handle Instagram OAuth callback",
+        "tags": [
+          "Instagram Integration"
+        ]
+      }
+    },
+    "/instagram/accounts/{id}/disconnect": {
+      "delete": {
+        "operationId": "InstagramController_disconnectAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account disconnected successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Instagram account disconnected successfully"
+                    },
+                    "accountId": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect Instagram account",
+        "tags": [
+          "Instagram Integration"
         ]
       }
     },
@@ -617,7 +745,7 @@
         ]
       }
     },
-    "/api/health/ready": {
+    "/health/ready": {
       "get": {
         "operationId": "HealthController_readiness",
         "parameters": [],
@@ -631,7 +759,7 @@
         ]
       }
     },
-    "/api/health/live": {
+    "/health/live": {
       "get": {
         "operationId": "HealthController_liveness",
         "parameters": [],
