@@ -120,4 +120,46 @@ export const analyticsService = {
     );
     return response.data!;
   },
+
+  /**
+   * Export analytics to PDF
+   */
+  async exportToPDF(data: any): Promise<Blob> {
+    const response = await apiClient.post<Blob>(
+      `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/pdf`,
+      data,
+      {
+        responseType: 'blob',
+      }
+    );
+    return response.data!;
+  },
+
+  /**
+   * Export analytics to CSV
+   */
+  async exportToCSV(data: any): Promise<Blob> {
+    const response = await apiClient.post<Blob>(
+      `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/csv`,
+      data,
+      {
+        responseType: 'blob',
+      }
+    );
+    return response.data!;
+  },
+
+  /**
+   * Export analytics to Excel
+   */
+  async exportToExcel(data: any): Promise<Blob> {
+    const response = await apiClient.post<Blob>(
+      `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/excel`,
+      data,
+      {
+        responseType: 'blob',
+      }
+    );
+    return response.data!;
+  },
 };
