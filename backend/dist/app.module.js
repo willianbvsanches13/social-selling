@@ -11,15 +11,19 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
-const health_module_1 = require("./modules/health/health.module");
+const health_module_1 = require("./health/health.module");
 const database_module_1 = require("./infrastructure/database/database.module");
 const cache_module_1 = require("./infrastructure/cache/cache.module");
 const storage_module_1 = require("./infrastructure/storage/storage.module");
 const auth_module_1 = require("./modules/auth/auth.module");
 const notification_module_1 = require("./modules/notification/notification.module");
 const user_module_1 = require("./modules/user/user.module");
+const http_logger_middleware_1 = require("./common/middleware/http-logger.middleware");
 const configuration_1 = require("./config/configuration");
 let AppModule = class AppModule {
+    configure(consumer) {
+        consumer.apply(http_logger_middleware_1.HttpLoggerMiddleware).forRoutes('*');
+    }
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([

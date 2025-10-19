@@ -7,12 +7,27 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AppModule } from './app.module';
 import { SWAGGER_CONFIG } from './config/swagger.config';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
+import { initializeSentry } from './common/monitoring/sentry.config';
+import { LoggerService } from './common/logging/logger.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // Initialize Sentry before creating the app
+  initializeSentry();
+
+  const app = await NestFactory.create(AppModule, {
+    logger: new LoggerService('Bootstrap'),
+  });
 
   // Cookie parser middleware
   app.use(cookieParser());
+
+  // Global exception filters
+  app.useGlobalFilters(
+    new AllExceptionsFilter(),
+    new ValidationExceptionFilter(),
+  );
 
   // Global pipes
   app.useGlobalPipes(

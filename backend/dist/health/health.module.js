@@ -8,15 +8,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HealthModule = void 0;
 const common_1 = require("@nestjs/common");
+const terminus_1 = require("@nestjs/terminus");
+const config_1 = require("@nestjs/config");
 const health_controller_1 = require("./health.controller");
 const health_service_1 = require("./health.service");
+const redis_health_indicator_1 = require("./indicators/redis-health.indicator");
 let HealthModule = class HealthModule {
 };
 exports.HealthModule = HealthModule;
 exports.HealthModule = HealthModule = __decorate([
     (0, common_1.Module)({
+        imports: [terminus_1.TerminusModule, config_1.ConfigModule],
         controllers: [health_controller_1.HealthController],
-        providers: [health_service_1.HealthService],
+        providers: [health_service_1.HealthService, redis_health_indicator_1.RedisHealthIndicator],
     })
 ], HealthModule);
 //# sourceMappingURL=health.module.js.map

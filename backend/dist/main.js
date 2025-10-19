@@ -9,9 +9,17 @@ const fs = require("fs");
 const path = require("path");
 const app_module_1 = require("./app.module");
 const swagger_config_1 = require("./config/swagger.config");
+const all_exceptions_filter_1 = require("./common/filters/all-exceptions.filter");
+const validation_exception_filter_1 = require("./common/filters/validation-exception.filter");
+const sentry_config_1 = require("./common/monitoring/sentry.config");
+const logger_service_1 = require("./common/logging/logger.service");
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    (0, sentry_config_1.initializeSentry)();
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, {
+        logger: new logger_service_1.LoggerService('Bootstrap'),
+    });
     app.use(cookieParser());
+    app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter(), new validation_exception_filter_1.ValidationExceptionFilter());
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         forbidNonWhitelisted: true,
