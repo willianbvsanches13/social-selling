@@ -135,17 +135,17 @@
 16. **IG-002**: Instagram API Token Management
     - Prioridade: P0
     - Dependências: IG-001
-    - Status: ⏳ Pendente (pode iniciar paralelamente com IG-001)
+    - Status: ✅ **CONCLUÍDO**
 
 ---
 
 ## 🎯 DIA 8: Instagram Messaging (8 horas)
 
 ### Manhã (4h)
-17. **IG-003**: Instagram DM Retrieval
+17. **IG-003**: Instagram Graph API Wrapper Service
     - Prioridade: P0
     - Dependências: IG-002
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ### Tarde (4h)
 18. **IG-004**: Instagram DM Sending

@@ -4,6 +4,7 @@ import { InstagramAccountController } from './controllers/instagram-account.cont
 import { InstagramOAuthService } from './instagram-oauth.service';
 import { InstagramApiService } from './services/instagram-api.service';
 import { InstagramAccountService } from './services/instagram-account.service';
+import { InstagramRateLimiter } from './utils/rate-limiter';
 import { DatabaseModule } from '../../infrastructure/database/database.module';
 import { CacheModule } from '../../infrastructure/cache/cache.module';
 import { OAuthTokenRepository } from '../../infrastructure/database/repositories/oauth-token.repository';
@@ -16,6 +17,7 @@ import { ClientAccountRepository } from '../../infrastructure/database/repositor
     InstagramOAuthService,
     InstagramApiService,
     InstagramAccountService,
+    InstagramRateLimiter,
     {
       provide: 'IOAuthTokenRepository',
       useClass: OAuthTokenRepository,

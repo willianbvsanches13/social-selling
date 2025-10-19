@@ -159,7 +159,7 @@ export class InstagramAccountService {
         website: profile.website,
         metadata: {
           igId: profile.id,
-          igBusinessAccountId: profile.ig_id,
+          igBusinessAccountId: profile.ig_id?.toString(),
           isVerified: profile.is_verified,
         },
       });
