@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HealthController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const terminus_1 = require("@nestjs/terminus");
 const health_check_1 = require("../../infrastructure/database/health-check");
 const redis_health_indicator_1 = require("../../infrastructure/cache/redis-health.indicator");
@@ -36,6 +37,45 @@ exports.HealthController = HealthController;
 __decorate([
     (0, common_1.Get)(),
     (0, terminus_1.HealthCheck)(),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Check application health',
+        description: 'Returns health status of all critical services (database and Redis)',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'All services are healthy',
+        schema: {
+            example: {
+                status: 'ok',
+                info: {
+                    database: { status: 'up' },
+                    redis: { status: 'up' },
+                },
+                error: {},
+                details: {
+                    database: { status: 'up' },
+                    redis: { status: 'up' },
+                },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 503,
+        description: 'One or more services are unhealthy',
+        schema: {
+            example: {
+                status: 'error',
+                info: {},
+                error: {
+                    database: { status: 'down', message: 'Connection timeout' },
+                },
+                details: {
+                    database: { status: 'down', message: 'Connection timeout' },
+                    redis: { status: 'up' },
+                },
+            },
+        },
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
@@ -43,11 +83,36 @@ __decorate([
 __decorate([
     (0, common_1.Get)('db'),
     (0, terminus_1.HealthCheck)(),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Check database health',
+        description: 'Returns health status of the PostgreSQL database connection',
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'Database is healthy',
+        schema: {
+            example: {
+                status: 'ok',
+                info: {
+                    database: { status: 'up' },
+                },
+                error: {},
+                details: {
+                    database: { status: 'up' },
+                },
+            },
+        },
+    }),
+    (0, swagger_1.ApiResponse)({
+        status: 503,
+        description: 'Database is unhealthy',
+    }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], HealthController.prototype, "checkDatabase", null);
 exports.HealthController = HealthController = __decorate([
+    (0, swagger_1.ApiTags)('Health'),
     (0, common_1.Controller)('health'),
     __metadata("design:paramtypes", [terminus_1.HealthCheckService,
         health_check_1.DatabaseHealthIndicator,

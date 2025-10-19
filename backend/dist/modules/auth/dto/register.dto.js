@@ -11,14 +11,27 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class RegisterDto {
 }
 exports.RegisterDto = RegisterDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'User email address',
+        example: 'john.doe@example.com',
+        format: 'email',
+    }),
     (0, class_validator_1.IsEmail)({}, { message: 'Please provide a valid email address' }),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "email", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'User password (minimum 8 characters, must include uppercase, lowercase, and number)',
+        example: 'SecurePass123!',
+        minLength: 8,
+        maxLength: 100,
+        format: 'password',
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(8, { message: 'Password must be at least 8 characters long' }),
     (0, class_validator_1.MaxLength)(100, { message: 'Password must not exceed 100 characters' }),
@@ -28,6 +41,12 @@ __decorate([
     __metadata("design:type", String)
 ], RegisterDto.prototype, "password", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'User full name',
+        example: 'John Doe',
+        minLength: 2,
+        maxLength: 100,
+    }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(2, { message: 'Name must be at least 2 characters' }),
     (0, class_validator_1.MaxLength)(100, { message: 'Name must not exceed 100 characters' }),

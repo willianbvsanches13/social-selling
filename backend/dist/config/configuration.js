@@ -39,5 +39,6 @@ exports.default = () => ({
         origin: process.env.FRONTEND_URL || 'http://localhost:3000',
         credentials: true,
     },
+    enableDocs: process.env.ENABLE_DOCS !== 'false',
 });
 //# sourceMappingURL=configuration.js.map

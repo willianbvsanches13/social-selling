@@ -24,6 +24,8 @@
     "migrate:down": "npm run migrate down",
     "migrate:status": "npm run migrate status",
     "db:seed": "psql -h localhost -U postgres -d social_selling -f migrations/seed-dev-data.sql",
+    "docs:generate": "ts-node -r tsconfig-paths/register src/scripts/generate-openapi-spec.ts",
+    "docs:serve": "npm run start:dev",
     "prepare": "husky"
   },
   "lint-staged": {

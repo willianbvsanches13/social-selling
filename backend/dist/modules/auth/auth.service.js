@@ -21,11 +21,13 @@ const crypto = require("crypto");
 const user_repository_interface_1 = require("../../domain/repositories/user.repository.interface");
 const user_entity_1 = require("../../domain/entities/user.entity");
 const email_vo_1 = require("../../domain/value-objects/email.vo");
+const session_service_1 = require("./services/session.service");
 let AuthService = class AuthService {
-    constructor(userRepository, jwtService, configService) {
+    constructor(userRepository, jwtService, configService, sessionService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.configService = configService;
+        this.sessionService = sessionService;
         this.bcryptRounds = 12;
     }
     async register(registerDto) {
@@ -51,7 +53,7 @@ let AuthService = class AuthService {
             ...tokens,
         };
     }
-    async login(loginDto, ip) {
+    async login(loginDto, ip, userAgent, deviceInfo) {
         const user = await this.userRepository.findByEmail(loginDto.email);
         if (!user) {
             throw new common_1.UnauthorizedException('Invalid credentials');
@@ -61,9 +63,11 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Invalid credentials');
         }
         await this.userRepository.updateLastLogin(user.id, ip);
+        const { sessionId } = await this.sessionService.createSession(user.id, user.email.value, deviceInfo, ip, userAgent, ['user']);
         const tokens = await this.generateTokenPair(user);
         return {
             user: this.sanitizeUser(user),
+            sessionId,
             ...tokens,
         };
     }
@@ -90,9 +94,12 @@ let AuthService = class AuthService {
         const expiresIn = this.getTokenExpirationSeconds(this.configService.get('jwt.expiresIn', '24h'));
         return { accessToken, expiresIn };
     }
-    async logout(refreshToken) {
+    async logout(refreshToken, sessionId) {
         const tokenHash = this.hashToken(refreshToken);
         await this.userRepository.revokeRefreshToken(tokenHash);
+        if (sessionId) {
+            await this.sessionService.destroySession(sessionId);
+        }
     }
     async validateUser(payload) {
         const user = await this.userRepository.findById(payload.sub);
@@ -168,6 +175,7 @@ exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)(user_repository_interface_1.USER_REPOSITORY)),
     __metadata("design:paramtypes", [Object, jwt_1.JwtService,
-        config_1.ConfigService])
+        config_1.ConfigService,
+        session_service_1.SessionService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

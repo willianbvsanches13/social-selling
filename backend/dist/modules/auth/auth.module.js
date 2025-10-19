@@ -16,6 +16,8 @@ const auth_controller_1 = require("./auth.controller");
 const auth_service_1 = require("./auth.service");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
 const database_module_1 = require("../../infrastructure/database/database.module");
+const session_service_1 = require("./services/session.service");
+const session_guard_1 = require("../../common/guards/session.guard");
 let AuthModule = class AuthModule {
 };
 exports.AuthModule = AuthModule;
@@ -53,8 +55,8 @@ exports.AuthModule = AuthModule = __decorate([
             ]),
         ],
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy],
-        exports: [auth_service_1.AuthService, jwt_1.JwtModule, passport_1.PassportModule],
+        providers: [auth_service_1.AuthService, jwt_strategy_1.JwtStrategy, session_service_1.SessionService, session_guard_1.SessionGuard],
+        exports: [auth_service_1.AuthService, jwt_1.JwtModule, passport_1.PassportModule, session_service_1.SessionService, session_guard_1.SessionGuard],
     })
 ], AuthModule);
 //# sourceMappingURL=auth.module.js.map

@@ -1,8 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
+import * as fs from 'fs';
+import * as path from 'path';
 import { AppModule } from './app.module';
+import { SWAGGER_CONFIG } from './config/swagger.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,6 +36,77 @@ async function bootstrap() {
   app.setGlobalPrefix('api', {
     exclude: ['health'],
   });
+
+  // Swagger/OpenAPI Configuration
+  const nodeEnv = configService.get<string>('nodeEnv', 'development');
+  const enableDocs = configService.get<boolean>('enableDocs', true);
+
+  if (nodeEnv !== 'production' || enableDocs) {
+    const config = new DocumentBuilder()
+      .setTitle(SWAGGER_CONFIG.title)
+      .setDescription(SWAGGER_CONFIG.description)
+      .setVersion(SWAGGER_CONFIG.version)
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'Authorization',
+          description: 'Enter JWT access token',
+          in: 'header',
+        },
+        'bearerAuth',
+      )
+      .addCookieAuth(
+        'ssell_session',
+        {
+          type: 'apiKey',
+          in: 'cookie',
+          name: 'ssell_session',
+          description: 'Session cookie for authenticated requests',
+        },
+        'cookieAuth',
+      );
+
+    // Add servers
+    SWAGGER_CONFIG.servers.forEach((server) => {
+      config.addServer(server.url, server.description);
+    });
+
+    // Add tags
+    SWAGGER_CONFIG.tags.forEach((tag) => {
+      config.addTag(tag.name, tag.description, tag.externalDocs);
+    });
+
+    const document = SwaggerModule.createDocument(app, config.build());
+
+    // Swagger UI setup
+    SwaggerModule.setup('api/docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+        docExpansion: 'none',
+        filter: true,
+        showRequestDuration: true,
+        syntaxHighlight: {
+          activate: true,
+          theme: 'monokai',
+        },
+      },
+      customCss: `
+        .swagger-ui .topbar { display: none }
+        .swagger-ui .info .title { color: #3b82f6 }
+      `,
+      customSiteTitle: 'Social Selling API Documentation',
+      customfavIcon: '/favicon.ico',
+    });
+
+    // Export OpenAPI spec as JSON
+    const outputPath = path.join(process.cwd(), 'openapi-spec.json');
+    fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
+
+    console.log(`📚 API Documentation: http://localhost:${configService.get<number>('port', 4000)}/api/docs`);
+    console.log(`📄 OpenAPI spec exported to: ${outputPath}`);
+  }
 
   const port = configService.get<number>('port', 4000);
   await app.listen(port);

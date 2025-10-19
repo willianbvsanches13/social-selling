@@ -14,6 +14,7 @@ import {
   Param,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiCookieAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -28,7 +29,9 @@ import { GetUserId, GetSession } from '../../common/decorators/session.decorator
 import { Session, DeviceInfo } from '../../domain/entities/session.entity';
 import { SESSION_CONFIG } from './config/session.config';
 import { v4 as uuidv4 } from 'uuid';
+import { ApiDoc } from '../../common/decorators/api-doc.decorator';
 
+@ApiTags('Authentication')
 @Controller('auth')
 @UseGuards(ThrottlerGuard)
 export class AuthController {
@@ -39,12 +42,53 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @ApiDoc({
+    summary: 'Register a new user account',
+    description: 'Creates a new user account with email and password',
+    body: RegisterDto,
+    responses: [
+      {
+        status: 201,
+        description: 'User successfully registered',
+        type: AuthResponseDto,
+      },
+      {
+        status: 400,
+        description: 'Invalid input data or email already exists',
+      },
+      {
+        status: 429,
+        description: 'Too many registration attempts',
+      },
+    ],
+  })
   async register(@Body() registerDto: RegisterDto): Promise<AuthResponseDto> {
     return this.authService.register(registerDto);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiDoc({
+    summary: 'Login with email and password',
+    description:
+      'Authenticates user and returns JWT access token, refresh token, and sets session cookie',
+    body: LoginDto,
+    responses: [
+      {
+        status: 200,
+        description: 'Login successful',
+        type: AuthResponseDto,
+      },
+      {
+        status: 401,
+        description: 'Invalid credentials',
+      },
+      {
+        status: 429,
+        description: 'Too many login attempts',
+      },
+    ],
+  })
   async login(
     @Body() loginDto: LoginDto,
     @Ip() ip: string,
@@ -70,6 +114,22 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
+  @ApiDoc({
+    summary: 'Refresh access token',
+    description: 'Generates a new access token using a valid refresh token',
+    body: RefreshTokenDto,
+    responses: [
+      {
+        status: 200,
+        description: 'Token refreshed successfully',
+        type: AuthResponseDto,
+      },
+      {
+        status: 401,
+        description: 'Invalid or expired refresh token',
+      },
+    ],
+  })
   async refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
     return this.authService.refreshAccessToken(refreshTokenDto.refreshToken);
   }
@@ -77,6 +137,22 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('bearerAuth')
+  @ApiDoc({
+    summary: 'Logout user',
+    description: 'Invalidates refresh token and clears session cookie',
+    body: RefreshTokenDto,
+    responses: [
+      {
+        status: 200,
+        description: 'Logged out successfully',
+      },
+      {
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+      },
+    ],
+  })
   async logout(
     @Body() refreshTokenDto: RefreshTokenDto,
     @Request() req: any,
@@ -95,12 +171,42 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('bearerAuth')
+  @ApiDoc({
+    summary: 'Get current user profile',
+    description: 'Returns the profile of the authenticated user',
+    responses: [
+      {
+        status: 200,
+        description: 'User profile retrieved successfully',
+      },
+      {
+        status: 401,
+        description: 'Unauthorized - Invalid or missing token',
+      },
+    ],
+  })
   async getCurrentUser(@Request() req: any) {
     return req.user.toJSON();
   }
 
   @Get('sessions')
   @UseGuards(SessionGuard)
+  @ApiCookieAuth('cookieAuth')
+  @ApiDoc({
+    summary: 'Get user sessions',
+    description: 'Returns list of all active sessions for the authenticated user',
+    responses: [
+      {
+        status: 200,
+        description: 'Sessions retrieved successfully',
+      },
+      {
+        status: 401,
+        description: 'Unauthorized - Invalid or missing session',
+      },
+    ],
+  })
   async getUserSessions(@GetUserId() userId: string) {
     const sessions = await this.sessionService.getUserSessions(userId);
 
@@ -119,6 +225,22 @@ export class AuthController {
 
   @Delete('sessions/:sessionId')
   @UseGuards(SessionGuard)
+  @ApiCookieAuth('cookieAuth')
+  @ApiDoc({
+    summary: 'Revoke a session',
+    description: 'Revokes a specific session by ID',
+    pathParams: [{ name: 'sessionId', description: 'Session ID to revoke' }],
+    responses: [
+      {
+        status: 200,
+        description: 'Session revoked successfully',
+      },
+      {
+        status: 401,
+        description: 'Unauthorized - Session not found or does not belong to user',
+      },
+    ],
+  })
   async revokeSession(
     @Param('sessionId') sessionId: string,
     @GetUserId() userId: string,

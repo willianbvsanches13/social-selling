@@ -120,7 +120,7 @@
 14. **BE-007**: OAuth 2.0 Framework Setup
     - Prioridade: P0
     - Dependências: BE-006
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO**
 
 ---
 

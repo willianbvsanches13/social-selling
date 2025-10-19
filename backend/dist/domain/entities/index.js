@@ -23,4 +23,5 @@ __exportStar(require("./oauth-token.entity"), exports);
 __exportStar(require("./analytics-event.entity"), exports);
 __exportStar(require("./instagram-media.entity"), exports);
 __exportStar(require("./notification.entity"), exports);
+__exportStar(require("./session.entity"), exports);
 //# sourceMappingURL=index.js.map

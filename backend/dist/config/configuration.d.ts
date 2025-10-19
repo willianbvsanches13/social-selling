@@ -36,5 +36,6 @@ declare const _default: () => {
         origin: string;
         credentials: boolean;
     };
+    enableDocs: boolean;
 };
 export default _default;
