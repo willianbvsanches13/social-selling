@@ -167,7 +167,7 @@
 20. **IG-006**: Instagram Post Publishing
     - Prioridade: P0
     - Dependências: IG-005
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ---
 
