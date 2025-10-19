@@ -242,7 +242,7 @@
 30. **FE-008**: Instagram Account Connection UI
     - Prioridade: P0
     - Dependências: FE-004, IG-001
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 31. **FE-009**: WebSocket Real-Time Updates
     - Prioridade: P1
@@ -386,9 +386,9 @@
 - **P2 (Média):** 6 tarefas
 
 ### Status Atual
-- ✅ **Concluídas:** 28 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-007)
-- ⏳ **Pendentes:** 20 tarefas
-- **Progresso:** 58.3%
+- ✅ **Concluídas:** 29 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-008)
+- ⏳ **Pendentes:** 19 tarefas
+- **Progresso:** 60.4%
 
 ---
 
@@ -493,14 +493,14 @@ DEPLOY-001 → DEPLOY-002 → DEPLOY-003 → DEPLOY-004
 
 ## 🚀 Próxima Tarefa Disponível
 
-**Próxima na Fila:** `FE-008` - Instagram Account Connection UI
+**Próxima na Fila:** `FE-009` - WebSocket Real-Time Updates
 
 **Comando para Iniciar:**
 ```bash
 cd /Users/williansanches/projects/personal/social-selling-2
-git checkout -b FE-008-account-connection
+git checkout -b FE-009-websocket-realtime
 # Ler especificação da tarefa
-cat tasks/social-selling/sprints/FE-008_task.md
+cat tasks/social-selling/sprints/FE-009_task.md
 ```
 
 ---
