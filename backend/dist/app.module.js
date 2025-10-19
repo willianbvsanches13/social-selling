@@ -11,7 +11,9 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
-const health_module_1 = require("./health/health.module");
+const health_module_1 = require("./modules/health/health.module");
+const database_module_1 = require("./infrastructure/database/database.module");
+const cache_module_1 = require("./infrastructure/cache/cache.module");
 const configuration_1 = require("./config/configuration");
 let AppModule = class AppModule {
 };
@@ -24,6 +26,8 @@ exports.AppModule = AppModule = __decorate([
                 load: [configuration_1.default],
                 envFilePath: ['.env.local', '.env'],
             }),
+            database_module_1.DatabaseModule,
+            cache_module_1.CacheModule,
             health_module_1.HealthModule,
         ],
         controllers: [app_controller_1.AppController],

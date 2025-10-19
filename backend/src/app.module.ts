@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { HealthModule } from './health/health.module';
+import { HealthModule } from './modules/health/health.module';
+import { DatabaseModule } from './infrastructure/database/database.module';
+import { CacheModule } from './infrastructure/cache/cache.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -12,6 +14,8 @@ import configuration from './config/configuration';
       load: [configuration],
       envFilePath: ['.env.local', '.env'],
     }),
+    DatabaseModule,
+    CacheModule,
     HealthModule,
   ],
   controllers: [AppController],
