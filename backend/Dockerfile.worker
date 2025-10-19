@@ -12,11 +12,8 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Expose port
-EXPOSE 4000
-
-# Start development server
-CMD ["npm", "run", "start:dev"]
+# Start development worker with increased memory limit
+CMD ["node", "--max-old-space-size=1024", "node_modules/.bin/nest", "start", "--watch", "--entryFile", "worker"]
 
 # ================================
 # Build Stage
@@ -62,12 +59,9 @@ COPY --from=build --chown=nestjs:nodejs /app/package.json ./package.json
 # Switch to non-root user
 USER nestjs
 
-# Expose port
-EXPOSE 4000
-
-# Health check
+# Health check for worker (checks if the process is running)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
+  CMD pgrep -f "node dist/worker" || exit 1
 
-# Start production server
-CMD ["node", "dist/main"]
+# Start production worker
+CMD ["node", "dist/worker.js"]

@@ -32,9 +32,9 @@ export class SessionService implements OnModuleDestroy {
 
   constructor(private readonly configService: ConfigService) {
     this.redis = new Redis({
-      host: this.configService.get<string>('redis.host'),
-      port: this.configService.get<number>('redis.port'),
-      password: this.configService.get<string>('redis.password'),
+      host: this.configService.get<string>('REDIS_HOST'),
+      port: this.configService.get<number>('REDIS_PORT'),
+      password: this.configService.get<string>('REDIS_PASSWORD'),
       db: 0,
       maxRetriesPerRequest: 3,
       retryStrategy: (times) => {
