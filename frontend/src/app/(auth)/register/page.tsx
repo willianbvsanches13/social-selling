@@ -69,8 +69,9 @@ export default function RegisterPage() {
       });
       success('Account created successfully!');
       router.push('/dashboard');
-    } catch (err: any) {
-      showError(err.message || 'Registration failed. Please try again.');
+    } catch (err) {
+      const error = err as Error;
+      showError(error.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

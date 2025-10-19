@@ -35,8 +35,9 @@ export default function ForgotPasswordPage() {
       await authService.forgotPassword(data);
       setIsSubmitted(true);
       success('Password reset email sent successfully!');
-    } catch (err: any) {
-      showError(err.message || 'Failed to send reset email. Please try again.');
+    } catch (err) {
+      const error = err as Error;
+      showError(error.message || 'Failed to send reset email. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -54,11 +55,11 @@ export default function ForgotPasswordPage() {
               Check your email
             </h2>
             <p className="mt-2 text-sm text-gray-600">
-              We've sent password reset instructions to
+              We&apos;ve sent password reset instructions to
             </p>
             <p className="mt-1 text-sm font-medium text-primary">{email}</p>
             <p className="mt-4 text-sm text-gray-600">
-              Didn't receive the email? Check your spam folder or{' '}
+              Didn&apos;t receive the email? Check your spam folder or{' '}
               <button
                 onClick={() => setIsSubmitted(false)}
                 className="font-medium text-primary hover:text-primary-600"
@@ -90,7 +91,7 @@ export default function ForgotPasswordPage() {
             Forgot your password?
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            No worries, we'll send you reset instructions
+            No worries, we&apos;ll send you reset instructions
           </p>
         </div>
 

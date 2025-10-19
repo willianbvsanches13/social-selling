@@ -29,7 +29,7 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
     if (isAuthenticated && !isLoading) {
       fetchUser();
     }
-  }, []);
+  }, [isAuthenticated, isLoading, fetchUser]);
 
   if (isLoading) {
     return (

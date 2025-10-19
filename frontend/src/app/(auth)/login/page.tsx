@@ -40,8 +40,9 @@ export default function LoginPage() {
 
       const from = searchParams.get('from') || '/dashboard';
       router.push(from);
-    } catch (err: any) {
-      showError(err.message || 'Invalid email or password');
+    } catch (err) {
+      const error = err as Error;
+      showError(error.message || 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }
@@ -215,7 +216,7 @@ export default function LoginPage() {
 
         {/* Sign Up Link */}
         <p className="text-center text-sm text-gray-600">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link
             href="/register"
             className="font-medium text-primary hover:text-primary-600"

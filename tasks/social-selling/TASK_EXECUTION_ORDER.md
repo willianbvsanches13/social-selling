@@ -193,18 +193,18 @@
 23. **FE-001**: Next.js Project Setup
     - Prioridade: P0
     - Dependências: BE-001
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 24. **FE-002**: UI Component Library Setup (Shadcn UI)
     - Prioridade: P0
     - Dependências: FE-001
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ### DIA 6 - Auth Pages (8h)
-25. **FE-003**: Authentication Pages (Login/Register)
+25. **FE-003**: Dashboard Layout and Navigation
     - Prioridade: P0
     - Dependências: FE-002, BE-005
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ### DIA 7 - Dashboard Layout (8h)
 26. **FE-004**: Dashboard Layout and Navigation
@@ -386,9 +386,9 @@
 - **P2 (Média):** 6 tarefas
 
 ### Status Atual
-- ✅ **Concluídas:** 23 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, and others)
-- ⏳ **Pendentes:** 25 tarefas
-- **Progresso:** 47.9%
+- ✅ **Concluídas:** 24 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-003)
+- ⏳ **Pendentes:** 24 tarefas
+- **Progresso:** 50.0%
 
 ---
 
@@ -493,14 +493,14 @@ DEPLOY-001 → DEPLOY-002 → DEPLOY-003 → DEPLOY-004
 
 ## 🚀 Próxima Tarefa Disponível
 
-**Próxima na Fila:** `INFRA-001` - VPS Provisioning and Initial Setup
+**Próxima na Fila:** `FE-004` - Dashboard Layout and Navigation
 
 **Comando para Iniciar:**
 ```bash
 cd /Users/williansanches/projects/personal/social-selling-2
-git checkout -b INFRA-001-vps-provisioning
+git checkout -b FE-004-dashboard-layout
 # Ler especificação da tarefa
-cat tasks/social-selling/sprints/INFRA-001_task.md
+cat tasks/social-selling/sprints/FE-004_task.md
 ```
 
 ---
