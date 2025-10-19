@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -11,7 +11,7 @@ import { useAuth } from '@/lib/hooks/useAuth';
 import { useToast } from '@/lib/context/ToastContext';
 import { cn } from '@/lib/utils/cn';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
@@ -48,40 +48,38 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialLogin = (provider: 'instagram' | 'google') => {
-    const redirectUri = encodeURIComponent(`${process.env.NEXT_PUBLIC_APP_URL}/auth/${provider}/callback`);
+  const handleGoogleLogin = () => {
+    // TODO: Implement Google OAuth
+    showError('Google login coming soon!');
+  };
 
-    if (provider === 'instagram') {
-      const clientId = process.env.NEXT_PUBLIC_INSTAGRAM_CLIENT_ID;
-      const instagramAuthUrl = `https://api.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user_profile,user_media&response_type=code`;
-      window.location.href = instagramAuthUrl;
-    } else if (provider === 'google') {
-      showError('Google login coming soon');
-    }
+  const handleInstagramLogin = () => {
+    // TODO: Implement Instagram OAuth
+    showError('Instagram login coming soon!');
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+    <div className="flex min-h-screen flex-col justify-center bg-gradient-to-br from-purple-50 to-blue-50 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-md">
         {/* Header */}
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-purple-600 shadow-lg">
+            <Instagram className="h-10 w-10 text-white" />
+          </div>
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900">
             Welcome back
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Sign in to your account to continue
+            Sign in to your Social Selling account
           </p>
         </div>
 
-        {/* Login Form */}
+        {/* Form */}
         <div className="mt-8 rounded-lg bg-white px-8 py-10 shadow-xl">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Email Field */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
               </label>
               <div className="mt-1">
@@ -91,25 +89,22 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   className={cn(
-                    'block w-full rounded-lg border px-4 py-3 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary',
+                    'block w-full appearance-none rounded-lg border px-3 py-2 placeholder-gray-400 shadow-sm transition-colors focus:outline-none focus:ring-2 sm:text-sm',
                     errors.email
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:border-primary'
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:border-primary focus:ring-primary'
                   )}
                   placeholder="you@example.com"
                 />
                 {errors.email && (
-                  <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
                 )}
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <div className="relative mt-1">
@@ -119,10 +114,10 @@ export default function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
                   className={cn(
-                    'block w-full rounded-lg border px-4 py-3 pr-12 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary',
+                    'block w-full appearance-none rounded-lg border px-3 py-2 pr-10 placeholder-gray-400 shadow-sm transition-colors focus:outline-none focus:ring-2 sm:text-sm',
                     errors.password
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:border-primary'
+                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                      : 'border-gray-300 focus:border-primary focus:ring-primary'
                   )}
                   placeholder="••••••••"
                 />
@@ -132,15 +127,15 @@ export default function LoginPage() {
                   className="absolute inset-y-0 right-0 flex items-center pr-3"
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
                   )}
                 </button>
-                {errors.password && (
-                  <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
-                )}
               </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              )}
             </div>
 
             {/* Remember Me & Forgot Password */}
@@ -148,68 +143,72 @@ export default function LoginPage() {
               <div className="flex items-center">
                 <input
                   {...register('rememberMe')}
-                  id="rememberMe"
+                  id="remember-me"
                   type="checkbox"
                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                 />
-                <label
-                  htmlFor="rememberMe"
-                  className="ml-2 block text-sm text-gray-700"
-                >
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                   Remember me
                 </label>
               </div>
 
-              <Link
-                href="/forgot-password"
-                className="text-sm font-medium text-primary hover:text-primary-600"
-              >
-                Forgot password?
-              </Link>
+              <div className="text-sm">
+                <Link
+                  href="/forgot-password"
+                  className="font-medium text-primary hover:text-primary-600"
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
 
             {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex w-full items-center justify-center rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                'Sign in'
-              )}
-            </button>
+            <div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex w-full justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign in'
+                )}
+              </button>
+            </div>
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative mt-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white px-4 text-gray-500">Or continue with</span>
+              <span className="bg-white px-2 text-gray-500">Or continue with</span>
             </div>
           </div>
 
           {/* Social Login Buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="mt-6 grid grid-cols-2 gap-3">
             <button
-              onClick={() => handleSocialLogin('instagram')}
-              className="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              type="button"
+              onClick={handleGoogleLogin}
+              className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             >
-              <Instagram className="mr-2 h-5 w-5 text-pink-600" />
-              Instagram
-            </button>
-            <button
-              onClick={() => handleSocialLogin('google')}
-              className="flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-            >
-              <Chrome className="mr-2 h-5 w-5 text-blue-600" />
+              <Chrome className="mr-2 h-5 w-5" />
               Google
+            </button>
+
+            <button
+              type="button"
+              onClick={handleInstagramLogin}
+              className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            >
+              <Instagram className="mr-2 h-5 w-5" />
+              Instagram
             </button>
           </div>
         </div>
@@ -226,5 +225,17 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
