@@ -12,21 +12,21 @@ export class MinioService implements OnModuleInit {
 
   async onModuleInit() {
     this.client = new Minio.Client({
-      endPoint: this.configService.get<string>('MINIO_HOST', 'localhost'),
-      port: this.configService.get<number>('MINIO_PORT', 9000),
-      useSSL: this.configService.get<boolean>('MINIO_USE_SSL', false),
+      endPoint: this.configService.get<string>('minio.host', 'localhost'),
+      port: this.configService.get<number>('minio.port', 9000),
+      useSSL: false,
       accessKey: this.configService.get<string>(
-        'MINIO_ROOT_USER',
+        'minio.accessKey',
         'minioadmin',
       ),
       secretKey: this.configService.get<string>(
-        'MINIO_ROOT_PASSWORD',
+        'minio.secretKey',
         'minioadmin123',
       ),
     });
 
     this.bucketName = this.configService.get<string>(
-      'MINIO_BUCKET_NAME',
+      'minio.bucket',
       'social-selling-media',
     );
 

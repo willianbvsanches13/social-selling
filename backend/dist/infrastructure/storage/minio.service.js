@@ -21,13 +21,13 @@ let MinioService = MinioService_1 = class MinioService {
     }
     async onModuleInit() {
         this.client = new Minio.Client({
-            endPoint: this.configService.get('MINIO_HOST', 'localhost'),
-            port: this.configService.get('MINIO_PORT', 9000),
-            useSSL: this.configService.get('MINIO_USE_SSL', false),
-            accessKey: this.configService.get('MINIO_ROOT_USER', 'minioadmin'),
-            secretKey: this.configService.get('MINIO_ROOT_PASSWORD', 'minioadmin123'),
+            endPoint: this.configService.get('minio.host', 'localhost'),
+            port: this.configService.get('minio.port', 9000),
+            useSSL: false,
+            accessKey: this.configService.get('minio.accessKey', 'minioadmin'),
+            secretKey: this.configService.get('minio.secretKey', 'minioadmin123'),
         });
-        this.bucketName = this.configService.get('MINIO_BUCKET_NAME', 'social-selling-media');
+        this.bucketName = this.configService.get('minio.bucket', 'social-selling-media');
         this.createBucketIfNotExists().catch((error) => {
             this.logger.warn(`MinIO initialization failed. File storage will be unavailable: ${error?.message || 'Unknown error'}`);
         });
