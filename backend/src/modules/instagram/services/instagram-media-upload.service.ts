@@ -4,16 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as sharp from 'sharp';
 import { MediaUploadResponseDto } from '../dto/media-upload.dto';
 import { InstagramMediaAsset, MediaAssetType } from '../../../domain/entities/instagram-media-asset.entity';
-
-export interface IMediaAssetRepository {
-  create(asset: InstagramMediaAsset): Promise<InstagramMediaAsset>;
-  findById(id: string): Promise<InstagramMediaAsset | null>;
-  findByUser(userId: string): Promise<InstagramMediaAsset[]>;
-  findByClientAccount(clientAccountId: string): Promise<InstagramMediaAsset[]>;
-  update(asset: InstagramMediaAsset): Promise<InstagramMediaAsset>;
-  delete(id: string): Promise<void>;
-  findByS3Key(s3Key: string): Promise<InstagramMediaAsset | null>;
-}
+import { IInstagramMediaAssetRepository } from '../../../domain/repositories/instagram-media-asset.repository.interface';
 
 export interface IStorageService {
   uploadFile(bucket: string, key: string, buffer: Buffer, mimeType: string): Promise<void>;
@@ -28,8 +19,8 @@ export class InstagramMediaUploadService {
   private readonly maxFileSize: number;
 
   constructor(
-    @Inject('IMediaAssetRepository')
-    private readonly assetRepository: IMediaAssetRepository,
+    @Inject('IInstagramMediaAssetRepository')
+    private readonly assetRepository: IInstagramMediaAssetRepository,
     @Inject('IStorageService')
     private readonly storageService: IStorageService,
     private configService: ConfigService,

@@ -18,46 +18,24 @@ import { InstagramPostingSchedule } from '../../../domain/entities/instagram-pos
 import { InstagramApiService } from './instagram-api.service';
 import { IClientAccountRepository } from '../../../domain/repositories/client-account.repository.interface';
 
+import { IInstagramScheduledPostRepository } from '../../../domain/repositories/instagram-scheduled-post.repository.interface';
+import { IInstagramPostTemplateRepository } from '../../../domain/repositories/instagram-post-template.repository.interface';
+import { IInstagramPostingScheduleRepository } from '../../../domain/repositories/instagram-posting-schedule.repository.interface';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
-export interface IScheduledPostRepository {
-  create(post: InstagramScheduledPost): Promise<InstagramScheduledPost>;
-  findById(id: string): Promise<InstagramScheduledPost | null>;
-  findByClientAccount(clientAccountId: string): Promise<InstagramScheduledPost[]>;
-  update(post: InstagramScheduledPost): Promise<InstagramScheduledPost>;
-  delete(id: string): Promise<void>;
-  findScheduledForPublishing(now: Date): Promise<InstagramScheduledPost[]>;
-  list(clientAccountId: string, filters?: any): Promise<{ items: InstagramScheduledPost[]; total: number }>;
-}
-
-export interface IPostTemplateRepository {
-  create(template: InstagramPostTemplate): Promise<InstagramPostTemplate>;
-  findById(id: string): Promise<InstagramPostTemplate | null>;
-  findByUser(userId: string): Promise<InstagramPostTemplate[]>;
-  update(template: InstagramPostTemplate): Promise<InstagramPostTemplate>;
-  delete(id: string): Promise<void>;
-}
-
-export interface IPostingScheduleRepository {
-  create(schedule: InstagramPostingSchedule): Promise<InstagramPostingSchedule>;
-  findById(id: string): Promise<InstagramPostingSchedule | null>;
-  findByClientAccount(clientAccountId: string): Promise<InstagramPostingSchedule[]>;
-  update(schedule: InstagramPostingSchedule): Promise<InstagramPostingSchedule>;
-  findByClientAccountAndDay(clientAccountId: string, dayOfWeek: number): Promise<InstagramPostingSchedule | null>;
-}
 
 @Injectable()
 export class InstagramSchedulingService {
   private readonly logger = new Logger(InstagramSchedulingService.name);
 
   constructor(
-    @Inject('IScheduledPostRepository')
-    private readonly scheduledPostRepository: IScheduledPostRepository,
-    @Inject('IPostTemplateRepository')
-    private readonly templateRepository: IPostTemplateRepository,
-    @Inject('IPostingScheduleRepository')
-    private readonly scheduleRepository: IPostingScheduleRepository,
+    @Inject('IInstagramScheduledPostRepository')
+    private readonly scheduledPostRepository: IInstagramScheduledPostRepository,
+    @Inject('IInstagramPostTemplateRepository')
+    private readonly templateRepository: IInstagramPostTemplateRepository,
+    @Inject('IInstagramPostingScheduleRepository')
+    private readonly scheduleRepository: IInstagramPostingScheduleRepository,
     @Inject('IClientAccountRepository')
     private readonly accountRepository: IClientAccountRepository,
     private readonly instagramApi: InstagramApiService,
