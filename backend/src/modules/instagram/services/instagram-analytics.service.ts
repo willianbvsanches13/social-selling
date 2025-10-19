@@ -55,12 +55,29 @@ export class InstagramAnalyticsService {
         throw new BadRequestException('Unauthorized access to account');
       }
 
+      // Define metrics to fetch
+      const metrics = [
+        'follower_count',
+        'reach',
+        'impressions',
+        'profile_views',
+        'website_clicks',
+        'email_contacts',
+        'phone_call_clicks',
+        'text_message_clicks',
+        'get_directions_clicks',
+        'audience_city',
+        'audience_country',
+        'audience_gender_age',
+        'audience_locale',
+        'online_followers',
+      ];
+
       // Fetch from Instagram Graph API
       const insights = await this.instagramApiService.getAccountInsights(
         (account as any).instagramBusinessAccountId || (account as any).instagram_business_account_id,
-        period,
-        since,
-        until,
+        metrics,
+        period as 'day' | 'week' | 'days_28' | 'lifetime',
       );
 
       // Store in database
@@ -81,7 +98,8 @@ export class InstagramAnalyticsService {
       }
 
       // Map insights data
-      this.mapAccountInsights(accountInsight, insights);
+      const insightsArray = insights.data || [];
+      this.mapAccountInsights(accountInsight, insightsArray);
 
       // Calculate follower change
       const previousInsight = await this.accountInsightRepository.getPreviousPeriodInsight(
@@ -199,17 +217,32 @@ export class InstagramAnalyticsService {
         mediaList = [media];
       } else {
         // Fetch recent media using getMediaList
-        mediaList = await this.instagramApiService.getMediaList(
+        const mediaResponse = await this.instagramApiService.getMediaList(
           clientAccountId,
-          50,
+          {
+            limit: 50,
+          },
         );
+        mediaList = mediaResponse.data || [];
       }
 
       const insights: any[] = [];
 
+      const mediaMetrics = [
+        'engagement',
+        'impressions',
+        'reach',
+        'saved',
+        'video_views',
+      ];
+
       for (const media of mediaList) {
         // Fetch insights for this media
-        const mediaInsights = await this.instagramApiService.getMediaInsights(media.id || media.mediaId);
+        const mediaInsights = await this.instagramApiService.getMediaInsights(
+          clientAccountId,
+          media.id || media.mediaId,
+          mediaMetrics,
+        );
 
         // Store in database
         let mediaInsight = await this.mediaInsightRepository.findByMediaId(
@@ -236,7 +269,8 @@ export class InstagramAnalyticsService {
         }
 
         // Map insights
-        this.mapMediaInsights(mediaInsight, mediaInsights);
+        const mediaInsightsArray = mediaInsights.data || [];
+        this.mapMediaInsights(mediaInsight, mediaInsightsArray);
 
         // Calculate engagement rate
         if (mediaInsight.reach > 0) {
@@ -410,7 +444,7 @@ export class InstagramAnalyticsService {
 
     try {
       const account = await this.clientAccountRepository.findById(clientAccountId);
-      if (!account || account.user_id !== userId) {
+      if (!account || (account as any).userId !== userId) {
         throw new BadRequestException('Unauthorized access to account');
       }
 
