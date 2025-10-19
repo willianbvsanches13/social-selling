@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
   if (!selectedAccountId) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <div className="text-center">
+        <div className="text-center" data-testid="empty-state">
           <BarChart3 className="mx-auto h-16 w-16 text-gray-400" />
           <h2 className="mt-4 text-xl font-semibold text-gray-900">No Account Selected</h2>
           <p className="mt-2 text-sm text-gray-600">

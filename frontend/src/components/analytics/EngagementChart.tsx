@@ -24,7 +24,7 @@ interface EngagementChartProps {
 export function EngagementChart({ data, isLoading = false }: EngagementChartProps) {
   if (isLoading) {
     return (
-      <div className="flex h-[300px] items-center justify-center">
+      <div className="flex h-[300px] items-center justify-center" data-testid="chart-skeleton">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
       </div>
     );
@@ -32,7 +32,7 @@ export function EngagementChart({ data, isLoading = false }: EngagementChartProp
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center">
+      <div className="flex h-[300px] items-center justify-center" data-testid="chart-empty">
         <p className="text-sm text-gray-500">No engagement data available for this period</p>
       </div>
     );
@@ -45,8 +45,9 @@ export function EngagementChart({ data, isLoading = false }: EngagementChartProp
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <AreaChart data={chartData}>
+    <div data-testid="engagement-chart">
+      <ResponsiveContainer width="100%" height={300}>
+        <AreaChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis
           dataKey="date"
@@ -100,5 +101,6 @@ export function EngagementChart({ data, isLoading = false }: EngagementChartProp
         />
       </AreaChart>
     </ResponsiveContainer>
+    </div>
   );
 }

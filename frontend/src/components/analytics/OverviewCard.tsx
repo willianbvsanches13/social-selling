@@ -23,7 +23,10 @@ export function OverviewCard({
 }: OverviewCardProps) {
   if (isLoading) {
     return (
-      <div className="animate-pulse rounded-lg border border-gray-200 bg-white p-6">
+      <div
+        className="animate-pulse rounded-lg border border-gray-200 bg-white p-6"
+        data-testid="metric-skeleton"
+      >
         <div className="flex items-center justify-between">
           <div className="space-y-3">
             <div className="h-4 w-24 rounded bg-gray-200" />
@@ -40,7 +43,10 @@ export function OverviewCard({
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md">
+    <div
+      className="rounded-lg border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
+      data-testid={`metric-${title.toLowerCase().replace(/\s+/g, '-')}`}
+    >
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600">{title}</p>
@@ -57,6 +63,7 @@ export function OverviewCard({
                 'text-sm font-medium',
                 isPositive ? 'text-green-600' : 'text-red-600'
               )}
+              data-testid={isPositive ? 'change-positive' : 'change-negative'}
             >
               {changeText}
             </span>

@@ -21,7 +21,7 @@ interface FollowerGrowthChartProps {
 export function FollowerGrowthChart({ data, isLoading = false }: FollowerGrowthChartProps) {
   if (isLoading) {
     return (
-      <div className="flex h-[300px] items-center justify-center">
+      <div className="flex h-[300px] items-center justify-center" data-testid="chart-skeleton">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600" />
       </div>
     );
@@ -29,7 +29,7 @@ export function FollowerGrowthChart({ data, isLoading = false }: FollowerGrowthC
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center">
+      <div className="flex h-[300px] items-center justify-center" data-testid="chart-empty">
         <p className="text-sm text-gray-500">No follower data available for this period</p>
       </div>
     );
@@ -43,8 +43,9 @@ export function FollowerGrowthChart({ data, isLoading = false }: FollowerGrowthC
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={chartData}>
+    <div data-testid="follower-growth-chart">
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
         <XAxis
           dataKey="date"
@@ -77,5 +78,6 @@ export function FollowerGrowthChart({ data, isLoading = false }: FollowerGrowthC
         />
       </LineChart>
     </ResponsiveContainer>
+    </div>
   );
 }

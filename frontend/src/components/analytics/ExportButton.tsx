@@ -54,6 +54,7 @@ export function ExportButton({ accountId, dateRange }: ExportButtonProps) {
             : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50',
           (isExporting || !accountId) && 'cursor-not-allowed opacity-50'
         )}
+        data-testid="export-button"
       >
         {exportSuccess ? (
           <>

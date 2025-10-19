@@ -30,7 +30,7 @@ export function DateRangeSelector({ value, onChange }: DateRangeSelectorProps) {
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" data-testid="date-range-selector">
       <Calendar className="h-5 w-5 text-gray-400" />
 
       <div className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white p-1">
@@ -44,6 +44,7 @@ export function DateRangeSelector({ value, onChange }: DateRangeSelectorProps) {
                 ? 'bg-blue-600 text-white'
                 : 'text-gray-700 hover:bg-gray-100'
             )}
+            data-testid={`date-range-${range.value}`}
           >
             {range.label}
           </button>

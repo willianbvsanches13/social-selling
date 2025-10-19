@@ -43,7 +43,7 @@ export function TopPostsTable({ posts, isLoading = false }: TopPostsTableProps) 
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="space-y-3" data-testid="table-skeleton">
         {[...Array(5)].map((_, i) => (
           <div key={i} className="animate-pulse rounded-lg border border-gray-200 p-4">
             <div className="flex items-center gap-4">
@@ -61,8 +61,8 @@ export function TopPostsTable({ posts, isLoading = false }: TopPostsTableProps) 
 
   if (!posts || posts.length === 0) {
     return (
-      <div className="rounded-lg border border-gray-200 p-8 text-center">
-        <p className="text-sm text-gray-500">No posts available for this period</p>
+      <div className="rounded-lg border border-gray-200 p-8 text-center" data-testid="top-posts-empty">
+        <p className="text-sm text-gray-500">No posts found</p>
       </div>
     );
   }
@@ -74,7 +74,7 @@ export function TopPostsTable({ posts, isLoading = false }: TopPostsTableProps) 
   };
 
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden" data-testid="top-posts-table">
       {/* Table Header */}
       <div className="hidden rounded-t-lg bg-gray-50 px-4 py-3 md:grid md:grid-cols-12 md:gap-4">
         <div className="col-span-5 text-xs font-medium uppercase text-gray-500">Post</div>
