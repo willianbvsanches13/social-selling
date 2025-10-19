@@ -97,7 +97,7 @@ export function AccountSelector({
                   />
                   <div className="text-left">
                     <p className="font-medium text-gray-900">@{account.username}</p>
-                    <p className="text-xs text-gray-600">{account.fullName}</p>
+                    <p className="text-xs text-gray-600">{account.displayName || account.username}</p>
                   </div>
                 </div>
                 {account.id === selectedAccountId && (

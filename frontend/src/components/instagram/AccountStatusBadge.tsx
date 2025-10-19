@@ -9,7 +9,7 @@ interface AccountStatusBadgeProps {
 }
 
 export function AccountStatusBadge({ status, className }: AccountStatusBadgeProps) {
-  const config = {
+  const configMap = {
     active: {
       icon: CheckCircle2,
       text: 'Active',
@@ -28,14 +28,21 @@ export function AccountStatusBadge({ status, className }: AccountStatusBadgeProp
       className: 'bg-blue-100 text-blue-700',
       iconClassName: 'text-blue-500 animate-spin',
     },
+    token_expired: {
+      icon: AlertCircle,
+      text: 'Token Expired',
+      className: 'bg-yellow-100 text-yellow-700',
+      iconClassName: 'text-yellow-500',
+    },
     disconnected: {
       icon: AlertCircle,
       text: 'Disconnected',
       className: 'bg-gray-100 text-gray-700',
       iconClassName: 'text-gray-500',
     },
-  }[status];
+  };
 
+  const config = configMap[status] || configMap.disconnected;
   const Icon = config.icon;
 
   return (

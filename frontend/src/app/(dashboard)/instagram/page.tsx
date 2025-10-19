@@ -216,7 +216,7 @@ function InstagramAccountCard({
             />
             <div>
               <h3 className="text-lg font-semibold text-white">
-                {account.fullName}
+                {account.displayName || account.username}
               </h3>
               <a
                 href={`https://instagram.com/${account.username}`}
@@ -248,7 +248,7 @@ function InstagramAccountCard({
             <div className="flex items-center justify-center gap-1">
               <ImageIcon className="h-4 w-4 text-gray-400" />
               <p className="text-lg font-bold text-gray-900">
-                {formatNumber(account.mediaCount)}
+                {formatNumber(account.mediaCount || 0)}
               </p>
             </div>
             <p className="mt-1 text-xs text-gray-600">Posts</p>
@@ -257,7 +257,7 @@ function InstagramAccountCard({
             <div className="flex items-center justify-center gap-1">
               <Users className="h-4 w-4 text-gray-400" />
               <p className="text-lg font-bold text-gray-900">
-                {formatNumber(account.followersCount)}
+                {formatNumber(account.followerCount || 0)}
               </p>
             </div>
             <p className="mt-1 text-xs text-gray-600">Followers</p>
@@ -266,7 +266,7 @@ function InstagramAccountCard({
             <div className="flex items-center justify-center gap-1">
               <Users className="h-4 w-4 text-gray-400" />
               <p className="text-lg font-bold text-gray-900">
-                {formatNumber(account.followingCount)}
+                {formatNumber(account.followingCount || 0)}
               </p>
             </div>
             <p className="mt-1 text-xs text-gray-600">Following</p>
@@ -281,9 +281,11 @@ function InstagramAccountCard({
         )}
 
         {/* Last Sync */}
-        <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-          <span>Last synced {formatRelativeTime(account.lastSyncAt)}</span>
-        </div>
+        {account.lastSyncAt && (
+          <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+            <span>Last synced {formatRelativeTime(account.lastSyncAt)}</span>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="mt-6 flex gap-2">

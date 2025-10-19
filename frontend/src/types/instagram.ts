@@ -1,20 +1,19 @@
 export interface InstagramAccount {
   id: string;
-  instagramId: string;
+  platform: string;
   username: string;
-  fullName: string;
-  profilePictureUrl: string;
-  followersCount: number;
-  followingCount: number;
-  mediaCount: number;
+  displayName?: string;
+  profilePictureUrl?: string;
+  followerCount?: number;
+  followingCount?: number;
+  mediaCount?: number;
   biography?: string;
   website?: string;
-  status: 'active' | 'error' | 'disconnected' | 'refreshing';
-  accessToken: string;
-  tokenExpiresAt: string;
-  lastSyncAt: string;
+  status: 'active' | 'error' | 'disconnected' | 'token_expired' | 'refreshing';
+  accountType: string;
   createdAt: string;
-  updatedAt: string;
+  lastSyncAt?: string;
+  tokenExpiresAt?: string;
 }
 
 export interface InstagramAuthResponse {

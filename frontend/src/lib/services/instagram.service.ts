@@ -2,12 +2,17 @@ import { apiClient } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/api/endpoints';
 import type { InstagramAccount, ConnectInstagramRequest } from '@/types/instagram';
 
+interface AccountListResponse {
+  accounts: InstagramAccount[];
+  total: number;
+}
+
 export const instagramService = {
   async getAccounts(): Promise<InstagramAccount[]> {
-    const response = await apiClient.get<InstagramAccount[]>(
+    const response = await apiClient.get<AccountListResponse>(
       API_ENDPOINTS.INSTAGRAM_ACCOUNTS
     );
-    return response.data || [];
+    return response.data?.accounts || [];
   },
 
   async getAccount(accountId: string): Promise<InstagramAccount> {
