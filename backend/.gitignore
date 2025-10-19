@@ -1,0 +1,5 @@
+# Gitignore
+
+# Environment variables
+.env
+.env.local
