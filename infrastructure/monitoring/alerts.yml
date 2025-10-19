@@ -1,0 +1,181 @@
+# Prometheus Alert Rules for Social Selling Platform
+# These rules define alerts for critical system events
+
+groups:
+  - name: application_alerts
+    rules:
+      # Alert when any service is down
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} on {{ $labels.instance }} has been down for more than 1 minute."
+          impact: "Critical service unavailable - immediate action required"
+
+      # Alert when HTTP error rate is high
+      - alert: HighErrorRate
+        expr: |
+          (
+            rate(http_requests_total{status=~"5.."}[5m])
+            /
+            rate(http_requests_total[5m])
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High error rate detected on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+          impact: "Users experiencing errors - investigate backend logs"
+
+      # Alert when HTTP request latency is high
+      - alert: HighRequestLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 2
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High request latency on {{ $labels.job }}"
+          description: "95th percentile latency is {{ $value }}s (threshold: 2s)"
+          impact: "Slow response times affecting user experience"
+
+  - name: infrastructure_alerts
+    rules:
+      # Alert when memory usage is high
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
+          ) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "Memory usage above 90% on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+          impact: "System may start swapping - consider scaling or optimization"
+
+      # Alert when disk usage is high
+      - alert: HighDiskUsage
+        expr: |
+          (
+            node_filesystem_size_bytes{mountpoint="/"} -
+            node_filesystem_avail_bytes{mountpoint="/"}
+          ) / node_filesystem_size_bytes{mountpoint="/"} > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "Disk usage above 85% on {{ $labels.instance }}"
+          description: "Disk usage is {{ $value | humanizePercentage }} (threshold: 85%)"
+          impact: "Running out of disk space - cleanup or expansion needed"
+
+      # Alert when CPU usage is high
+      - alert: HighCPUUsage
+        expr: |
+          100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "CPU usage above 80% on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value }}% (threshold: 80%)"
+          impact: "High CPU load - check for resource-intensive processes"
+
+  - name: database_alerts
+    rules:
+      # Alert when PostgreSQL is down
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been unreachable for more than 1 minute"
+          impact: "Critical - application cannot function without database"
+
+      # Alert when PostgreSQL has too many connections
+      - alert: PostgreSQLTooManyConnections
+        expr: |
+          sum by (instance) (pg_stat_activity_count)
+          /
+          pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "PostgreSQL connection pool nearly exhausted"
+          description: "Using {{ $value | humanizePercentage }} of max connections (threshold: 80%)"
+          impact: "May start rejecting new connections - investigate connection leaks"
+
+      # Alert when Redis is down
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: cache
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been unreachable for more than 1 minute"
+          impact: "Critical - session management and queues unavailable"
+
+      # Alert when Redis memory usage is high
+      - alert: RedisMemoryHigh
+        expr: |
+          redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          category: cache
+        annotations:
+          summary: "Redis memory usage above 90%"
+          description: "Redis is using {{ $value | humanizePercentage }} of max memory"
+          impact: "May start evicting keys - consider increasing memory limit"
+
+  - name: business_metrics_alerts
+    rules:
+      # Alert when webhook processing queue is backing up
+      - alert: WebhookQueueBacklog
+        expr: |
+          sum(bullmq_queue_waiting{queue="webhook-processing"}) > 100
+        for: 10m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "Webhook processing queue has significant backlog"
+          description: "{{ $value }} webhooks waiting to be processed (threshold: 100)"
+          impact: "Message delivery delays - check worker capacity"
+
+      # Alert when post publishing is failing
+      - alert: HighPostPublishFailureRate
+        expr: |
+          (
+            rate(bullmq_job_failed_total{queue="post-publishing"}[10m])
+            /
+            rate(bullmq_job_completed_total{queue="post-publishing"}[10m])
+          ) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "High failure rate for scheduled post publishing"
+          description: "{{ $value | humanizePercentage }} of posts failing to publish (threshold: 10%)"
+          impact: "Users' scheduled posts not being published - investigate Instagram API issues"

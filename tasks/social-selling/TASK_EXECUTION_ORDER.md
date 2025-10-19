@@ -283,12 +283,12 @@
 36. **INFRA-009**: Prometheus Metrics Setup
     - Prioridade: P1
     - Dependências: INFRA-002
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 37. **INFRA-010**: Grafana Dashboards Configuration
     - Prioridade: P1
     - Dependências: INFRA-009
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19) - Implementado junto com INFRA-009
 
 ### Tarde (3h + 2h)
 38. **INFRA-007**: SSL Certificate Setup (Let's Encrypt)
@@ -386,9 +386,9 @@
 - **P2 (Média):** 6 tarefas
 
 ### Status Atual
-- ✅ **Concluídas:** 33 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-009, WORKER-001 à WORKER-004)
-- ⏳ **Pendentes:** 15 tarefas
-- **Progresso:** 68.8%
+- ✅ **Concluídas:** 35 tarefas (INFRA-001 à INFRA-006, INFRA-009, INFRA-010, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-009, WORKER-001 à WORKER-004)
+- ⏳ **Pendentes:** 13 tarefas
+- **Progresso:** 72.9%
 
 ---
 
@@ -493,16 +493,20 @@ DEPLOY-001 → DEPLOY-002 → DEPLOY-003 → DEPLOY-004
 
 ## 🚀 Próxima Tarefa Disponível
 
-**Próxima na Fila:** `INFRA-009` - Prometheus Metrics Setup
+**Próxima na Fila:** `INFRA-007` - SSL Certificate Setup (Let's Encrypt)
 
-**Observação:** WORKER-003 foi implementado como parte de WORKER-002 (Instagram Webhook Processing Worker). WORKER-004 (Email Notification Worker) foi concluído com suporte para SendGrid/Mailgun, templates MJML, e tracking de delivery.
+**Observação:**
+- INFRA-009 (Prometheus Metrics) e INFRA-010 (Grafana Dashboards) foram concluídos com sucesso.
+- WORKER-003 foi implementado como parte de WORKER-002 (Instagram Webhook Processing Worker).
+- WORKER-004 (Email Notification Worker) foi concluído com suporte para SendGrid/Mailgun, templates MJML, e tracking de delivery.
+- O monitoramento stack está operacional com Prometheus (9090), Grafana (3001), e exporters para PostgreSQL e Redis.
 
 **Comando para Próxima Tarefa:**
 ```bash
 cd /Users/williansanches/projects/personal/social-selling-2
-git checkout -b INFRA-009-prometheus-metrics
+git checkout -b INFRA-007-ssl-certificate
 # Ler especificação da tarefa
-cat tasks/social-selling/sprints/INFRA-009_task.md
+cat tasks/social-selling/sprints/INFRA-007_task.md
 ```
 
 ---
