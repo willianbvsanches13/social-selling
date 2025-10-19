@@ -1,0 +1,15 @@
+Reset Your Password
+
+Hi {{userName}},
+
+We received a request to reset your password for your {{appName}} account.
+
+Click the link below to choose a new password. This link will expire in 1 hour.
+
+{{resetUrl}}
+
+If you didn't request a password reset, you can safely ignore this email. Your password will not be changed.
+
+For security reasons, this link will expire in 1 hour.
+
+© {{currentYear}} {{appName}}. All rights reserved.

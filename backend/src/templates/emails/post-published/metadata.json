@@ -1,0 +1,7 @@
+{
+  "name": "Post Published",
+  "description": "Notification that scheduled Instagram post was published successfully",
+  "subject": "Your Instagram post was published",
+  "category": "notification",
+  "requiredContext": ["userName", "caption", "permalink"]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "Welcome Email",
+  "description": "Welcome email sent to new users after registration",
+  "subject": "Welcome to {{appName}}!",
+  "category": "transactional",
+  "requiredContext": ["userName", "loginUrl"]
+}

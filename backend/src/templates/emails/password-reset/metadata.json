@@ -1,0 +1,7 @@
+{
+  "name": "Password Reset",
+  "description": "Password reset email with secure token link",
+  "subject": "Reset your {{appName}} password",
+  "category": "transactional",
+  "requiredContext": ["userName", "resetUrl"]
+}

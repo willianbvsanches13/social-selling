@@ -268,12 +268,12 @@
 34. **WORKER-003**: Webhook Processing Worker
     - Prioridade: P0
     - Dependências: WORKER-001, IG-007
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19) - Implementado como WORKER-002
 
-35. **WORKER-004**: Analytics Refresh Worker
+35. **WORKER-004**: Email Notification Worker
     - Prioridade: P1
-    - Dependências: WORKER-001, IG-008
-    - Status: ⏳ Pendente
+    - Dependências: WORKER-001
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ---
 
@@ -386,9 +386,9 @@
 - **P2 (Média):** 6 tarefas
 
 ### Status Atual
-- ✅ **Concluídas:** 31 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-009, WORKER-001, WORKER-002)
-- ⏳ **Pendentes:** 17 tarefas
-- **Progresso:** 64.6%
+- ✅ **Concluídas:** 33 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-009, WORKER-001 à WORKER-004)
+- ⏳ **Pendentes:** 15 tarefas
+- **Progresso:** 68.8%
 
 ---
 
@@ -493,16 +493,16 @@ DEPLOY-001 → DEPLOY-002 → DEPLOY-003 → DEPLOY-004
 
 ## 🚀 Próxima Tarefa Disponível
 
-**Próxima na Fila:** `WORKER-003` - Webhook Processing Worker (Duplicate - já implementado em WORKER-002)
+**Próxima na Fila:** `INFRA-009` - Prometheus Metrics Setup
 
-**Observação:** WORKER-002 foi implementado como "Instagram Webhook Processing Worker", incluindo funcionalidades de webhook, auto-reply e analytics que correspondem aos objetivos originais de WORKER-002 e WORKER-003.
+**Observação:** WORKER-003 foi implementado como parte de WORKER-002 (Instagram Webhook Processing Worker). WORKER-004 (Email Notification Worker) foi concluído com suporte para SendGrid/Mailgun, templates MJML, e tracking de delivery.
 
-**Comando para Próxima Tarefa Real:**
+**Comando para Próxima Tarefa:**
 ```bash
 cd /Users/williansanches/projects/personal/social-selling-2
-git checkout -b WORKER-004-analytics-refresh-worker
+git checkout -b INFRA-009-prometheus-metrics
 # Ler especificação da tarefa
-cat tasks/social-selling/sprints/WORKER-004_task.md
+cat tasks/social-selling/sprints/INFRA-009_task.md
 ```
 
 ---

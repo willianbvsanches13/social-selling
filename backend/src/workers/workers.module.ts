@@ -3,6 +3,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { InstagramPublishingQueue } from './queues/instagram-publishing.queue';
 import { WebhookEventsQueue } from './queues/webhook-events.queue';
+import { EmailNotificationsQueue } from './queues/email-notifications.queue';
 import { MediaDownloaderService } from './services/media-downloader.service';
 import { InstagramPublisherService } from './services/instagram-publisher.service';
 import { PostStatusService } from './services/post-status.service';
@@ -11,8 +12,13 @@ import { EventDeduplicationService } from './services/event-deduplication.servic
 import { EventNormalizerService } from './services/event-normalizer.service';
 import { AutoReplyService } from './services/auto-reply.service';
 import { EventAnalyticsService } from './services/event-analytics.service';
+import { EmailTemplateService } from './services/email-template.service';
+import { SmtpProviderService } from './services/smtp-provider.service';
+import { EmailTrackingService } from './services/email-tracking.service';
+import { EmailWebhookHandlerService } from './services/email-webhook-handler.service';
 import { InstagramPublishingProcessor } from './processors/instagram-publishing.processor';
 import { WebhookEventsProcessor } from './processors/webhook-events.processor';
+import { EmailNotificationsProcessor } from './processors/email-notifications.processor';
 import { StorageModule } from '../infrastructure/storage/storage.module';
 import { CacheModule } from '../infrastructure/cache/cache.module';
 import { ClientAccountRepository } from '../infrastructure/database/repositories/client-account.repository';
@@ -69,11 +75,16 @@ import { DatabaseModule } from '../infrastructure/database/database.module';
     BullModule.registerQueue({
       name: 'instagram-webhook-events',
     }),
+    // Register email-notifications queue
+    BullModule.registerQueue({
+      name: 'email-notifications',
+    }),
   ],
   providers: [
     // Queue services
     InstagramPublishingQueue,
     WebhookEventsQueue,
+    EmailNotificationsQueue,
     // Publishing worker services
     MediaDownloaderService,
     InstagramPublisherService,
@@ -84,9 +95,15 @@ import { DatabaseModule } from '../infrastructure/database/database.module';
     EventNormalizerService,
     AutoReplyService,
     EventAnalyticsService,
+    // Email worker services
+    EmailTemplateService,
+    SmtpProviderService,
+    EmailTrackingService,
+    EmailWebhookHandlerService,
     // Worker processors
     InstagramPublishingProcessor,
     WebhookEventsProcessor,
+    EmailNotificationsProcessor,
     // Repository providers
     {
       provide: 'IClientAccountRepository',
@@ -105,6 +122,7 @@ import { DatabaseModule } from '../infrastructure/database/database.module';
     // Export queues for use in other modules
     InstagramPublishingQueue,
     WebhookEventsQueue,
+    EmailNotificationsQueue,
     // Export publishing services for potential reuse
     MediaDownloaderService,
     InstagramPublisherService,
@@ -115,6 +133,11 @@ import { DatabaseModule } from '../infrastructure/database/database.module';
     EventNormalizerService,
     AutoReplyService,
     EventAnalyticsService,
+    // Export email services for potential reuse
+    EmailTemplateService,
+    SmtpProviderService,
+    EmailTrackingService,
+    EmailWebhookHandlerService,
   ],
 })
 export class WorkersModule {}

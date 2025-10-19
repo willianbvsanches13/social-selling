@@ -1,0 +1,14 @@
+✓ Post Published!
+
+Hi {{userName}},
+
+Great news! Your scheduled Instagram post has been published successfully.
+
+Caption:
+{{truncate caption 150}}
+
+View on Instagram: {{permalink}}
+
+You can track engagement and performance in your {{appName}} analytics dashboard.
+
+© {{currentYear}} {{appName}}. All rights reserved.

@@ -1,0 +1,47 @@
+<mjml>
+  <mj-head>
+    <mj-title>Welcome to Social Selling</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Arial, sans-serif" />
+      <mj-text font-size="14px" color="#333333" line-height="20px" />
+      <mj-section padding="20px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#ffffff" padding="40px 30px">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="bold" align="center" color="#1a73e8">
+          Welcome to {{appName}}!
+        </mj-text>
+        <mj-text font-size="16px" padding-top="20px">
+          Hi {{userName}},
+        </mj-text>
+        <mj-text>
+          Thank you for joining Social Selling! We're excited to help you manage your Instagram presence and grow your business.
+        </mj-text>
+        <mj-text>
+          With Social Selling, you can:
+        </mj-text>
+        <mj-text padding-left="20px">
+          • Schedule and publish Instagram posts<br/>
+          • Manage direct messages from one unified inbox<br/>
+          • Track analytics and insights<br/>
+          • Automate responses with smart templates
+        </mj-text>
+        <mj-button background-color="#1a73e8" color="#ffffff" href="{{loginUrl}}" padding-top="30px">
+          Get Started
+        </mj-button>
+        <mj-text font-size="12px" color="#666666" padding-top="30px">
+          If you have any questions, feel free to reach out to our support team at {{supportEmail}}.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="20px">
+      <mj-column>
+        <mj-text font-size="12px" color="#999999" align="center">
+          © {{currentYear}} {{appName}}. All rights reserved.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

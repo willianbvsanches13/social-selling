@@ -1,0 +1,17 @@
+Welcome to {{appName}}!
+
+Hi {{userName}},
+
+Thank you for joining Social Selling! We're excited to help you manage your Instagram presence and grow your business.
+
+With Social Selling, you can:
+• Schedule and publish Instagram posts
+• Manage direct messages from one unified inbox
+• Track analytics and insights
+• Automate responses with smart templates
+
+Get started: {{loginUrl}}
+
+If you have any questions, feel free to reach out to our support team at {{supportEmail}}.
+
+© {{currentYear}} {{appName}}. All rights reserved.
