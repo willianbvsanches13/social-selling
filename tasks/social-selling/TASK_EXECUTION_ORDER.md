@@ -257,7 +257,7 @@
 32. **WORKER-001**: BullMQ Worker Setup
     - Prioridade: P0
     - Dependências: INFRA-004, BE-001
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 33. **WORKER-002**: Post Publishing Worker
     - Prioridade: P0
@@ -493,14 +493,14 @@ DEPLOY-001 → DEPLOY-002 → DEPLOY-003 → DEPLOY-004
 
 ## 🚀 Próxima Tarefa Disponível
 
-**Próxima na Fila:** `WORKER-001` - BullMQ Worker Setup
+**Próxima na Fila:** `WORKER-002` - Post Publishing Worker
 
 **Comando para Iniciar:**
 ```bash
 cd /Users/williansanches/projects/personal/social-selling-2
-git checkout -b WORKER-001-bullmq-setup
+git checkout -b WORKER-002-post-publishing-worker
 # Ler especificação da tarefa
-cat tasks/social-selling/sprints/WORKER-001_task.md
+cat tasks/social-selling/sprints/WORKER-002_task.md
 ```
 
 ---
