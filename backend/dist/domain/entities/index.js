@@ -15,4 +15,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./user.entity"), exports);
+__exportStar(require("./product.entity"), exports);
+__exportStar(require("./message.entity"), exports);
+__exportStar(require("./conversation.entity"), exports);
+__exportStar(require("./client-account.entity"), exports);
+__exportStar(require("./oauth-token.entity"), exports);
+__exportStar(require("./analytics-event.entity"), exports);
+__exportStar(require("./instagram-media.entity"), exports);
+__exportStar(require("./notification.entity"), exports);
 //# sourceMappingURL=index.js.map

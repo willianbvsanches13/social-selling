@@ -30,25 +30,22 @@ export class FileUploadInterceptor implements NestInterceptor {
       throw new BadRequestException('No file uploaded');
     }
 
-    // Validate file size
     if (file.size > this.maxFileSize) {
       throw new BadRequestException(
         `File size exceeds maximum allowed (${this.maxFileSize / 1024 / 1024}MB)`,
       );
     }
 
-    // Validate mime type
     if (!this.allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException(
         `File type not allowed. Allowed types: ${this.allowedMimeTypes.join(', ')}`,
       );
     }
 
-    // Generate unique filename
     const extension = file.originalname.split('.').pop();
     const filename = `${uuidv4()}.${extension}`;
     request.file.generatedFilename = filename;
 
-    return next.handle();
+    return next.handle() as any;
   }
 }

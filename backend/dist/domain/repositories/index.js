@@ -15,4 +15,11 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./user.repository.interface"), exports);
+__exportStar(require("./product.repository.interface"), exports);
+__exportStar(require("./conversation.repository.interface"), exports);
+__exportStar(require("./message.repository.interface"), exports);
+__exportStar(require("./client-account.repository.interface"), exports);
+__exportStar(require("./oauth-token.repository.interface"), exports);
+__exportStar(require("./analytics.repository.interface"), exports);
+__exportStar(require("./notification.repository.interface"), exports);
 //# sourceMappingURL=index.js.map

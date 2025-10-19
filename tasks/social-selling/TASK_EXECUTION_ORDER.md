@@ -98,7 +98,7 @@
 11. **BE-004**: Password Hashing and Validation
     - Prioridade: P0
     - Dependências: BE-003
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO**
 
 ### Tarde (4h)
 12. **BE-005**: JWT Authentication Implementation

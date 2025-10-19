@@ -30,8 +30,12 @@ export class MinioService implements OnModuleInit {
       'social-selling-media',
     );
 
-    // Create bucket if not exists
-    await this.createBucketIfNotExists();
+    // Create bucket if not exists (non-blocking)
+    this.createBucketIfNotExists().catch((error) => {
+      this.logger.warn(
+        `MinIO initialization failed. File storage will be unavailable: ${error?.message || 'Unknown error'}`,
+      );
+    });
   }
 
   private async createBucketIfNotExists(): Promise<void> {
@@ -66,7 +70,6 @@ export class MinioService implements OnModuleInit {
     } catch (error: any) {
       this.logger.error(
         `Failed to create or verify bucket: ${error?.message || 'Unknown error'}`,
-        error?.stack,
       );
       throw error;
     }
