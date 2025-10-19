@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IUserRepository } from '../../../domain/repositories/user.repository.interface';
-import { User, CreateUserDto, UpdateUserDto } from '../../../domain/entities/user.entity';
+import { User } from '../../../domain/entities/user.entity';
+import { Email } from '../../../domain/value-objects/email.vo';
 import { Database } from '../database';
 import { BaseRepository } from './base.repository';
 
@@ -35,7 +36,12 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     `;
 
     const row = await this.db.oneOrNone(query, [id]);
-    return row ? this.mapToCamelCase<User>(row) : null;
+    if (!row) return null;
+    const mapped: any = this.mapToCamelCase(row);
+    return User.reconstitute({
+      ...mapped,
+      email: new Email(mapped.email),
+    });
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -63,12 +69,17 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     `;
 
     const row = await this.db.oneOrNone(query, [email]);
-    return row ? this.mapToCamelCase<User>(row) : null;
+    if (!row) return null;
+    const mapped: any = this.mapToCamelCase(row);
+    return User.reconstitute({
+      ...mapped,
+      email: new Email(mapped.email),
+    });
   }
 
-  async findAll(limit: number = 50, offset: number = 0): Promise<User[]> {
+  async create(user: User): Promise<User> {
     const query = `
-      SELECT
+      INSERT INTO users (
         id,
         email,
         password_hash,
@@ -77,55 +88,67 @@ export class UserRepository extends BaseRepository implements IUserRepository {
         language,
         subscription_tier,
         email_verified,
-        email_verification_token,
-        password_reset_token,
-        password_reset_expires,
-        last_login_at,
-        last_login_ip,
         created_at,
-        updated_at,
-        deleted_at
-      FROM users
-      WHERE deleted_at IS NULL
-      ORDER BY created_at DESC
-      LIMIT $1 OFFSET $2
-    `;
-
-    const rows = await this.db.manyOrNone(query, [limit, offset]);
-    return this.mapArrayToCamelCase<User>(rows || []);
-  }
-
-  async create(data: CreateUserDto): Promise<User> {
-    const query = `
-      INSERT INTO users (
-        email,
-        password_hash,
-        name,
-        timezone,
-        language,
-        subscription_tier
+        updated_at
       )
-      VALUES ($1, $2, $3, $4, $5, $6)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
     `;
 
     const values = [
-      data.email,
-      data.passwordHash,
-      data.name,
-      data.timezone || 'America/Sao_Paulo',
-      data.language || 'pt-BR',
-      data.subscriptionTier || 'free',
+      user.id,
+      user.email.value,
+      user.passwordHash,
+      user.name,
+      user.toJSON().timezone,
+      user.toJSON().language,
+      user.subscriptionTier,
+      user.emailVerified,
+      user.toJSON().createdAt,
+      user.toJSON().updatedAt,
     ];
 
     const row = await this.db.one(query, values);
-    return this.mapToCamelCase<User>(row);
+    const mapped: any = this.mapToCamelCase(row);
+    return User.reconstitute({
+      ...mapped,
+      email: new Email(mapped.email),
+    });
   }
 
-  async update(id: string, data: UpdateUserDto): Promise<User> {
-    const { query, values } = this.buildUpdateQuery('users', id, data);
+  async update(user: User): Promise<User> {
+    const query = `
+      UPDATE users
+      SET
+        email = $2,
+        name = $3,
+        timezone = $4,
+        language = $5,
+        subscription_tier = $6,
+        email_verified = $7,
+        updated_at = $8
+      WHERE id = $1
+      RETURNING *
+    `;
+
+    const json = user.toJSON();
+    const values = [
+      user.id,
+      user.email.value,
+      user.name,
+      json.timezone,
+      json.language,
+      user.subscriptionTier,
+      user.emailVerified,
+      new Date(),
+    ];
+
     const row = await this.db.one(query, values);
-    return this.mapToCamelCase<User>(row);
+    const mapped: any = this.mapToCamelCase(row);
+    return User.reconstitute({
+      ...mapped,
+      email: new Email(mapped.email),
+    });
   }
 
   async delete(id: string): Promise<void> {
@@ -136,35 +159,52 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     await this.db.none(query, [id]);
   }
 
-  async softDelete(id: string): Promise<void> {
+  async updateLastLogin(id: string, ip: string): Promise<void> {
     const query = `
       UPDATE users
-      SET deleted_at = NOW()
+      SET last_login_at = NOW(), last_login_ip = $2
       WHERE id = $1
     `;
-    await this.db.none(query, [id]);
+    await this.db.none(query, [id, ip]);
   }
 
-  async count(): Promise<number> {
+  async storeRefreshToken(userId: string, tokenHash: string, expiresAt: Date): Promise<void> {
     const query = `
-      SELECT COUNT(*)::int as count
-      FROM users
-      WHERE deleted_at IS NULL
+      INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
+      VALUES ($1, $2, $3)
     `;
-    const result = await this.db.one(query);
-    return result.count;
+    await this.db.none(query, [userId, tokenHash, expiresAt]);
   }
 
-  async existsByEmail(email: string): Promise<boolean> {
+  async findRefreshToken(tokenHash: string): Promise<{ userId: string; expiresAt: Date } | null> {
     const query = `
-      SELECT EXISTS(
-        SELECT 1
-        FROM users
-        WHERE email = $1
-          AND deleted_at IS NULL
-      ) as exists
+      SELECT user_id, expires_at
+      FROM refresh_tokens
+      WHERE token_hash = $1
+        AND revoked_at IS NULL
+        AND expires_at > NOW()
     `;
-    const result = await this.db.one(query, [email]);
-    return result.exists;
+    const row = await this.db.oneOrNone(query, [tokenHash]);
+    if (!row) return null;
+    return this.mapToCamelCase(row);
+  }
+
+  async revokeRefreshToken(tokenHash: string): Promise<void> {
+    const query = `
+      UPDATE refresh_tokens
+      SET revoked_at = NOW()
+      WHERE token_hash = $1
+    `;
+    await this.db.none(query, [tokenHash]);
+  }
+
+  async revokeAllUserRefreshTokens(userId: string): Promise<void> {
+    const query = `
+      UPDATE refresh_tokens
+      SET revoked_at = NOW()
+      WHERE user_id = $1
+        AND revoked_at IS NULL
+    `;
+    await this.db.none(query, [userId]);
   }
 }
