@@ -1,0 +1,149 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Social Selling" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e7]
+        - generic [ref=e10]: Social Selling
+      - navigation [ref=e11]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e14]
+          - text: Dashboard
+        - link "Inbox 5" [ref=e20] [cursor=pointer]:
+          - /url: /inbox
+          - img [ref=e21]
+          - text: Inbox
+          - generic [ref=e23]: "5"
+        - link "Instagram" [ref=e25] [cursor=pointer]:
+          - /url: /instagram
+          - img [ref=e26]
+          - text: Instagram
+        - link "Calendar" [ref=e30] [cursor=pointer]:
+          - /url: /calendar
+          - img [ref=e31]
+          - text: Calendar
+        - link "Analytics" [ref=e34] [cursor=pointer]:
+          - /url: /analytics
+          - img [ref=e35]
+          - text: Analytics
+        - button "Products" [ref=e38] [cursor=pointer]:
+          - img [ref=e39]
+          - generic [ref=e43]: Products
+          - img [ref=e44]
+        - link "Customers" [ref=e47] [cursor=pointer]:
+          - /url: /customers
+          - img [ref=e48]
+          - text: Customers
+        - link "Settings" [ref=e54] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e55]
+          - text: Settings
+      - generic [ref=e59]:
+        - heading "Upgrade to Pro" [level=4] [ref=e60]
+        - paragraph [ref=e61]: Get unlimited access to all features
+        - button "Upgrade Now" [ref=e62] [cursor=pointer]
+    - generic [ref=e63]:
+      - banner [ref=e64]:
+        - generic [ref=e65]:
+          - generic [ref=e66]:
+            - button "Toggle sidebar" [ref=e67] [cursor=pointer]:
+              - img [ref=e68]
+            - generic [ref=e70]:
+              - generic:
+                - img
+              - searchbox "Search..." [ref=e71]
+          - generic [ref=e72]:
+            - button "Toggle theme" [ref=e73] [cursor=pointer]:
+              - img [ref=e74]
+            - link "Help" [ref=e76] [cursor=pointer]:
+              - /url: /help
+              - img [ref=e77]
+            - button "Notifications" [ref=e81] [cursor=pointer]:
+              - img [ref=e82]
+              - generic [ref=e85]: "2"
+            - button "T Test User" [ref=e87] [cursor=pointer]:
+              - generic [ref=e88]: T
+              - generic [ref=e89]: Test User
+      - main [ref=e90]:
+        - generic [ref=e92]:
+          - generic [ref=e95]:
+            - heading "Dashboard" [level=1] [ref=e96]
+            - paragraph [ref=e97]: Welcome back! Here's what's happening with your business today.
+          - generic [ref=e98]:
+            - generic [ref=e99]:
+              - generic [ref=e100]:
+                - generic [ref=e101]:
+                  - paragraph [ref=e102]: Total Messages
+                  - paragraph [ref=e103]: 1,234
+                - img [ref=e105]
+              - generic [ref=e107]:
+                - img [ref=e108]
+                - generic [ref=e111]: 12.5%
+                - generic [ref=e112]: from last month
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e115]:
+                  - paragraph [ref=e116]: Products
+                  - paragraph [ref=e117]: "45"
+                - img [ref=e119]
+              - generic [ref=e123]:
+                - img [ref=e124]
+                - generic [ref=e127]: 5.2%
+                - generic [ref=e128]: from last month
+            - generic [ref=e129]:
+              - generic [ref=e130]:
+                - generic [ref=e131]:
+                  - paragraph [ref=e132]: Conversion Rate
+                  - paragraph [ref=e133]: 23.5%
+                - img [ref=e135]
+              - generic [ref=e138]:
+                - img [ref=e139]
+                - generic [ref=e142]: 3.1%
+                - generic [ref=e143]: from last month
+            - generic [ref=e144]:
+              - generic [ref=e145]:
+                - generic [ref=e146]:
+                  - paragraph [ref=e147]: Total Customers
+                  - paragraph [ref=e148]: "892"
+                - img [ref=e150]
+              - generic [ref=e155]:
+                - img [ref=e156]
+                - generic [ref=e159]: 8.7%
+                - generic [ref=e160]: from last month
+          - generic [ref=e161]:
+            - generic [ref=e162]:
+              - heading "Recent Activity" [level=2] [ref=e163]
+              - generic [ref=e164]:
+                - generic [ref=e167]:
+                  - paragraph [ref=e168]: New message from customer
+                  - paragraph [ref=e169]: 2 hours ago
+                - generic [ref=e172]:
+                  - paragraph [ref=e173]: New message from customer
+                  - paragraph [ref=e174]: 2 hours ago
+                - generic [ref=e177]:
+                  - paragraph [ref=e178]: New message from customer
+                  - paragraph [ref=e179]: 2 hours ago
+                - generic [ref=e182]:
+                  - paragraph [ref=e183]: New message from customer
+                  - paragraph [ref=e184]: 2 hours ago
+                - generic [ref=e187]:
+                  - paragraph [ref=e188]: New message from customer
+                  - paragraph [ref=e189]: 2 hours ago
+            - generic [ref=e190]:
+              - heading "Quick Actions" [level=2] [ref=e191]
+              - generic [ref=e192]:
+                - button "Add New Product Add a new product to your catalog" [ref=e193] [cursor=pointer]:
+                  - heading "Add New Product" [level=3] [ref=e194]
+                  - paragraph [ref=e195]: Add a new product to your catalog
+                - button "Connect Instagram Link your Instagram business account" [ref=e196] [cursor=pointer]:
+                  - heading "Connect Instagram" [level=3] [ref=e197]
+                  - paragraph [ref=e198]: Link your Instagram business account
+                - button "View Analytics Check your performance metrics" [ref=e199] [cursor=pointer]:
+                  - heading "View Analytics" [level=3] [ref=e200]
+                  - paragraph [ref=e201]: Check your performance metrics
+  - alert [ref=e202]: Social Selling Platform
+```
