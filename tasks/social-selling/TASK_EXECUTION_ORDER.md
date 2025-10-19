@@ -151,7 +151,7 @@
 18. **IG-004**: Instagram DM Sending
     - Prioridade: P0
     - Dependências: IG-003
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ---
 
@@ -161,7 +161,7 @@
 19. **IG-005**: Instagram Media Upload
     - Prioridade: P0
     - Dependências: IG-002, INFRA-005
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ### Tarde (4h)
 20. **IG-006**: Instagram Post Publishing

@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
+    "/api": {
       "get": {
         "operationId": "AppController_getHello",
         "parameters": [],
@@ -15,7 +15,7 @@
         ]
       }
     },
-    "/auth/register": {
+    "/api/auth/register": {
       "post": {
         "description": "Creates a new user account with email and password",
         "operationId": "AuthController_register",
@@ -54,7 +54,7 @@
         ]
       }
     },
-    "/auth/login": {
+    "/api/auth/login": {
       "post": {
         "description": "Authenticates user and returns JWT access token, refresh token, and sets session cookie",
         "operationId": "AuthController_login",
@@ -102,7 +102,7 @@
         ]
       }
     },
-    "/auth/refresh": {
+    "/api/auth/refresh": {
       "post": {
         "description": "Generates a new access token using a valid refresh token",
         "operationId": "AuthController_refreshToken",
@@ -138,7 +138,7 @@
         ]
       }
     },
-    "/auth/logout": {
+    "/api/auth/logout": {
       "post": {
         "description": "Invalidates refresh token and clears session cookie",
         "operationId": "AuthController_logout",
@@ -172,7 +172,7 @@
         ]
       }
     },
-    "/auth/me": {
+    "/api/auth/me": {
       "get": {
         "description": "Returns the profile of the authenticated user",
         "operationId": "AuthController_getCurrentUser",
@@ -196,7 +196,7 @@
         ]
       }
     },
-    "/auth/sessions": {
+    "/api/auth/sessions": {
       "get": {
         "description": "Returns list of all active sessions for the authenticated user",
         "operationId": "AuthController_getUserSessions",
@@ -220,7 +220,7 @@
         ]
       }
     },
-    "/auth/sessions/{sessionId}": {
+    "/api/auth/sessions/{sessionId}": {
       "delete": {
         "description": "Revokes a specific session by ID",
         "operationId": "AuthController_revokeSession",
@@ -254,7 +254,7 @@
         ]
       }
     },
-    "/users/me": {
+    "/api/users/me": {
       "get": {
         "operationId": "UserController_getProfile",
         "parameters": [],
@@ -332,7 +332,7 @@
         ]
       }
     },
-    "/users/me/change-password": {
+    "/api/users/me/change-password": {
       "post": {
         "operationId": "UserController_changePassword",
         "parameters": [],
@@ -368,7 +368,7 @@
         ]
       }
     },
-    "/users/verify-email": {
+    "/api/users/verify-email": {
       "post": {
         "operationId": "UserController_sendVerificationEmail",
         "parameters": [],
@@ -394,7 +394,7 @@
         ]
       }
     },
-    "/users/verify-email/{token}": {
+    "/api/users/verify-email/{token}": {
       "get": {
         "operationId": "UserController_verifyEmail",
         "parameters": [
@@ -426,7 +426,7 @@
         ]
       }
     },
-    "/users/me/stats": {
+    "/api/users/me/stats": {
       "get": {
         "operationId": "UserController_getUserStats",
         "parameters": [],
@@ -449,7 +449,7 @@
         ]
       }
     },
-    "/instagram/oauth/authorize": {
+    "/api/instagram/oauth/authorize": {
       "get": {
         "operationId": "InstagramController_initiateOAuth",
         "parameters": [],
@@ -482,7 +482,7 @@
         ]
       }
     },
-    "/instagram/oauth/callback": {
+    "/api/instagram/oauth/callback": {
       "get": {
         "operationId": "InstagramController_handleOAuthCallback",
         "parameters": [
@@ -525,7 +525,7 @@
         ]
       }
     },
-    "/instagram/accounts/{id}/disconnect": {
+    "/api/instagram/accounts/{id}/disconnect": {
       "delete": {
         "operationId": "InstagramController_disconnectAccount",
         "parameters": [
@@ -574,6 +574,230 @@
         "summary": "Disconnect Instagram account",
         "tags": [
           "Instagram Integration"
+        ]
+      }
+    },
+    "/api/instagram/accounts": {
+      "get": {
+        "operationId": "InstagramAccountController_listAccounts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns list of accounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all connected Instagram accounts",
+        "tags": [
+          "Instagram Account Management"
+        ]
+      }
+    },
+    "/api/instagram/accounts/{id}": {
+      "get": {
+        "operationId": "InstagramAccountController_getAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns account details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied"
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get single account by ID",
+        "tags": [
+          "Instagram Account Management"
+        ]
+      },
+      "patch": {
+        "operationId": "InstagramAccountController_updateAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update account information",
+        "tags": [
+          "Instagram Account Management"
+        ]
+      },
+      "delete": {
+        "operationId": "InstagramAccountController_deleteAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Account disconnected successfully"
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Disconnect Instagram account",
+        "tags": [
+          "Instagram Account Management"
+        ]
+      }
+    },
+    "/api/instagram/accounts/{id}/sync": {
+      "post": {
+        "operationId": "InstagramAccountController_syncAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account synced successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Sync account metadata from Instagram",
+        "tags": [
+          "Instagram Account Management"
+        ]
+      }
+    },
+    "/api/instagram/accounts/{id}/refresh-status": {
+      "post": {
+        "operationId": "InstagramAccountController_refreshStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Status refreshed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountStatusResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Refresh account status (check token validity)",
+        "tags": [
+          "Instagram Account Management"
         ]
       }
     },
@@ -745,7 +969,7 @@
         ]
       }
     },
-    "/health/ready": {
+    "/api/health/ready": {
       "get": {
         "operationId": "HealthController_readiness",
         "parameters": [],
@@ -759,7 +983,7 @@
         ]
       }
     },
-    "/health/live": {
+    "/api/health/live": {
       "get": {
         "operationId": "HealthController_liveness",
         "parameters": [],
@@ -1001,6 +1225,158 @@
           "currentPassword",
           "newPassword",
           "confirmPassword"
+        ]
+      },
+      "AccountResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Account UUID"
+          },
+          "platform": {
+            "type": "string",
+            "description": "Platform name",
+            "example": "instagram"
+          },
+          "username": {
+            "type": "string",
+            "description": "Instagram username"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Display name"
+          },
+          "profilePictureUrl": {
+            "type": "string",
+            "description": "Profile picture URL"
+          },
+          "followerCount": {
+            "type": "number",
+            "description": "Follower count"
+          },
+          "followingCount": {
+            "type": "number",
+            "description": "Following count"
+          },
+          "mediaCount": {
+            "type": "number",
+            "description": "Media count"
+          },
+          "biography": {
+            "type": "string",
+            "description": "Biography"
+          },
+          "website": {
+            "type": "string",
+            "description": "Website URL"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "token_expired",
+              "disconnected",
+              "rate_limited",
+              "error"
+            ],
+            "description": "Account status"
+          },
+          "accountType": {
+            "type": "string",
+            "enum": [
+              "personal",
+              "business",
+              "creator"
+            ],
+            "description": "Account type"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Creation timestamp"
+          },
+          "lastSyncAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Last sync timestamp"
+          },
+          "tokenExpiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Token expiration timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "platform",
+          "username",
+          "status",
+          "accountType",
+          "createdAt"
+        ]
+      },
+      "AccountListResponseDto": {
+        "type": "object",
+        "properties": {
+          "accounts": {
+            "description": "Array of connected accounts",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountResponseDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of accounts"
+          }
+        },
+        "required": [
+          "accounts",
+          "total"
+        ]
+      },
+      "UpdateAccountDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "profilePictureUrl": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "token_expired",
+              "disconnected",
+              "rate_limited",
+              "error"
+            ]
+          }
+        }
+      },
+      "AccountStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "token_expired",
+              "disconnected",
+              "rate_limited",
+              "error"
+            ],
+            "description": "Account status"
+          }
+        },
+        "required": [
+          "status"
         ]
       }
     }
