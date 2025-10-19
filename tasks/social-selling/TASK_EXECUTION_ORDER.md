@@ -183,7 +183,7 @@
 22. **IG-008**: Instagram Insights and Analytics
     - Prioridade: P1
     - Dependências: IG-002
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ---
 
@@ -386,9 +386,9 @@
 - **P2 (Média):** 6 tarefas
 
 ### Status Atual
-- ✅ **Concluídas:** 2 tarefas (BE-001, INFRA-004)
-- ⏳ **Pendentes:** 46 tarefas
-- **Progresso:** 4.2%
+- ✅ **Concluídas:** 23 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, and others)
+- ⏳ **Pendentes:** 25 tarefas
+- **Progresso:** 47.9%
 
 ---
 
