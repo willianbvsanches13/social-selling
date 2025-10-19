@@ -61,10 +61,9 @@ export class AutoReplyService {
       // Check if auto-reply is enabled for account
       const account = await this.database.oneOrNone<{
         auto_reply_enabled: boolean;
-      }>(
-        `SELECT auto_reply_enabled FROM client_accounts WHERE id = $1`,
-        [accountId],
-      );
+      }>(`SELECT auto_reply_enabled FROM client_accounts WHERE id = $1`, [
+        accountId,
+      ]);
 
       if (!account?.auto_reply_enabled) {
         return { should: false };
@@ -367,7 +366,9 @@ export class AutoReplyService {
 
     return greetings.some(
       (greeting) =>
-        text.startsWith(greeting) || text === greeting || text === greeting + '!',
+        text.startsWith(greeting) ||
+        text === greeting ||
+        text === greeting + '!',
     );
   }
 }

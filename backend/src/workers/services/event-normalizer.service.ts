@@ -208,7 +208,10 @@ export class EventNormalizerService {
         username: payload.from?.username || payload.sender?.username,
       },
       conversationId:
-        payload.conversation_id || payload.recipient?.id || payload.from?.id || '',
+        payload.conversation_id ||
+        payload.recipient?.id ||
+        payload.from?.id ||
+        '',
       isEcho: payload.is_echo || false,
     };
   }
@@ -259,11 +262,7 @@ export class EventNormalizerService {
 
         case WebhookEventType.STORY_INSIGHT: {
           const insight = event as NormalizedStoryInsight;
-          return !!(
-            insight.mediaId &&
-            insight.metric &&
-            insight.value >= 0
-          );
+          return !!(insight.mediaId && insight.metric && insight.value >= 0);
         }
 
         default:
@@ -316,7 +315,9 @@ export class EventNormalizerService {
     }
 
     // Fallback to current time
-    this.logger.warn(`Could not parse timestamp: ${timestamp}, using current time`);
+    this.logger.warn(
+      `Could not parse timestamp: ${timestamp}, using current time`,
+    );
     return new Date();
   }
 }

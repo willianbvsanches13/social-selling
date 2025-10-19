@@ -45,9 +45,7 @@ export class EmailNotificationsProcessor extends WorkerHost {
     const result: EmailJobResult = {
       success: false,
       to,
-      provider: this.configService.get('EMAIL_PROVIDER', 'sendgrid') as
-        | 'sendgrid'
-        | 'mailgun',
+      provider: this.configService.get('EMAIL_PROVIDER', 'sendgrid'),
     };
 
     try {
@@ -154,11 +152,7 @@ export class EmailNotificationsProcessor extends WorkerHost {
     }
 
     // SMTP temporary errors (4xx)
-    if (
-      error.statusCode &&
-      error.statusCode >= 400 &&
-      error.statusCode < 500
-    ) {
+    if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
       return true;
     }
 
@@ -185,9 +179,7 @@ export class EmailNotificationsProcessor extends WorkerHost {
 
   @OnWorkerEvent('active')
   onActive(job: Job<EmailJobData>) {
-    this.logger.log(
-      `Email job active: ${job.data.template} to ${job.data.to}`,
-    );
+    this.logger.log(`Email job active: ${job.data.template} to ${job.data.to}`);
   }
 
   @OnWorkerEvent('completed')

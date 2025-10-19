@@ -14,21 +14,33 @@ export class EmailWebhookHandlerService {
 
         switch (event.event) {
           case 'delivered':
-            await this.tracking.updateEmailStatus(messageId, EmailStatus.DELIVERED, {
-              deliveredAt: new Date(event.timestamp * 1000),
-            });
+            await this.tracking.updateEmailStatus(
+              messageId,
+              EmailStatus.DELIVERED,
+              {
+                deliveredAt: new Date(event.timestamp * 1000),
+              },
+            );
             break;
 
           case 'open':
-            await this.tracking.updateEmailStatus(messageId, EmailStatus.OPENED, {
-              openedAt: new Date(event.timestamp * 1000),
-            });
+            await this.tracking.updateEmailStatus(
+              messageId,
+              EmailStatus.OPENED,
+              {
+                openedAt: new Date(event.timestamp * 1000),
+              },
+            );
             break;
 
           case 'click':
-            await this.tracking.updateEmailStatus(messageId, EmailStatus.CLICKED, {
-              clickedAt: new Date(event.timestamp * 1000),
-            });
+            await this.tracking.updateEmailStatus(
+              messageId,
+              EmailStatus.CLICKED,
+              {
+                clickedAt: new Date(event.timestamp * 1000),
+              },
+            );
             break;
 
           case 'bounce':
@@ -44,9 +56,7 @@ export class EmailWebhookHandlerService {
             break;
         }
       } catch (error: any) {
-        this.logger.error(
-          `Failed to process SendGrid event: ${error.message}`,
-        );
+        this.logger.error(`Failed to process SendGrid event: ${error.message}`);
       }
     }
   }
@@ -57,9 +67,13 @@ export class EmailWebhookHandlerService {
 
       switch (event.event) {
         case 'delivered':
-          await this.tracking.updateEmailStatus(messageId, EmailStatus.DELIVERED, {
-            deliveredAt: new Date(event.timestamp * 1000),
-          });
+          await this.tracking.updateEmailStatus(
+            messageId,
+            EmailStatus.DELIVERED,
+            {
+              deliveredAt: new Date(event.timestamp * 1000),
+            },
+          );
           break;
 
         case 'opened':
@@ -69,9 +83,13 @@ export class EmailWebhookHandlerService {
           break;
 
         case 'clicked':
-          await this.tracking.updateEmailStatus(messageId, EmailStatus.CLICKED, {
-            clickedAt: new Date(event.timestamp * 1000),
-          });
+          await this.tracking.updateEmailStatus(
+            messageId,
+            EmailStatus.CLICKED,
+            {
+              clickedAt: new Date(event.timestamp * 1000),
+            },
+          );
           break;
 
         case 'bounced':

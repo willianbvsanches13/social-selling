@@ -100,14 +100,10 @@ INSTAGRAM_APP_SECRET=abc123def456ghi789jkl012mno345pq
 
 **IMPORTANTE:** Nunca compartilhe seu App Secret publicamente!
 
----
+### 4.3 Configurar URIs de Redirecionamento OAuth
 
-## Passo 5: Configurar URIs de Redirecionamento OAuth
-
-### 5.1 URLs de Desenvolvimento
-
-1. Vá em **"Instagram Basic Display"** → **"Configurações Básicas"**
-2. Role até **"OAuth Redirect URIs"**
+1. Na mesma página de **"Configurações"** → **"Básico"**
+2. Role até **"OAuth Redirect URIs"** (ou vá em Instagram Basic Display → Configurações)
 3. Adicione suas URLs:
 
 ```
@@ -121,7 +117,7 @@ https://seu-dominio.com/api/instagram/oauth/callback
 
 4. Clique em **"Salvar Alterações"**
 
-### 5.2 Desativar Dados de Aplicativo (Para desenvolvimento)
+### 4.4 Desativar Dados de Aplicativo (Para desenvolvimento)
 
 1. Em **"Configurações"** → **"Básico"**
 2. Role até **"Dados de Aplicativo"**
@@ -129,7 +125,7 @@ https://seu-dominio.com/api/instagram/oauth/callback
 
 ---
 
-## Passo 6: Configurar Instagram Basic Display
+## Passo 5: Configurar Instagram Basic Display
 
 ### 6.1 Criar Instagram App
 
@@ -149,7 +145,7 @@ Data Deletion Request URL: http://localhost:4000/api/instagram/delete
 
 5. Clique em **"Salvar Alterações"**
 
-### 6.2 Obter Instagram App ID
+### 5.2 Obter Instagram App ID
 
 Você verá:
 ```
@@ -159,15 +155,15 @@ Instagram App Secret: xyz789abc123def456ghi789
 
 ---
 
-## Passo 7: Configurar Webhooks do Instagram
+## Passo 6: Configurar Webhooks do Instagram
 
-### 7.1 Adicionar Webhook
+### 6.1 Adicionar Webhook
 
 1. Vá em **"Produtos"** → **"Webhooks"**
 2. Selecione **"Instagram"** no dropdown
 3. Clique em **"Assinar este objeto"** (Subscribe to this object)
 
-### 7.2 Configurar URL do Webhook
+### 6.2 Configurar URL do Webhook
 
 Preencha:
 
@@ -183,7 +179,7 @@ Verify Token: MEU_TOKEN_SECRETO_123
 
 4. Clique em **"Verificar e Salvar"**
 
-### 7.3 Assinar Campos do Webhook
+### 6.3 Assinar Campos do Webhook
 
 Selecione os eventos que deseja receber:
 
@@ -196,9 +192,9 @@ Selecione os eventos que deseja receber:
 
 ---
 
-## Passo 8: Adicionar Testers/Usuários de Teste
+## Passo 7: Adicionar Testers/Usuários de Teste
 
-### 8.1 Adicionar Usuário de Teste Instagram
+### 7.1 Adicionar Usuário de Teste Instagram
 
 1. Vá em **"Funções"** → **"Funções"** (Roles)
 2. Role até **"Instagram Testers"**
@@ -210,9 +206,9 @@ Selecione os eventos que deseja receber:
 
 ---
 
-## Passo 9: Obter Token de Acesso do Usuário
+## Passo 8: Obter Token de Acesso do Usuário
 
-### 9.1 URL de Autorização
+### 8.1 URL de Autorização
 
 Monte a URL para autorização OAuth:
 
@@ -229,7 +225,7 @@ Exemplo completo:
 https://api.instagram.com/oauth/authorize?client_id=987654321098765&redirect_uri=http://localhost:4000/api/instagram/oauth/callback&scope=user_profile,user_media&response_type=code
 ```
 
-### 9.2 Autorizar App
+### 8.2 Autorizar App
 
 1. Acesse a URL montada no navegador
 2. Faça login com sua conta Instagram (se necessário)
@@ -239,7 +235,7 @@ https://api.instagram.com/oauth/authorize?client_id=987654321098765&redirect_uri
 http://localhost:4000/api/instagram/oauth/callback?code=ABC123DEF456...
 ```
 
-### 9.3 Trocar Code por Token
+### 8.3 Trocar Code por Token
 
 Use o código recebido para obter o token de acesso:
 
@@ -263,9 +259,9 @@ Resposta:
 
 ---
 
-## Passo 10: Configurar para Instagram Graph API (Business)
+## Passo 9: Configurar para Instagram Graph API (Business)
 
-### 10.1 Permissões Necessárias
+### 9.1 Permissões Necessárias
 
 Para usar Instagram Graph API (para contas Business/Creator):
 
@@ -280,7 +276,7 @@ Permissões (Scopes):
 - pages_read_engagement
 ```
 
-### 10.2 Obter Token de Acesso da Página
+### 9.2 Obter Token de Acesso da Página
 
 1. Use o [Graph API Explorer](https://developers.facebook.com/tools/explorer/)
 2. Selecione seu App
@@ -288,7 +284,7 @@ Permissões (Scopes):
 4. Selecione as permissões necessárias
 5. Copie o token gerado
 
-### 10.3 Obter Instagram Business Account ID
+### 9.3 Obter Instagram Business Account ID
 
 ```bash
 curl -X GET \
@@ -304,9 +300,9 @@ curl -X GET \
 
 ---
 
-## Passo 11: Configurar Variáveis de Ambiente
+## Passo 10: Configurar Variáveis de Ambiente
 
-### 11.1 Atualizar .env
+### 10.1 Atualizar .env
 
 Edite o arquivo `.env` no projeto:
 
@@ -329,7 +325,7 @@ INSTAGRAM_WEBHOOK_VERIFY_TOKEN=MEU_TOKEN_SECRETO_123
 INSTAGRAM_GRAPH_API_VERSION=v18.0
 ```
 
-### 11.2 Configuração Completa
+### 10.2 Configuração Completa
 
 Para ambiente de produção, adicione também:
 
@@ -344,9 +340,9 @@ INSTAGRAM_BUSINESS_ACCOUNT_ID=17841400123456789
 
 ---
 
-## Passo 12: Testar Configuração
+## Passo 11: Testar Configuração
 
-### 12.1 Testar Credenciais
+### 11.1 Testar Credenciais
 
 ```bash
 # Testar App ID e Secret
@@ -354,7 +350,7 @@ curl -X GET \
   "https://graph.facebook.com/v18.0/oauth/access_token_info?client_id={APP_ID}&access_token={USER_ACCESS_TOKEN}"
 ```
 
-### 12.2 Testar Webhook
+### 11.2 Testar Webhook
 
 ```bash
 # O Facebook enviará uma requisição GET para verificar

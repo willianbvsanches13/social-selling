@@ -256,7 +256,10 @@ export class EmailTrackingService {
     )) as { status: string; count: string }[];
 
     return stats.reduce<Record<string, number>>(
-      (acc: Record<string, number>, stat: { status: string; count: string }) => {
+      (
+        acc: Record<string, number>,
+        stat: { status: string; count: string },
+      ) => {
         acc[stat.status] = parseInt(stat.count, 10);
         return acc;
       },
@@ -264,11 +267,13 @@ export class EmailTrackingService {
     );
   }
 
-  async getEmailHistory(userId: string, limit: number = 20): Promise<EmailLog[]> {
-    const user = (await this.db.query(
-      `SELECT email FROM users WHERE id = $1`,
-      [userId],
-    )) as { email: string }[];
+  async getEmailHistory(
+    userId: string,
+    limit: number = 20,
+  ): Promise<EmailLog[]> {
+    const user = (await this.db.query(`SELECT email FROM users WHERE id = $1`, [
+      userId,
+    ])) as { email: string }[];
 
     if (!user || user.length === 0) return [];
 

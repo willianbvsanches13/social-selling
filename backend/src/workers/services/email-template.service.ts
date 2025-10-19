@@ -65,7 +65,10 @@ export class EmailTemplateService {
         ...context,
         appName: 'Social Selling',
         appUrl: this.configService.get('APP_URL'),
-        supportEmail: this.configService.get('SUPPORT_EMAIL', 'support@socialselling.com'),
+        supportEmail: this.configService.get(
+          'SUPPORT_EMAIL',
+          'support@socialselling.com',
+        ),
         currentYear: new Date().getFullYear(),
       };
 
@@ -106,10 +109,7 @@ export class EmailTemplateService {
     });
 
     if (errors && errors.length > 0) {
-      this.logger.warn(
-        `MJML conversion warnings for ${templateName}:`,
-        errors,
-      );
+      this.logger.warn(`MJML conversion warnings for ${templateName}:`, errors);
     }
 
     return html;
@@ -135,11 +135,7 @@ export class EmailTemplateService {
     templateName: string,
     context: Record<string, any>,
   ): Promise<string> {
-    const metaPath = path.join(
-      this.templateDir,
-      templateName,
-      'metadata.json',
-    );
+    const metaPath = path.join(this.templateDir, templateName, 'metadata.json');
 
     if (!(await fs.pathExists(metaPath))) {
       return 'Notification from Social Selling';
@@ -167,8 +163,16 @@ export class EmailTemplateService {
 
   async validateTemplate(templateName: string): Promise<boolean> {
     try {
-      const mjmlPath = path.join(this.templateDir, templateName, 'template.mjml');
-      const metaPath = path.join(this.templateDir, templateName, 'metadata.json');
+      const mjmlPath = path.join(
+        this.templateDir,
+        templateName,
+        'template.mjml',
+      );
+      const metaPath = path.join(
+        this.templateDir,
+        templateName,
+        'metadata.json',
+      );
 
       const mjmlExists = await fs.pathExists(mjmlPath);
       const metaExists = await fs.pathExists(metaPath);

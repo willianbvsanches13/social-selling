@@ -36,9 +36,7 @@ export class SmtpProviderService {
   private mailgunClient?: any;
 
   constructor(private configService: ConfigService) {
-    this.provider = this.configService.get('EMAIL_PROVIDER', 'sendgrid') as
-      | 'sendgrid'
-      | 'mailgun';
+    this.provider = this.configService.get('EMAIL_PROVIDER', 'sendgrid');
     this.initializeProvider();
   }
 

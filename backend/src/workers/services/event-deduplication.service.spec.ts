@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { EventDeduplicationService, WebhookEventType } from './event-deduplication.service';
+import {
+  EventDeduplicationService,
+  WebhookEventType,
+} from './event-deduplication.service';
 import { RedisService } from '../../infrastructure/cache/redis.service';
 
 describe('EventDeduplicationService', () => {
@@ -124,11 +127,7 @@ describe('EventDeduplicationService', () => {
         from: { id: 'user123' },
       };
 
-      await service.isDuplicate(
-        WebhookEventType.COMMENT,
-        'event123',
-        payload,
-      );
+      await service.isDuplicate(WebhookEventType.COMMENT, 'event123', payload);
 
       const isDuplicate = await service.isDuplicate(
         WebhookEventType.MESSAGE,
