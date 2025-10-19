@@ -14,6 +14,8 @@ import { LoginDto } from './dto/login.dto';
 import { JwtPayload, JwtTokenPair } from './interfaces/jwt-payload.interface';
 import { User, SubscriptionTier } from '../../domain/entities/user.entity';
 import { Email } from '../../domain/value-objects/email.vo';
+import { SessionService } from './services/session.service';
+import { DeviceInfo } from '../../domain/entities/session.entity';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +26,7 @@ export class AuthService {
     private readonly userRepository: IUserRepository,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly sessionService: SessionService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<JwtTokenPair & { user: any }> {
@@ -54,7 +57,12 @@ export class AuthService {
     };
   }
 
-  async login(loginDto: LoginDto, ip: string): Promise<JwtTokenPair & { user: any }> {
+  async login(
+    loginDto: LoginDto,
+    ip: string,
+    userAgent: string,
+    deviceInfo: DeviceInfo,
+  ): Promise<JwtTokenPair & { user: any; sessionId: string }> {
     const user = await this.userRepository.findByEmail(loginDto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -67,10 +75,21 @@ export class AuthService {
 
     await this.userRepository.updateLastLogin(user.id, ip);
 
+    // Create session
+    const { sessionId } = await this.sessionService.createSession(
+      user.id,
+      user.email.value,
+      deviceInfo,
+      ip,
+      userAgent,
+      ['user'], // Basic permissions
+    );
+
     const tokens = await this.generateTokenPair(user);
 
     return {
       user: this.sanitizeUser(user),
+      sessionId,
       ...tokens,
     };
   }
@@ -104,9 +123,15 @@ export class AuthService {
     return { accessToken, expiresIn };
   }
 
-  async logout(refreshToken: string): Promise<void> {
+  async logout(refreshToken: string, sessionId?: string): Promise<void> {
+    // Revoke refresh token
     const tokenHash = this.hashToken(refreshToken);
     await this.userRepository.revokeRefreshToken(tokenHash);
+
+    // Destroy session if provided
+    if (sessionId) {
+      await this.sessionService.destroySession(sessionId);
+    }
   }
 
   async validateUser(payload: JwtPayload): Promise<User> {

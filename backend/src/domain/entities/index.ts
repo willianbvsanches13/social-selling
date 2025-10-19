@@ -7,3 +7,4 @@ export * from './oauth-token.entity';
 export * from './analytics-event.entity';
 export * from './instagram-media.entity';
 export * from './notification.entity';
+export * from './session.entity';

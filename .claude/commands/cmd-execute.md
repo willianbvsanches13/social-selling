@@ -87,6 +87,7 @@ Then proceed to actually implement the task by:
 <requirements>
 - **YOU MUST** need to start the implementation right after the entire process above
 - **YOU MUST** use Context7 mcp to get informations about libraries
+- **YOU MUST** run all necessary commands to implement the task without skipping any steps
 </requirements>
 
 <finish_task>

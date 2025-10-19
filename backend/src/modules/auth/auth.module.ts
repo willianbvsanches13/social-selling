@@ -7,6 +7,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { DatabaseModule } from '../../infrastructure/database/database.module';
+import { SessionService } from './services/session.service';
+import { SessionGuard } from '../../common/guards/session.guard';
 
 @Module({
   imports: [
@@ -42,7 +44,7 @@ import { DatabaseModule } from '../../infrastructure/database/database.module';
     ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService, JwtModule, PassportModule],
+  providers: [AuthService, JwtStrategy, SessionService, SessionGuard],
+  exports: [AuthService, JwtModule, PassportModule, SessionService, SessionGuard],
 })
 export class AuthModule {}
