@@ -1,6 +1,7 @@
 import { Injectable, Logger, BadRequestException, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
+import * as sharp from 'sharp';
 import { MediaUploadResponseDto } from '../dto/media-upload.dto';
 import { InstagramMediaAsset, MediaAssetType } from '../../../domain/entities/instagram-media-asset.entity';
 
@@ -129,15 +130,14 @@ export class InstagramMediaUploadService {
 
   /**
    * Process image metadata using Sharp
-   * Note: Requires sharp package to be installed
    */
   private async processImageMetadata(buffer: Buffer): Promise<any> {
     try {
-      // Placeholder implementation - sharp would be used for real implementation
-      // In production, import sharp and use it here
+      const metadata = await sharp(buffer).metadata();
+
       return {
-        width: undefined,
-        height: undefined,
+        width: metadata.width,
+        height: metadata.height,
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);

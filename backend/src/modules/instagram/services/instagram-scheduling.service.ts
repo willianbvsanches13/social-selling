@@ -6,6 +6,11 @@ import {
   Inject,
   ConflictException,
 } from '@nestjs/common';
+import * as dayjs from 'dayjs';
+import * as utc from 'dayjs/plugin/utc';
+import * as timezone from 'dayjs/plugin/timezone';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 import { CreateScheduledPostDto, UpdateScheduledPostDto, ListScheduledPostsDto, ScheduledPostResponseDto, PostStatus } from '../dto/scheduled-post.dto';
 import { InstagramScheduledPost, PostMediaType } from '../../../domain/entities/instagram-scheduled-post.entity';
 import { InstagramPostTemplate } from '../../../domain/entities/instagram-post-template.entity';
@@ -13,29 +18,8 @@ import { InstagramPostingSchedule } from '../../../domain/entities/instagram-pos
 import { InstagramApiService } from './instagram-api.service';
 import { IClientAccountRepository } from '../../../domain/repositories/client-account.repository.interface';
 
-// Note: dayjs and @nestjs/bull need to be installed for full functionality
-// Placeholder implementations for dayjs
-const createDayJs = (date: any) => {
-  return {
-    toDate: () => new Date(date),
-    isBefore: (other: any) => new Date(date) < new Date(other),
-    isAfter: (other: any) => new Date(date) > new Date(other),
-    add: (amount: number, unit: string) => ({
-      diff: (other: any) => 0,
-      toDate: () => new Date(),
-    }),
-    diff: (other: any, unit?: string) => 0,
-    day: () => new Date(date).getDay(),
-    hour: () => new Date(date).getHours(),
-  };
-};
-
-const dayjs = (date?: any) => {
-  return createDayJs(date || new Date());
-};
-
-// Add dayjs() function to get current time
-(dayjs as any).now = () => createDayJs(new Date());
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export interface IScheduledPostRepository {
   create(post: InstagramScheduledPost): Promise<InstagramScheduledPost>;
@@ -77,8 +61,8 @@ export class InstagramSchedulingService {
     @Inject('IClientAccountRepository')
     private readonly accountRepository: IClientAccountRepository,
     private readonly instagramApi: InstagramApiService,
-    @Inject('PUBLISH_QUEUE') // Placeholder for @InjectQueue
-    private readonly publishQueue: any,
+    @InjectQueue('instagram-publishing')
+    private readonly publishQueue: Queue,
   ) {}
 
   /**
