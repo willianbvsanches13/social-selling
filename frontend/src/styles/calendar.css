@@ -1,0 +1,152 @@
+/* React Big Calendar Styles */
+@import 'react-big-calendar/lib/css/react-big-calendar.css';
+
+/* Custom Calendar Styling */
+.rbc-calendar {
+  @apply rounded-lg border border-gray-200 bg-white;
+}
+
+.rbc-header {
+  @apply border-b border-gray-200 bg-gray-50 py-3 px-2 text-sm font-semibold text-gray-700;
+}
+
+.rbc-today {
+  @apply bg-primary/5;
+}
+
+.rbc-off-range-bg {
+  @apply bg-gray-50;
+}
+
+.rbc-date-cell {
+  @apply text-sm text-gray-600;
+}
+
+.rbc-event {
+  @apply rounded px-2 py-1 text-xs font-medium;
+}
+
+.rbc-event.rbc-selected {
+  @apply ring-2 ring-primary ring-offset-1;
+}
+
+.rbc-event-label {
+  @apply text-xs;
+}
+
+.rbc-event-content {
+  @apply truncate;
+}
+
+.rbc-toolbar {
+  @apply mb-4 flex flex-wrap items-center justify-between gap-4;
+}
+
+.rbc-toolbar button {
+  @apply rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+.rbc-toolbar button:active,
+.rbc-toolbar button.rbc-active {
+  @apply bg-primary text-white border-primary;
+}
+
+.rbc-toolbar button:disabled {
+  @apply cursor-not-allowed opacity-50;
+}
+
+/* Custom event colors by status */
+.rbc-event-scheduled {
+  @apply bg-blue-500 text-white;
+}
+
+.rbc-event-publishing {
+  @apply bg-yellow-500 text-white;
+}
+
+.rbc-event-published {
+  @apply bg-green-500 text-white;
+}
+
+.rbc-event-failed {
+  @apply bg-red-500 text-white;
+}
+
+.rbc-event-draft {
+  @apply bg-gray-400 text-white;
+}
+
+/* Month view customization */
+.rbc-month-view {
+  @apply border-0;
+}
+
+.rbc-month-row {
+  @apply border-b border-gray-200 last:border-b-0;
+}
+
+.rbc-day-bg {
+  @apply border-r border-gray-200 last:border-r-0;
+}
+
+.rbc-date-cell.rbc-now {
+  @apply font-bold;
+}
+
+/* Week and Day view customization */
+.rbc-time-view {
+  @apply border-0;
+}
+
+.rbc-time-header {
+  @apply border-b border-gray-200;
+}
+
+.rbc-time-content {
+  @apply border-t-0;
+}
+
+.rbc-time-slot {
+  @apply border-t border-gray-100;
+}
+
+.rbc-current-time-indicator {
+  @apply bg-primary;
+}
+
+/* Agenda view customization */
+.rbc-agenda-view {
+  @apply border-0;
+}
+
+.rbc-agenda-table {
+  @apply border border-gray-200;
+}
+
+.rbc-agenda-date-cell,
+.rbc-agenda-time-cell {
+  @apply border-r border-gray-200;
+}
+
+.rbc-agenda-event-cell {
+  @apply border-r-0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rbc-toolbar {
+    @apply flex-col;
+  }
+
+  .rbc-toolbar-label {
+    @apply text-lg;
+  }
+
+  .rbc-header {
+    @apply px-1 py-2 text-xs;
+  }
+
+  .rbc-event {
+    @apply text-[10px];
+  }
+}

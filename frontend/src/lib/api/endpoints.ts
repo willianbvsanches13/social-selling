@@ -53,6 +53,12 @@ export const API_ENDPOINTS = {
   MESSAGE_TEMPLATES: '/message-templates',
   MESSAGE_UPLOAD: '/messages/upload',
 
+  // Posts & Content Scheduling
+  POSTS: '/posts',
+  POST_DETAIL: (id: string) => `/posts/${id}`,
+  POST_UPLOAD_MEDIA: '/posts/upload',
+  POSTS_CALENDAR: '/posts/calendar',
+
   // Health
   HEALTH: '/health',
   HEALTH_READY: '/health/ready',
