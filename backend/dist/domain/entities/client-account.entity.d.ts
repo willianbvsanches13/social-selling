@@ -5,7 +5,26 @@ export declare enum Platform {
 export declare enum AccountStatus {
     ACTIVE = "active",
     TOKEN_EXPIRED = "token_expired",
-    DISCONNECTED = "disconnected"
+    DISCONNECTED = "disconnected",
+    RATE_LIMITED = "rate_limited",
+    ERROR = "error"
+}
+export declare enum InstagramAccountType {
+    PERSONAL = "personal",
+    BUSINESS = "business",
+    CREATOR = "creator"
+}
+export interface AccountMetadata {
+    igId?: string;
+    igBusinessAccountId?: string;
+    facebookPageId?: string;
+    isVerified?: boolean;
+    lastMetadataUpdate?: Date;
+    errorDetails?: {
+        code: string;
+        message: string;
+        timestamp: Date;
+    };
 }
 export interface ClientAccountProps {
     id: string;
@@ -13,12 +32,21 @@ export interface ClientAccountProps {
     platform: Platform;
     platformAccountId: string;
     username: string;
+    displayName?: string;
     profilePictureUrl?: string;
     followerCount?: number;
+    followingCount?: number;
+    mediaCount?: number;
+    biography?: string;
+    website?: string;
     status: AccountStatus;
-    metadata: Record<string, unknown>;
+    accountType: InstagramAccountType;
+    metadata: AccountMetadata;
+    permissions: string[];
     createdAt: Date;
     updatedAt: Date;
+    lastSyncAt?: Date;
+    tokenExpiresAt?: Date;
 }
 export declare class ClientAccount {
     private props;
@@ -31,22 +59,60 @@ export declare class ClientAccount {
     get platform(): Platform;
     get username(): string;
     get status(): AccountStatus;
+    get platformAccountId(): string;
+    get displayName(): string | undefined;
+    get profilePictureUrl(): string | undefined;
+    get followerCount(): number | undefined;
+    get followingCount(): number | undefined;
+    get mediaCount(): number | undefined;
+    get biography(): string | undefined;
+    get website(): string | undefined;
+    get accountType(): InstagramAccountType;
+    get metadata(): AccountMetadata;
+    get permissions(): string[];
+    get lastSyncAt(): Date | undefined;
+    get tokenExpiresAt(): Date | undefined;
     get isActive(): boolean;
+    get isTokenExpired(): boolean;
     markAsTokenExpired(): void;
+    markAsRateLimited(): void;
+    markAsError(error: {
+        code: string;
+        message: string;
+    }): void;
     reactivate(): void;
     disconnect(): void;
-    updateMetadata(followerCount: number, profilePictureUrl?: string): void;
+    updateMetadata(data: {
+        displayName?: string;
+        profilePictureUrl?: string;
+        followerCount?: number;
+        followingCount?: number;
+        mediaCount?: number;
+        biography?: string;
+        website?: string;
+        metadata?: Partial<AccountMetadata>;
+    }): void;
+    updateTokenExpiration(expiresAt: Date): void;
     toJSON(): {
         id: string;
         userId: string;
         platform: Platform;
         platformAccountId: string;
         username: string;
+        displayName: string | undefined;
         profilePictureUrl: string | undefined;
         followerCount: number | undefined;
+        followingCount: number | undefined;
+        mediaCount: number | undefined;
+        biography: string | undefined;
+        website: string | undefined;
         status: AccountStatus;
-        metadata: Record<string, unknown>;
+        accountType: InstagramAccountType;
+        metadata: AccountMetadata;
+        permissions: string[];
         createdAt: Date;
         updatedAt: Date;
+        lastSyncAt: Date | undefined;
+        tokenExpiresAt: Date | undefined;
     };
 }

@@ -4,7 +4,7 @@ import { randomBytes } from 'crypto';
 import { RedisService } from '../../infrastructure/cache/redis.service';
 import { IClientAccountRepository } from '../../domain/repositories/client-account.repository.interface';
 import { IOAuthTokenRepository } from '../../domain/repositories/oauth-token.repository.interface';
-import { ClientAccount, Platform, AccountStatus } from '../../domain/entities/client-account.entity';
+import { ClientAccount, Platform, AccountStatus, InstagramAccountType } from '../../domain/entities/client-account.entity';
 import { OAuthToken } from '../../domain/entities/oauth-token.entity';
 import {
   InstagramTokenResponse,
@@ -210,7 +210,10 @@ export class InstagramOAuthService {
 
     if (existing) {
       existing.reactivate();
-      existing.updateMetadata(profile.media_count || 0, undefined);
+      existing.updateMetadata({
+        mediaCount: profile.media_count || 0,
+        profilePictureUrl: undefined,
+      });
       return this.clientAccountRepository.update(existing);
     }
 
@@ -219,11 +222,11 @@ export class InstagramOAuthService {
       platform: Platform.INSTAGRAM,
       platformAccountId: profile.id,
       username: profile.username,
+      profilePictureUrl: undefined,
       status: AccountStatus.ACTIVE,
-      metadata: {
-        accountType: profile.account_type,
-        mediaCount: profile.media_count,
-      },
+      accountType: InstagramAccountType.PERSONAL,
+      permissions: [],
+      metadata: {},
     });
 
     return this.clientAccountRepository.create(clientAccount);
