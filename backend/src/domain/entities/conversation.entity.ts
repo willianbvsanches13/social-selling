@@ -29,7 +29,10 @@ export class Conversation {
   }
 
   static create(
-    props: Omit<ConversationProps, 'id' | 'unreadCount' | 'status' | 'createdAt' | 'updatedAt'>
+    props: Omit<
+      ConversationProps,
+      'id' | 'unreadCount' | 'status' | 'createdAt' | 'updatedAt'
+    >,
   ): Conversation {
     return new Conversation({
       ...props,
@@ -108,7 +111,9 @@ export class Conversation {
       return false;
     }
     const now = new Date();
-    const daysSince = (now.getTime() - this.props.lastMessageAt.getTime()) / (1000 * 60 * 60 * 24);
+    const daysSince =
+      (now.getTime() - this.props.lastMessageAt.getTime()) /
+      (1000 * 60 * 60 * 24);
     return daysSince >= daysSinceLastMessage;
   }
 

@@ -37,7 +37,9 @@ export class InstagramMedia {
     this.props = props;
   }
 
-  static create(props: Omit<InstagramMediaProps, 'id' | 'createdAt' | 'updatedAt'>): InstagramMedia {
+  static create(
+    props: Omit<InstagramMediaProps, 'id' | 'createdAt' | 'updatedAt'>,
+  ): InstagramMedia {
     return new InstagramMedia({
       ...props,
       id: crypto.randomUUID(),

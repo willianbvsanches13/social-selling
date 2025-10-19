@@ -118,7 +118,10 @@ export class InstagramMediaInsightRepository extends BaseRepository {
     super(db, 'InstagramMediaInsightRepository');
   }
 
-  async findByMediaId(clientAccountId: string, mediaIgId: string): Promise<any> {
+  async findByMediaId(
+    clientAccountId: string,
+    mediaIgId: string,
+  ): Promise<any> {
     const query = `
       SELECT * FROM instagram_media_insights
       WHERE client_account_id = $1 AND media_ig_id = $2
@@ -167,7 +170,11 @@ export class InstagramMediaInsightRepository extends BaseRepository {
       WHERE client_account_id = $1 AND timestamp BETWEEN $2 AND $3
       ORDER BY timestamp DESC
     `;
-    const rows = await this.db.any(query, [clientAccountId, startDate, endDate]);
+    const rows = await this.db.any(query, [
+      clientAccountId,
+      startDate,
+      endDate,
+    ]);
     return this.mapArrayToCamelCase(rows);
   }
 
@@ -223,7 +230,10 @@ export class InstagramStoryInsightRepository extends BaseRepository {
     super(db, 'InstagramStoryInsightRepository');
   }
 
-  async findByStoryId(clientAccountId: string, storyIgId: string): Promise<any> {
+  async findByStoryId(
+    clientAccountId: string,
+    storyIgId: string,
+  ): Promise<any> {
     const query = `
       SELECT * FROM instagram_story_insights
       WHERE client_account_id = $1 AND story_ig_id = $2
@@ -287,7 +297,10 @@ export class InstagramAnalyticsReportRepository extends BaseRepository {
     return this.mapToCamelCase(row);
   }
 
-  async findByClientAccountId(clientAccountId: string, limit: number = 10): Promise<any[]> {
+  async findByClientAccountId(
+    clientAccountId: string,
+    limit: number = 10,
+  ): Promise<any[]> {
     const query = `
       SELECT * FROM instagram_analytics_reports
       WHERE client_account_id = $1

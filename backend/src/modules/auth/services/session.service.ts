@@ -8,11 +8,19 @@
  * - Device tracking
  */
 
-import { Injectable, UnauthorizedException, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
-import { Session, DeviceInfo, OAuthState } from '../../../domain/entities/session.entity';
+import {
+  Session,
+  DeviceInfo,
+  OAuthState,
+} from '../../../domain/entities/session.entity';
 import { SESSION_CONFIG } from '../config/session.config';
 
 @Injectable()
@@ -124,7 +132,10 @@ export class SessionService implements OnModuleDestroy {
   /**
    * Update session activity timestamp and renew if needed
    */
-  private async updateSessionActivity(sessionId: string, session: Session): Promise<void> {
+  private async updateSessionActivity(
+    sessionId: string,
+    session: Session,
+  ): Promise<void> {
     const now = new Date();
     session.lastActivityAt = now;
 
@@ -224,8 +235,7 @@ export class SessionService implements OnModuleDestroy {
     if (sessions.length >= SESSION_CONFIG.maxConcurrentSessions) {
       // Sort by last activity (oldest first)
       sessions.sort(
-        (a, b) =>
-          a.lastActivityAt.getTime() - b.lastActivityAt.getTime(),
+        (a, b) => a.lastActivityAt.getTime() - b.lastActivityAt.getTime(),
       );
 
       // Remove oldest session

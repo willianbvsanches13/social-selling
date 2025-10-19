@@ -1,13 +1,26 @@
-import { Injectable, Logger, BadRequestException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  Inject,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as sharp from 'sharp';
 import { MediaUploadResponseDto } from '../dto/media-upload.dto';
-import { InstagramMediaAsset, MediaAssetType } from '../../../domain/entities/instagram-media-asset.entity';
+import {
+  InstagramMediaAsset,
+  MediaAssetType,
+} from '../../../domain/entities/instagram-media-asset.entity';
 import { IInstagramMediaAssetRepository } from '../../../domain/repositories/instagram-media-asset.repository.interface';
 
 export interface IStorageService {
-  uploadFile(bucket: string, key: string, buffer: Buffer, mimeType: string): Promise<void>;
+  uploadFile(
+    bucket: string,
+    key: string,
+    buffer: Buffer,
+    mimeType: string,
+  ): Promise<void>;
   getFileUrl(bucket: string, key: string): Promise<string>;
   deleteFile(bucket: string, key: string): Promise<void>;
 }
@@ -25,8 +38,14 @@ export class InstagramMediaUploadService {
     private readonly storageService: IStorageService,
     private configService: ConfigService,
   ) {
-    this.bucket = this.configService.get<string>('MINIO_BUCKET_INSTAGRAM', 'instagram-media');
-    this.maxFileSize = this.configService.get<number>('MAX_FILE_SIZE', 10 * 1024 * 1024); // 10MB default
+    this.bucket = this.configService.get<string>(
+      'MINIO_BUCKET_INSTAGRAM',
+      'instagram-media',
+    );
+    this.maxFileSize = this.configService.get<number>(
+      'MAX_FILE_SIZE',
+      10 * 1024 * 1024,
+    ); // 10MB default
   }
 
   /**
@@ -42,7 +61,9 @@ export class InstagramMediaUploadService {
     // Validate file type
     const mediaType = this.getMediaType(file.mimetype);
     if (!mediaType) {
-      throw new BadRequestException('Invalid file type. Only images and videos are supported.');
+      throw new BadRequestException(
+        'Invalid file type. Only images and videos are supported.',
+      );
     }
 
     // Validate file size
@@ -53,13 +74,19 @@ export class InstagramMediaUploadService {
     }
 
     // Generate unique filename
-    const fileExtension = file.originalname.split('.').pop()?.toLowerCase() || '';
+    const fileExtension =
+      file.originalname.split('.').pop()?.toLowerCase() || '';
     const filename = `${uuidv4()}.${fileExtension}`;
     const s3Key = `${userId}/${mediaType}/${filename}`;
 
     try {
       // Upload to storage
-      await this.storageService.uploadFile(this.bucket, s3Key, file.buffer, file.mimetype);
+      await this.storageService.uploadFile(
+        this.bucket,
+        s3Key,
+        file.buffer,
+        file.mimetype,
+      );
 
       // Get signed URL
       const s3Url = await this.storageService.getFileUrl(this.bucket, s3Key);
@@ -103,7 +130,8 @@ export class InstagramMediaUploadService {
 
       return this.mapToDto(saved);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : '';
       this.logger.error(`Failed to upload media: ${errorMessage}`, errorStack);
       throw error;
@@ -131,7 +159,8 @@ export class InstagramMediaUploadService {
         height: metadata.height,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to process image metadata: ${errorMessage}`);
       return {
         width: undefined,
@@ -144,7 +173,10 @@ export class InstagramMediaUploadService {
    * Process video metadata
    * Note: Full implementation would use FFmpeg or similar tool
    */
-  private async processVideoMetadata(buffer: Buffer, filename: string): Promise<any> {
+  private async processVideoMetadata(
+    buffer: Buffer,
+    filename: string,
+  ): Promise<any> {
     try {
       // Placeholder implementation
       // In production, would use FFmpeg to extract:
@@ -159,7 +191,8 @@ export class InstagramMediaUploadService {
         thumbnailUrl: undefined,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to process video metadata: ${errorMessage}`);
       return {
         duration: undefined,
@@ -173,7 +206,10 @@ export class InstagramMediaUploadService {
   /**
    * List media assets
    */
-  async listAssets(userId: string, clientAccountId?: string): Promise<MediaUploadResponseDto[]> {
+  async listAssets(
+    userId: string,
+    clientAccountId?: string,
+  ): Promise<MediaUploadResponseDto[]> {
     let assets: InstagramMediaAsset[];
 
     if (clientAccountId) {
@@ -188,7 +224,10 @@ export class InstagramMediaUploadService {
   /**
    * Get single media asset
    */
-  async getAsset(assetId: string, userId: string): Promise<MediaUploadResponseDto> {
+  async getAsset(
+    assetId: string,
+    userId: string,
+  ): Promise<MediaUploadResponseDto> {
     const asset = await this.assetRepository.findById(assetId);
 
     if (!asset || asset.userId !== userId) {
@@ -209,7 +248,9 @@ export class InstagramMediaUploadService {
     }
 
     if (asset.usedInPosts > 0) {
-      throw new BadRequestException('Cannot delete media that is used in posts');
+      throw new BadRequestException(
+        'Cannot delete media that is used in posts',
+      );
     }
 
     try {
@@ -221,7 +262,8 @@ export class InstagramMediaUploadService {
 
       this.logger.log(`Media deleted: ${assetId}`);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : '';
       this.logger.error(`Failed to delete media: ${errorMessage}`, errorStack);
       throw error;

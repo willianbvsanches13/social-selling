@@ -1,7 +1,17 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsDate, IsNumber } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  IsDate,
+  IsNumber,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { AccountStatus, InstagramAccountType } from '../../../domain/entities/client-account.entity';
+import {
+  AccountStatus,
+  InstagramAccountType,
+} from '../../../domain/entities/client-account.entity';
 
 export class CreateAccountDto {
   @ApiProperty({ description: 'Platform account ID from Instagram' })
@@ -22,12 +32,20 @@ export class CreateAccountDto {
   @IsOptional()
   profilePictureUrl?: string;
 
-  @ApiProperty({ enum: InstagramAccountType, required: false, default: 'personal' })
+  @ApiProperty({
+    enum: InstagramAccountType,
+    required: false,
+    default: 'personal',
+  })
   @IsEnum(InstagramAccountType)
   @IsOptional()
   accountType?: InstagramAccountType;
 
-  @ApiProperty({ type: [String], required: false, description: 'OAuth permissions/scopes' })
+  @ApiProperty({
+    type: [String],
+    required: false,
+    description: 'OAuth permissions/scopes',
+  })
   @IsArray()
   @IsOptional()
   permissions?: string[];
@@ -109,7 +127,10 @@ export class AccountResponseDto {
 }
 
 export class AccountListResponseDto {
-  @ApiProperty({ type: [AccountResponseDto], description: 'Array of connected accounts' })
+  @ApiProperty({
+    type: [AccountResponseDto],
+    description: 'Array of connected accounts',
+  })
   accounts!: AccountResponseDto[];
 
   @ApiProperty({ description: 'Total number of accounts' })

@@ -35,6 +35,7 @@
     ]
   },
   "dependencies": {
+    "@nestjs/bull": "^11.0.4",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -50,6 +51,7 @@
     "@types/uuid": "^10.0.0",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
+    "bull": "^4.16.5",
     "bullmq": "^5.61.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",

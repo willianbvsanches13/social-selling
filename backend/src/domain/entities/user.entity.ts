@@ -35,7 +35,9 @@ export class User {
     this.validate();
   }
 
-  static create(props: Omit<UserProps, 'id' | 'createdAt' | 'updatedAt'>): User {
+  static create(
+    props: Omit<UserProps, 'id' | 'createdAt' | 'updatedAt'>,
+  ): User {
     return new User({
       ...props,
       id: crypto.randomUUID(),
@@ -117,7 +119,9 @@ export class User {
 
   setPasswordResetToken(token: string, expiresInMinutes: number = 60): void {
     this.props.passwordResetToken = token;
-    this.props.passwordResetExpires = new Date(Date.now() + expiresInMinutes * 60000);
+    this.props.passwordResetExpires = new Date(
+      Date.now() + expiresInMinutes * 60000,
+    );
     this.props.updatedAt = new Date();
   }
 

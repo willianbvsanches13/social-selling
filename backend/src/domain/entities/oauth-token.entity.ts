@@ -20,7 +20,9 @@ export class OAuthToken {
     this.validate();
   }
 
-  static create(props: Omit<OAuthTokenProps, 'id' | 'createdAt' | 'updatedAt'>): OAuthToken {
+  static create(
+    props: Omit<OAuthTokenProps, 'id' | 'createdAt' | 'updatedAt'>,
+  ): OAuthToken {
     return new OAuthToken({
       ...props,
       id: crypto.randomUUID(),
@@ -65,11 +67,17 @@ export class OAuthToken {
 
   isExpiringSoon(thresholdDays: number = 7): boolean {
     const now = new Date();
-    const threshold = new Date(now.getTime() + thresholdDays * 24 * 60 * 60 * 1000);
+    const threshold = new Date(
+      now.getTime() + thresholdDays * 24 * 60 * 60 * 1000,
+    );
     return this.props.expiresAt <= threshold;
   }
 
-  updateToken(encryptedAccessToken: string, expiresAt: Date, encryptedRefreshToken?: string): void {
+  updateToken(
+    encryptedAccessToken: string,
+    expiresAt: Date,
+    encryptedRefreshToken?: string,
+  ): void {
     this.props.encryptedAccessToken = encryptedAccessToken;
     this.props.expiresAt = expiresAt;
     if (encryptedRefreshToken) {

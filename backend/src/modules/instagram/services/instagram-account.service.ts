@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException, ForbiddenException, Inject, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  Inject,
+  Logger,
+} from '@nestjs/common';
 import { IClientAccountRepository } from '../../../domain/repositories/client-account.repository.interface';
 import {
   ClientAccount,
@@ -22,7 +28,10 @@ export class InstagramAccountService {
   /**
    * Create new Instagram account after OAuth
    */
-  async createAccount(userId: string, accountData: CreateAccountDto): Promise<ClientAccount> {
+  async createAccount(
+    userId: string,
+    accountData: CreateAccountDto,
+  ): Promise<ClientAccount> {
     // Check if account already exists
     const existing = await this.accountRepository.findByPlatformAccountId(
       Platform.INSTAGRAM,
@@ -32,7 +41,10 @@ export class InstagramAccountService {
     if (existing) {
       // Update existing account instead of creating duplicate
       existing.reactivate();
-      existing.updateTokenExpiration(accountData.tokenExpiresAt || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000));
+      existing.updateTokenExpiration(
+        accountData.tokenExpiresAt ||
+          new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+      );
       return this.accountRepository.update(existing);
     }
 
@@ -55,7 +67,9 @@ export class InstagramAccountService {
 
     // Fetch and store account metadata in background (don't await)
     this.syncAccountMetadata(saved.id).catch((error) => {
-      this.logger.error(`Failed to sync metadata for account ${saved.id}: ${error.message}`);
+      this.logger.error(
+        `Failed to sync metadata for account ${saved.id}: ${error.message}`,
+      );
     });
 
     return saved;
@@ -71,7 +85,10 @@ export class InstagramAccountService {
   /**
    * Get single account by ID
    */
-  async getAccountById(accountId: string, userId: string): Promise<ClientAccount> {
+  async getAccountById(
+    accountId: string,
+    userId: string,
+  ): Promise<ClientAccount> {
     const account = await this.accountRepository.findById(accountId);
 
     if (!account) {
@@ -88,7 +105,11 @@ export class InstagramAccountService {
   /**
    * Update account information
    */
-  async updateAccount(accountId: string, userId: string, updates: UpdateAccountDto): Promise<ClientAccount> {
+  async updateAccount(
+    accountId: string,
+    userId: string,
+    updates: UpdateAccountDto,
+  ): Promise<ClientAccount> {
     const account = await this.getAccountById(accountId, userId);
 
     // Apply updates
@@ -124,8 +145,11 @@ export class InstagramAccountService {
     try {
       await this.instagramApi.revokeToken(accountId);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      this.logger.warn(`Failed to revoke token for account ${accountId}: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.warn(
+        `Failed to revoke token for account ${accountId}: ${errorMessage}`,
+      );
     }
 
     // Mark as disconnected and soft delete
@@ -168,8 +192,11 @@ export class InstagramAccountService {
 
       return this.accountRepository.update(account);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Failed to sync metadata for account ${accountId}: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(
+        `Failed to sync metadata for account ${accountId}: ${errorMessage}`,
+      );
 
       // Update account status to error
       account.markAsError({
@@ -214,8 +241,11 @@ export class InstagramAccountService {
         return AccountStatus.TOKEN_EXPIRED;
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Status refresh error for account ${accountId}: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(
+        `Status refresh error for account ${accountId}: ${errorMessage}`,
+      );
 
       account.markAsError({
         code: 'API_ERROR',

@@ -46,7 +46,11 @@ export class PostStatusService {
       // Apply updates based on the status transition
       if (update.status === PostStatus.PUBLISHING) {
         post.markAsPublishing();
-      } else if (update.status === PostStatus.PUBLISHED && update.instagramPostId && update.permalink) {
+      } else if (
+        update.status === PostStatus.PUBLISHED &&
+        update.instagramPostId &&
+        update.permalink
+      ) {
         post.markAsPublished(update.instagramPostId, update.permalink);
       } else if (update.status === PostStatus.FAILED && update.failureReason) {
         post.markAsFailed(update.failureReason);
@@ -57,7 +61,8 @@ export class PostStatusService {
       this.logger.log(`Updated post ${postId} status to ${update.status}`);
       return updated;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(
         `Failed to update post status: ${errorMessage}`,

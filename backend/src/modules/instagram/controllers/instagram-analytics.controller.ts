@@ -10,7 +10,12 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { InstagramAnalyticsService } from '../services/instagram-analytics.service';
 import {
@@ -42,14 +47,17 @@ export class InstagramAnalyticsController {
     description: 'Insights fetched successfully',
     type: AccountInsightsResponseDto,
   })
-  async fetchAccountInsights(@Request() req: ExpressRequest, @Body() dto: GetAccountInsightsDto) {
+  async fetchAccountInsights(
+    @Request() req: ExpressRequest,
+    @Body() dto: GetAccountInsightsDto,
+  ) {
     const since = dto.since ? dto.since : undefined;
     const until = dto.until ? dto.until : undefined;
 
     return this.analyticsService.fetchAccountInsights(
       (req.user as any)?.id,
       dto.clientAccountId,
-      dto.period as InsightPeriod,
+      dto.period,
       since,
       until,
     );
@@ -69,7 +77,8 @@ export class InstagramAnalyticsController {
     @Query('since') since?: string,
     @Query('until') until?: string,
   ) {
-    const sinceDate = since || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const sinceDate =
+      since || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const untilDate = until || new Date().toISOString();
 
     return this.analyticsService.getAccountInsightsHistory(
@@ -95,7 +104,11 @@ export class InstagramAnalyticsController {
     @Param('clientAccountId') clientAccountId: string,
     @Query('mediaId') mediaId?: string,
   ) {
-    return this.analyticsService.fetchMediaInsights((req.user as any)?.id, clientAccountId, mediaId);
+    return this.analyticsService.fetchMediaInsights(
+      (req.user as any)?.id,
+      clientAccountId,
+      mediaId,
+    );
   }
 
   @Get('media/top/:clientAccountId')
@@ -108,7 +121,8 @@ export class InstagramAnalyticsController {
   async getTopPosts(
     @Request() req: ExpressRequest,
     @Param('clientAccountId') clientAccountId: string,
-    @Query('metric') metric: 'engagement' | 'reach' | 'impressions' = 'engagement',
+    @Query('metric')
+    metric: 'engagement' | 'reach' | 'impressions' = 'engagement',
     @Query('limit') limit: number = 10,
     @Query('since') since?: string,
     @Query('until') until?: string,
@@ -126,7 +140,9 @@ export class InstagramAnalyticsController {
       posts,
       metric,
       period: {
-        startDate: since || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+        startDate:
+          since ||
+          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
         endDate: until || new Date().toISOString(),
       },
     };
@@ -145,7 +161,10 @@ export class InstagramAnalyticsController {
     @Request() req: ExpressRequest,
     @Param('clientAccountId') clientAccountId: string,
   ) {
-    return this.analyticsService.getAudienceDemographics((req.user as any)?.id, clientAccountId);
+    return this.analyticsService.getAudienceDemographics(
+      (req.user as any)?.id,
+      clientAccountId,
+    );
   }
 
   // ========== Reports ==========
@@ -157,11 +176,14 @@ export class InstagramAnalyticsController {
     description: 'Report generated successfully',
     type: AnalyticsReportResponseDto,
   })
-  async generateReport(@Request() req: ExpressRequest, @Body() dto: GenerateReportDto) {
+  async generateReport(
+    @Request() req: ExpressRequest,
+    @Body() dto: GenerateReportDto,
+  ) {
     return this.analyticsService.generateReport(
       (req.user as any)?.id,
       dto.clientAccountId,
-      dto.reportType as ReportType,
+      dto.reportType,
       this.formatDateOnly(dto.startDate),
       this.formatDateOnly(dto.endDate),
     );

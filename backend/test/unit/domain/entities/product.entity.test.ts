@@ -28,13 +28,17 @@ describe('Product Entity', () => {
     it('should throw error when name is too short', () => {
       const invalidProps = { ...validProps, name: 'A' };
       expect(() => Product.create(invalidProps)).toThrow(DomainException);
-      expect(() => Product.create(invalidProps)).toThrow('Product name must be at least 2 characters');
+      expect(() => Product.create(invalidProps)).toThrow(
+        'Product name must be at least 2 characters',
+      );
     });
 
     it('should throw error for negative stock quantity', () => {
       const invalidProps = { ...validProps, stockQuantity: -10 };
       expect(() => Product.create(invalidProps)).toThrow(DomainException);
-      expect(() => Product.create(invalidProps)).toThrow('Stock quantity cannot be negative');
+      expect(() => Product.create(invalidProps)).toThrow(
+        'Stock quantity cannot be negative',
+      );
     });
 
     it('should reconstitute product from existing props', () => {
@@ -102,7 +106,11 @@ describe('Product Entity', () => {
     });
 
     it('should make product unavailable when stock reaches zero', () => {
-      const product = Product.create({ ...validProps, stockQuantity: 1, isAvailable: true });
+      const product = Product.create({
+        ...validProps,
+        stockQuantity: 1,
+        isAvailable: true,
+      });
       product.decrementStock(1);
       expect(product.isAvailable).toBe(false);
     });
@@ -136,9 +144,15 @@ describe('Product Entity', () => {
     });
 
     it('should throw error when making available without stock', () => {
-      const product = Product.create({ ...validProps, stockQuantity: 0, isAvailable: false });
+      const product = Product.create({
+        ...validProps,
+        stockQuantity: 0,
+        isAvailable: false,
+      });
       expect(() => product.makeAvailable()).toThrow(DomainException);
-      expect(() => product.makeAvailable()).toThrow('Cannot make available without stock');
+      expect(() => product.makeAvailable()).toThrow(
+        'Cannot make available without stock',
+      );
     });
 
     it('should make product unavailable', () => {

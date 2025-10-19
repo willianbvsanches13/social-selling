@@ -11,8 +11,17 @@ import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { CreateScheduledPostDto, UpdateScheduledPostDto, ListScheduledPostsDto, ScheduledPostResponseDto, PostStatus } from '../dto/scheduled-post.dto';
-import { InstagramScheduledPost, PostMediaType } from '../../../domain/entities/instagram-scheduled-post.entity';
+import {
+  CreateScheduledPostDto,
+  UpdateScheduledPostDto,
+  ListScheduledPostsDto,
+  ScheduledPostResponseDto,
+  PostStatus,
+} from '../dto/scheduled-post.dto';
+import {
+  InstagramScheduledPost,
+  PostMediaType,
+} from '../../../domain/entities/instagram-scheduled-post.entity';
 import { InstagramPostTemplate } from '../../../domain/entities/instagram-post-template.entity';
 import { InstagramPostingSchedule } from '../../../domain/entities/instagram-posting-schedule.entity';
 import { InstagramApiService } from './instagram-api.service';
@@ -46,7 +55,10 @@ export class InstagramSchedulingService {
   /**
    * Create scheduled post
    */
-  async createScheduledPost(userId: string, dto: CreateScheduledPostDto): Promise<ScheduledPostResponseDto> {
+  async createScheduledPost(
+    userId: string,
+    dto: CreateScheduledPostDto,
+  ): Promise<ScheduledPostResponseDto> {
     this.logger.log(`Creating scheduled post for user ${userId}`);
 
     // Validate scheduled time is in future
@@ -58,7 +70,9 @@ export class InstagramSchedulingService {
     // Validate not too far in future (max 6 months)
     const maxFutureDate = dayjs().add(6, 'months');
     if (scheduledDate.isAfter(maxFutureDate)) {
-      throw new BadRequestException('Cannot schedule posts more than 6 months in advance');
+      throw new BadRequestException(
+        'Cannot schedule posts more than 6 months in advance',
+      );
     }
 
     // Get and verify Instagram account
@@ -80,11 +94,14 @@ export class InstagramSchedulingService {
 
       // Add suggested hashtags and mentions
       if (template.suggestedHashtags && template.suggestedHashtags.length > 0) {
-        caption += '\n\n' + template.suggestedHashtags.map((tag) => `#${tag}`).join(' ');
+        caption +=
+          '\n\n' + template.suggestedHashtags.map((tag) => `#${tag}`).join(' ');
       }
 
       if (template.suggestedMentions && template.suggestedMentions.length > 0) {
-        caption += '\n' + template.suggestedMentions.map((mention) => `@${mention}`).join(' ');
+        caption +=
+          '\n' +
+          template.suggestedMentions.map((mention) => `@${mention}`).join(' ');
       }
 
       // Record template usage
@@ -118,7 +135,9 @@ export class InstagramSchedulingService {
     const delay = scheduledDate.diff(dayjs(), 'millisecond');
     await this.queuePublishJob(saved.id, delay);
 
-    this.logger.log(`Scheduled post created: ${saved.id}, publishing in ${delay}ms`);
+    this.logger.log(
+      `Scheduled post created: ${saved.id}, publishing in ${delay}ms`,
+    );
 
     return this.mapToDto(saved);
   }
@@ -130,14 +149,25 @@ export class InstagramSchedulingService {
     userId: string,
     accountId: string,
     dto: ListScheduledPostsDto,
-  ): Promise<{ posts: ScheduledPostResponseDto[]; total: number; page: number; limit: number }> {
+  ): Promise<{
+    posts: ScheduledPostResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     // Verify account access
     const account = await this.accountRepository.findById(accountId);
     if (!account || account.userId !== userId) {
       throw new NotFoundException('Instagram account not found');
     }
 
-    const { page = 1, limit = 20, status, scheduledAfter, scheduledBefore } = dto;
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      scheduledAfter,
+      scheduledBefore,
+    } = dto;
 
     const filters: any = {};
     if (status) {
@@ -150,11 +180,14 @@ export class InstagramSchedulingService {
       filters.scheduledBefore = dayjs(scheduledBefore).toDate();
     }
 
-    const { items, total } = await this.scheduledPostRepository.list(accountId, {
-      ...filters,
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const { items, total } = await this.scheduledPostRepository.list(
+      accountId,
+      {
+        ...filters,
+        skip: (page - 1) * limit,
+        take: limit,
+      },
+    );
 
     return {
       posts: items.map((p) => this.mapToDto(p)),
@@ -167,7 +200,10 @@ export class InstagramSchedulingService {
   /**
    * Get scheduled post by ID
    */
-  async getScheduledPost(postId: string, userId: string): Promise<ScheduledPostResponseDto> {
+  async getScheduledPost(
+    postId: string,
+    userId: string,
+  ): Promise<ScheduledPostResponseDto> {
     const post = await this.scheduledPostRepository.findById(postId);
 
     if (!post || post.userId !== userId) {
@@ -257,7 +293,10 @@ export class InstagramSchedulingService {
   /**
    * Publish post immediately
    */
-  async publishNow(postId: string, userId: string): Promise<ScheduledPostResponseDto> {
+  async publishNow(
+    postId: string,
+    userId: string,
+  ): Promise<ScheduledPostResponseDto> {
     const post = await this.scheduledPostRepository.findById(postId);
 
     if (!post || post.userId !== userId) {
@@ -296,7 +335,9 @@ export class InstagramSchedulingService {
     }
 
     if (!post.isScheduled) {
-      this.logger.warn(`Post ${postId} is not in scheduled status: ${post.status}`);
+      this.logger.warn(
+        `Post ${postId} is not in scheduled status: ${post.status}`,
+      );
       return;
     }
 
@@ -306,7 +347,9 @@ export class InstagramSchedulingService {
 
     try {
       // Get account
-      const account = await this.accountRepository.findById(post.clientAccountId);
+      const account = await this.accountRepository.findById(
+        post.clientAccountId,
+      );
       if (!account) {
         throw new Error('Account not found');
       }
@@ -327,24 +370,33 @@ export class InstagramSchedulingService {
         // TODO: Fetch actual insights from Instagram API
         post.setInitialMetrics(0, 0, 0);
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        this.logger.warn(`Failed to fetch insights for post ${postId}: ${errorMessage}`);
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        this.logger.warn(
+          `Failed to fetch insights for post ${postId}: ${errorMessage}`,
+        );
       }
 
       await this.scheduledPostRepository.update(post);
 
       this.logger.log(`Post published successfully: ${postId} -> ${result.id}`);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : '';
-      this.logger.error(`Failed to publish post ${postId}: ${errorMessage}`, errorStack);
+      this.logger.error(
+        `Failed to publish post ${postId}: ${errorMessage}`,
+        errorStack,
+      );
 
       post.markAsFailed(errorMessage);
       await this.scheduledPostRepository.update(post);
 
       // Retry if attempts < 3
       if (post.canRetry(3)) {
-        this.logger.log(`Scheduling retry for post ${postId} (attempt ${post.publishAttempts + 1})`);
+        this.logger.log(
+          `Scheduling retry for post ${postId} (attempt ${post.publishAttempts + 1})`,
+        );
         await this.queuePublishJob(postId, 5 * 60 * 1000); // Retry in 5 minutes
       }
     }
@@ -353,7 +405,10 @@ export class InstagramSchedulingService {
   /**
    * Get optimal posting times
    */
-  async getOptimalPostingTimes(accountId: string, userId: string): Promise<any> {
+  async getOptimalPostingTimes(
+    accountId: string,
+    userId: string,
+  ): Promise<any> {
     // Verify account access
     const account = await this.accountRepository.findById(accountId);
     if (!account || account.userId !== userId) {
@@ -361,10 +416,12 @@ export class InstagramSchedulingService {
     }
 
     // Get posting schedules
-    const schedules = await this.scheduleRepository.findByClientAccount(accountId);
+    const schedules =
+      await this.scheduleRepository.findByClientAccount(accountId);
 
     // Get historical posts
-    const historicalPosts = await this.scheduledPostRepository.findByClientAccount(accountId);
+    const historicalPosts =
+      await this.scheduledPostRepository.findByClientAccount(accountId);
     const publishedPosts = historicalPosts.filter((p) => p.isPublished);
 
     // Analyze engagement patterns
@@ -383,7 +440,8 @@ export class InstagramSchedulingService {
    * Analyze engagement patterns from historical posts
    */
   private analyzeEngagementPatterns(posts: InstagramScheduledPost[]): any[] {
-    const patterns: Map<string, { count: number; totalEngagement: number }> = new Map();
+    const patterns: Map<string, { count: number; totalEngagement: number }> =
+      new Map();
 
     for (const post of posts) {
       if (!post.toJSON().publishedAt) continue;
@@ -394,7 +452,8 @@ export class InstagramSchedulingService {
       const key = `${dayOfWeek}-${hour}`;
 
       const props = post.toJSON();
-      const engagement = (props.initialLikes || 0) + (props.initialComments || 0) * 2;
+      const engagement =
+        (props.initialLikes || 0) + (props.initialComments || 0) * 2;
 
       if (!patterns.has(key)) {
         patterns.set(key, { count: 0, totalEngagement: 0 });

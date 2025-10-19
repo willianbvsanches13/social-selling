@@ -6,7 +6,10 @@ import { Database } from '../database';
 import { BaseRepository } from './base.repository';
 
 @Injectable()
-export class OAuthTokenRepository extends BaseRepository implements IOAuthTokenRepository {
+export class OAuthTokenRepository
+  extends BaseRepository
+  implements IOAuthTokenRepository
+{
   private readonly encryptionKey: string;
 
   constructor(
@@ -14,10 +17,15 @@ export class OAuthTokenRepository extends BaseRepository implements IOAuthTokenR
     private readonly configService: ConfigService,
   ) {
     super(database.getDb(), OAuthTokenRepository.name);
-    this.encryptionKey = this.configService.get<string>('OAUTH_ENCRYPTION_KEY') || '';
+    this.encryptionKey =
+      this.configService.get<string>('OAUTH_ENCRYPTION_KEY') || '';
     if (!this.encryptionKey) {
-      this.logger.error('OAUTH_ENCRYPTION_KEY is not set in environment variables');
-      throw new Error('OAUTH_ENCRYPTION_KEY is required for OAuth token encryption');
+      this.logger.error(
+        'OAUTH_ENCRYPTION_KEY is not set in environment variables',
+      );
+      throw new Error(
+        'OAUTH_ENCRYPTION_KEY is required for OAuth token encryption',
+      );
     }
   }
 
@@ -43,7 +51,9 @@ export class OAuthTokenRepository extends BaseRepository implements IOAuthTokenR
     return this.mapToEntity(row);
   }
 
-  async findByClientAccountId(clientAccountId: string): Promise<OAuthToken | null> {
+  async findByClientAccountId(
+    clientAccountId: string,
+  ): Promise<OAuthToken | null> {
     const query = `
       SELECT
         id,
@@ -62,7 +72,10 @@ export class OAuthTokenRepository extends BaseRepository implements IOAuthTokenR
       LIMIT 1
     `;
 
-    const row = await this.db.oneOrNone(query, [clientAccountId, this.encryptionKey]);
+    const row = await this.db.oneOrNone(query, [
+      clientAccountId,
+      this.encryptionKey,
+    ]);
     if (!row) return null;
     return this.mapToEntity(row);
   }
@@ -191,13 +204,18 @@ export class OAuthTokenRepository extends BaseRepository implements IOAuthTokenR
       ORDER BY expires_at ASC
     `;
 
-    const rows = await this.db.manyOrNone(query, [thresholdDays, this.encryptionKey]);
+    const rows = await this.db.manyOrNone(query, [
+      thresholdDays,
+      this.encryptionKey,
+    ]);
     return rows ? rows.map((row) => this.mapToEntity(row)) : [];
   }
 
   private mapToEntity(row: any): OAuthToken {
     const mapped = this.mapToCamelCase<any>(row);
-    const scopeString = Array.isArray(mapped.scopes) ? mapped.scopes.join(',') : '';
+    const scopeString = Array.isArray(mapped.scopes)
+      ? mapped.scopes.join(',')
+      : '';
 
     return OAuthToken.reconstitute({
       id: mapped.id,

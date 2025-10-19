@@ -6,13 +6,6 @@ import { Upload, X, Image as ImageIcon, Video, Loader2 } from 'lucide-react';
 import { postsService } from '@/lib/services/posts.service';
 import { useToast } from '@/lib/hooks/useToast';
 
-interface MediaFile {
-  url: string;
-  type: 'image' | 'video';
-  name: string;
-  size: number;
-}
-
 interface MediaUploaderProps {
   value: string[];
   onChange: (urls: string[]) => void;
@@ -55,8 +48,9 @@ export function MediaUploader({
         }
 
         onChange([...value, ...newUrls]);
-      } catch (err: any) {
-        showError(err.message || 'Failed to upload media');
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to upload media';
+        showError(errorMessage);
       } finally {
         setUploading(false);
         setUploadProgress({});

@@ -15,6 +15,7 @@ function InstagramCallbackContent() {
 
   useEffect(() => {
     handleCallback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCallback = async () => {
@@ -54,10 +55,11 @@ function InstagramCallbackContent() {
       setTimeout(() => {
         router.push('/instagram');
       }, 2000);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to connect Instagram account';
       setStatus('error');
-      setMessage(err.message || 'Failed to connect Instagram account');
-      showError(err.message || 'Failed to connect Instagram account');
+      setMessage(errorMessage);
+      showError(errorMessage);
 
       // Redirect back after error
       setTimeout(() => {

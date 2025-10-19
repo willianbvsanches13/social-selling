@@ -1,4 +1,7 @@
-import { User, SubscriptionTier } from '../../../../src/domain/entities/user.entity';
+import {
+  User,
+  SubscriptionTier,
+} from '../../../../src/domain/entities/user.entity';
 import { Email } from '../../../../src/domain/value-objects/email.vo';
 import { DomainException } from '../../../../src/domain/exceptions/domain.exception';
 
@@ -26,13 +29,17 @@ describe('User Entity', () => {
     it('should throw error when name is too short', () => {
       const invalidProps = { ...validProps, name: 'A' };
       expect(() => User.create(invalidProps)).toThrow(DomainException);
-      expect(() => User.create(invalidProps)).toThrow('User name must be at least 2 characters');
+      expect(() => User.create(invalidProps)).toThrow(
+        'User name must be at least 2 characters',
+      );
     });
 
     it('should throw error when password hash is missing', () => {
       const invalidProps = { ...validProps, passwordHash: '' };
       expect(() => User.create(invalidProps)).toThrow(DomainException);
-      expect(() => User.create(invalidProps)).toThrow('Password hash is required');
+      expect(() => User.create(invalidProps)).toThrow(
+        'Password hash is required',
+      );
     });
 
     it('should reconstitute user from existing props', () => {
@@ -72,13 +79,19 @@ describe('User Entity', () => {
         ...validProps,
         subscriptionTier: SubscriptionTier.PRO,
       });
-      expect(() => user.upgradeTier(SubscriptionTier.FREE)).toThrow(DomainException);
-      expect(() => user.upgradeTier(SubscriptionTier.FREE)).toThrow('Cannot downgrade or upgrade to same tier');
+      expect(() => user.upgradeTier(SubscriptionTier.FREE)).toThrow(
+        DomainException,
+      );
+      expect(() => user.upgradeTier(SubscriptionTier.FREE)).toThrow(
+        'Cannot downgrade or upgrade to same tier',
+      );
     });
 
     it('should throw error when upgrading to same tier', () => {
       const user = User.create(validProps);
-      expect(() => user.upgradeTier(SubscriptionTier.FREE)).toThrow(DomainException);
+      expect(() => user.upgradeTier(SubscriptionTier.FREE)).toThrow(
+        DomainException,
+      );
     });
   });
 

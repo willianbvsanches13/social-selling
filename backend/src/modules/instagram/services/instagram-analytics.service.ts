@@ -1,4 +1,10 @@
-import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+  Inject,
+} from '@nestjs/common';
 import { InstagramApiService } from './instagram-api.service';
 import {
   InstagramAccountInsightRepository,
@@ -47,7 +53,8 @@ export class InstagramAnalyticsService {
     );
 
     try {
-      const account = await this.clientAccountRepository.findById(clientAccountId);
+      const account =
+        await this.clientAccountRepository.findById(clientAccountId);
       if (!account) {
         throw new NotFoundException('Account not found');
       }
@@ -76,7 +83,8 @@ export class InstagramAnalyticsService {
 
       // Fetch from Instagram Graph API
       const insights = await this.instagramApiService.getAccountInsights(
-        (account as any).instagramBusinessAccountId || (account as any).instagram_business_account_id,
+        (account as any).instagramBusinessAccountId ||
+          (account as any).instagram_business_account_id,
         metrics,
         period as 'day' | 'week' | 'days_28' | 'lifetime',
       );
@@ -84,11 +92,12 @@ export class InstagramAnalyticsService {
       // Store in database
       const date = this.formatDate(until || new Date());
 
-      let accountInsight = await this.accountInsightRepository.findByClientAccountAndDate(
-        clientAccountId,
-        date,
-        period,
-      );
+      let accountInsight =
+        await this.accountInsightRepository.findByClientAccountAndDate(
+          clientAccountId,
+          date,
+          period,
+        );
 
       if (!accountInsight) {
         accountInsight = {
@@ -103,11 +112,12 @@ export class InstagramAnalyticsService {
       this.mapAccountInsights(accountInsight, insightsArray);
 
       // Calculate follower change
-      const previousInsight = await this.accountInsightRepository.getPreviousPeriodInsight(
-        clientAccountId,
-        date,
-        period,
-      );
+      const previousInsight =
+        await this.accountInsightRepository.getPreviousPeriodInsight(
+          clientAccountId,
+          date,
+          period,
+        );
 
       if (previousInsight && accountInsight.followerCount) {
         accountInsight.followerChange =
@@ -202,7 +212,8 @@ export class InstagramAnalyticsService {
     this.logger.log(`Fetching media insights for account ${clientAccountId}`);
 
     try {
-      const account = await this.clientAccountRepository.findById(clientAccountId);
+      const account =
+        await this.clientAccountRepository.findById(clientAccountId);
       if (!account || (account as any).userId !== userId) {
         throw new BadRequestException('Unauthorized access to account');
       }
@@ -275,7 +286,8 @@ export class InstagramAnalyticsService {
 
         // Calculate engagement rate
         if (mediaInsight.reach > 0) {
-          const engagement = (mediaInsight.likeCount || 0) + (mediaInsight.commentCount || 0);
+          const engagement =
+            (mediaInsight.likeCount || 0) + (mediaInsight.commentCount || 0);
           mediaInsight.engagementRate = (engagement / mediaInsight.reach) * 100;
         }
 
@@ -335,7 +347,8 @@ export class InstagramAnalyticsService {
     since: string,
     until: string,
   ): Promise<any[]> {
-    const account = await this.clientAccountRepository.findById(clientAccountId);
+    const account =
+      await this.clientAccountRepository.findById(clientAccountId);
     if (!account || (account as any).userId !== userId) {
       throw new BadRequestException('Unauthorized access to account');
     }
@@ -344,15 +357,16 @@ export class InstagramAnalyticsService {
     const cached = await this.redisService.get(cacheKey);
 
     if (cached) {
-      return JSON.parse(cached as string);
+      return JSON.parse(cached);
     }
 
-    const insights = await this.accountInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      period,
-      since,
-      until,
-    );
+    const insights =
+      await this.accountInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        period,
+        since,
+        until,
+      );
 
     const dtos = insights.map((i) => this.mapAccountInsightToDto(i));
 
@@ -372,7 +386,8 @@ export class InstagramAnalyticsService {
     since?: string,
     until?: string,
   ): Promise<any[]> {
-    const account = await this.clientAccountRepository.findById(clientAccountId);
+    const account =
+      await this.clientAccountRepository.findById(clientAccountId);
     if (!account || (account as any).userId !== userId) {
       throw new BadRequestException('Unauthorized access to account');
     }
@@ -391,8 +406,12 @@ export class InstagramAnalyticsService {
   /**
    * Get audience demographics
    */
-  async getAudienceDemographics(userId: string, clientAccountId: string): Promise<any> {
-    const account = await this.clientAccountRepository.findById(clientAccountId);
+  async getAudienceDemographics(
+    userId: string,
+    clientAccountId: string,
+  ): Promise<any> {
+    const account =
+      await this.clientAccountRepository.findById(clientAccountId);
     if (!account || (account as any).userId !== userId) {
       throw new BadRequestException('Unauthorized access to account');
     }
@@ -401,16 +420,17 @@ export class InstagramAnalyticsService {
     const cached = await this.redisService.get(cacheKey);
 
     if (cached) {
-      return JSON.parse(cached as string);
+      return JSON.parse(cached);
     }
 
     // Get latest account insight with audience data
-    const insights = await this.accountInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      'day',
-      this.formatDate(new Date(Date.now() - 86400000)),
-      this.formatDate(new Date()),
-    );
+    const insights =
+      await this.accountInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        'day',
+        this.formatDate(new Date(Date.now() - 86400000)),
+        this.formatDate(new Date()),
+      );
 
     if (!insights || insights.length === 0) {
       throw new NotFoundException('No audience data available');
@@ -426,7 +446,11 @@ export class InstagramAnalyticsService {
       onlineFollowers: latest.onlineFollowers || {},
     };
 
-    await this.redisService.set(cacheKey, JSON.stringify(result), this.CACHE_TTL);
+    await this.redisService.set(
+      cacheKey,
+      JSON.stringify(result),
+      this.CACHE_TTL,
+    );
 
     return result;
   }
@@ -444,7 +468,8 @@ export class InstagramAnalyticsService {
     this.logger.log(`Generating ${reportType} report for ${clientAccountId}`);
 
     try {
-      const account = await this.clientAccountRepository.findById(clientAccountId);
+      const account =
+        await this.clientAccountRepository.findById(clientAccountId);
       if (!account || (account as any).userId !== userId) {
         throw new BadRequestException('Unauthorized access to account');
       }
@@ -457,27 +482,83 @@ export class InstagramAnalyticsService {
 
       switch (reportType) {
         case ReportType.OVERVIEW:
-          summary = await this.generateOverviewSummary(clientAccountId, startDate, endDate);
-          chartsData = await this.generateOverviewCharts(clientAccountId, startDate, endDate);
-          topPosts = await this.getTopPosts(userId, clientAccountId, 'engagement', 5, startDate, endDate);
+          summary = await this.generateOverviewSummary(
+            clientAccountId,
+            startDate,
+            endDate,
+          );
+          chartsData = await this.generateOverviewCharts(
+            clientAccountId,
+            startDate,
+            endDate,
+          );
+          topPosts = await this.getTopPosts(
+            userId,
+            clientAccountId,
+            'engagement',
+            5,
+            startDate,
+            endDate,
+          );
           break;
 
         case ReportType.CONTENT:
-          summary = await this.generateContentSummary(clientAccountId, startDate, endDate);
-          chartsData = await this.generateContentCharts(clientAccountId, startDate, endDate);
-          topPosts = await this.getTopPosts(userId, clientAccountId, 'engagement', 10, startDate, endDate);
+          summary = await this.generateContentSummary(
+            clientAccountId,
+            startDate,
+            endDate,
+          );
+          chartsData = await this.generateContentCharts(
+            clientAccountId,
+            startDate,
+            endDate,
+          );
+          topPosts = await this.getTopPosts(
+            userId,
+            clientAccountId,
+            'engagement',
+            10,
+            startDate,
+            endDate,
+          );
           break;
 
         case ReportType.AUDIENCE:
-          summary = await this.generateAudienceSummary(clientAccountId, startDate, endDate);
-          chartsData = await this.generateAudienceCharts(clientAccountId, startDate, endDate);
-          insights = await this.getAudienceDemographics(userId, clientAccountId);
+          summary = await this.generateAudienceSummary(
+            clientAccountId,
+            startDate,
+            endDate,
+          );
+          chartsData = await this.generateAudienceCharts(
+            clientAccountId,
+            startDate,
+            endDate,
+          );
+          insights = await this.getAudienceDemographics(
+            userId,
+            clientAccountId,
+          );
           break;
 
         case ReportType.ENGAGEMENT:
-          summary = await this.generateEngagementSummary(clientAccountId, startDate, endDate);
-          chartsData = await this.generateEngagementCharts(clientAccountId, startDate, endDate);
-          topPosts = await this.getTopPosts(userId, clientAccountId, 'engagement', 10, startDate, endDate);
+          summary = await this.generateEngagementSummary(
+            clientAccountId,
+            startDate,
+            endDate,
+          );
+          chartsData = await this.generateEngagementCharts(
+            clientAccountId,
+            startDate,
+            endDate,
+          );
+          topPosts = await this.getTopPosts(
+            userId,
+            clientAccountId,
+            'engagement',
+            10,
+            startDate,
+            endDate,
+          );
           break;
       }
 
@@ -519,21 +600,29 @@ export class InstagramAnalyticsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const accountInsights = await this.accountInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      'day',
-      startDate,
-      endDate,
-    );
+    const accountInsights =
+      await this.accountInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        'day',
+        startDate,
+        endDate,
+      );
 
-    const mediaInsights = await this.mediaInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      startDate,
-      endDate,
-    );
+    const mediaInsights =
+      await this.mediaInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        startDate,
+        endDate,
+      );
 
-    const totalReach = accountInsights.reduce((sum, i) => sum + (i.reach || 0), 0);
-    const totalImpressions = accountInsights.reduce((sum, i) => sum + (i.impressions || 0), 0);
+    const totalReach = accountInsights.reduce(
+      (sum, i) => sum + (i.reach || 0),
+      0,
+    );
+    const totalImpressions = accountInsights.reduce(
+      (sum, i) => sum + (i.impressions || 0),
+      0,
+    );
     const totalEngagement = mediaInsights.reduce(
       (sum, m) => sum + (m.likeCount || 0) + (m.commentCount || 0),
       0,
@@ -541,7 +630,8 @@ export class InstagramAnalyticsService {
 
     const avgEngagementRate =
       mediaInsights.length > 0
-        ? mediaInsights.reduce((sum, m) => sum + (m.engagementRate || 0), 0) / mediaInsights.length
+        ? mediaInsights.reduce((sum, m) => sum + (m.engagementRate || 0), 0) /
+          mediaInsights.length
         : 0;
 
     const followerGrowth =
@@ -557,8 +647,14 @@ export class InstagramAnalyticsService {
       averageEngagementRate: Math.round(avgEngagementRate * 100) / 100,
       followerGrowth,
       postsCount: mediaInsights.length,
-      profileViews: accountInsights.reduce((sum, i) => sum + (i.profileViews || 0), 0),
-      websiteClicks: accountInsights.reduce((sum, i) => sum + (i.websiteClicks || 0), 0),
+      profileViews: accountInsights.reduce(
+        (sum, i) => sum + (i.profileViews || 0),
+        0,
+      ),
+      websiteClicks: accountInsights.reduce(
+        (sum, i) => sum + (i.websiteClicks || 0),
+        0,
+      ),
     };
   }
 
@@ -570,18 +666,28 @@ export class InstagramAnalyticsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const insights = await this.accountInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      'day',
-      startDate,
-      endDate,
-    );
+    const insights =
+      await this.accountInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        'day',
+        startDate,
+        endDate,
+      );
 
     return {
       reachOverTime: insights.map((i) => ({ date: i.date, value: i.reach })),
-      impressionsOverTime: insights.map((i) => ({ date: i.date, value: i.impressions })),
-      followerGrowth: insights.map((i) => ({ date: i.date, value: i.followerCount })),
-      profileViews: insights.map((i) => ({ date: i.date, value: i.profileViews })),
+      impressionsOverTime: insights.map((i) => ({
+        date: i.date,
+        value: i.impressions,
+      })),
+      followerGrowth: insights.map((i) => ({
+        date: i.date,
+        value: i.followerCount,
+      })),
+      profileViews: insights.map((i) => ({
+        date: i.date,
+        value: i.profileViews,
+      })),
     };
   }
 
@@ -593,17 +699,30 @@ export class InstagramAnalyticsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const mediaInsights = await this.mediaInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      startDate,
-      endDate,
-    );
+    const mediaInsights =
+      await this.mediaInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        startDate,
+        endDate,
+      );
 
     const totalPosts = mediaInsights.length;
-    const totalLikes = mediaInsights.reduce((sum, m) => sum + (m.likeCount || 0), 0);
-    const totalComments = mediaInsights.reduce((sum, m) => sum + (m.commentCount || 0), 0);
-    const totalSaves = mediaInsights.reduce((sum, m) => sum + (m.saved || 0), 0);
-    const totalReach = mediaInsights.reduce((sum, m) => sum + (m.reach || 0), 0);
+    const totalLikes = mediaInsights.reduce(
+      (sum, m) => sum + (m.likeCount || 0),
+      0,
+    );
+    const totalComments = mediaInsights.reduce(
+      (sum, m) => sum + (m.commentCount || 0),
+      0,
+    );
+    const totalSaves = mediaInsights.reduce(
+      (sum, m) => sum + (m.saved || 0),
+      0,
+    );
+    const totalReach = mediaInsights.reduce(
+      (sum, m) => sum + (m.reach || 0),
+      0,
+    );
 
     // Group by media type
     const byType = mediaInsights.reduce(
@@ -622,8 +741,10 @@ export class InstagramAnalyticsService {
       totalComments,
       totalSaves,
       totalReach,
-      averageLikesPerPost: totalPosts > 0 ? Math.round(totalLikes / totalPosts) : 0,
-      averageCommentsPerPost: totalPosts > 0 ? Math.round(totalComments / totalPosts) : 0,
+      averageLikesPerPost:
+        totalPosts > 0 ? Math.round(totalLikes / totalPosts) : 0,
+      averageCommentsPerPost:
+        totalPosts > 0 ? Math.round(totalComments / totalPosts) : 0,
       postsByType: byType,
     };
   }
@@ -636,11 +757,12 @@ export class InstagramAnalyticsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const mediaInsights = await this.mediaInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      startDate,
-      endDate,
-    );
+    const mediaInsights =
+      await this.mediaInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        startDate,
+        endDate,
+      );
 
     // Group by day
     const engagementByDay = mediaInsights.reduce(
@@ -658,10 +780,12 @@ export class InstagramAnalyticsService {
     );
 
     return {
-      engagementByDay: Object.entries(engagementByDay).map(([date, data]: any) => ({
-        date,
-        ...data,
-      })),
+      engagementByDay: Object.entries(engagementByDay).map(
+        ([date, data]: any) => ({
+          date,
+          ...data,
+        }),
+      ),
       reachByPost: mediaInsights.map((m) => ({
         mediaId: m.mediaIgId,
         reach: m.reach,
@@ -678,27 +802,33 @@ export class InstagramAnalyticsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const mediaInsights = await this.mediaInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      startDate,
-      endDate,
-    );
+    const mediaInsights =
+      await this.mediaInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        startDate,
+        endDate,
+      );
 
     const totalEngagement = mediaInsights.reduce(
-      (sum, m) => sum + (m.likeCount || 0) + (m.commentCount || 0) + (m.saved || 0),
+      (sum, m) =>
+        sum + (m.likeCount || 0) + (m.commentCount || 0) + (m.saved || 0),
       0,
     );
 
     const avgEngagementRate =
       mediaInsights.length > 0
-        ? mediaInsights.reduce((sum, m) => sum + (m.engagementRate || 0), 0) / mediaInsights.length
+        ? mediaInsights.reduce((sum, m) => sum + (m.engagementRate || 0), 0) /
+          mediaInsights.length
         : 0;
 
     return {
       totalEngagement,
       averageEngagementRate: Math.round(avgEngagementRate * 100) / 100,
       totalLikes: mediaInsights.reduce((sum, m) => sum + (m.likeCount || 0), 0),
-      totalComments: mediaInsights.reduce((sum, m) => sum + (m.commentCount || 0), 0),
+      totalComments: mediaInsights.reduce(
+        (sum, m) => sum + (m.commentCount || 0),
+        0,
+      ),
       totalSaves: mediaInsights.reduce((sum, m) => sum + (m.saved || 0), 0),
       totalShares: mediaInsights.reduce((sum, m) => sum + (m.shares || 0), 0),
     };
@@ -712,11 +842,12 @@ export class InstagramAnalyticsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const mediaInsights = await this.mediaInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      startDate,
-      endDate,
-    );
+    const mediaInsights =
+      await this.mediaInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        startDate,
+        endDate,
+      );
 
     return {
       engagementRate: mediaInsights.map((m) => ({
@@ -730,7 +861,10 @@ export class InstagramAnalyticsService {
         },
         {
           type: 'Comments',
-          value: mediaInsights.reduce((sum, m) => sum + (m.commentCount || 0), 0),
+          value: mediaInsights.reduce(
+            (sum, m) => sum + (m.commentCount || 0),
+            0,
+          ),
         },
         {
           type: 'Saves',
@@ -752,12 +886,13 @@ export class InstagramAnalyticsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const insights = await this.accountInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      'day',
-      startDate,
-      endDate,
-    );
+    const insights =
+      await this.accountInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        'day',
+        startDate,
+        endDate,
+      );
 
     if (insights.length === 0) {
       return {};
@@ -782,12 +917,13 @@ export class InstagramAnalyticsService {
     startDate: string,
     endDate: string,
   ): Promise<any> {
-    const insights = await this.accountInsightRepository.findByClientAccountAndDateRange(
-      clientAccountId,
-      'day',
-      startDate,
-      endDate,
-    );
+    const insights =
+      await this.accountInsightRepository.findByClientAccountAndDateRange(
+        clientAccountId,
+        'day',
+        startDate,
+        endDate,
+      );
 
     return {
       followerGrowth: insights.map((i) => ({
@@ -815,7 +951,9 @@ export class InstagramAnalyticsService {
   private calculatePeriod(startDate: string, endDate: string): string {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const days = Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+    const days = Math.floor(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+    );
 
     if (days === 1) return 'day';
     if (days === 7) return 'week';

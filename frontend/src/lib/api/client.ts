@@ -9,13 +9,6 @@ class ApiClient {
   constructor() {
     const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
-    // Debug logging
-    console.log('[API Client] Initializing with baseURL:', baseURL);
-    console.log('[API Client] Environment:', {
-      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-    });
-
     this.client = axios.create({
       baseURL,
       timeout: 30000,

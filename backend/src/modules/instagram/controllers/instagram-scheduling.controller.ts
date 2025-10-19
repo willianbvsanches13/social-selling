@@ -15,7 +15,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiParam,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { InstagramSchedulingService } from '../services/instagram-scheduling.service';
 import { InstagramMediaUploadService } from '../services/instagram-media-upload.service';
@@ -29,7 +36,12 @@ import {
   CancelScheduledPostResponseDto,
   PostStatus,
 } from '../dto/scheduled-post.dto';
-import { MediaUploadResponseDto, ListMediaAssetsDto, MediaAssetsListResponseDto, DeleteMediaAssetResponseDto } from '../dto/media-upload.dto';
+import {
+  MediaUploadResponseDto,
+  ListMediaAssetsDto,
+  MediaAssetsListResponseDto,
+  DeleteMediaAssetResponseDto,
+} from '../dto/media-upload.dto';
 import { OptimalPostingTimesResponseDto } from '../dto/optimal-posting-time.dto';
 
 @ApiTags('Instagram Scheduling')
@@ -76,7 +88,11 @@ export class InstagramSchedulingController {
     @Param('accountId') accountId: string,
     @Query() dto: ListScheduledPostsDto,
   ): Promise<PaginatedScheduledPostsResponseDto> {
-    return this.schedulingService.listScheduledPosts(req.user.id, accountId, dto);
+    return this.schedulingService.listScheduledPosts(
+      req.user.id,
+      accountId,
+      dto,
+    );
   }
 
   @Get('posts/:accountId/:postId')
@@ -196,7 +212,11 @@ export class InstagramSchedulingController {
     if (!file) {
       throw new Error('No file uploaded');
     }
-    return this.mediaUploadService.uploadMedia(req.user.id, file, clientAccountId);
+    return this.mediaUploadService.uploadMedia(
+      req.user.id,
+      file,
+      clientAccountId,
+    );
   }
 
   @Get('media/:accountId')
@@ -281,6 +301,9 @@ export class InstagramSchedulingController {
     @Request() req: any,
     @Param('accountId') accountId: string,
   ): Promise<OptimalPostingTimesResponseDto> {
-    return this.schedulingService.getOptimalPostingTimes(accountId, req.user.id);
+    return this.schedulingService.getOptimalPostingTimes(
+      accountId,
+      req.user.id,
+    );
   }
 }

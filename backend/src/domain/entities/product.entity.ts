@@ -33,7 +33,9 @@ export class Product {
     this.validate();
   }
 
-  static create(props: Omit<ProductProps, 'id' | 'createdAt' | 'updatedAt'>): Product {
+  static create(
+    props: Omit<ProductProps, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Product {
     return new Product({
       ...props,
       id: crypto.randomUUID(),
@@ -53,7 +55,10 @@ export class Product {
     if (!this.props.name || this.props.name.trim().length < 2) {
       throw new DomainException('Product name must be at least 2 characters');
     }
-    if (this.props.stockQuantity !== undefined && this.props.stockQuantity < 0) {
+    if (
+      this.props.stockQuantity !== undefined &&
+      this.props.stockQuantity < 0
+    ) {
       throw new DomainException('Stock quantity cannot be negative');
     }
   }
@@ -103,7 +108,7 @@ export class Product {
 
   removeTag(tag: string): void {
     const normalizedTag = tag.trim().toLowerCase();
-    this.props.tags = this.props.tags.filter(t => t !== normalizedTag);
+    this.props.tags = this.props.tags.filter((t) => t !== normalizedTag);
     this.props.updatedAt = new Date();
   }
 

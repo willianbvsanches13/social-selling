@@ -26,12 +26,15 @@ export class InstagramWebhooksProcessor {
     try {
       // Placeholder for comment processing logic
       // Will be implemented by instagram-comments service in IG-007
-      this.logger.debug('Comment event would be processed by instagram-comments service');
+      this.logger.debug(
+        'Comment event would be processed by instagram-comments service',
+      );
 
       // Mark as processed
       await this.webhooksService.markEventProcessed(eventId);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to process comment: ${errorMessage}`);
       await this.webhooksService.markEventFailed(eventId, errorMessage);
       throw error; // BullMQ will retry
@@ -46,11 +49,14 @@ export class InstagramWebhooksProcessor {
 
     try {
       // Placeholder for mention processing logic
-      this.logger.debug('Mention event would be processed by instagram-comments service');
+      this.logger.debug(
+        'Mention event would be processed by instagram-comments service',
+      );
 
       await this.webhooksService.markEventProcessed(eventId);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to process mention: ${errorMessage}`);
       await this.webhooksService.markEventFailed(eventId, errorMessage);
       throw error;
@@ -65,11 +71,14 @@ export class InstagramWebhooksProcessor {
 
     try {
       // Placeholder for story mention processing logic
-      this.logger.debug('Story mention event would be processed by instagram-comments service');
+      this.logger.debug(
+        'Story mention event would be processed by instagram-comments service',
+      );
 
       await this.webhooksService.markEventProcessed(eventId);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to process story mention: ${errorMessage}`);
       await this.webhooksService.markEventFailed(eventId, errorMessage);
       throw error;
@@ -85,11 +94,14 @@ export class InstagramWebhooksProcessor {
     try {
       // Placeholder for message processing logic
       // Will be implemented by instagram-messages service in IG-004
-      this.logger.debug('Message event would be processed by instagram-messages service');
+      this.logger.debug(
+        'Message event would be processed by instagram-messages service',
+      );
 
       await this.webhooksService.markEventProcessed(eventId);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to process message: ${errorMessage}`);
       await this.webhooksService.markEventFailed(eventId, errorMessage);
       throw error;
@@ -104,11 +116,14 @@ export class InstagramWebhooksProcessor {
 
     try {
       // Placeholder for live comment processing logic
-      this.logger.debug('Live comment event would be processed by instagram-comments service');
+      this.logger.debug(
+        'Live comment event would be processed by instagram-comments service',
+      );
 
       await this.webhooksService.markEventProcessed(eventId);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to process live comment: ${errorMessage}`);
       await this.webhooksService.markEventFailed(eventId, errorMessage);
       throw error;

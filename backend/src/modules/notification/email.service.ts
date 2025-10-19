@@ -7,7 +7,11 @@ export class EmailService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async sendVerificationEmail(email: string, name: string, verificationUrl: string): Promise<void> {
+  async sendVerificationEmail(
+    email: string,
+    name: string,
+    verificationUrl: string,
+  ): Promise<void> {
     // TODO: Implement actual email sending with SendGrid/Mailgun
     // For now, just log the verification URL
     this.logger.log(`
@@ -29,7 +33,11 @@ export class EmailService {
     // });
   }
 
-  async sendPasswordResetEmail(email: string, name: string, resetUrl: string): Promise<void> {
+  async sendPasswordResetEmail(
+    email: string,
+    name: string,
+    resetUrl: string,
+  ): Promise<void> {
     this.logger.log(`
       ====================================
       Password Reset Request

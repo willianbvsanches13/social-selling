@@ -11,7 +11,12 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserService } from './user.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -26,7 +31,10 @@ export class UserController {
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
-  @ApiResponse({ status: 200, description: 'User profile retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getProfile(@Request() req: any) {
     const user = await this.userService.getProfile(req.user.id);
@@ -38,7 +46,10 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Profile updated successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async updateProfile(@Request() req: any, @Body() updateDto: UpdateProfileDto) {
+  async updateProfile(
+    @Request() req: any,
+    @Body() updateDto: UpdateProfileDto,
+  ) {
     const user = await this.userService.updateProfile(req.user.id, updateDto);
     return user.toJSON();
   }
@@ -47,9 +58,19 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Change user password' })
   @ApiResponse({ status: 200, description: 'Password changed successfully' })
-  @ApiResponse({ status: 400, description: 'Bad request - passwords do not match or do not meet requirements' })
-  @ApiResponse({ status: 401, description: 'Unauthorized or invalid current password' })
-  async changePassword(@Request() req: any, @Body() changePasswordDto: ChangePasswordDto) {
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad request - passwords do not match or do not meet requirements',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized or invalid current password',
+  })
+  async changePassword(
+    @Request() req: any,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
     await this.userService.changePassword(req.user.id, changePasswordDto);
     return { message: 'Password changed successfully' };
   }
@@ -57,7 +78,10 @@ export class UserController {
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send email verification link' })
-  @ApiResponse({ status: 200, description: 'Verification email sent successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Verification email sent successfully',
+  })
   @ApiResponse({ status: 400, description: 'Email already verified' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async sendVerificationEmail(@Request() req: any) {
@@ -85,7 +109,10 @@ export class UserController {
 
   @Get('me/stats')
   @ApiOperation({ summary: 'Get user statistics' })
-  @ApiResponse({ status: 200, description: 'User statistics retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User statistics retrieved successfully',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async getUserStats(@Request() req: any) {
     return this.userService.getUserStats(req.user.id);

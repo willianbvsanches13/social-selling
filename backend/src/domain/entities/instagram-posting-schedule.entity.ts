@@ -19,10 +19,15 @@ export class InstagramPostingSchedule {
   }
 
   static create(
-    props: Omit<InstagramPostingScheduleProps, 'id' | 'createdAt' | 'updatedAt' | 'isOptimal'>,
+    props: Omit<
+      InstagramPostingScheduleProps,
+      'id' | 'createdAt' | 'updatedAt' | 'isOptimal'
+    >,
   ): InstagramPostingSchedule {
     if (props.dayOfWeek < 0 || props.dayOfWeek > 6) {
-      throw new Error('Day of week must be between 0 (Sunday) and 6 (Saturday)');
+      throw new Error(
+        'Day of week must be between 0 (Sunday) and 6 (Saturday)',
+      );
     }
 
     return new InstagramPostingSchedule({
@@ -34,7 +39,9 @@ export class InstagramPostingSchedule {
     });
   }
 
-  static reconstitute(props: InstagramPostingScheduleProps): InstagramPostingSchedule {
+  static reconstitute(
+    props: InstagramPostingScheduleProps,
+  ): InstagramPostingSchedule {
     return new InstagramPostingSchedule(props);
   }
 
@@ -52,7 +59,15 @@ export class InstagramPostingSchedule {
   }
 
   get dayName(): string {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
     return days[this.props.dayOfWeek];
   }
 
@@ -130,7 +145,9 @@ export class InstagramPostingSchedule {
   }
 
   removeTimeSlot(timeSlot: string): void {
-    this.props.timeSlots = this.props.timeSlots.filter((slot) => slot !== timeSlot);
+    this.props.timeSlots = this.props.timeSlots.filter(
+      (slot) => slot !== timeSlot,
+    );
     this.props.updatedAt = new Date();
   }
 

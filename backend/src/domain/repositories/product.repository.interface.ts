@@ -14,9 +14,17 @@ export interface FindProductsOptions {
 
 export interface IProductRepository {
   findById(id: string): Promise<Product | null>;
-  findByUserId(userId: string, options?: FindProductsOptions): Promise<Product[]>;
-  findByCategory(category: string, options?: FindProductsOptions): Promise<Product[]>;
-  search(options: FindProductsOptions): Promise<{ products: Product[]; total: number }>;
+  findByUserId(
+    userId: string,
+    options?: FindProductsOptions,
+  ): Promise<Product[]>;
+  findByCategory(
+    category: string,
+    options?: FindProductsOptions,
+  ): Promise<Product[]>;
+  search(
+    options: FindProductsOptions,
+  ): Promise<{ products: Product[]; total: number }>;
   create(product: Product): Promise<Product>;
   update(product: Product): Promise<Product>;
   delete(id: string): Promise<void>;

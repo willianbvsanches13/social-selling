@@ -25,7 +25,7 @@ export default function CalendarPage() {
   const [view, setView] = useState<View>('month');
   const [showPostModal, setShowPostModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<ScheduledPost | null>(null);
-  const [selectedAccount, setSelectedAccount] = useState<string>('');
+  const [selectedAccount] = useState<string>('');
 
   // Fetch posts for current date range
   const fetchPosts = useCallback(async () => {
@@ -40,8 +40,9 @@ export default function CalendarPage() {
         selectedAccount || undefined
       );
       setPosts(data);
-    } catch (err: any) {
-      showError(err.message || 'Failed to load posts');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load posts';
+      showError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -61,6 +62,7 @@ export default function CalendarPage() {
   }));
 
   // Get event style based on post status
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const eventStyleGetter = (event: any) => {
     const calendarEvent = event as CalendarEvent;
     const status = calendarEvent.resource.status;
@@ -70,7 +72,7 @@ export default function CalendarPage() {
       display: 'block',
     };
 
-    const statusStyles: Record<PostStatus, any> = {
+    const statusStyles: Record<PostStatus, React.CSSProperties> = {
       scheduled: { backgroundColor: '#3b82f6', color: 'white' },
       publishing: { backgroundColor: '#eab308', color: 'white' },
       published: { backgroundColor: '#22c55e', color: 'white' },
@@ -87,6 +89,7 @@ export default function CalendarPage() {
   };
 
   // Handle event selection
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSelectEvent = (event: any) => {
     const calendarEvent = event as CalendarEvent;
     setSelectedPost(calendarEvent.resource);
@@ -94,14 +97,15 @@ export default function CalendarPage() {
   };
 
   // Handle event drag and drop (rescheduling)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEventDrop = async ({ event, start }: any) => {
     try {
-      const calendarEvent = event as CalendarEvent;
-      await postsService.reschedulePost(calendarEvent.id, start.toISOString());
+      await postsService.reschedulePost(event.id, start.toISOString());
       success('Post rescheduled successfully');
       fetchPosts();
-    } catch (err: any) {
-      showError(err.message || 'Failed to reschedule post');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to reschedule post';
+      showError(errorMessage);
     }
   };
 

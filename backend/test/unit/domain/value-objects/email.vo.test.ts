@@ -27,7 +27,9 @@ describe('Email Value Object', () => {
   describe('invalid email validation', () => {
     it('should throw error for email without @', () => {
       expect(() => new Email('invalid.email.com')).toThrow(ValidationException);
-      expect(() => new Email('invalid.email.com')).toThrow('Invalid email format');
+      expect(() => new Email('invalid.email.com')).toThrow(
+        'Invalid email format',
+      );
     });
 
     it('should throw error for email without domain', () => {

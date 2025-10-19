@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as pgPromise from 'pg-promise';
 import { IDatabase, IInitOptions, IMain } from 'pg-promise';
@@ -19,14 +24,17 @@ export class Database implements OnModuleInit, OnModuleDestroy {
   }
 
   private initializeDatabase(): void {
-    const isDevMode = this.configService.get<string>('NODE_ENV') === 'development';
+    const isDevMode =
+      this.configService.get<string>('NODE_ENV') === 'development';
 
     // Initialize pg-promise with enhanced error handling
     const initOptions: IInitOptions = {
       // Error handling
       error: (error, e) => {
         if (e.cn) {
-          this.logger.error(`Database connection error: ${error.message || error}`);
+          this.logger.error(
+            `Database connection error: ${error.message || error}`,
+          );
         } else if (e.query) {
           this.logger.error(`Query error: ${error.message || error}`);
           this.logger.error(`Query: ${e.query}`);
@@ -57,8 +65,14 @@ export class Database implements OnModuleInit, OnModuleDestroy {
       // Connection pool settings
       min: 2, // Minimum pool size
       max: this.configService.get<number>('DB_POOL_SIZE', 20), // Maximum pool size
-      idleTimeoutMillis: this.configService.get<number>('DB_IDLE_TIMEOUT', 30000), // 30 seconds
-      connectionTimeoutMillis: this.configService.get<number>('DB_CONNECTION_TIMEOUT', 2000), // 2 seconds
+      idleTimeoutMillis: this.configService.get<number>(
+        'DB_IDLE_TIMEOUT',
+        30000,
+      ), // 30 seconds
+      connectionTimeoutMillis: this.configService.get<number>(
+        'DB_CONNECTION_TIMEOUT',
+        2000,
+      ), // 2 seconds
     };
 
     this.db = this.pgp(config);
@@ -75,7 +89,8 @@ export class Database implements OnModuleInit, OnModuleDestroy {
       this.logger.log('Database connected successfully');
     } catch (error) {
       this.isConnected = false;
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to connect to database: ${errorMessage}`);
       throw error;
     }
@@ -151,7 +166,8 @@ export class Database implements OnModuleInit, OnModuleDestroy {
       await this.db.one('SELECT 1 as result');
       return true;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Database health check failed: ${errorMessage}`);
       return false;
     }

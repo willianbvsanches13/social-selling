@@ -23,7 +23,9 @@ export class Notification {
     this.props = props;
   }
 
-  static create(props: Omit<NotificationProps, 'id' | 'isRead' | 'createdAt'>): Notification {
+  static create(
+    props: Omit<NotificationProps, 'id' | 'isRead' | 'createdAt'>,
+  ): Notification {
     return new Notification({
       ...props,
       id: crypto.randomUUID(),

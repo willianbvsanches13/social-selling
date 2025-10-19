@@ -106,7 +106,8 @@ export class InstagramPublisherService {
       this.logger.log(`Successfully published single image: ${result.id}`);
       return result;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(
         `Failed to publish single image: ${errorMessage}`,
@@ -163,7 +164,8 @@ export class InstagramPublisherService {
       this.logger.log(`Successfully published carousel: ${result.id}`);
       return result;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(
         `Failed to publish carousel: ${errorMessage}`,
@@ -212,12 +214,10 @@ export class InstagramPublisherService {
       this.logger.log(`Successfully published video: ${result.id}`);
       return result;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(
-        `Failed to publish video: ${errorMessage}`,
-        errorStack,
-      );
+      this.logger.error(`Failed to publish video: ${errorMessage}`, errorStack);
       throw this.transformError(error);
     }
   }
@@ -462,7 +462,8 @@ export class InstagramPublisherService {
 
       return response.data.id;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`Failed to add comment: ${errorMessage}`);
       throw this.transformError(error);
     }
@@ -516,7 +517,8 @@ export class InstagramPublisherService {
    */
   private isRetryableError(errorCode: number): boolean {
     const retryableCodes = [
-      1, 2, // Temporary errors
+      1,
+      2, // Temporary errors
       17, // Rate limit
       368, // Temporarily blocked
     ];

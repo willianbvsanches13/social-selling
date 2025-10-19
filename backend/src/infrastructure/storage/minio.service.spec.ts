@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { MinioService } from './minio.service';
@@ -281,7 +282,7 @@ describe('MinioService', () => {
         }),
       };
 
-      mockMinioClient.listObjectsV2.mockReturnValue(mockStream as any);
+      mockMinioClient.listObjectsV2.mockReturnValue(mockStream);
 
       const files = await service.listFiles('test/');
 
@@ -303,7 +304,7 @@ describe('MinioService', () => {
         }),
       };
 
-      mockMinioClient.listObjectsV2.mockReturnValue(mockStream as any);
+      mockMinioClient.listObjectsV2.mockReturnValue(mockStream);
 
       await expect(service.listFiles('test/')).rejects.toThrow('List failed');
     });

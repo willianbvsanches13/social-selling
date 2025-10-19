@@ -22,7 +22,9 @@ export class AnalyticsEvent {
     this.props = props;
   }
 
-  static create(props: Omit<AnalyticsEventProps, 'id' | 'createdAt'>): AnalyticsEvent {
+  static create(
+    props: Omit<AnalyticsEventProps, 'id' | 'createdAt'>,
+  ): AnalyticsEvent {
     return new AnalyticsEvent({
       ...props,
       id: crypto.randomUUID(),

@@ -42,7 +42,9 @@ export class InstagramMediaInsight {
     });
   }
 
-  static reconstitute(props: InstagramMediaInsightProps): InstagramMediaInsight {
+  static reconstitute(
+    props: InstagramMediaInsightProps,
+  ): InstagramMediaInsight {
     return new InstagramMediaInsight(props);
   }
 
@@ -74,7 +76,8 @@ export class InstagramMediaInsight {
     if (this.props.reach <= 0) {
       return 0;
     }
-    const engagement = (this.props.likeCount || 0) + (this.props.commentCount || 0);
+    const engagement =
+      (this.props.likeCount || 0) + (this.props.commentCount || 0);
     return (engagement / this.props.reach) * 100;
   }
 

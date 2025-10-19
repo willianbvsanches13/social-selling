@@ -21,9 +21,7 @@ export class InstagramScheduledPostRepository
     super(database.getDb(), InstagramScheduledPostRepository.name);
   }
 
-  async create(
-    post: InstagramScheduledPost,
-  ): Promise<InstagramScheduledPost> {
+  async create(post: InstagramScheduledPost): Promise<InstagramScheduledPost> {
     const postData = post.toJSON();
 
     const query = `
@@ -101,9 +99,7 @@ export class InstagramScheduledPostRepository
     return result.rows.map((row: any) => this.mapToEntity(row));
   }
 
-  async update(
-    post: InstagramScheduledPost,
-  ): Promise<InstagramScheduledPost> {
+  async update(post: InstagramScheduledPost): Promise<InstagramScheduledPost> {
     const postData = post.toJSON();
 
     const query = `

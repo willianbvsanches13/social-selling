@@ -68,7 +68,7 @@ async function generateOpenApiSpec() {
     const yamlOutputPath = path.join(process.cwd(), 'openapi-spec.yaml');
     fs.writeFileSync(yamlOutputPath, yaml.dump(document));
     console.log(`✅ OpenAPI spec (YAML) generated: ${yamlOutputPath}`);
-  } catch (error) {
+  } catch (_error) {
     console.log('⚠️  YAML export skipped (install js-yaml for YAML output)');
   }
 

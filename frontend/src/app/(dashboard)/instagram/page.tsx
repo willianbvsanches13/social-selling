@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Plus,
   RefreshCw,
@@ -23,7 +22,6 @@ import { formatNumber, formatRelativeTime } from '@/lib/utils/formatters';
 import type { InstagramAccount } from '@/types/instagram';
 
 export default function InstagramAccountsPage() {
-  const router = useRouter();
   const { success, error: showError } = useToast();
   const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,6 +29,7 @@ export default function InstagramAccountsPage() {
 
   useEffect(() => {
     fetchAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchAccounts = async () => {
@@ -38,8 +37,9 @@ export default function InstagramAccountsPage() {
       setIsLoading(true);
       const data = await instagramService.getAccounts();
       setAccounts(data);
-    } catch (err: any) {
-      showError(err.message || 'Failed to load Instagram accounts');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load Instagram accounts';
+      showError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -58,8 +58,9 @@ export default function InstagramAccountsPage() {
         prev.map((acc) => (acc.id === accountId ? updatedAccount : acc))
       );
       success('Account refreshed successfully');
-    } catch (err: any) {
-      showError(err.message || 'Failed to refresh account');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to refresh account';
+      showError(errorMessage);
     } finally {
       setRefreshingIds((prev) => {
         const newSet = new Set(prev);
@@ -78,8 +79,9 @@ export default function InstagramAccountsPage() {
       await instagramService.disconnectAccount(account.id);
       setAccounts((prev) => prev.filter((acc) => acc.id !== account.id));
       success('Account disconnected successfully');
-    } catch (err: any) {
-      showError(err.message || 'Failed to disconnect account');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to disconnect account';
+      showError(errorMessage);
     }
   };
 

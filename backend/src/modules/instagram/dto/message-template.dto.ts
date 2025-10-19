@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsBoolean, IsUrl, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  IsBoolean,
+  IsUrl,
+  IsUUID,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum TemplateCategory {
@@ -14,7 +22,10 @@ export class CreateMessageTemplateDto {
   @IsString()
   name!: string;
 
-  @ApiPropertyOptional({ description: 'Template category', enum: TemplateCategory })
+  @ApiPropertyOptional({
+    description: 'Template category',
+    enum: TemplateCategory,
+  })
   @IsOptional()
   @IsEnum(TemplateCategory)
   category?: TemplateCategory;
@@ -29,7 +40,10 @@ export class CreateMessageTemplateDto {
   @IsUrl({}, { each: true })
   mediaUrls?: string[];
 
-  @ApiPropertyOptional({ description: 'Instagram account ID (optional, for account-specific templates)' })
+  @ApiPropertyOptional({
+    description:
+      'Instagram account ID (optional, for account-specific templates)',
+  })
   @IsOptional()
   @IsUUID()
   instagramAccountId?: string;
@@ -41,7 +55,10 @@ export class UpdateMessageTemplateDto {
   @IsString()
   name?: string;
 
-  @ApiPropertyOptional({ description: 'Template category', enum: TemplateCategory })
+  @ApiPropertyOptional({
+    description: 'Template category',
+    enum: TemplateCategory,
+  })
   @IsOptional()
   @IsEnum(TemplateCategory)
   category?: TemplateCategory;

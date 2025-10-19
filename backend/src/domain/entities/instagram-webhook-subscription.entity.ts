@@ -26,7 +26,11 @@ export class InstagramWebhookSubscription {
   static create(
     props: Omit<
       InstagramWebhookSubscriptionProps,
-      'id' | 'createdAt' | 'updatedAt' | 'eventsReceivedCount' | 'subscriptionErrors'
+      | 'id'
+      | 'createdAt'
+      | 'updatedAt'
+      | 'eventsReceivedCount'
+      | 'subscriptionErrors'
     >,
   ): InstagramWebhookSubscription {
     return new InstagramWebhookSubscription({
@@ -39,7 +43,9 @@ export class InstagramWebhookSubscription {
     });
   }
 
-  static reconstitute(props: InstagramWebhookSubscriptionProps): InstagramWebhookSubscription {
+  static reconstitute(
+    props: InstagramWebhookSubscriptionProps,
+  ): InstagramWebhookSubscription {
     return new InstagramWebhookSubscription(props);
   }
 

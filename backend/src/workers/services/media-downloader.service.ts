@@ -82,10 +82,9 @@ export class MediaDownloaderService {
           result.width = metadata.width;
           result.height = metadata.height;
         } catch (error: unknown) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          this.logger.warn(
-            `Failed to get image metadata: ${errorMessage}`,
-          );
+          const errorMessage =
+            error instanceof Error ? error.message : 'Unknown error';
+          this.logger.warn(`Failed to get image metadata: ${errorMessage}`);
         }
       }
 
@@ -95,7 +94,8 @@ export class MediaDownloaderService {
       this.logger.log(`Media downloaded successfully: ${fileName}`);
       return result;
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       this.logger.error(
         `Failed to download media from S3: ${errorMessage}`,
@@ -139,7 +139,8 @@ export class MediaDownloaderService {
         key: pathParts.slice(1).join('/'),
       };
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       throw new Error(`Failed to parse S3 URL: ${errorMessage}`);
     }
   }
@@ -239,10 +240,9 @@ export class MediaDownloaderService {
         this.logger.log(`Cleaned up temporary file: ${filePath}`);
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      this.logger.warn(
-        `Failed to cleanup file ${filePath}: ${errorMessage}`,
-      );
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.warn(`Failed to cleanup file ${filePath}: ${errorMessage}`);
     }
   }
 

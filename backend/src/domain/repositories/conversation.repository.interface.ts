@@ -1,4 +1,7 @@
-import { Conversation, ConversationStatus } from '../entities/conversation.entity';
+import {
+  Conversation,
+  ConversationStatus,
+} from '../entities/conversation.entity';
 
 export interface FindConversationsOptions {
   clientAccountId?: string;
@@ -10,8 +13,14 @@ export interface FindConversationsOptions {
 
 export interface IConversationRepository {
   findById(id: string): Promise<Conversation | null>;
-  findByPlatformId(clientAccountId: string, platformConversationId: string): Promise<Conversation | null>;
-  findByClientAccount(clientAccountId: string, options?: FindConversationsOptions): Promise<Conversation[]>;
+  findByPlatformId(
+    clientAccountId: string,
+    platformConversationId: string,
+  ): Promise<Conversation | null>;
+  findByClientAccount(
+    clientAccountId: string,
+    options?: FindConversationsOptions,
+  ): Promise<Conversation[]>;
   create(conversation: Conversation): Promise<Conversation>;
   update(conversation: Conversation): Promise<Conversation>;
   countUnread(clientAccountId: string): Promise<number>;

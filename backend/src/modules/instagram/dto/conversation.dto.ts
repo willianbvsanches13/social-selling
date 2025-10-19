@@ -1,4 +1,15 @@
-import { IsString, IsOptional, IsInt, IsEnum, IsArray, IsUUID, IsBoolean, Min, Max, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  IsEnum,
+  IsArray,
+  IsUUID,
+  IsBoolean,
+  Min,
+  Max,
+  IsDateString,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -16,7 +27,10 @@ export enum ConversationPriority {
 }
 
 export class ListConversationsDto {
-  @ApiPropertyOptional({ description: 'Status filter', enum: ConversationStatus })
+  @ApiPropertyOptional({
+    description: 'Status filter',
+    enum: ConversationStatus,
+  })
   @IsOptional()
   @IsEnum(ConversationStatus)
   status?: ConversationStatus;
@@ -32,7 +46,10 @@ export class ListConversationsDto {
   @Type(() => Boolean)
   unreadOnly?: boolean;
 
-  @ApiPropertyOptional({ description: 'Filter by priority', enum: ConversationPriority })
+  @ApiPropertyOptional({
+    description: 'Filter by priority',
+    enum: ConversationPriority,
+  })
   @IsOptional()
   @IsEnum(ConversationPriority)
   priority?: ConversationPriority;
@@ -55,7 +72,12 @@ export class ListConversationsDto {
   @Type(() => Number)
   page?: number = 1;
 
-  @ApiPropertyOptional({ description: 'Items per page', minimum: 1, maximum: 100, default: 20 })
+  @ApiPropertyOptional({
+    description: 'Items per page',
+    minimum: 1,
+    maximum: 100,
+    default: 20,
+  })
   @IsOptional()
   @IsInt()
   @Min(1)
@@ -65,7 +87,10 @@ export class ListConversationsDto {
 }
 
 export class UpdateConversationDto {
-  @ApiPropertyOptional({ description: 'Conversation status', enum: ConversationStatus })
+  @ApiPropertyOptional({
+    description: 'Conversation status',
+    enum: ConversationStatus,
+  })
   @IsOptional()
   @IsEnum(ConversationStatus)
   status?: ConversationStatus;
@@ -75,7 +100,10 @@ export class UpdateConversationDto {
   @IsUUID()
   assignedTo?: string | null;
 
-  @ApiPropertyOptional({ description: 'Conversation priority', enum: ConversationPriority })
+  @ApiPropertyOptional({
+    description: 'Conversation priority',
+    enum: ConversationPriority,
+  })
   @IsOptional()
   @IsEnum(ConversationPriority)
   priority?: ConversationPriority;

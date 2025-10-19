@@ -35,7 +35,9 @@ export class InstagramStoryInsight {
     });
   }
 
-  static reconstitute(props: InstagramStoryInsightProps): InstagramStoryInsight {
+  static reconstitute(
+    props: InstagramStoryInsightProps,
+  ): InstagramStoryInsight {
     return new InstagramStoryInsight(props);
   }
 

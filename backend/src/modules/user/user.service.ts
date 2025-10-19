@@ -1,8 +1,16 @@
-import { Injectable, UnauthorizedException, BadRequestException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+  Inject,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { IUserRepository, USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
+import {
+  IUserRepository,
+  USER_REPOSITORY,
+} from '../../domain/repositories/user.repository.interface';
 import { User } from '../../domain/entities/user.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -25,7 +33,10 @@ export class UserService {
     return user;
   }
 
-  async updateProfile(userId: string, updateDto: UpdateProfileDto): Promise<User> {
+  async updateProfile(
+    userId: string,
+    updateDto: UpdateProfileDto,
+  ): Promise<User> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
@@ -37,14 +48,20 @@ export class UserService {
     return updatedUser;
   }
 
-  async changePassword(userId: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
     // Verify current password
-    const isValid = await bcrypt.compare(changePasswordDto.currentPassword, user.passwordHash);
+    const isValid = await bcrypt.compare(
+      changePasswordDto.currentPassword,
+      user.passwordHash,
+    );
 
     if (!isValid) {
       throw new UnauthorizedException('Current password is incorrect');
@@ -56,7 +73,10 @@ export class UserService {
     }
 
     // Hash new password
-    const newPasswordHash = await bcrypt.hash(changePasswordDto.newPassword, 12);
+    const newPasswordHash = await bcrypt.hash(
+      changePasswordDto.newPassword,
+      12,
+    );
 
     // Update password
     user.changePassword(newPasswordHash);
@@ -84,9 +104,14 @@ export class UserService {
     await this.userRepository.update(user);
 
     // Send email
-    const appUrl = this.configService.get<string>('APP_URL') || 'http://localhost:3000';
+    const appUrl =
+      this.configService.get<string>('APP_URL') || 'http://localhost:3000';
     const verificationUrl = `${appUrl}/verify-email/${token}`;
-    await this.emailService.sendVerificationEmail(user.email.value, user.name, verificationUrl);
+    await this.emailService.sendVerificationEmail(
+      user.email.value,
+      user.name,
+      verificationUrl,
+    );
   }
 
   async verifyEmail(token: string): Promise<void> {

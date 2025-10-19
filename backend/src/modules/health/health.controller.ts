@@ -1,6 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { HealthCheckService, HealthCheck, HealthCheckResult } from '@nestjs/terminus';
+import {
+  HealthCheckService,
+  HealthCheck,
+  HealthCheckResult,
+} from '@nestjs/terminus';
 import { DatabaseHealthIndicator } from '../../infrastructure/database/health-check';
 import { RedisHealthIndicator } from '../../infrastructure/cache/redis-health.indicator';
 
@@ -32,7 +36,8 @@ export class HealthController {
   @HealthCheck()
   @ApiOperation({
     summary: 'Check application health',
-    description: 'Returns health status of all critical services (database and Redis)',
+    description:
+      'Returns health status of all critical services (database and Redis)',
   })
   @ApiResponse({
     status: 200,
@@ -108,8 +113,6 @@ export class HealthController {
     description: 'Database is unhealthy',
   })
   checkDatabase(): Promise<HealthCheckResult> {
-    return this.health.check([
-      () => this.dbHealth.isHealthy('database'),
-    ]);
+    return this.health.check([() => this.dbHealth.isHealthy('database')]);
   }
 }

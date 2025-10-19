@@ -34,7 +34,9 @@ export class DateRange {
   }
 
   overlaps(other: DateRange): boolean {
-    return this._startDate <= other._endDate && this._endDate >= other._startDate;
+    return (
+      this._startDate <= other._endDate && this._endDate >= other._startDate
+    );
   }
 
   equals(other: DateRange): boolean {

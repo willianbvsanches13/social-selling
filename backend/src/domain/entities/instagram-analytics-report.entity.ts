@@ -31,7 +31,9 @@ export class InstagramAnalyticsReport {
     });
   }
 
-  static reconstitute(props: InstagramAnalyticsReportProps): InstagramAnalyticsReport {
+  static reconstitute(
+    props: InstagramAnalyticsReportProps,
+  ): InstagramAnalyticsReport {
     return new InstagramAnalyticsReport(props);
   }
 

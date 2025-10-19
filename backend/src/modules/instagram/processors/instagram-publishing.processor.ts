@@ -11,7 +11,9 @@ export class InstagramPublishingProcessor {
 
   @Process('publish-post')
   async handlePublishPost(job: Job) {
-    this.logger.log(`Processing publish job ${job.id} for post ${job.data.postId}`);
+    this.logger.log(
+      `Processing publish job ${job.id} for post ${job.data.postId}`,
+    );
 
     const { postId } = job.data;
 
@@ -20,7 +22,8 @@ export class InstagramPublishingProcessor {
       this.logger.log(`Post published successfully: ${postId}`);
       return { success: true, postId };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : '';
       this.logger.error(
         `Failed to publish post ${postId} (attempt ${job.attemptsMade}/${job.opts.attempts}): ${errorMessage}`,

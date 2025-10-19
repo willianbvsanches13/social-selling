@@ -21,6 +21,11 @@ import { USER_REPOSITORY } from '../../domain/repositories/user.repository.inter
       useClass: UserRepository,
     },
   ],
-  exports: [Database, DatabaseHealthIndicator, 'DB_CONNECTION', USER_REPOSITORY],
+  exports: [
+    Database,
+    DatabaseHealthIndicator,
+    'DB_CONNECTION',
+    USER_REPOSITORY,
+  ],
 })
 export class DatabaseModule {}

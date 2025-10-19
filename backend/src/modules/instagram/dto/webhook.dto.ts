@@ -94,7 +94,9 @@ export class WebhookChangeValueDto {
 }
 
 export class WebhookChangeDto {
-  @ApiProperty({ description: 'Field that changed (messages, comments, mentions)' })
+  @ApiProperty({
+    description: 'Field that changed (messages, comments, mentions)',
+  })
   @IsString()
   field!: string;
 
@@ -111,7 +113,10 @@ export class WebhookEntryDto {
   @ApiProperty({ description: 'Event timestamp' })
   time!: number;
 
-  @ApiPropertyOptional({ description: 'Array of changes', type: [WebhookChangeDto] })
+  @ApiPropertyOptional({
+    description: 'Array of changes',
+    type: [WebhookChangeDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })

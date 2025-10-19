@@ -1,4 +1,10 @@
-import { Injectable, Logger, Inject, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 import { IOAuthTokenRepository } from '../../../domain/repositories/oauth-token.repository.interface';
@@ -130,7 +136,10 @@ export class InstagramApiService {
   /**
    * Get single media item
    */
-  async getMedia(accountId: string, mediaId: string): Promise<InstagramMediaDto> {
+  async getMedia(
+    accountId: string,
+    mediaId: string,
+  ): Promise<InstagramMediaDto> {
     const token = await this.getAccessToken(accountId);
 
     const fields = [
@@ -356,8 +365,11 @@ export class InstagramApiService {
 
       this.logger.log(`Token revoked successfully for account ${accountId}`);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      this.logger.warn(`Failed to revoke token for account ${accountId}: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.warn(
+        `Failed to revoke token for account ${accountId}: ${errorMessage}`,
+      );
       // Don't throw - token revocation is best-effort
     }
   }
@@ -416,7 +428,10 @@ export class InstagramApiService {
 
       // Update rate limit from response headers
       if (response.headers) {
-        await this.rateLimiter.updateFromHeaders(accountId, response.headers as Record<string, string | string[] | undefined>);
+        await this.rateLimiter.updateFromHeaders(
+          accountId,
+          response.headers as Record<string, string | string[] | undefined>,
+        );
       }
 
       return response;
@@ -428,7 +443,13 @@ export class InstagramApiService {
             `Retrying request after ${backoffMs}ms (attempt ${attempt + 1}/${this.MAX_RETRIES})`,
           );
           await this.sleep(backoffMs);
-          return this.makeRequest<T>(accountId, method, endpoint, params, attempt + 1);
+          return this.makeRequest<T>(
+            accountId,
+            method,
+            endpoint,
+            params,
+            attempt + 1,
+          );
         }
       }
 
@@ -440,7 +461,8 @@ export class InstagramApiService {
    * Get and decrypt access token
    */
   private async getAccessToken(accountId: string): Promise<string> {
-    const token = await this.oauthTokenRepository.findByClientAccountId(accountId);
+    const token =
+      await this.oauthTokenRepository.findByClientAccountId(accountId);
 
     if (!token) {
       throw new HttpException(
@@ -452,10 +474,7 @@ export class InstagramApiService {
     // Check if token is expired
     const expiresAt = (token as any).props?.expiresAt;
     if (expiresAt && new Date(expiresAt) < new Date()) {
-      throw new HttpException(
-        'Access token expired',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Access token expired', HttpStatus.UNAUTHORIZED);
     }
 
     // Access the decrypted token (assumes OAuthToken entity has proper decryption)

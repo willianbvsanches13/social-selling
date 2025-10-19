@@ -33,7 +33,10 @@ export class InstagramMediaAsset {
   }
 
   static create(
-    props: Omit<InstagramMediaAssetProps, 'id' | 'createdAt' | 'usedInPosts' | 'tags'>,
+    props: Omit<
+      InstagramMediaAssetProps,
+      'id' | 'createdAt' | 'usedInPosts' | 'tags'
+    >,
   ): InstagramMediaAsset {
     return new InstagramMediaAsset({
       ...props,

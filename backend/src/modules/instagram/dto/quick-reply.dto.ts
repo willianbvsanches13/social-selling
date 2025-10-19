@@ -1,4 +1,12 @@
-import { IsString, IsOptional, IsEnum, IsBoolean, IsInt, IsUrl, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsBoolean,
+  IsInt,
+  IsUrl,
+  IsUUID,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum QuickReplyMatchType {
@@ -26,12 +34,19 @@ export class CreateQuickReplyDto {
   @IsUrl()
   responseMediaUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Match type', enum: QuickReplyMatchType, default: QuickReplyMatchType.EXACT })
+  @ApiPropertyOptional({
+    description: 'Match type',
+    enum: QuickReplyMatchType,
+    default: QuickReplyMatchType.EXACT,
+  })
   @IsOptional()
   @IsEnum(QuickReplyMatchType)
   matchType?: QuickReplyMatchType;
 
-  @ApiPropertyOptional({ description: 'Priority (higher = checked first)', default: 0 })
+  @ApiPropertyOptional({
+    description: 'Priority (higher = checked first)',
+    default: 0,
+  })
   @IsOptional()
   @IsInt()
   priority?: number;

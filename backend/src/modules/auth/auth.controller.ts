@@ -14,7 +14,13 @@ import {
   Param,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiCookieAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiCookieAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -25,7 +31,10 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { SessionService } from './services/session.service';
 import { SessionGuard } from '../../common/guards/session.guard';
-import { GetUserId, GetSession } from '../../common/decorators/session.decorator';
+import {
+  GetUserId,
+  GetSession,
+} from '../../common/decorators/session.decorator';
 import { Session, DeviceInfo } from '../../domain/entities/session.entity';
 import { SESSION_CONFIG } from './config/session.config';
 import { v4 as uuidv4 } from 'uuid';
@@ -98,7 +107,12 @@ export class AuthController {
     // Parse device info from user agent
     const deviceInfo: DeviceInfo = this.parseDeviceInfo(userAgent);
 
-    const result = await this.authService.login(loginDto, ip, userAgent, deviceInfo);
+    const result = await this.authService.login(
+      loginDto,
+      ip,
+      userAgent,
+      deviceInfo,
+    );
 
     // Set session cookie
     res.cookie(SESSION_CONFIG.cookieName, result.sessionId, {
@@ -195,7 +209,8 @@ export class AuthController {
   @ApiCookieAuth('cookieAuth')
   @ApiDoc({
     summary: 'Get user sessions',
-    description: 'Returns list of all active sessions for the authenticated user',
+    description:
+      'Returns list of all active sessions for the authenticated user',
     responses: [
       {
         status: 200,
@@ -237,7 +252,8 @@ export class AuthController {
       },
       {
         status: 401,
-        description: 'Unauthorized - Session not found or does not belong to user',
+        description:
+          'Unauthorized - Session not found or does not belong to user',
       },
     ],
   })

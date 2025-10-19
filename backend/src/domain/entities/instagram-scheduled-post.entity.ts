@@ -55,7 +55,10 @@ export class InstagramScheduledPost {
   }
 
   static create(
-    props: Omit<InstagramScheduledPostProps, 'id' | 'createdAt' | 'updatedAt' | 'publishAttempts' | 'status'>,
+    props: Omit<
+      InstagramScheduledPostProps,
+      'id' | 'createdAt' | 'updatedAt' | 'publishAttempts' | 'status'
+    >,
   ): InstagramScheduledPost {
     return new InstagramScheduledPost({
       ...props,
@@ -68,7 +71,9 @@ export class InstagramScheduledPost {
     });
   }
 
-  static reconstitute(props: InstagramScheduledPostProps): InstagramScheduledPost {
+  static reconstitute(
+    props: InstagramScheduledPostProps,
+  ): InstagramScheduledPost {
     return new InstagramScheduledPost(props);
   }
 
@@ -154,7 +159,9 @@ export class InstagramScheduledPost {
   }
 
   markAsCancelled(): void {
-    if (![PostStatus.SCHEDULED, PostStatus.FAILED].includes(this.props.status)) {
+    if (
+      ![PostStatus.SCHEDULED, PostStatus.FAILED].includes(this.props.status)
+    ) {
       throw new Error('Only scheduled or failed posts can be cancelled');
     }
     this.props.status = PostStatus.CANCELLED;
@@ -187,7 +194,10 @@ export class InstagramScheduledPost {
   }
 
   canRetry(maxRetries: number = 3): boolean {
-    return this.props.publishAttempts < maxRetries && this.props.status === PostStatus.FAILED;
+    return (
+      this.props.publishAttempts < maxRetries &&
+      this.props.status === PostStatus.FAILED
+    );
   }
 
   setInitialMetrics(likes: number, comments: number, reach: number): void {

@@ -4,8 +4,8 @@ import { ValidationException } from '../../../../src/domain/exceptions/validatio
 describe('Money Value Object', () => {
   describe('valid money creation', () => {
     it('should create money with valid amount and currency', () => {
-      const money = new Money(100.50, 'BRL');
-      expect(money.amount).toBe(100.50);
+      const money = new Money(100.5, 'BRL');
+      expect(money.amount).toBe(100.5);
       expect(money.currency).toBe('BRL');
     });
 
@@ -38,7 +38,9 @@ describe('Money Value Object', () => {
 
     it('should throw error for NaN amount', () => {
       expect(() => new Money(NaN, 'BRL')).toThrow(ValidationException);
-      expect(() => new Money(NaN, 'BRL')).toThrow('Amount must be a valid number');
+      expect(() => new Money(NaN, 'BRL')).toThrow(
+        'Amount must be a valid number',
+      );
     });
   });
 
@@ -55,7 +57,9 @@ describe('Money Value Object', () => {
       const money1 = new Money(100, 'BRL');
       const money2 = new Money(50, 'USD');
       expect(() => money1.add(money2)).toThrow(ValidationException);
-      expect(() => money1.add(money2)).toThrow('Cannot add money with different currencies');
+      expect(() => money1.add(money2)).toThrow(
+        'Cannot add money with different currencies',
+      );
     });
 
     it('should subtract two money values with same currency', () => {
@@ -129,10 +133,10 @@ describe('Money Value Object', () => {
 
   describe('JSON serialization', () => {
     it('should serialize to JSON', () => {
-      const money = new Money(100.50, 'USD');
+      const money = new Money(100.5, 'USD');
       const json = money.toJSON();
       expect(json).toEqual({
-        amount: 100.50,
+        amount: 100.5,
         currency: 'USD',
       });
     });

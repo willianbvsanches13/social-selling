@@ -16,6 +16,7 @@ export abstract class BaseRepository {
 
     const camelCaseRow: any = {};
     for (const key in row) {
+      // eslint-disable-next-line no-prototype-builtins
       if (row.hasOwnProperty(key)) {
         const camelKey = key.replace(/_([a-z])/g, (_, letter) =>
           letter.toUpperCase(),
@@ -35,6 +36,7 @@ export abstract class BaseRepository {
 
     const snakeCaseObj: any = {};
     for (const key in obj) {
+      // eslint-disable-next-line no-prototype-builtins
       if (obj.hasOwnProperty(key) && obj[key] !== undefined) {
         const snakeKey = key.replace(
           /[A-Z]/g,
@@ -58,7 +60,9 @@ export abstract class BaseRepository {
       throw new Error('No fields to update');
     }
 
-    const setClause = keys.map((key, index) => `${key} = $${index + 2}`).join(', ');
+    const setClause = keys
+      .map((key, index) => `${key} = $${index + 2}`)
+      .join(', ');
     const values = [id, ...keys.map((key) => snakeData[key])];
 
     const query = `

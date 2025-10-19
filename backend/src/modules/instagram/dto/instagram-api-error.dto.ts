@@ -102,7 +102,9 @@ export class InstagramGraphApiException extends Error {
       return 'Permission denied. Please ensure all required permissions are granted.';
     }
 
-    return this.message || 'An error occurred while communicating with Instagram.';
+    return (
+      this.message || 'An error occurred while communicating with Instagram.'
+    );
   }
 
   /**

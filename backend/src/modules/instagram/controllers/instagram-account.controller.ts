@@ -12,10 +12,20 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { InstagramAccountService } from '../services/instagram-account.service';
-import { UpdateAccountDto, AccountResponseDto, AccountListResponseDto, AccountStatusResponseDto } from '../dto/account.dto';
+import {
+  UpdateAccountDto,
+  AccountResponseDto,
+  AccountListResponseDto,
+  AccountStatusResponseDto,
+} from '../dto/account.dto';
 
 @ApiTags('Instagram Account Management')
 @Controller('instagram/accounts')
@@ -49,10 +59,19 @@ export class InstagramAccountController {
     description: 'Returns account details',
     type: AccountResponseDto,
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Account not found',
+  })
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Access denied' })
-  async getAccount(@Param('id') accountId: string, @Request() req: any): Promise<AccountResponseDto> {
-    const account = await this.accountService.getAccountById(accountId, req.user.id);
+  async getAccount(
+    @Param('id') accountId: string,
+    @Request() req: any,
+  ): Promise<AccountResponseDto> {
+    const account = await this.accountService.getAccountById(
+      accountId,
+      req.user.id,
+    );
     return this.mapToResponse(account);
   }
 
@@ -63,13 +82,20 @@ export class InstagramAccountController {
     description: 'Account updated successfully',
     type: AccountResponseDto,
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Account not found',
+  })
   async updateAccount(
     @Param('id') accountId: string,
     @Body() updateDto: UpdateAccountDto,
     @Request() req: any,
   ): Promise<AccountResponseDto> {
-    const account = await this.accountService.updateAccount(accountId, req.user.id, updateDto);
+    const account = await this.accountService.updateAccount(
+      accountId,
+      req.user.id,
+      updateDto,
+    );
     this.logger.log(`Account ${accountId} updated by user ${req.user.id}`);
     return this.mapToResponse(account);
   }
@@ -77,9 +103,18 @@ export class InstagramAccountController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Disconnect Instagram account' })
-  @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Account disconnected successfully' })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
-  async deleteAccount(@Param('id') accountId: string, @Request() req: any): Promise<void> {
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Account disconnected successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Account not found',
+  })
+  async deleteAccount(
+    @Param('id') accountId: string,
+    @Request() req: any,
+  ): Promise<void> {
     await this.accountService.deleteAccount(accountId, req.user.id);
     this.logger.log(`Account ${accountId} disconnected by user ${req.user.id}`);
   }
@@ -91,8 +126,14 @@ export class InstagramAccountController {
     description: 'Account synced successfully',
     type: AccountResponseDto,
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
-  async syncAccount(@Param('id') accountId: string, @Request() req: any): Promise<AccountResponseDto> {
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Account not found',
+  })
+  async syncAccount(
+    @Param('id') accountId: string,
+    @Request() req: any,
+  ): Promise<AccountResponseDto> {
     // Verify ownership
     await this.accountService.getAccountById(accountId, req.user.id);
 
@@ -108,7 +149,10 @@ export class InstagramAccountController {
     description: 'Status refreshed',
     type: AccountStatusResponseDto,
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Account not found' })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Account not found',
+  })
   async refreshStatus(
     @Param('id') accountId: string,
     @Request() req: any,

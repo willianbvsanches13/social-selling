@@ -1,10 +1,21 @@
-import { Injectable, UnauthorizedException, BadRequestException, Logger, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+  Logger,
+  Inject,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { randomBytes } from 'crypto';
 import { RedisService } from '../../infrastructure/cache/redis.service';
 import { IClientAccountRepository } from '../../domain/repositories/client-account.repository.interface';
 import { IOAuthTokenRepository } from '../../domain/repositories/oauth-token.repository.interface';
-import { ClientAccount, Platform, AccountStatus, InstagramAccountType } from '../../domain/entities/client-account.entity';
+import {
+  ClientAccount,
+  Platform,
+  AccountStatus,
+  InstagramAccountType,
+} from '../../domain/entities/client-account.entity';
 import { OAuthToken } from '../../domain/entities/oauth-token.entity';
 import {
   InstagramTokenResponse,
@@ -37,8 +48,10 @@ export class InstagramOAuthService {
     private readonly oauthTokenRepository: IOAuthTokenRepository,
   ) {
     this.clientId = this.configService.get<string>('INSTAGRAM_APP_ID') || '';
-    this.clientSecret = this.configService.get<string>('INSTAGRAM_APP_SECRET') || '';
-    this.redirectUri = this.configService.get<string>('INSTAGRAM_REDIRECT_URI') || '';
+    this.clientSecret =
+      this.configService.get<string>('INSTAGRAM_APP_SECRET') || '';
+    this.redirectUri =
+      this.configService.get<string>('INSTAGRAM_REDIRECT_URI') || '';
 
     if (!this.clientId || !this.clientSecret || !this.redirectUri) {
       this.logger.error('Instagram OAuth credentials not configured');
@@ -66,8 +79,13 @@ export class InstagramOAuthService {
     return `${this.authBaseUrl}/authorize?${params.toString()}`;
   }
 
-  async handleCallback(code: string, state: string): Promise<{ accountId: string; username: string }> {
-    const stateData = await this.redisService.get(`oauth:instagram:state:${state}`);
+  async handleCallback(
+    code: string,
+    state: string,
+  ): Promise<{ accountId: string; username: string }> {
+    const stateData = await this.redisService.get(
+      `oauth:instagram:state:${state}`,
+    );
     if (!stateData) {
       throw new UnauthorizedException('Invalid or expired OAuth state');
     }
@@ -77,8 +95,12 @@ export class InstagramOAuthService {
 
     try {
       const shortLivedToken = await this.exchangeCodeForToken(code);
-      const longLivedToken = await this.exchangeForLongLivedToken(shortLivedToken.access_token);
-      const userProfile = await this.fetchUserProfile(longLivedToken.access_token);
+      const longLivedToken = await this.exchangeForLongLivedToken(
+        shortLivedToken.access_token,
+      );
+      const userProfile = await this.fetchUserProfile(
+        longLivedToken.access_token,
+      );
       const clientAccount = await this.storeClientAccount(userId, userProfile);
       await this.storeOAuthToken(
         userId,
@@ -103,7 +125,8 @@ export class InstagramOAuthService {
       throw new UnauthorizedException('Account not found or unauthorized');
     }
 
-    const token = await this.oauthTokenRepository.findByClientAccountId(accountId);
+    const token =
+      await this.oauthTokenRepository.findByClientAccountId(accountId);
     if (token) {
       await this.oauthTokenRepository.delete(token.id);
     }
@@ -113,7 +136,8 @@ export class InstagramOAuthService {
   }
 
   async refreshTokenIfNeeded(accountId: string): Promise<string> {
-    const token = await this.oauthTokenRepository.findByClientAccountId(accountId);
+    const token =
+      await this.oauthTokenRepository.findByClientAccountId(accountId);
     if (!token) {
       throw new UnauthorizedException('No OAuth token found for account');
     }
@@ -134,7 +158,9 @@ export class InstagramOAuthService {
     return (token as any).props.encryptedAccessToken;
   }
 
-  private async exchangeCodeForToken(code: string): Promise<InstagramTokenResponse> {
+  private async exchangeCodeForToken(
+    code: string,
+  ): Promise<InstagramTokenResponse> {
     const formData = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
@@ -150,35 +176,47 @@ export class InstagramOAuthService {
     });
 
     if (!response.ok) {
-      throw new Error(`Instagram token exchange failed: ${response.statusText}`);
+      throw new Error(
+        `Instagram token exchange failed: ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  private async exchangeForLongLivedToken(shortLivedToken: string): Promise<InstagramLongLivedTokenResponse> {
+  private async exchangeForLongLivedToken(
+    shortLivedToken: string,
+  ): Promise<InstagramLongLivedTokenResponse> {
     const params = new URLSearchParams({
       grant_type: 'ig_exchange_token',
       client_secret: this.clientSecret,
       access_token: shortLivedToken,
     });
 
-    const response = await fetch(`${this.graphBaseUrl}/access_token?${params.toString()}`);
+    const response = await fetch(
+      `${this.graphBaseUrl}/access_token?${params.toString()}`,
+    );
 
     if (!response.ok) {
-      throw new Error(`Instagram long-lived token exchange failed: ${response.statusText}`);
+      throw new Error(
+        `Instagram long-lived token exchange failed: ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  private async refreshLongLivedToken(token: string): Promise<InstagramLongLivedTokenResponse> {
+  private async refreshLongLivedToken(
+    token: string,
+  ): Promise<InstagramLongLivedTokenResponse> {
     const params = new URLSearchParams({
       grant_type: 'ig_refresh_token',
       access_token: token,
     });
 
-    const response = await fetch(`${this.graphBaseUrl}/refresh_access_token?${params.toString()}`);
+    const response = await fetch(
+      `${this.graphBaseUrl}/refresh_access_token?${params.toString()}`,
+    );
 
     if (!response.ok) {
       throw new Error(`Instagram token refresh failed: ${response.statusText}`);
@@ -187,22 +225,31 @@ export class InstagramOAuthService {
     return response.json();
   }
 
-  private async fetchUserProfile(accessToken: string): Promise<InstagramUserProfile> {
+  private async fetchUserProfile(
+    accessToken: string,
+  ): Promise<InstagramUserProfile> {
     const params = new URLSearchParams({
       fields: 'id,username,account_type,media_count',
       access_token: accessToken,
     });
 
-    const response = await fetch(`${this.graphBaseUrl}/me?${params.toString()}`);
+    const response = await fetch(
+      `${this.graphBaseUrl}/me?${params.toString()}`,
+    );
 
     if (!response.ok) {
-      throw new Error(`Instagram user profile fetch failed: ${response.statusText}`);
+      throw new Error(
+        `Instagram user profile fetch failed: ${response.statusText}`,
+      );
     }
 
     return response.json();
   }
 
-  private async storeClientAccount(userId: string, profile: InstagramUserProfile): Promise<ClientAccount> {
+  private async storeClientAccount(
+    userId: string,
+    profile: InstagramUserProfile,
+  ): Promise<ClientAccount> {
     const existing = await this.clientAccountRepository.findByPlatformAccountId(
       Platform.INSTAGRAM,
       profile.id,
@@ -241,7 +288,8 @@ export class InstagramOAuthService {
     const expiresAt = new Date();
     expiresAt.setSeconds(expiresAt.getSeconds() + expiresIn);
 
-    const existingToken = await this.oauthTokenRepository.findByClientAccountId(clientAccountId);
+    const existingToken =
+      await this.oauthTokenRepository.findByClientAccountId(clientAccountId);
     if (existingToken) {
       await this.oauthTokenRepository.delete(existingToken.id);
     }

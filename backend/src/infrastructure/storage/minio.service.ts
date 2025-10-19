@@ -155,7 +155,9 @@ export class MinioService implements OnModuleInit {
   async deleteFiles(objectNames: string[]): Promise<void> {
     try {
       await this.client.removeObjects(this.bucketName, objectNames);
-      this.logger.log(`Files deleted successfully: ${objectNames.length} files`);
+      this.logger.log(
+        `Files deleted successfully: ${objectNames.length} files`,
+      );
     } catch (error: any) {
       this.logger.error(
         `Failed to delete files: ${error?.message || 'Unknown error'}`,
@@ -289,7 +291,9 @@ export class MinioService implements OnModuleInit {
       await this.client.bucketExists(this.bucketName);
       return true;
     } catch (error: any) {
-      this.logger.error(`MinIO health check failed: ${error?.message || 'Unknown error'}`);
+      this.logger.error(
+        `MinIO health check failed: ${error?.message || 'Unknown error'}`,
+      );
       return false;
     }
   }

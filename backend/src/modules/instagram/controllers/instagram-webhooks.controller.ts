@@ -22,7 +22,10 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { InstagramWebhooksService } from '../services/instagram-webhooks.service';
-import { CreateWebhookSubscriptionDto, WebhookStatsDto } from '../dto/webhook.dto';
+import {
+  CreateWebhookSubscriptionDto,
+  WebhookStatsDto,
+} from '../dto/webhook.dto';
 
 @ApiTags('Instagram Webhooks')
 @Controller('instagram/webhooks')
@@ -58,12 +61,14 @@ export class InstagramWebhooksController {
     @Headers('x-hub-signature-256') signature: string,
   ): Promise<{ status: string }> {
     // Get raw body for signature verification
-    const rawBody = req.rawBody ? req.rawBody.toString('utf8') : JSON.stringify(req.body);
+    const rawBody = req.rawBody
+      ? req.rawBody.toString('utf8')
+      : JSON.stringify(req.body);
     let payload: any;
 
     try {
       payload = typeof rawBody === 'string' ? JSON.parse(rawBody) : req.body;
-    } catch (error) {
+    } catch (_error) {
       throw new Error('Invalid webhook payload format');
     }
 
@@ -88,12 +93,17 @@ export class InstagramWebhooksController {
   @Post('subscriptions')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearerAuth')
-  @ApiOperation({ summary: 'Create webhook subscription for Instagram account' })
+  @ApiOperation({
+    summary: 'Create webhook subscription for Instagram account',
+  })
   @ApiResponse({
     status: 201,
     description: 'Subscription created successfully',
   })
-  async createSubscription(@Request() req: any, @Body() dto: CreateWebhookSubscriptionDto) {
+  async createSubscription(
+    @Request() req: any,
+    @Body() dto: CreateWebhookSubscriptionDto,
+  ) {
     return this.webhooksService.createSubscription(
       req.user.id,
       dto.instagramAccountId,
@@ -112,7 +122,8 @@ export class InstagramWebhooksController {
   @ApiQuery({
     name: 'eventType',
     required: false,
-    description: 'Filter by event type (comment, mention, message, story_mention, live_comment)',
+    description:
+      'Filter by event type (comment, mention, message, story_mention, live_comment)',
   })
   @ApiQuery({
     name: 'processed',
@@ -180,8 +191,14 @@ export class InstagramWebhooksController {
     description: 'Events queued for retry',
   })
   @HttpCode(200)
-  async retryFailedEvents(@Request() req: any, @Param('accountId') accountId: string) {
-    const count = await this.webhooksService.retryFailedEvents(req.user.id, accountId);
+  async retryFailedEvents(
+    @Request() req: any,
+    @Param('accountId') accountId: string,
+  ) {
+    const count = await this.webhooksService.retryFailedEvents(
+      req.user.id,
+      accountId,
+    );
     return { retriedCount: count };
   }
 }

@@ -46,7 +46,10 @@ export class InstagramRateLimiter {
         resetAt,
       };
     } catch (error) {
-      this.logger.error(`Error checking rate limit for account ${accountId}:`, error);
+      this.logger.error(
+        `Error checking rate limit for account ${accountId}:`,
+        error,
+      );
       // Return permissive limit on error to avoid blocking requests
       return {
         limit: this.DEFAULT_RATE_LIMIT,
@@ -71,7 +74,10 @@ export class InstagramRateLimiter {
       // Set expiration to clean up old data (1 hour + buffer)
       await this.redis.expire(key, Math.ceil(this.WINDOW_MS / 1000) + 300);
     } catch (error) {
-      this.logger.error(`Error recording API call for account ${accountId}:`, error);
+      this.logger.error(
+        `Error recording API call for account ${accountId}:`,
+        error,
+      );
       // Don't throw - this is non-critical
     }
   }
@@ -98,7 +104,8 @@ export class InstagramRateLimiter {
     headers: Record<string, string | string[] | undefined>,
   ): Promise<void> {
     try {
-      const usage = headers['x-app-usage'] || headers['x-business-use-case-usage'];
+      const usage =
+        headers['x-app-usage'] || headers['x-business-use-case-usage'];
 
       if (!usage) {
         return;
@@ -121,10 +128,18 @@ export class InstagramRateLimiter {
       await this.redis.setex(
         key,
         60 * 60, // 1 hour
-        JSON.stringify({ callCount, totalCputime, totalTime, timestamp: Date.now() }),
+        JSON.stringify({
+          callCount,
+          totalCputime,
+          totalTime,
+          timestamp: Date.now(),
+        }),
       );
     } catch (error) {
-      this.logger.warn(`Failed to parse rate limit headers for account ${accountId}:`, error);
+      this.logger.warn(
+        `Failed to parse rate limit headers for account ${accountId}:`,
+        error,
+      );
       // Don't throw - this is non-critical
     }
   }
@@ -147,10 +162,14 @@ export class InstagramRateLimiter {
   /**
    * Get current rate limit status (for monitoring/debugging)
    */
-  async getStatus(accountId: string): Promise<RateLimitInfo & { usagePercentage: number }> {
+  async getStatus(
+    accountId: string,
+  ): Promise<RateLimitInfo & { usagePercentage: number }> {
     const rateLimit = await this.checkRateLimit(accountId);
     const usagePercentage = Math.round(
-      ((this.DEFAULT_RATE_LIMIT - rateLimit.remaining) / this.DEFAULT_RATE_LIMIT) * 100,
+      ((this.DEFAULT_RATE_LIMIT - rateLimit.remaining) /
+        this.DEFAULT_RATE_LIMIT) *
+        100,
     );
 
     return {
@@ -170,7 +189,10 @@ export class InstagramRateLimiter {
       await this.redis.del(key, usageKey);
       this.logger.log(`Rate limit reset for account ${accountId}`);
     } catch (error) {
-      this.logger.error(`Error resetting rate limit for account ${accountId}:`, error);
+      this.logger.error(
+        `Error resetting rate limit for account ${accountId}:`,
+        error,
+      );
       throw error;
     }
   }

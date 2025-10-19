@@ -35,7 +35,10 @@ export class InstagramPostTemplate {
   }
 
   static create(
-    props: Omit<InstagramPostTemplateProps, 'id' | 'createdAt' | 'updatedAt' | 'usageCount' | 'variables'>,
+    props: Omit<
+      InstagramPostTemplateProps,
+      'id' | 'createdAt' | 'updatedAt' | 'usageCount' | 'variables'
+    >,
   ): InstagramPostTemplate {
     // Extract variables from caption template
     const variableRegex = /\{\{\s*(\w+)\s*\}\}/g;
@@ -59,7 +62,9 @@ export class InstagramPostTemplate {
     });
   }
 
-  static reconstitute(props: InstagramPostTemplateProps): InstagramPostTemplate {
+  static reconstitute(
+    props: InstagramPostTemplateProps,
+  ): InstagramPostTemplate {
     return new InstagramPostTemplate(props);
   }
 

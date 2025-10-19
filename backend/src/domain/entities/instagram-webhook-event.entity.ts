@@ -36,7 +36,10 @@ export class InstagramWebhookEvent {
   }
 
   static create(
-    props: Omit<InstagramWebhookEventProps, 'id' | 'createdAt' | 'updatedAt' | 'processingAttempts'>,
+    props: Omit<
+      InstagramWebhookEventProps,
+      'id' | 'createdAt' | 'updatedAt' | 'processingAttempts'
+    >,
   ): InstagramWebhookEvent {
     return new InstagramWebhookEvent({
       ...props,
@@ -47,7 +50,9 @@ export class InstagramWebhookEvent {
     });
   }
 
-  static reconstitute(props: InstagramWebhookEventProps): InstagramWebhookEvent {
+  static reconstitute(
+    props: InstagramWebhookEventProps,
+  ): InstagramWebhookEvent {
     return new InstagramWebhookEvent(props);
   }
 

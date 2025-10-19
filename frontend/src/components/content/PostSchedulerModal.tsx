@@ -100,8 +100,9 @@ export function PostSchedulerModal({
       }
 
       onSuccess();
-    } catch (err: any) {
-      showError(err.message || 'Failed to save post');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save post';
+      showError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

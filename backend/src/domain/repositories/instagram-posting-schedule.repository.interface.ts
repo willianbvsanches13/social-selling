@@ -3,7 +3,9 @@ import { InstagramPostingSchedule } from '../entities/instagram-posting-schedule
 export interface IInstagramPostingScheduleRepository {
   create(schedule: InstagramPostingSchedule): Promise<InstagramPostingSchedule>;
   findById(id: string): Promise<InstagramPostingSchedule | null>;
-  findByClientAccount(clientAccountId: string): Promise<InstagramPostingSchedule[]>;
+  findByClientAccount(
+    clientAccountId: string,
+  ): Promise<InstagramPostingSchedule[]>;
   update(schedule: InstagramPostingSchedule): Promise<InstagramPostingSchedule>;
   findByClientAccountAndDay(
     clientAccountId: string,

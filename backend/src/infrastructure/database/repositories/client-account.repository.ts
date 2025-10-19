@@ -10,7 +10,10 @@ import { Database } from '../database';
 import { BaseRepository } from './base.repository';
 
 @Injectable()
-export class ClientAccountRepository extends BaseRepository implements IClientAccountRepository {
+export class ClientAccountRepository
+  extends BaseRepository
+  implements IClientAccountRepository
+{
   constructor(database: Database) {
     super(database.getDb(), ClientAccountRepository.name);
   }
@@ -81,7 +84,10 @@ export class ClientAccountRepository extends BaseRepository implements IClientAc
     return rows ? rows.map((row) => this.mapToEntity(row)) : [];
   }
 
-  async findByPlatformAccountId(platform: Platform, platformAccountId: string): Promise<ClientAccount | null> {
+  async findByPlatformAccountId(
+    platform: Platform,
+    platformAccountId: string,
+  ): Promise<ClientAccount | null> {
     const query = `
       SELECT
         id,
@@ -305,11 +311,15 @@ export class ClientAccountRepository extends BaseRepository implements IClientAc
       biography: mapped.biography,
       website: mapped.website,
       status: mapped.status as AccountStatus,
-      accountType: (mapped.accountType as InstagramAccountType) || InstagramAccountType.PERSONAL,
+      accountType:
+        (mapped.accountType as InstagramAccountType) ||
+        InstagramAccountType.PERSONAL,
       metadata: mapped.metadata || {},
       permissions: mapped.permissions || [],
       lastSyncAt: mapped.lastSyncAt ? new Date(mapped.lastSyncAt) : undefined,
-      tokenExpiresAt: mapped.tokenExpiresAt ? new Date(mapped.tokenExpiresAt) : undefined,
+      tokenExpiresAt: mapped.tokenExpiresAt
+        ? new Date(mapped.tokenExpiresAt)
+        : undefined,
       createdAt: new Date(mapped.createdAt),
       updatedAt: new Date(mapped.updatedAt),
     });

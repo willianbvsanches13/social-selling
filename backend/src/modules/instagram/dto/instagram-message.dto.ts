@@ -1,4 +1,15 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsUUID, IsUrl, ValidateNested, IsInt, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  IsUUID,
+  IsUrl,
+  ValidateNested,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -42,7 +53,9 @@ export class SendMessageDto {
   @IsUUID()
   instagramAccountId!: string;
 
-  @ApiProperty({ description: 'Recipient Instagram user ID or conversation ID' })
+  @ApiProperty({
+    description: 'Recipient Instagram user ID or conversation ID',
+  })
   @IsString()
   recipient!: string;
 
@@ -51,7 +64,10 @@ export class SendMessageDto {
   @IsString()
   text?: string;
 
-  @ApiPropertyOptional({ description: 'Message attachments', type: [MessageAttachmentDto] })
+  @ApiPropertyOptional({
+    description: 'Message attachments',
+    type: [MessageAttachmentDto],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
@@ -79,7 +95,10 @@ export class SendMessageDto {
 }
 
 export class ListMessagesDto {
-  @ApiPropertyOptional({ description: 'Filter by message type', enum: MessageType })
+  @ApiPropertyOptional({
+    description: 'Filter by message type',
+    enum: MessageType,
+  })
   @IsOptional()
   @IsEnum(MessageType)
   messageType?: MessageType;
@@ -111,7 +130,12 @@ export class ListMessagesDto {
   @Type(() => Number)
   page?: number = 1;
 
-  @ApiPropertyOptional({ description: 'Items per page', minimum: 1, maximum: 100, default: 50 })
+  @ApiPropertyOptional({
+    description: 'Items per page',
+    minimum: 1,
+    maximum: 100,
+    default: 50,
+  })
   @IsOptional()
   @IsInt()
   @Min(1)

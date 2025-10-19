@@ -17,18 +17,22 @@ async function main() {
     const arg = process.argv[3];
 
     switch (command) {
-      case 'up':
+      case 'up': {
         await migrationRunner.run();
         break;
+      }
 
-      case 'down':
+      case 'down': {
         const steps = parseInt(arg || '1', 10);
         if (isNaN(steps) || steps < 1) {
-          console.error('❌ Invalid steps argument. Must be a positive number.');
+          console.error(
+            '❌ Invalid steps argument. Must be a positive number.',
+          );
           process.exit(1);
         }
         await migrationRunner.rollback(steps);
         break;
+      }
 
       case 'status':
         await migrationRunner.status();
@@ -60,7 +64,8 @@ Examples:
     await app.close();
     process.exit(0);
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : undefined;
 
     console.error('\n❌ Migration failed:', errorMessage);
@@ -72,4 +77,4 @@ Examples:
   }
 }
 
-main();
+void main();

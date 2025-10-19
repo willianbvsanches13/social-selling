@@ -59,7 +59,9 @@ export class MigrationRunner {
       return;
     }
 
-    console.log(`\n⏪ Rolling back ${executedMigrations.length} migration(s)...\n`);
+    console.log(
+      `\n⏪ Rolling back ${executedMigrations.length} migration(s)...\n`,
+    );
 
     for (const migration of executedMigrations) {
       await this.rollbackMigration(migration);
@@ -86,7 +88,9 @@ export class MigrationRunner {
     });
 
     const pendingCount = allFiles.length - (executedMigrations?.length || 0);
-    console.log(`\n  Total: ${allFiles.length} | Executed: ${executedMigrations?.length || 0} | Pending: ${pendingCount}\n`);
+    console.log(
+      `\n  Total: ${allFiles.length} | Executed: ${executedMigrations?.length || 0} | Pending: ${pendingCount}\n`,
+    );
   }
 
   private getAllMigrationFiles(): string[] {

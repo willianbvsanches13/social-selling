@@ -40,7 +40,9 @@ export class Message {
     this.validate();
   }
 
-  static create(props: Omit<MessageProps, 'id' | 'createdAt' | 'isRead'>): Message {
+  static create(
+    props: Omit<MessageProps, 'id' | 'createdAt' | 'isRead'>,
+  ): Message {
     return new Message({
       ...props,
       id: crypto.randomUUID(),
@@ -59,10 +61,14 @@ export class Message {
       throw new DomainException('Text messages must have content');
     }
     if (
-      [MessageType.IMAGE, MessageType.VIDEO, MessageType.AUDIO].includes(this.props.messageType) &&
+      [MessageType.IMAGE, MessageType.VIDEO, MessageType.AUDIO].includes(
+        this.props.messageType,
+      ) &&
       !this.props.mediaUrl
     ) {
-      throw new DomainException(`${this.props.messageType} messages must have media URL`);
+      throw new DomainException(
+        `${this.props.messageType} messages must have media URL`,
+      );
     }
   }
 

@@ -1,10 +1,24 @@
-import { Injectable, Logger, BadRequestException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  Inject,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { InstagramWebhookEvent, WebhookEventType } from '../../../domain/entities/instagram-webhook-event.entity';
+import {
+  InstagramWebhookEvent,
+  WebhookEventType,
+} from '../../../domain/entities/instagram-webhook-event.entity';
 import { InstagramWebhookSubscription } from '../../../domain/entities/instagram-webhook-subscription.entity';
-import { InstagramWebhookLog, WebhookLogLevel } from '../../../domain/entities/instagram-webhook-log.entity';
-import { CreateWebhookSubscriptionDto, WebhookStatsDto } from '../dto/webhook.dto';
+import {
+  InstagramWebhookLog,
+  WebhookLogLevel,
+} from '../../../domain/entities/instagram-webhook-log.entity';
+import {
+  CreateWebhookSubscriptionDto,
+  WebhookStatsDto,
+} from '../dto/webhook.dto';
 import { Database } from '../../../infrastructure/database/database';
 
 @Injectable()
@@ -18,9 +32,14 @@ export class InstagramWebhooksService {
     private configService: ConfigService,
     @Inject(Database) private database: Database,
   ) {
-    this.appSecret = this.configService.get<string>('INSTAGRAM_APP_SECRET') || '';
-    this.verifyToken = this.configService.get<string>('INSTAGRAM_WEBHOOK_VERIFY_TOKEN') || '';
-    this.baseUrl = this.configService.get<string>('APP_BASE_URL', 'http://localhost:3000');
+    this.appSecret =
+      this.configService.get<string>('INSTAGRAM_APP_SECRET') || '';
+    this.verifyToken =
+      this.configService.get<string>('INSTAGRAM_WEBHOOK_VERIFY_TOKEN') || '';
+    this.baseUrl = this.configService.get<string>(
+      'APP_BASE_URL',
+      'http://localhost:3000',
+    );
 
     if (!this.appSecret) {
       this.logger.warn('INSTAGRAM_APP_SECRET not configured');
@@ -55,7 +74,8 @@ export class InstagramWebhooksService {
         Buffer.from(expectedHash, 'hex'),
       );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Signature verification failed: ${errorMessage}`);
       return false;
     }
@@ -69,7 +89,9 @@ export class InstagramWebhooksService {
     const token = query['hub.verify_token'];
     const challenge = query['hub.challenge'];
 
-    this.logger.debug(`Webhook verification request: mode=${mode}, token=${token}`);
+    this.logger.debug(
+      `Webhook verification request: mode=${mode}, token=${token}`,
+    );
 
     if (mode !== 'subscribe') {
       this.logger.warn(`Invalid hub.mode: ${mode}`);
@@ -107,7 +129,8 @@ export class InstagramWebhooksService {
         try {
           await this.processWebhookChange(pageId, change, payload);
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
           this.logger.error(`Error processing webhook change: ${errorMessage}`);
         }
       }
@@ -117,7 +140,11 @@ export class InstagramWebhooksService {
   /**
    * Process individual webhook change
    */
-  private async processWebhookChange(pageId: string, change: any, fullPayload: any): Promise<void> {
+  private async processWebhookChange(
+    pageId: string,
+    change: any,
+    fullPayload: any,
+  ): Promise<void> {
     try {
       // Determine event type
       const eventType = this.determineEventType(change);
@@ -137,7 +164,7 @@ export class InstagramWebhooksService {
       const existingEvent: any[] = await this.database.query(
         'SELECT id FROM instagram_webhook_events WHERE event_id = $1 LIMIT 1',
         [eventId],
-      ) as any[];
+      );
 
       if (existingEvent && existingEvent.length > 0) {
         this.logger.debug(`Duplicate webhook event detected: ${eventId}`);
@@ -147,7 +174,13 @@ export class InstagramWebhooksService {
           `INSERT INTO instagram_webhook_events
            (event_type, event_id, payload, is_duplicate, duplicate_of, created_at, updated_at)
            VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
-          [eventType, `${eventId}_dup_${Date.now()}`, fullPayload, true, existingEvent[0].id],
+          [
+            eventType,
+            `${eventId}_dup_${Date.now()}`,
+            fullPayload,
+            true,
+            existingEvent[0].id,
+          ],
         );
 
         return;
@@ -205,9 +238,13 @@ export class InstagramWebhooksService {
 
       this.logger.log(`Webhook event created: ${newEventId} (${eventType})`);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : '';
-      this.logger.error(`Failed to process webhook change: ${errorMessage}`, errorStack);
+      this.logger.error(
+        `Failed to process webhook change: ${errorMessage}`,
+        errorStack,
+      );
     }
   }
 
@@ -313,7 +350,8 @@ export class InstagramWebhooksService {
       );
       return result && result.length > 0 ? result[0] : null;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Error finding account by page ID: ${errorMessage}`);
       return null;
     }
@@ -333,7 +371,8 @@ export class InstagramWebhooksService {
         [accountId],
       );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Error updating subscription stats: ${errorMessage}`);
     }
   }
@@ -352,7 +391,8 @@ export class InstagramWebhooksService {
         [eventId],
       );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Error marking event as processed: ${errorMessage}`);
     }
   }
@@ -371,11 +411,17 @@ export class InstagramWebhooksService {
         [eventId, error],
       );
 
-      await this.createLog(eventId, WebhookLogLevel.ERROR, 'Event processing failed', {
-        error,
-      });
+      await this.createLog(
+        eventId,
+        WebhookLogLevel.ERROR,
+        'Event processing failed',
+        {
+          error,
+        },
+      );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Error marking event as failed: ${errorMessage}`);
     }
   }
@@ -402,11 +448,14 @@ export class InstagramWebhooksService {
     );
 
     if (!accessCheck || accessCheck.length === 0) {
-      throw new BadRequestException('Instagram account not found or access denied');
+      throw new BadRequestException(
+        'Instagram account not found or access denied',
+      );
     }
 
     // Build query
-    let query = 'SELECT * FROM instagram_webhook_events WHERE instagram_account_id = $1';
+    let query =
+      'SELECT * FROM instagram_webhook_events WHERE instagram_account_id = $1';
     const params: any[] = [accountId];
     let paramCount = 2;
 
@@ -427,7 +476,10 @@ export class InstagramWebhooksService {
       `SELECT COUNT(*) as count FROM (${query}) as t`,
       params,
     );
-    const total = countResult && countResult.length > 0 ? parseInt(countResult[0].count) : 0;
+    const total =
+      countResult && countResult.length > 0
+        ? parseInt(countResult[0].count)
+        : 0;
 
     // Get paginated results
     const offset = (page - 1) * limit;
@@ -455,7 +507,9 @@ export class InstagramWebhooksService {
     );
 
     if (!accessCheck || accessCheck.length === 0) {
-      throw new BadRequestException('Instagram account not found or access denied');
+      throw new BadRequestException(
+        'Instagram account not found or access denied',
+      );
     }
 
     const stats = await this.database.query(
@@ -571,7 +625,8 @@ export class InstagramWebhooksService {
         [eventId, level, message, context],
       );
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to create webhook log: ${errorMessage}`);
     }
   }
@@ -587,7 +642,9 @@ export class InstagramWebhooksService {
     );
 
     if (!accessCheck || accessCheck.length === 0) {
-      throw new BadRequestException('Instagram account not found or access denied');
+      throw new BadRequestException(
+        'Instagram account not found or access denied',
+      );
     }
 
     const failedEvents = await this.database.query(

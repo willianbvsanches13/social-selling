@@ -38,14 +38,18 @@ export class Money {
 
   add(other: Money): Money {
     if (this._currency !== other._currency) {
-      throw new ValidationException('Cannot add money with different currencies');
+      throw new ValidationException(
+        'Cannot add money with different currencies',
+      );
     }
     return new Money(this._amount + other._amount, this._currency);
   }
 
   subtract(other: Money): Money {
     if (this._currency !== other._currency) {
-      throw new ValidationException('Cannot subtract money with different currencies');
+      throw new ValidationException(
+        'Cannot subtract money with different currencies',
+      );
     }
     return new Money(this._amount - other._amount, this._currency);
   }
@@ -60,7 +64,9 @@ export class Money {
 
   greaterThan(other: Money): boolean {
     if (this._currency !== other._currency) {
-      throw new ValidationException('Cannot compare money with different currencies');
+      throw new ValidationException(
+        'Cannot compare money with different currencies',
+      );
     }
     return this._amount > other._amount;
   }

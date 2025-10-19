@@ -170,7 +170,8 @@ export class InstagramPublishingProcessor extends WorkerHost {
         }
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
       const errorCode = (error as any)?.code || 'UNKNOWN';
 
@@ -229,7 +230,8 @@ export class InstagramPublishingProcessor extends WorkerHost {
     }
 
     // Get OAuth token from repository
-    const token = await this.oauthTokenRepository.findByClientAccountId(accountId);
+    const token =
+      await this.oauthTokenRepository.findByClientAccountId(accountId);
 
     if (!token) {
       throw new Error(`Instagram account ${accountId} has no access token`);
@@ -246,7 +248,9 @@ export class InstagramPublishingProcessor extends WorkerHost {
     const accessToken = token.encryptedAccessToken;
 
     if (!accessToken) {
-      throw new Error(`Instagram account ${accountId} has invalid access token`);
+      throw new Error(
+        `Instagram account ${accountId} has invalid access token`,
+      );
     }
 
     return {
@@ -318,9 +322,7 @@ export class InstagramPublishingProcessor extends WorkerHost {
    */
   @OnWorkerEvent('active')
   onActive(job: Job<PublishPostJobData>) {
-    this.logger.log(
-      `Job ${job.id} for post ${job.data.postId} is now active`,
-    );
+    this.logger.log(`Job ${job.id} for post ${job.data.postId} is now active`);
   }
 
   /**

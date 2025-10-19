@@ -1,10 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ExternalLink, Heart, MessageCircle, Share2, Bookmark, Eye } from 'lucide-react';
+import { ExternalLink, Heart, MessageCircle, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { TopPost } from '@/types/analytics';
-import { cn } from '@/lib/utils/cn';
 
 interface TopPostsTableProps {
   posts: TopPost[];

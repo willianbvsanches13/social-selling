@@ -8,7 +8,10 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
-import { IUserRepository, USER_REPOSITORY } from '../../domain/repositories/user.repository.interface';
+import {
+  IUserRepository,
+  USER_REPOSITORY,
+} from '../../domain/repositories/user.repository.interface';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload, JwtTokenPair } from './interfaces/jwt-payload.interface';
@@ -29,13 +32,20 @@ export class AuthService {
     private readonly sessionService: SessionService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<JwtTokenPair & { user: any }> {
-    const existingUser = await this.userRepository.findByEmail(registerDto.email);
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<JwtTokenPair & { user: any }> {
+    const existingUser = await this.userRepository.findByEmail(
+      registerDto.email,
+    );
     if (existingUser) {
       throw new ConflictException('Email already registered');
     }
 
-    const passwordHash = await bcrypt.hash(registerDto.password, this.bcryptRounds);
+    const passwordHash = await bcrypt.hash(
+      registerDto.password,
+      this.bcryptRounds,
+    );
     const email = new Email(registerDto.email);
 
     const user = User.create({
@@ -68,7 +78,10 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = await bcrypt.compare(loginDto.password, user.passwordHash);
+    const isPasswordValid = await bcrypt.compare(
+      loginDto.password,
+      user.passwordHash,
+    );
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -94,13 +107,15 @@ export class AuthService {
     };
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; expiresIn: number }> {
+  async refreshAccessToken(
+    refreshToken: string,
+  ): Promise<{ accessToken: string; expiresIn: number }> {
     let payload: JwtPayload;
     try {
       payload = this.jwtService.verify(refreshToken, {
         secret: this.configService.get<string>('jwt.refreshSecret'),
       });
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
@@ -179,7 +194,10 @@ export class AuthService {
   }
 
   private generateRefreshToken(user: User): string {
-    const expiresIn = this.configService.get<string>('jwt.refreshExpiresIn', '7d');
+    const expiresIn = this.configService.get<string>(
+      'jwt.refreshExpiresIn',
+      '7d',
+    );
     const expirationSeconds = this.getTokenExpirationSeconds(expiresIn);
 
     const payload: Omit<JwtPayload, 'exp' | 'iat'> = {
@@ -205,7 +223,12 @@ export class AuthService {
     const value = parseInt(match[1]);
     const unit = match[2];
 
-    const multipliers: Record<string, number> = { s: 1, m: 60, h: 3600, d: 86400 };
+    const multipliers: Record<string, number> = {
+      s: 1,
+      m: 60,
+      h: 3600,
+      d: 86400,
+    };
     return value * (multipliers[unit] || 1);
   }
 

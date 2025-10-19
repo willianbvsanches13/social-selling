@@ -20,8 +20,7 @@ export class SessionGuard implements CanActivate {
 
     // Extract session ID from cookie or header
     const sessionId =
-      request.cookies?.ssell_session ||
-      request.headers['x-session-id'];
+      request.cookies?.ssell_session || request.headers['x-session-id'];
 
     if (!sessionId) {
       throw new UnauthorizedException('No session found');
@@ -39,7 +38,7 @@ export class SessionGuard implements CanActivate {
       };
 
       return true;
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid or expired session');
     }
   }

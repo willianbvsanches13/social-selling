@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { format as formatDate, subDays, startOfMonth, endOfMonth, subMonths } from 'date-fns';
+import { format as formatDate, subDays } from 'date-fns';
 import {
-  LineChart,
-  Line,
   BarChart,
   Bar,
   PieChart,
@@ -20,7 +18,7 @@ import {
   Area,
   AreaChart,
 } from 'recharts';
-import { Calendar, Download, RefreshCw, TrendingUp, TrendingDown, Users, Heart, MessageCircle, BarChart3, Eye } from 'lucide-react';
+import { RefreshCw, TrendingUp, Users, Heart, BarChart3, Eye } from 'lucide-react';
 import { analyticsService } from '@/lib/services/analytics.service';
 import { MetricCard } from '@/components/analytics/MetricCard';
 import { DateRangePicker } from '@/components/analytics/DateRangePicker';
@@ -104,7 +102,7 @@ const AGE_GROUP_COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
 const GENDER_COLORS = ['#3b82f6', '#ec4899', '#8b5cf6'];
 
 export default function AnalyticsPage() {
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('default-account');
+  const [selectedAccountId] = useState<string>('default-account');
   const [dateRange, setDateRange] = useState<DateRange>({
     startDate: subDays(new Date(), 30),
     endDate: new Date(),

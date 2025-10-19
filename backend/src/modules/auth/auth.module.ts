@@ -23,7 +23,12 @@ import { SessionGuard } from '../../common/guards/session.guard';
         if (match) {
           const value = parseInt(match[1]);
           const unit = match[2];
-          const multipliers: Record<string, number> = { s: 1, m: 60, h: 3600, d: 86400 };
+          const multipliers: Record<string, number> = {
+            s: 1,
+            m: 60,
+            h: 3600,
+            d: 86400,
+          };
           expirationSeconds = value * (multipliers[unit] || 1);
         }
 
@@ -45,6 +50,12 @@ import { SessionGuard } from '../../common/guards/session.guard';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, SessionService, SessionGuard],
-  exports: [AuthService, JwtModule, PassportModule, SessionService, SessionGuard],
+  exports: [
+    AuthService,
+    JwtModule,
+    PassportModule,
+    SessionService,
+    SessionGuard,
+  ],
 })
 export class AuthModule {}

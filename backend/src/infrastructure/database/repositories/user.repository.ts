@@ -210,7 +210,11 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     await this.db.none(query, [id, ip]);
   }
 
-  async storeRefreshToken(userId: string, tokenHash: string, expiresAt: Date): Promise<void> {
+  async storeRefreshToken(
+    userId: string,
+    tokenHash: string,
+    expiresAt: Date,
+  ): Promise<void> {
     const query = `
       INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
       VALUES ($1, $2, $3)
@@ -218,7 +222,9 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     await this.db.none(query, [userId, tokenHash, expiresAt]);
   }
 
-  async findRefreshToken(tokenHash: string): Promise<{ userId: string; expiresAt: Date } | null> {
+  async findRefreshToken(
+    tokenHash: string,
+  ): Promise<{ userId: string; expiresAt: Date } | null> {
     const query = `
       SELECT user_id, expires_at
       FROM refresh_tokens

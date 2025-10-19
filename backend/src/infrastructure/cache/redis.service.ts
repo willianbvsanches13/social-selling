@@ -102,7 +102,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try {
       const result = await this.client.ping();
       return result === 'PONG';
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

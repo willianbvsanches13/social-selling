@@ -63,7 +63,9 @@ export class ClientAccount {
     this.validate();
   }
 
-  static create(props: Omit<ClientAccountProps, 'id' | 'createdAt' | 'updatedAt'>): ClientAccount {
+  static create(
+    props: Omit<ClientAccountProps, 'id' | 'createdAt' | 'updatedAt'>,
+  ): ClientAccount {
     return new ClientAccount({
       ...props,
       id: crypto.randomUUID(),
@@ -212,10 +214,14 @@ export class ClientAccount {
     website?: string;
     metadata?: Partial<AccountMetadata>;
   }): void {
-    if (data.displayName !== undefined) this.props.displayName = data.displayName;
-    if (data.profilePictureUrl !== undefined) this.props.profilePictureUrl = data.profilePictureUrl;
-    if (data.followerCount !== undefined) this.props.followerCount = data.followerCount;
-    if (data.followingCount !== undefined) this.props.followingCount = data.followingCount;
+    if (data.displayName !== undefined)
+      this.props.displayName = data.displayName;
+    if (data.profilePictureUrl !== undefined)
+      this.props.profilePictureUrl = data.profilePictureUrl;
+    if (data.followerCount !== undefined)
+      this.props.followerCount = data.followerCount;
+    if (data.followingCount !== undefined)
+      this.props.followingCount = data.followingCount;
     if (data.mediaCount !== undefined) this.props.mediaCount = data.mediaCount;
     if (data.biography !== undefined) this.props.biography = data.biography;
     if (data.website !== undefined) this.props.website = data.website;
