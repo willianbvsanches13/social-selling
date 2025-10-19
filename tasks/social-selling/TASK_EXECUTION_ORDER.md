@@ -177,7 +177,7 @@
 21. **IG-007**: Instagram Webhook Setup
     - Prioridade: P0
     - Dependências: IG-004
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ### Tarde (4h)
 22. **IG-008**: Instagram Insights and Analytics
