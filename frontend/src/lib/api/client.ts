@@ -52,12 +52,19 @@ class ApiClient {
               throw new Error('No refresh token available');
             }
 
+            // Backend returns: { user, accessToken, refreshToken, expiresIn }
             const response = await this.client.post('/auth/refresh', {
               refreshToken,
             });
 
-            const { accessToken } = response.data.data;
+            const { accessToken, refreshToken: newRefreshToken, expiresIn } = response.data;
             localStorage.setItem('accessToken', accessToken);
+            // Also set in cookies for middleware
+            document.cookie = `accessToken=${accessToken}; path=/; max-age=${expiresIn || 900}; samesite=strict`;
+            if (newRefreshToken) {
+              localStorage.setItem('refreshToken', newRefreshToken);
+              document.cookie = `refreshToken=${newRefreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=strict`;
+            }
 
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -105,8 +112,12 @@ class ApiClient {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response = await this.client.get<ApiResponse<T>>(url, config);
-    return response.data;
+    const response = await this.client.get<T>(url, config);
+    // Backend returns data directly, wrap it in ApiResponse format
+    return {
+      success: true,
+      data: response.data,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -116,8 +127,12 @@ class ApiClient {
     data?: any,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response = await this.client.post<ApiResponse<T>>(url, data, config);
-    return response.data;
+    const response = await this.client.post<T>(url, data, config);
+    // Backend returns data directly, wrap it in ApiResponse format
+    return {
+      success: true,
+      data: response.data,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -127,8 +142,12 @@ class ApiClient {
     data?: any,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response = await this.client.put<ApiResponse<T>>(url, data, config);
-    return response.data;
+    const response = await this.client.put<T>(url, data, config);
+    // Backend returns data directly, wrap it in ApiResponse format
+    return {
+      success: true,
+      data: response.data,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -138,14 +157,22 @@ class ApiClient {
     data?: any,
     config?: AxiosRequestConfig
   ): Promise<ApiResponse<T>> {
-    const response = await this.client.patch<ApiResponse<T>>(url, data, config);
-    return response.data;
+    const response = await this.client.patch<T>(url, data, config);
+    // Backend returns data directly, wrap it in ApiResponse format
+    return {
+      success: true,
+      data: response.data,
+    };
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response = await this.client.delete<ApiResponse<T>>(url, config);
-    return response.data;
+    const response = await this.client.delete<T>(url, config);
+    // Backend returns data directly, wrap it in ApiResponse format
+    return {
+      success: true,
+      data: response.data,
+    };
   }
 
   // Upload file with progress

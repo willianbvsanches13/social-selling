@@ -801,6 +801,501 @@
         ]
       }
     },
+    "/api/instagram/webhooks/subscriptions": {
+      "post": {
+        "operationId": "InstagramWebhooksController_createSubscription",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWebhookSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Subscription created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create webhook subscription for Instagram account",
+        "tags": [
+          "Instagram Webhooks"
+        ]
+      }
+    },
+    "/api/instagram/webhooks/events/{accountId}": {
+      "get": {
+        "operationId": "InstagramWebhooksController_getEvents",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventType",
+            "required": false,
+            "in": "query",
+            "description": "Filter by event type (comment, mention, message, story_mention, live_comment)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "processed",
+            "required": false,
+            "in": "query",
+            "description": "Filter by processed status",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (default: 1)",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Results per page (default: 50)",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Events retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get webhook events for an Instagram account",
+        "tags": [
+          "Instagram Webhooks"
+        ]
+      }
+    },
+    "/api/instagram/webhooks/stats/{accountId}": {
+      "get": {
+        "operationId": "InstagramWebhooksController_getStats",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookStatsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get webhook statistics for an Instagram account",
+        "tags": [
+          "Instagram Webhooks"
+        ]
+      }
+    },
+    "/api/instagram/webhooks/retry/{accountId}": {
+      "post": {
+        "operationId": "InstagramWebhooksController_retryFailedEvents",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Events queued for retry"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Retry failed webhook events",
+        "tags": [
+          "Instagram Webhooks"
+        ]
+      }
+    },
+    "/api/instagram/analytics/account/insights": {
+      "post": {
+        "operationId": "InstagramAnalyticsController_fetchAccountInsights",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAccountInsightsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Insights fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountInsightsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Fetch and store account insights",
+        "tags": [
+          "Instagram Analytics"
+        ]
+      }
+    },
+    "/api/instagram/analytics/account/{clientAccountId}": {
+      "get": {
+        "operationId": "InstagramAnalyticsController_getAccountInsights",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "period",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Insights retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AccountInsightsResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get account insights history",
+        "tags": [
+          "Instagram Analytics"
+        ]
+      }
+    },
+    "/api/instagram/analytics/media/{clientAccountId}": {
+      "post": {
+        "operationId": "InstagramAnalyticsController_fetchMediaInsights",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "mediaId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media insights fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MediaInsightsResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Fetch media insights",
+        "tags": [
+          "Instagram Analytics"
+        ]
+      }
+    },
+    "/api/instagram/analytics/media/top/{clientAccountId}": {
+      "get": {
+        "operationId": "InstagramAnalyticsController_getTopPosts",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "metric",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "since",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "until",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopPostsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get top performing posts",
+        "tags": [
+          "Instagram Analytics"
+        ]
+      }
+    },
+    "/api/instagram/analytics/audience/{clientAccountId}": {
+      "get": {
+        "operationId": "InstagramAnalyticsController_getAudienceDemographics",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audience data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AudienceDemographicsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get audience demographics",
+        "tags": [
+          "Instagram Analytics"
+        ]
+      }
+    },
+    "/api/instagram/analytics/reports": {
+      "post": {
+        "operationId": "InstagramAnalyticsController_generateReport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateReportDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Report generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyticsReportResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate analytics report",
+        "tags": [
+          "Instagram Analytics"
+        ]
+      }
+    },
+    "/api/instagram/analytics/reports/{clientAccountId}": {
+      "get": {
+        "operationId": "InstagramAnalyticsController_listReports",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reports retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AnalyticsReportResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List analytics reports",
+        "tags": [
+          "Instagram Analytics"
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "HealthController_check",
@@ -1377,6 +1872,380 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "CreateWebhookSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "instagramAccountId": {
+            "type": "string",
+            "description": "Instagram account ID"
+          },
+          "subscriptionFields": {
+            "type": "array",
+            "description": "Subscription fields",
+            "items": {
+              "type": "string",
+              "enum": [
+                "messages",
+                "comments",
+                "mentions",
+                "story_insights",
+                "live_comments"
+              ]
+            }
+          },
+          "verifyToken": {
+            "type": "string",
+            "description": "Custom verify token (auto-generated if not provided)"
+          }
+        },
+        "required": [
+          "instagramAccountId",
+          "subscriptionFields"
+        ]
+      },
+      "WebhookStatsDto": {
+        "type": "object",
+        "properties": {
+          "totalEvents": {
+            "type": "number"
+          },
+          "processedEvents": {
+            "type": "number"
+          },
+          "pendingEvents": {
+            "type": "number"
+          },
+          "failedEvents": {
+            "type": "number"
+          },
+          "duplicateEvents": {
+            "type": "number"
+          },
+          "eventsByType": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "totalEvents",
+          "processedEvents",
+          "pendingEvents",
+          "failedEvents",
+          "duplicateEvents",
+          "eventsByType"
+        ]
+      },
+      "GetAccountInsightsDto": {
+        "type": "object",
+        "properties": {
+          "clientAccountId": {
+            "type": "string",
+            "description": "Client account ID"
+          },
+          "period": {
+            "type": "string",
+            "description": "Insight period",
+            "enum": [
+              "day",
+              "week",
+              "days_28"
+            ]
+          },
+          "since": {
+            "type": "string",
+            "description": "Start date (ISO 8601)"
+          },
+          "until": {
+            "type": "string",
+            "description": "End date (ISO 8601)"
+          }
+        },
+        "required": [
+          "clientAccountId",
+          "period"
+        ]
+      },
+      "AccountInsightsResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "followerCount": {
+            "type": "number"
+          },
+          "followerChange": {
+            "type": "number"
+          },
+          "reach": {
+            "type": "number"
+          },
+          "impressions": {
+            "type": "number"
+          },
+          "profileViews": {
+            "type": "number"
+          },
+          "websiteClicks": {
+            "type": "number"
+          },
+          "postsCount": {
+            "type": "number"
+          },
+          "storiesCount": {
+            "type": "number"
+          },
+          "audienceCity": {
+            "type": "object"
+          },
+          "audienceCountry": {
+            "type": "object"
+          },
+          "audienceGenderAge": {
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "date",
+          "period",
+          "followerCount",
+          "followerChange",
+          "reach",
+          "impressions",
+          "profileViews",
+          "websiteClicks",
+          "postsCount",
+          "storiesCount",
+          "audienceCity",
+          "audienceCountry",
+          "audienceGenderAge",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MediaInsightsResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "mediaIgId": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "permalink": {
+            "type": "string"
+          },
+          "caption": {
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "likeCount": {
+            "type": "number"
+          },
+          "commentCount": {
+            "type": "number"
+          },
+          "saved": {
+            "type": "number"
+          },
+          "shares": {
+            "type": "number"
+          },
+          "reach": {
+            "type": "number"
+          },
+          "impressions": {
+            "type": "number"
+          },
+          "engagementRate": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "mediaIgId",
+          "mediaType",
+          "permalink",
+          "caption",
+          "timestamp",
+          "likeCount",
+          "commentCount",
+          "saved",
+          "shares",
+          "reach",
+          "impressions",
+          "engagementRate",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "TopPostsResponseDto": {
+        "type": "object",
+        "properties": {
+          "posts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metric": {
+            "type": "string"
+          },
+          "period": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "posts",
+          "metric",
+          "period"
+        ]
+      },
+      "AudienceDemographicsDto": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "object"
+          },
+          "country": {
+            "type": "object"
+          },
+          "genderAge": {
+            "type": "object"
+          },
+          "locale": {
+            "type": "object"
+          },
+          "onlineFollowers": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "city",
+          "country",
+          "genderAge",
+          "locale",
+          "onlineFollowers"
+        ]
+      },
+      "GenerateReportDto": {
+        "type": "object",
+        "properties": {
+          "clientAccountId": {
+            "type": "string",
+            "description": "Client account ID"
+          },
+          "reportType": {
+            "type": "string",
+            "description": "Report type",
+            "enum": [
+              "overview",
+              "content",
+              "audience",
+              "engagement"
+            ]
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Start date (ISO 8601)"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End date (ISO 8601)"
+          }
+        },
+        "required": [
+          "clientAccountId",
+          "reportType",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "AnalyticsReportResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "reportType": {
+            "type": "string",
+            "enum": [
+              "overview",
+              "content",
+              "audience",
+              "engagement"
+            ]
+          },
+          "period": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "object"
+          },
+          "chartsData": {
+            "type": "object"
+          },
+          "topPosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "insights": {
+            "type": "object"
+          },
+          "generatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "reportType",
+          "period",
+          "startDate",
+          "endDate",
+          "summary",
+          "chartsData",
+          "topPosts",
+          "insights",
+          "generatedAt"
         ]
       }
     }

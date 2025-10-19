@@ -1,18 +1,29 @@
 export interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string; // Backend uses 'name', not firstName/lastName
+  emailVerified: boolean;
   avatar?: string;
-  role: 'admin' | 'user';
-  createdAt: string;
-  updatedAt: string;
+  timezone?: string;
+  language?: string;
+  role?: 'admin' | 'user';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
   expiresIn: number;
+}
+
+// Backend response format for login/register
+export interface AuthResponse {
+  user: User;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  sessionId?: string;
 }
 
 export interface LoginCredentials {
@@ -23,8 +34,7 @@ export interface LoginCredentials {
 export interface RegisterData {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name: string; // Backend expects 'name', not firstName/lastName
 }
 
 export interface AuthState {

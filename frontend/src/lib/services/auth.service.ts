@@ -6,12 +6,7 @@ import type {
   ForgotPasswordFormData,
   ResetPasswordFormData,
 } from '@/lib/schemas/auth.schemas';
-import type { User, AuthTokens } from '@/types/auth';
-
-export interface AuthResponse {
-  user: User;
-  tokens: AuthTokens;
-}
+import type { User, AuthResponse } from '@/types/auth';
 
 export const authService = {
   async login(credentials: LoginFormData): Promise<AuthResponse> {
@@ -30,8 +25,8 @@ export const authService = {
     return response.data!;
   },
 
-  async logout(): Promise<void> {
-    await apiClient.post(API_ENDPOINTS.LOGOUT);
+  async logout(refreshToken: string): Promise<void> {
+    await apiClient.post(API_ENDPOINTS.LOGOUT, { refreshToken });
   },
 
   async forgotPassword(data: ForgotPasswordFormData): Promise<{ message: string }> {
@@ -55,8 +50,8 @@ export const authService = {
     return response.data!;
   },
 
-  async refreshToken(refreshToken: string): Promise<AuthTokens> {
-    const response = await apiClient.post<AuthTokens>(
+  async refreshToken(refreshToken: string): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>(
       API_ENDPOINTS.REFRESH,
       { refreshToken }
     );

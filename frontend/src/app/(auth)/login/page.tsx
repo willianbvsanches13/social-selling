@@ -28,7 +28,6 @@ function LoginForm() {
     defaultValues: {
       email: '',
       password: '',
-      rememberMe: false,
     },
   });
 
@@ -138,20 +137,8 @@ function LoginForm() {
               )}
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  {...register('rememberMe')}
-                  id="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-
+            {/* Forgot Password */}
+            <div className="flex items-center justify-end">
               <div className="text-sm">
                 <Link
                   href="/forgot-password"

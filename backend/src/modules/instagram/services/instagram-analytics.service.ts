@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { InstagramApiService } from './instagram-api.service';
 import {
   InstagramAccountInsightRepository,
@@ -6,7 +6,7 @@ import {
   InstagramStoryInsightRepository,
   InstagramAnalyticsReportRepository,
 } from '../../../infrastructure/database/repositories/instagram-analytics.repository';
-import { ClientAccountRepository } from '../../../infrastructure/database/repositories/client-account.repository';
+import { IClientAccountRepository } from '../../../domain/repositories/client-account.repository.interface';
 import { RedisService } from '../../../infrastructure/cache/redis.service';
 import {
   GetAccountInsightsDto,
@@ -27,7 +27,8 @@ export class InstagramAnalyticsService {
     private readonly mediaInsightRepository: InstagramMediaInsightRepository,
     private readonly storyInsightRepository: InstagramStoryInsightRepository,
     private readonly reportRepository: InstagramAnalyticsReportRepository,
-    private readonly clientAccountRepository: ClientAccountRepository,
+    @Inject('IClientAccountRepository')
+    private readonly clientAccountRepository: IClientAccountRepository,
     private readonly redisService: RedisService,
   ) {}
 

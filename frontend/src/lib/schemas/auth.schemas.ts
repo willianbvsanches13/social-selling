@@ -9,20 +9,14 @@ export const loginSchema = z.object({
     .string()
     .min(1, 'Password is required')
     .min(6, 'Password must be at least 6 characters'),
-  rememberMe: z.boolean().optional(),
 });
 
 export const registerSchema = z.object({
-  firstName: z
+  name: z
     .string()
-    .min(1, 'First name is required')
-    .min(2, 'First name must be at least 2 characters')
-    .max(50, 'First name must not exceed 50 characters'),
-  lastName: z
-    .string()
-    .min(1, 'Last name is required')
-    .min(2, 'Last name must be at least 2 characters')
-    .max(50, 'Last name must not exceed 50 characters'),
+    .min(1, 'Name is required')
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must not exceed 100 characters'),
   email: z
     .string()
     .min(1, 'Email is required')

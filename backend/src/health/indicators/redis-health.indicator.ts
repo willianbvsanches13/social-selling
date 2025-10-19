@@ -13,11 +13,11 @@ export class RedisHealthIndicator extends HealthIndicator {
 
   constructor(private configService: ConfigService) {
     super();
-    const redisHost = this.configService.get('REDIS_HOST', 'localhost');
-    const redisPort = this.configService.get('REDIS_PORT', 6379);
+    const redisConfig = this.configService.get('redis');
     this.redis = new Redis({
-      host: redisHost,
-      port: redisPort,
+      host: redisConfig.host,
+      port: redisConfig.port,
+      password: redisConfig.password,
       lazyConnect: true,
     });
   }

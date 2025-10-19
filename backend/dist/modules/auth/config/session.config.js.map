@@ -1,1 +1,0 @@
-{"version":3,"file":"session.config.js","sourceRoot":"","sources":["../../../../src/modules/auth/config/session.config.ts"],"names":[],"mappings":";;;AAea,QAAA,cAAc,GAAkB;IAC3C,GAAG,EAAE,KAAK;IACV,qBAAqB,EAAE,CAAC;IACxB,gBAAgB,EAAE,IAAI;IACtB,UAAU,EAAE,eAAe;IAC3B,YAAY,EAAE,OAAO,CAAC,GAAG,CAAC,QAAQ,KAAK,YAAY;IACnD,cAAc,EAAE,IAAI;IACpB,cAAc,EAAE,KAAK;CACtB,CAAC"}

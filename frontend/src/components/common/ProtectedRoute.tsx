@@ -11,7 +11,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, fetchUser } = useAuth();
+  const { isAuthenticated, isLoading, fetchUser, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -25,11 +25,13 @@ export function ProtectedRoute({ children, requireAuth = true }: ProtectedRouteP
     }
   }, [isAuthenticated, isLoading, requireAuth, router, pathname]);
 
+  // Only fetch user once when authenticated and we don't have user data yet
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    if (isAuthenticated && !isLoading && !user) {
       fetchUser();
     }
-  }, [isAuthenticated, isLoading, fetchUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user]);
 
   if (isLoading) {
     return (

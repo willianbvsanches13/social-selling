@@ -12,10 +12,15 @@ import { USER_REPOSITORY } from '../../domain/repositories/user.repository.inter
     Database,
     DatabaseHealthIndicator,
     {
+      provide: 'DB_CONNECTION',
+      useFactory: (database: Database) => database.getDb(),
+      inject: [Database],
+    },
+    {
       provide: USER_REPOSITORY,
       useClass: UserRepository,
     },
   ],
-  exports: [Database, DatabaseHealthIndicator, USER_REPOSITORY],
+  exports: [Database, DatabaseHealthIndicator, 'DB_CONNECTION', USER_REPOSITORY],
 })
 export class DatabaseModule {}

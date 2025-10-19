@@ -1,9 +1,8 @@
 'use client';
 
 import { useAuthStore } from '@/lib/store/authStore';
-import { apiClient } from '@/lib/api/client';
-import { API_ENDPOINTS } from '@/lib/api/endpoints';
-import { LoginCredentials, RegisterData, User, AuthTokens } from '@/types/auth';
+import { authService } from '@/lib/services/auth.service';
+import { LoginCredentials, RegisterData } from '@/types/auth';
 import { useRouter } from 'next/navigation';
 
 export function useAuth() {
@@ -14,17 +13,19 @@ export function useAuth() {
   const handleLogin = async (credentials: LoginCredentials) => {
     try {
       setLoading(true);
-      const response = await apiClient.post<{ user: User; tokens: AuthTokens }>(
-        API_ENDPOINTS.LOGIN,
-        credentials
-      );
+      const authResponse = await authService.login(credentials);
 
-      if (response.success && response.data) {
-        login(response.data.user, response.data.tokens);
-        router.push('/dashboard');
-      }
+      // Backend returns: { user, accessToken, refreshToken, expiresIn, sessionId? }
+      login(authResponse.user, {
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+        expiresIn: authResponse.expiresIn,
+      });
 
-      return response;
+      // Don't redirect here - let the calling component handle it
+    } catch (error) {
+      setLoading(false);
+      throw error; // Re-throw so the calling component can handle it
     } finally {
       setLoading(false);
     }
@@ -33,17 +34,19 @@ export function useAuth() {
   const handleRegister = async (data: RegisterData) => {
     try {
       setLoading(true);
-      const response = await apiClient.post<{ user: User; tokens: AuthTokens }>(
-        API_ENDPOINTS.REGISTER,
-        data
-      );
+      const authResponse = await authService.register(data);
 
-      if (response.success && response.data) {
-        login(response.data.user, response.data.tokens);
-        router.push('/dashboard');
-      }
+      // Backend returns: { user, accessToken, refreshToken, expiresIn, sessionId? }
+      login(authResponse.user, {
+        accessToken: authResponse.accessToken,
+        refreshToken: authResponse.refreshToken,
+        expiresIn: authResponse.expiresIn,
+      });
 
-      return response;
+      // Don't redirect here - let the calling component handle it
+    } catch (error) {
+      setLoading(false);
+      throw error; // Re-throw so the calling component can handle it
     } finally {
       setLoading(false);
     }
@@ -51,7 +54,9 @@ export function useAuth() {
 
   const handleLogout = async () => {
     try {
-      await apiClient.post(API_ENDPOINTS.LOGOUT);
+      if (tokens?.refreshToken) {
+        await authService.logout(tokens.refreshToken);
+      }
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -63,10 +68,8 @@ export function useAuth() {
   const fetchUser = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get<User>(API_ENDPOINTS.ME);
-      if (response.success && response.data) {
-        setUser(response.data);
-      }
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
     } catch (error) {
       console.error('Fetch user error:', error);
       logout();

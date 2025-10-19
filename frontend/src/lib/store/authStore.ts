@@ -32,9 +32,15 @@ export const useAuthStore = create<AuthStore>()(
         if (tokens) {
           localStorage.setItem('accessToken', tokens.accessToken);
           localStorage.setItem('refreshToken', tokens.refreshToken);
+          // Also set in cookies for middleware
+          document.cookie = `accessToken=${tokens.accessToken}; path=/; max-age=${tokens.expiresIn}; samesite=strict`;
+          document.cookie = `refreshToken=${tokens.refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=strict`; // 7 days
         } else {
           localStorage.removeItem('accessToken');
           localStorage.removeItem('refreshToken');
+          // Remove from cookies
+          document.cookie = 'accessToken=; path=/; max-age=0';
+          document.cookie = 'refreshToken=; path=/; max-age=0';
         }
         set({ tokens });
       },
@@ -42,6 +48,9 @@ export const useAuthStore = create<AuthStore>()(
       login: (user, tokens) => {
         localStorage.setItem('accessToken', tokens.accessToken);
         localStorage.setItem('refreshToken', tokens.refreshToken);
+        // Also set in cookies for middleware
+        document.cookie = `accessToken=${tokens.accessToken}; path=/; max-age=${tokens.expiresIn}; samesite=strict`;
+        document.cookie = `refreshToken=${tokens.refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=strict`; // 7 days
         set({
           user,
           tokens,
@@ -53,6 +62,9 @@ export const useAuthStore = create<AuthStore>()(
       logout: () => {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
+        // Remove from cookies
+        document.cookie = 'accessToken=; path=/; max-age=0';
+        document.cookie = 'refreshToken=; path=/; max-age=0';
         set({
           user: null,
           tokens: null,

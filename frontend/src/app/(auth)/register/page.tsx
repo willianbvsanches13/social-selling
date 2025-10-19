@@ -27,8 +27,7 @@ export default function RegisterPage() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      name: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -62,8 +61,7 @@ export default function RegisterPage() {
     try {
       setIsLoading(true);
       await registerUser({
-        firstName: data.firstName,
-        lastName: data.lastName,
+        name: data.name,
         email: data.email,
         password: data.password,
       });
@@ -93,57 +91,30 @@ export default function RegisterPage() {
         {/* Registration Form */}
         <div className="mt-8 rounded-lg bg-white px-8 py-10 shadow-xl">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            {/* Name Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="firstName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  First name
-                </label>
-                <input
-                  {...register('firstName')}
-                  id="firstName"
-                  type="text"
-                  autoComplete="given-name"
-                  className={cn(
-                    'mt-1 block w-full rounded-lg border px-4 py-3 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary',
-                    errors.firstName
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:border-primary'
-                  )}
-                  placeholder="John"
-                />
-                {errors.firstName && (
-                  <p className="mt-1 text-xs text-red-600">{errors.firstName.message}</p>
+            {/* Name Field */}
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Full name
+              </label>
+              <input
+                {...register('name')}
+                id="name"
+                type="text"
+                autoComplete="name"
+                className={cn(
+                  'mt-1 block w-full rounded-lg border px-4 py-3 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary',
+                  errors.name
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
+                    : 'border-gray-300 focus:border-primary'
                 )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="lastName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Last name
-                </label>
-                <input
-                  {...register('lastName')}
-                  id="lastName"
-                  type="text"
-                  autoComplete="family-name"
-                  className={cn(
-                    'mt-1 block w-full rounded-lg border px-4 py-3 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary',
-                    errors.lastName
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-200'
-                      : 'border-gray-300 focus:border-primary'
-                  )}
-                  placeholder="Doe"
-                />
-                {errors.lastName && (
-                  <p className="mt-1 text-xs text-red-600">{errors.lastName.message}</p>
-                )}
-              </div>
+                placeholder="John Doe"
+              />
+              {errors.name && (
+                <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>
+              )}
             </div>
 
             {/* Email Field */}
