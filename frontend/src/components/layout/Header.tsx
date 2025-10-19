@@ -201,19 +201,18 @@ export function Header() {
               {user?.avatar ? (
                 <Image
                   src={user.avatar}
-                  alt={user.firstName || 'User'}
+                  alt={user.name || 'User'}
                   width={32}
                   height={32}
                   className="h-8 w-8 rounded-full"
                 />
               ) : (
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white text-sm font-medium">
-                  {user?.firstName?.charAt(0) || 'U'}
-                  {user?.lastName?.charAt(0) || ''}
+                  {user?.name?.charAt(0) || 'U'}
                 </div>
               )}
               <span className="hidden text-sm font-medium text-gray-700 lg:block">
-                {user?.firstName} {user?.lastName}
+                {user?.name}
               </span>
             </button>
 
@@ -226,7 +225,7 @@ export function Header() {
                 <div className="absolute right-0 z-20 mt-2 w-56 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
                   <div className="border-b p-4">
                     <p className="text-sm font-medium text-gray-900">
-                      {user?.firstName} {user?.lastName}
+                      {user?.name}
                     </p>
                     <p className="mt-1 text-sm text-gray-600">{user?.email}</p>
                   </div>

@@ -210,7 +210,7 @@
 26. **FE-004**: Dashboard Layout and Navigation
     - Prioridade: P0
     - Dependências: FE-003
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO** (2025-10-19)
 
 ---
 
@@ -386,9 +386,9 @@
 - **P2 (Média):** 6 tarefas
 
 ### Status Atual
-- ✅ **Concluídas:** 24 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-003)
-- ⏳ **Pendentes:** 24 tarefas
-- **Progresso:** 50.0%
+- ✅ **Concluídas:** 25 tarefas (INFRA-001 à INFRA-006, BE-001 à BE-007, IG-001 à IG-008, FE-001 à FE-004)
+- ⏳ **Pendentes:** 23 tarefas
+- **Progresso:** 52.1%
 
 ---
 
@@ -493,17 +493,17 @@ DEPLOY-001 → DEPLOY-002 → DEPLOY-003 → DEPLOY-004
 
 ## 🚀 Próxima Tarefa Disponível
 
-**Próxima na Fila:** `FE-004` - Dashboard Layout and Navigation
+**Próxima na Fila:** `FE-005` - Unified Inbox Interface
 
 **Comando para Iniciar:**
 ```bash
 cd /Users/williansanches/projects/personal/social-selling-2
-git checkout -b FE-004-dashboard-layout
+git checkout -b FE-005-unified-inbox
 # Ler especificação da tarefa
-cat tasks/social-selling/sprints/FE-004_task.md
+cat tasks/social-selling/sprints/FE-005_task.md
 ```
 
 ---
 
-**Última Atualização:** 2025-10-18
+**Última Atualização:** 2025-10-19
 **Próxima Revisão:** Após conclusão de cada Checkpoint

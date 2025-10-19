@@ -119,7 +119,9 @@ async function bootstrap() {
     const outputPath = path.join(process.cwd(), 'openapi-spec.json');
     fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
 
-    console.log(`📚 API Documentation: http://localhost:${configService.get<number>('port', 4000)}/api/docs`);
+    console.log(
+      `📚 API Documentation: http://localhost:${configService.get<number>('port', 4000)}/api/docs`,
+    );
     console.log(`📄 OpenAPI spec exported to: ${outputPath}`);
   }
 

@@ -12,7 +12,7 @@ You are an AI assistant responsible for managing a software development project.
 | --task    | Task identifier | --task=BE-001     |
 </arguments_table>
 <task_info>
-Task: @tasks/[$slug]/[$task]_task.md
+Task: @tasks/[$slug]/sprints/[$task]_task.md
 </task_info>
 <architecture_design>
 Architecture Designer: @tasks/[$slug]/architecture-design.md

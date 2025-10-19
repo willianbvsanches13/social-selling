@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
   // Instagram OAuth
   INSTAGRAM_OAUTH_AUTHORIZE: '/instagram/oauth/authorize',
   INSTAGRAM_OAUTH_CALLBACK: '/instagram/oauth/callback',
+  INSTAGRAM_CONNECT: '/instagram/accounts/connect',
 
   // Instagram Accounts
   INSTAGRAM_ACCOUNTS: '/instagram/accounts',
