@@ -60,7 +60,7 @@
 6. **INFRA-005**: MinIO S3-Compatible Storage Setup
    - Prioridade: P0
    - Dependências: INFRA-002
-   - Status: ⏳ Pendente
+   - Status: ✅ **CONCLUÍDO** (2025-10-18)
 
 ### Tarde (4h)
 7. **INFRA-006**: Nginx Reverse Proxy Configuration

@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { HealthModule } from './modules/health/health.module';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
+import { StorageModule } from './infrastructure/storage/storage.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -16,6 +17,7 @@ import configuration from './config/configuration';
     }),
     DatabaseModule,
     CacheModule,
+    StorageModule,
     HealthModule,
   ],
   controllers: [AppController],
