@@ -43,6 +43,16 @@ export const API_ENDPOINTS = {
   ANALYTICS_REPORTS: '/instagram/analytics/reports',
   ANALYTICS_REPORTS_LIST: (accountId: string) => `/instagram/analytics/reports/${accountId}`,
 
+  // Conversations & Messages
+  CONVERSATIONS: '/conversations',
+  CONVERSATION_DETAIL: (id: string) => `/conversations/${id}`,
+  CONVERSATION_MESSAGES: (conversationId: string) => `/conversations/${conversationId}/messages`,
+  CONVERSATION_READ: (conversationId: string) => `/conversations/${conversationId}/read`,
+  CONVERSATION_ARCHIVE: (conversationId: string) => `/conversations/${conversationId}/archive`,
+  CONVERSATION_UNARCHIVE: (conversationId: string) => `/conversations/${conversationId}/unarchive`,
+  MESSAGE_TEMPLATES: '/message-templates',
+  MESSAGE_UPLOAD: '/messages/upload',
+
   // Health
   HEALTH: '/health',
   HEALTH_READY: '/health/ready',
