@@ -88,3 +88,8 @@ Then proceed to actually implement the task by:
 - **YOU MUST** need to start the implementation right after the entire process above
 - **YOU MUST** use Context7 mcp to get informations about libraries
 </requirements>
+
+<finish_task>
+- **YOU MUST** Once the implementation is complete, I will follow run type-check and testing procedures for all project even if the task changes are limited to a specific module or component. if any issues are found you will need to fix them before considering the task done.
+- **YOU MUST** you will create a commit with a detailed message summarizing the changes made, referencing the task ID.
+</finish_task>

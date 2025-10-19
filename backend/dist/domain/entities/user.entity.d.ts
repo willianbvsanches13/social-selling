@@ -43,6 +43,11 @@ export declare class User {
     setPasswordResetToken(token: string, expiresInMinutes?: number): void;
     isPasswordResetTokenValid(): boolean;
     softDelete(): void;
+    updateProfile(name?: string, timezone?: string, language?: string): void;
+    changePassword(newPasswordHash: string): void;
+    setEmailVerificationToken(token: string): void;
+    get timezone(): string;
+    get language(): string;
     toJSON(): {
         id: string;
         email: string;

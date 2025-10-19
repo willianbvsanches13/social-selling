@@ -22,7 +22,7 @@ export class FileUploadInterceptor implements NestInterceptor {
     'video/x-matroska', // MKV
   ];
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> | Promise<Observable<any>> {
+  intercept(context: ExecutionContext, next: CallHandler) {
     const request = context.switchToHttp().getRequest();
     const file = request.file;
 
@@ -46,6 +46,6 @@ export class FileUploadInterceptor implements NestInterceptor {
     const filename = `${uuidv4()}.${extension}`;
     request.file.generatedFilename = filename;
 
-    return next.handle() as any;
+    return next.handle();
   }
 }

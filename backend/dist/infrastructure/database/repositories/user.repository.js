@@ -84,6 +84,38 @@ let UserRepository = UserRepository_1 = class UserRepository extends base_reposi
             email: new email_vo_1.Email(mapped.email),
         });
     }
+    async findByVerificationToken(token) {
+        const query = `
+      SELECT
+        id,
+        email,
+        password_hash,
+        name,
+        timezone,
+        language,
+        subscription_tier,
+        email_verified,
+        email_verification_token,
+        password_reset_token,
+        password_reset_expires,
+        last_login_at,
+        last_login_ip,
+        created_at,
+        updated_at,
+        deleted_at
+      FROM users
+      WHERE email_verification_token = $1
+        AND deleted_at IS NULL
+    `;
+        const row = await this.db.oneOrNone(query, [token]);
+        if (!row)
+            return null;
+        const mapped = this.mapToCamelCase(row);
+        return user_entity_1.User.reconstitute({
+            ...mapped,
+            email: new email_vo_1.Email(mapped.email),
+        });
+    }
     async create(user) {
         const query = `
       INSERT INTO users (
@@ -130,11 +162,15 @@ let UserRepository = UserRepository_1 = class UserRepository extends base_reposi
         language = $5,
         subscription_tier = $6,
         email_verified = $7,
-        updated_at = $8
+        password_hash = $8,
+        email_verification_token = $9,
+        deleted_at = $10,
+        updated_at = $11
       WHERE id = $1
       RETURNING *
     `;
         const json = user.toJSON();
+        const userPrivateProps = user.props;
         const values = [
             user.id,
             user.email.value,
@@ -143,6 +179,9 @@ let UserRepository = UserRepository_1 = class UserRepository extends base_reposi
             json.language,
             user.subscriptionTier,
             user.emailVerified,
+            user.passwordHash,
+            userPrivateProps.emailVerificationToken || null,
+            userPrivateProps.deletedAt || null,
             new Date(),
         ];
         const row = await this.db.one(query, values);

@@ -133,6 +133,43 @@ export class User {
     this.props.updatedAt = new Date();
   }
 
+  updateProfile(name?: string, timezone?: string, language?: string): void {
+    if (name !== undefined) {
+      if (name.trim().length < 2) {
+        throw new DomainException('User name must be at least 2 characters');
+      }
+      this.props.name = name;
+    }
+    if (timezone !== undefined) {
+      this.props.timezone = timezone;
+    }
+    if (language !== undefined) {
+      this.props.language = language;
+    }
+    this.props.updatedAt = new Date();
+  }
+
+  changePassword(newPasswordHash: string): void {
+    if (!newPasswordHash) {
+      throw new DomainException('Password hash is required');
+    }
+    this.props.passwordHash = newPasswordHash;
+    this.props.updatedAt = new Date();
+  }
+
+  setEmailVerificationToken(token: string): void {
+    this.props.emailVerificationToken = token;
+    this.props.updatedAt = new Date();
+  }
+
+  get timezone(): string {
+    return this.props.timezone;
+  }
+
+  get language(): string {
+    return this.props.language;
+  }
+
   toJSON() {
     return {
       id: this.props.id,

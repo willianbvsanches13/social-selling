@@ -104,7 +104,7 @@
 12. **BE-005**: JWT Authentication Implementation
     - Prioridade: P0
     - Dependências: BE-004
-    - Status: ⏳ Pendente
+    - Status: ✅ **CONCLUÍDO**
 
 ---
 

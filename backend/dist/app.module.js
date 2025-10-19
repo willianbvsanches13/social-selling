@@ -16,6 +16,8 @@ const database_module_1 = require("./infrastructure/database/database.module");
 const cache_module_1 = require("./infrastructure/cache/cache.module");
 const storage_module_1 = require("./infrastructure/storage/storage.module");
 const auth_module_1 = require("./modules/auth/auth.module");
+const notification_module_1 = require("./modules/notification/notification.module");
+const user_module_1 = require("./modules/user/user.module");
 const configuration_1 = require("./config/configuration");
 let AppModule = class AppModule {
 };
@@ -32,6 +34,8 @@ exports.AppModule = AppModule = __decorate([
             cache_module_1.CacheModule,
             storage_module_1.StorageModule,
             auth_module_1.AuthModule,
+            notification_module_1.NotificationModule,
+            user_module_1.UserModule,
             health_module_1.HealthModule,
         ],
         controllers: [app_controller_1.AppController],

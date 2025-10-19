@@ -7,6 +7,8 @@ import { DatabaseModule } from './infrastructure/database/database.module';
 import { CacheModule } from './infrastructure/cache/cache.module';
 import { StorageModule } from './infrastructure/storage/storage.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { UserModule } from './modules/user/user.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -20,6 +22,8 @@ import configuration from './config/configuration';
     CacheModule,
     StorageModule,
     AuthModule,
+    NotificationModule,
+    UserModule,
     HealthModule,
   ],
   controllers: [AppController],

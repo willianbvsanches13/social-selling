@@ -77,6 +77,39 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     });
   }
 
+  async findByVerificationToken(token: string): Promise<User | null> {
+    const query = `
+      SELECT
+        id,
+        email,
+        password_hash,
+        name,
+        timezone,
+        language,
+        subscription_tier,
+        email_verified,
+        email_verification_token,
+        password_reset_token,
+        password_reset_expires,
+        last_login_at,
+        last_login_ip,
+        created_at,
+        updated_at,
+        deleted_at
+      FROM users
+      WHERE email_verification_token = $1
+        AND deleted_at IS NULL
+    `;
+
+    const row = await this.db.oneOrNone(query, [token]);
+    if (!row) return null;
+    const mapped: any = this.mapToCamelCase(row);
+    return User.reconstitute({
+      ...mapped,
+      email: new Email(mapped.email),
+    });
+  }
+
   async create(user: User): Promise<User> {
     const query = `
       INSERT INTO users (
@@ -126,12 +159,18 @@ export class UserRepository extends BaseRepository implements IUserRepository {
         language = $5,
         subscription_tier = $6,
         email_verified = $7,
-        updated_at = $8
+        password_hash = $8,
+        email_verification_token = $9,
+        deleted_at = $10,
+        updated_at = $11
       WHERE id = $1
       RETURNING *
     `;
 
     const json = user.toJSON();
+    // Access private props through reflection for fields not in toJSON
+    const userPrivateProps = (user as any).props;
+
     const values = [
       user.id,
       user.email.value,
@@ -140,6 +179,9 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       json.language,
       user.subscriptionTier,
       user.emailVerified,
+      user.passwordHash,
+      userPrivateProps.emailVerificationToken || null,
+      userPrivateProps.deletedAt || null,
       new Date(),
     ];
 

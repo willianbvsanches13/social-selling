@@ -95,6 +95,38 @@ class User {
         this.props.deletedAt = new Date();
         this.props.updatedAt = new Date();
     }
+    updateProfile(name, timezone, language) {
+        if (name !== undefined) {
+            if (name.trim().length < 2) {
+                throw new domain_exception_1.DomainException('User name must be at least 2 characters');
+            }
+            this.props.name = name;
+        }
+        if (timezone !== undefined) {
+            this.props.timezone = timezone;
+        }
+        if (language !== undefined) {
+            this.props.language = language;
+        }
+        this.props.updatedAt = new Date();
+    }
+    changePassword(newPasswordHash) {
+        if (!newPasswordHash) {
+            throw new domain_exception_1.DomainException('Password hash is required');
+        }
+        this.props.passwordHash = newPasswordHash;
+        this.props.updatedAt = new Date();
+    }
+    setEmailVerificationToken(token) {
+        this.props.emailVerificationToken = token;
+        this.props.updatedAt = new Date();
+    }
+    get timezone() {
+        return this.props.timezone;
+    }
+    get language() {
+        return this.props.language;
+    }
     toJSON() {
         return {
             id: this.props.id,
