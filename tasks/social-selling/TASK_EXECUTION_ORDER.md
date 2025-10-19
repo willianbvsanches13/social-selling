@@ -66,7 +66,7 @@
 7. **INFRA-006**: Nginx Reverse Proxy Configuration
    - Prioridade: P1
    - Dependências: INFRA-002
-   - Status: ⏳ Pendente
+   - Status: ✅ **CONCLUÍDO**
 
 ### Noite (1h)
 8. **BE-001**: NestJS Project Initialization
