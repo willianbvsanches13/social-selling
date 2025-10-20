@@ -30,61 +30,80 @@ const consoleFormat = winston.format.combine(
 // Transports configuration
 const transports: winston.transport[] = [];
 
-// Console transport (always enabled in development)
+// Console transport (always enabled)
+transports.push(
+  new winston.transports.Console({
+    format: isDevelopment ? consoleFormat : logFormat,
+    level: isDevelopment ? 'debug' : 'info',
+  }),
+);
+
+// File transports only in development
 if (isDevelopment) {
   transports.push(
-    new winston.transports.Console({
-      format: consoleFormat,
-      level: 'debug',
+    // Error logs
+    new winston.transports.DailyRotateFile({
+      filename: `${logDir}/error-%DATE%.log`,
+      datePattern: 'YYYY-MM-DD',
+      level: 'error',
+      format: logFormat,
+      maxSize: '20m',
+      maxFiles: '30d',
+      zippedArchive: true,
+    }),
+
+    // Combined logs
+    new winston.transports.DailyRotateFile({
+      filename: `${logDir}/combined-%DATE%.log`,
+      datePattern: 'YYYY-MM-DD',
+      format: logFormat,
+      maxSize: '20m',
+      maxFiles: '30d',
+      zippedArchive: true,
+    }),
+
+    // HTTP access logs
+    new winston.transports.DailyRotateFile({
+      filename: `${logDir}/access-%DATE%.log`,
+      datePattern: 'YYYY-MM-DD',
+      level: 'http',
+      format: logFormat,
+      maxSize: '20m',
+      maxFiles: '14d',
+      zippedArchive: true,
     }),
   );
 }
 
-// File transports for different log levels
-transports.push(
-  // Error logs
-  new winston.transports.DailyRotateFile({
-    filename: `${logDir}/error-%DATE%.log`,
-    datePattern: 'YYYY-MM-DD',
-    level: 'error',
+// Exception and rejection handlers
+const exceptionHandlers: winston.transport[] = [
+  new winston.transports.Console({
     format: logFormat,
-    maxSize: '20m',
-    maxFiles: '30d',
-    zippedArchive: true,
   }),
+];
 
-  // Combined logs
-  new winston.transports.DailyRotateFile({
-    filename: `${logDir}/combined-%DATE%.log`,
-    datePattern: 'YYYY-MM-DD',
+const rejectionHandlers: winston.transport[] = [
+  new winston.transports.Console({
     format: logFormat,
-    maxSize: '20m',
-    maxFiles: '30d',
-    zippedArchive: true,
   }),
+];
 
-  // HTTP access logs
-  new winston.transports.DailyRotateFile({
-    filename: `${logDir}/access-%DATE%.log`,
-    datePattern: 'YYYY-MM-DD',
-    level: 'http',
-    format: logFormat,
-    maxSize: '20m',
-    maxFiles: '14d',
-    zippedArchive: true,
-  }),
-);
-
-export const winstonConfig = {
-  transports,
-  exceptionHandlers: [
+// Only add file handlers in development
+if (isDevelopment) {
+  exceptionHandlers.push(
     new winston.transports.File({
       filename: `${logDir}/exceptions.log`,
     }),
-  ],
-  rejectionHandlers: [
+  );
+  rejectionHandlers.push(
     new winston.transports.File({
       filename: `${logDir}/rejections.log`,
     }),
-  ],
+  );
+}
+
+export const winstonConfig = {
+  transports,
+  exceptionHandlers,
+  rejectionHandlers,
 };
