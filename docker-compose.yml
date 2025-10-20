@@ -24,20 +24,20 @@ services:
     container_name: social-selling-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-social_selling}
-      POSTGRES_USER: ${POSTGRES_USER:-social_selling_user}
-      POSTGRES_PASSWORD: clgv5VdYpVXSCtEL1pVtvVpNnLtF0d5CDLJS5xwcS9Q=
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./database/init:/docker-entrypoint-initdb.d
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "5432:5432"
     networks:
       - social-selling-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-social_selling_user}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -55,13 +55,13 @@ services:
     image: redis:7-alpine
     container_name: social-selling-redis
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD:-changeme} --maxmemory 256mb --maxmemory-policy noeviction --appendonly yes
+    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy noeviction --appendonly yes
     environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-changeme}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
       - redis-data:/data
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "6379:6379"
     networks:
       - social-selling-network
     healthcheck:
@@ -85,14 +85,14 @@ services:
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-changeme123!@#}
-      MINIO_BROWSER_REDIRECT_URL: ${MINIO_ENDPOINT:-http://localhost:9001}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_BROWSER_REDIRECT_URL: ${MINIO_ENDPOINT}
     volumes:
       - minio-data:/data
     ports:
-      - "${MINIO_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "9000:9000"
+      - "9001:9001"
     networks:
       - social-selling-network
     healthcheck:
@@ -149,22 +149,22 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      target: ${NODE_ENV:-development}
+      target: ${NODE_ENV}
     container_name: social-selling-backend
     restart: unless-stopped
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
-      PORT: 4000
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: ${POSTGRES_DB:-social_selling}
-      POSTGRES_USER: ${POSTGRES_USER:-social_selling_user}
-      POSTGRES_PASSWORD: clgv5VdYpVXSCtEL1pVtvVpNnLtF0d5CDLJS5xwcS9Q=
-      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-changeme}
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${BACKEND_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
@@ -174,15 +174,15 @@ services:
       INSTAGRAM_REDIRECT_URI: ${INSTAGRAM_REDIRECT_URI}
       INSTAGRAM_WEBHOOK_VERIFY_TOKEN: ${INSTAGRAM_WEBHOOK_VERIFY_TOKEN}
       OAUTH_ENCRYPTION_KEY: ${OAUTH_ENCRYPTION_KEY}
-      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-changeme123!@#}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
     volumes:
       - ./backend:/app
       - /app/node_modules
     ports:
-      - "${BACKEND_PORT:-4000}:4000"
+      - "4000:4000"
     networks:
       - social-selling-network
     depends_on:
@@ -191,7 +191,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4000/api/health/ready"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "${API_URL}/health/ready"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -210,25 +210,25 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      target: ${NODE_ENV:-development}
+      target: ${NODE_ENV}
     container_name: social-selling-frontend
     restart: unless-stopped
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
-      NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost/api}
-      NEXT_PUBLIC_WS_URL: ${WS_URL:-ws://localhost/socket.io}
+      NODE_ENV: ${NODE_ENV}
+      NEXT_PUBLIC_API_URL: ${API_URL}
+      NEXT_PUBLIC_WS_URL: ${WS_URL}
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "3000:3000"
     networks:
       - social-selling-network
     depends_on:
       - backend
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "${APP_URL}"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -247,28 +247,28 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.worker
-      target: ${NODE_ENV:-development}
+      target: ${NODE_ENV}
     container_name: social-selling-worker
     restart: unless-stopped
     environment:
-      NODE_ENV: ${NODE_ENV:-development}
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: ${POSTGRES_DB:-social_selling}
-      POSTGRES_USER: ${POSTGRES_USER:-social_selling_user}
-      POSTGRES_PASSWORD: clgv5VdYpVXSCtEL1pVtvVpNnLtF0d5CDLJS5xwcS9Q=
-      REDIS_URL: redis://:${REDIS_PASSWORD:-changeme}@redis:6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-changeme}
-      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-5}
+      NODE_ENV: ${NODE_ENV}
+      DATABASE_URL: ${DATABASE_URL}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: ${REDIS_URL}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY}
       INSTAGRAM_APP_ID: ${INSTAGRAM_APP_ID}
       INSTAGRAM_APP_SECRET: ${INSTAGRAM_APP_SECRET}
       OAUTH_ENCRYPTION_KEY: ${OAUTH_ENCRYPTION_KEY}
-      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-changeme123!@#}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
     networks:
       - social-selling-network
@@ -302,7 +302,7 @@ services:
       - ./infrastructure/monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus-data:/prometheus
     ports:
-      - "${PROMETHEUS_PORT:-9090}:9090"
+      - "9090:9090"
     networks:
       - social-selling-network
     healthcheck:
@@ -325,16 +325,16 @@ services:
     container_name: social-selling-grafana
     restart: unless-stopped
     environment:
-      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_INSTALL_PLUGINS: ''
-      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3001}
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL}
     volumes:
       - ./infrastructure/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
       - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
       - grafana-data:/var/lib/grafana
     ports:
-      - "${GRAFANA_PORT:-3001}:3000"
+      - "3001:3000"
     networks:
       - social-selling-network
     depends_on:
@@ -359,7 +359,7 @@ services:
     container_name: social-selling-postgres-exporter
     restart: unless-stopped
     environment:
-      DATA_SOURCE_NAME: "postgresql://social_selling_user:clgv5VdYpVXSCtEL1pVtvVpNnLtF0d5CDLJS5xwcS9Q=@postgres:5432/social_selling?sslmode=disable"
+      DATA_SOURCE_NAME: ${DATABASE_URL}
     ports:
       - "9187:9187"
     networks:
@@ -379,8 +379,8 @@ services:
     container_name: social-selling-redis-exporter
     restart: unless-stopped
     environment:
-      REDIS_ADDR: "redis:6379"
-      REDIS_PASSWORD: "${REDIS_PASSWORD:-changeme}"
+      REDIS_ADDR: "${REDIS_HOST}:${REDIS_PORT}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
     ports:
       - "9121:9121"
     networks:
