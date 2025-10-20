@@ -24,6 +24,21 @@ if ! grep -q "NODE_ENV=production" .env; then
     fi
 fi
 
+# Check environment variables
+echo "🔍 Checking environment variables..."
+if [ -x ./scripts/check-env.sh ]; then
+    if ! ./scripts/check-env.sh; then
+        echo ""
+        echo "❌ Environment check failed!"
+        echo "💡 Run ./scripts/generate-keys.sh to generate missing keys"
+        read -p "Do you want to continue anyway? (y/N) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            exit 1
+        fi
+    fi
+fi
+
 # Stop any running containers
 echo "🛑 Stopping existing containers..."
 docker compose down
