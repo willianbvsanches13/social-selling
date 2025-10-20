@@ -118,14 +118,20 @@ async function bootstrap() {
       customfavIcon: '/favicon.ico',
     });
 
-    // Export OpenAPI spec as JSON
-    const outputPath = path.join(process.cwd(), 'openapi-spec.json');
-    fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
+    // Export OpenAPI spec as JSON (only if writable)
+    try {
+      // Use /tmp/app in production, cwd in development
+      const baseDir = nodeEnv === 'production' ? '/tmp/app' : process.cwd();
+      const outputPath = path.join(baseDir, 'openapi-spec.json');
+      fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
+      console.log(`📄 OpenAPI spec exported to: ${outputPath}`);
+    } catch (error) {
+      console.warn('⚠️  Could not export OpenAPI spec to file (permission denied or read-only filesystem)');
+    }
 
     console.log(
       `📚 API Documentation: http://localhost:${configService.get<number>('port', 4000)}/api/docs`,
     );
-    console.log(`📄 OpenAPI spec exported to: ${outputPath}`);
   }
 
     const port = configService.get<number>('port', 4000);
