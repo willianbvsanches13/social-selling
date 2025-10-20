@@ -71,6 +71,18 @@ REDIS_PASSWORD=
 MINIO_ROOT_PASSWORD=
 GRAFANA_ADMIN_PASSWORD=
 
+# MinIO (OBRIGATÓRIO para storage)
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=              # ← Mesma senha do MINIO_ROOT_PASSWORD
+
+# Email / SendGrid (OBRIGATÓRIO para notificações)
+SMTP_HOST=smtp.sendgrid.net
+SMTP_PORT=587
+SMTP_USER=apikey
+SMTP_PASSWORD=                 # ← Sua API key do SendGrid
+SMTP_FROM_EMAIL=noreply@seudominio.com
+SMTP_FROM_NAME=SocialSelling Platform
+
 # Instagram (se estiver usando)
 INSTAGRAM_APP_ID=
 INSTAGRAM_APP_SECRET=

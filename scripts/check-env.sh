@@ -30,6 +30,11 @@ REQUIRED_VARS=(
     "MINIO_ACCESS_KEY"
     "MINIO_SECRET_KEY"
     "GRAFANA_ADMIN_PASSWORD"
+    "SMTP_HOST"
+    "SMTP_PORT"
+    "SMTP_USER"
+    "SMTP_PASSWORD"
+    "SMTP_FROM_EMAIL"
 )
 
 # List of variables that should not have default values
@@ -43,6 +48,7 @@ NO_DEFAULT_VARS=(
     "MINIO_ROOT_PASSWORD"
     "MINIO_SECRET_KEY"
     "GRAFANA_ADMIN_PASSWORD"
+    "SMTP_PASSWORD"
 )
 
 MISSING_VARS=()

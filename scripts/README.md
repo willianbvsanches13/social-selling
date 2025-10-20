@@ -4,6 +4,59 @@ Este diretório contém scripts para facilitar o deployment e manutenção da ap
 
 ## 📋 Scripts Disponíveis
 
+### ➕ add-env-var.sh
+
+Assistente interativo para adicionar novas variáveis de ambiente seguindo as melhores práticas.
+
+```bash
+./scripts/add-env-var.sh
+```
+
+**O que faz:**
+1. ✅ Coleta informações sobre a variável
+2. ✅ Adiciona automaticamente em `.env.example`
+3. ✅ Adiciona automaticamente em `scripts/check-env.sh`
+4. ⚠️  Orienta onde adicionar manualmente em outros arquivos
+5. 📝 Fornece comandos de teste
+
+**Quando usar:**
+- Sempre que adicionar uma nova variável de ambiente
+- Garante consistência em todos os arquivos
+- Segue as regras do `ENV_VARIABLES_RULES.md`
+
+**Exemplo de uso:**
+```bash
+$ ./scripts/add-env-var.sh
+
+🔐 Environment Variable Addition Wizard
+========================================
+
+📝 Step 1: Variable Information
+--------------------------------
+Variable name: TWILIO_AUTH_TOKEN
+Description: Twilio authentication token
+Default/Example value: YOUR_TWILIO_AUTH_TOKEN
+
+Variable type:
+1) Secret/Password (will be auto-generated)
+2) API Key (requires manual setup)
+Type (1-2): 2
+
+Which services need this variable?
+1) Backend only
+2) Worker only
+3) Backend + Worker
+Choice (1-3): 3
+
+✅ Added to .env.example
+✅ Added to check-env.sh
+⚠️  Manual updates needed in:
+   - docker-compose.yml
+   - backend/src/config/configuration.ts
+```
+
+---
+
 ### 🔐 generate-keys.sh
 
 Gera chaves seguras aleatórias para variáveis de ambiente.
@@ -23,6 +76,8 @@ Gera chaves seguras aleatórias para variáveis de ambiente.
 - `SESSION_SECRET` (32 bytes)
 - `OAUTH_ENCRYPTION_KEY` (32 bytes) **← OBRIGATÓRIO**
 - `INSTAGRAM_WEBHOOK_VERIFY_TOKEN` (hex)
+- `MINIO_ROOT_PASSWORD` + `MINIO_SECRET_KEY`
+- `GRAFANA_ADMIN_PASSWORD`
 
 ---
 
