@@ -12,6 +12,18 @@ import { ValidationExceptionFilter } from './common/filters/validation-exception
 import { initializeSentry } from './common/monitoring/sentry.config';
 import { LoggerService } from './common/logging/logger.service';
 
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise);
+  console.error('❌ Reason:', reason);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
 async function bootstrap() {
   try {
     // Initialize Sentry before creating the app
@@ -20,6 +32,7 @@ async function bootstrap() {
     console.log('*********************** Creating App **************************');
     const app = await NestFactory.create(AppModule, {
       logger: new LoggerService('Bootstrap'),
+      abortOnError: false, // Don't exit on module init errors
     });
     console.log('*********************** App created **************************');
 
@@ -147,10 +160,18 @@ async function bootstrap() {
     console.log(`🚀 Backend starting on port ${port}`);
 
     try {
-      await app.listen(port, '0.0.0.0');
+      console.log(`*********************** Calling app.listen(${port}, '0.0.0.0') **************************`);
+      const server = await app.listen(port, '0.0.0.0');
+      console.log(`*********************** app.listen() returned **************************`);
       console.log(`✅ Backend successfully listening on port ${port}`);
       console.log(`📡 API available at http://localhost:${port}/api`);
       console.log(`💚 Health check at http://localhost:${port}/health`);
+
+      // Log server info
+      console.log(`Server info:`, {
+        address: server.address(),
+        listening: server.listening,
+      });
     } catch (error) {
       console.error('❌ Failed to start server on port', port);
       if (error instanceof Error) {
