@@ -4,11 +4,19 @@ This directory contains the Nginx reverse proxy configuration for the Social Sel
 
 ## Overview
 
-Nginx serves as the main entry point for all HTTP traffic, routing requests to the appropriate backend services:
-- Frontend (Next.js) - `/` path
-- Backend API (NestJS) - `/api` path
-- WebSocket (Socket.io) - `/socket.io` path
-- MinIO media storage - `/media` path
+Nginx serves as the main entry point for all HTTP traffic, routing requests based on domain:
+
+### Production Domain Structure
+- **Main Domain** (`app-socialselling.willianbvsanches.com`) → Frontend (Next.js)
+- **API Subdomain** (`api.app-socialselling.willianbvsanches.com`) → Backend API (NestJS)
+  - All API endpoints accessible at root path on subdomain
+  - WebSocket connections at `/socket.io`
+- **Media Storage** (`/media` on main domain) → MinIO
+
+### Development Setup
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:4000`
+- MinIO: `http://localhost:9000`
 
 ## Directory Structure
 
@@ -23,10 +31,16 @@ infrastructure/nginx/
 ## Features
 
 ### 1. Reverse Proxy Routing
-- **Frontend**: All requests to `/` are proxied to the Next.js frontend container
-- **Backend API**: All requests to `/api/*` are proxied to the NestJS backend
+
+#### API Subdomain (`api.app-socialselling.willianbvsanches.com`)
+- **Backend API**: All requests to `/` are proxied to the NestJS backend
 - **WebSocket**: Socket.io connections at `/socket.io` with proper upgrade headers
+- **Health Check**: `/health` proxies to backend health endpoint
+
+#### Main Domain (`app-socialselling.willianbvsanches.com`)
+- **Frontend**: All requests to `/` are proxied to the Next.js frontend container
 - **Media Storage**: MinIO object storage accessible at `/media/*`
+- **Monitoring**: Grafana at `/grafana/`, Prometheus at `/prometheus/`
 - **Health Check**: `/health` endpoint returns "healthy" status
 
 ### 2. Rate Limiting
@@ -120,32 +134,38 @@ for i in {1..30}; do curl -s -o /dev/null -w "%{http_code}\n" http://localhost/m
 # Should see 503 (Service Temporarily Unavailable) after exceeding rate limit
 ```
 
-## Enabling Backend and Frontend
+## DNS Configuration Required
 
-When backend and frontend services are deployed, uncomment the following in `conf.d/default.conf`:
+For the subdomain structure to work, you need to configure DNS records:
 
-1. Upstream definitions:
-```nginx
-upstream backend {
-    server backend:4000;
-}
+1. **Main Domain (A Record)**
+   - Host: `app-socialselling`
+   - Points to: Your VPS IP address
+   - Example: `app-socialselling.willianbvsanches.com → 192.168.1.100`
 
-upstream frontend {
-    server frontend:3000;
-}
-```
+2. **API Subdomain (A Record or CNAME)**
+   - Host: `api.app-socialselling`
+   - Points to: Your VPS IP address (or CNAME to main domain)
+   - Example: `api.app-socialselling.willianbvsanches.com → 192.168.1.100`
 
-2. Location blocks:
-```nginx
-location /api { ... }
-location /socket.io { ... }
-location / { ... }  # Replace placeholder with frontend proxy
-```
-
-3. Restart Nginx:
+After DNS configuration, restart Nginx:
 ```bash
-docker-compose restart nginx
+docker compose restart nginx
 ```
+
+## URL Examples
+
+### Production URLs
+- Frontend: `https://app-socialselling.willianbvsanches.com`
+- API: `https://api.app-socialselling.willianbvsanches.com`
+- API Health: `https://api.app-socialselling.willianbvsanches.com/health`
+- WebSocket: `wss://api.app-socialselling.willianbvsanches.com/socket.io`
+- Media: `https://app-socialselling.willianbvsanches.com/media/...`
+
+### Development URLs
+- Frontend: `http://localhost:3000`
+- API: `http://localhost:4000`
+- WebSocket: `ws://localhost:4000/socket.io`
 
 ## SSL/TLS Configuration (Future)
 
