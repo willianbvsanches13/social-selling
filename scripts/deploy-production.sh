@@ -28,11 +28,18 @@ fi
 echo "🛑 Stopping existing containers..."
 docker compose down
 
+# Remove docker-compose.override.yml if it exists (for development only)
+if [ -f docker-compose.override.yml ]; then
+    echo "⚠️  Found docker-compose.override.yml (development file)"
+    echo "   Renaming to .override.yml.backup for production deployment"
+    mv docker-compose.override.yml docker-compose.override.yml.backup
+fi
+
 # Pull latest images if they exist
 echo "📦 Pulling latest images..."
 docker compose pull || true
 
-# Build and start services with production configuration
+# Build and start services with production configuration (no override file)
 echo "🏗️  Building and starting services..."
 docker compose up -d --build
 

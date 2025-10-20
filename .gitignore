@@ -53,3 +53,6 @@ coverage
 # Misc
 .cache
 test-results
+
+# Docker
+docker-compose.override.yml.backup

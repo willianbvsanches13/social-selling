@@ -1,0 +1,25 @@
+# Docker Compose Override for Development
+# This file is automatically loaded in development and adds volume mounts
+# for hot reload. In production, don't use this file.
+
+services:
+  # Backend with volume mounts for development hot reload
+  backend:
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - /app/dist
+
+  # Frontend with volume mounts for development hot reload
+  frontend:
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+  # Worker with volume mounts for development
+  worker:
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - /app/dist

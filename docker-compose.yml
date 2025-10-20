@@ -182,9 +182,8 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_NAME: ${MINIO_BUCKET_NAME}
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    # Volumes for development are in docker-compose.override.yml
+    # Production uses code from Docker image (no volumes)
     ports:
       - "4000:4000"
     networks:
@@ -221,10 +220,8 @@ services:
       NODE_ENV: ${NODE_ENV}
       NEXT_PUBLIC_API_URL: ${API_URL}
       NEXT_PUBLIC_WS_URL: ${WS_URL}
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
+    # Volumes for development are in docker-compose.override.yml
+    # Production uses code from Docker image (no volumes)
     ports:
       - "3000:3000"
     networks:
