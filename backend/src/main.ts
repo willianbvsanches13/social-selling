@@ -136,12 +136,16 @@ async function bootstrap() {
     console.log(`💚 Health check at http://localhost:${port}/health`);
   } catch (error) {
     console.error('❌ FATAL ERROR during bootstrap:', error);
-    console.error('Error details:', {
-      message: error?.message,
-      stack: error?.stack,
-      name: error?.name,
-      cause: error?.cause,
-    });
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        cause: error.cause,
+      });
+    } else {
+      console.error('Unknown error type:', error);
+    }
 
     // Exit with error code
     process.exit(1);
