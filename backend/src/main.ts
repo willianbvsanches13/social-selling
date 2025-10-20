@@ -13,12 +13,15 @@ import { initializeSentry } from './common/monitoring/sentry.config';
 import { LoggerService } from './common/logging/logger.service';
 
 async function bootstrap() {
-  // Initialize Sentry before creating the app
-  initializeSentry();
+  try {
+    // Initialize Sentry before creating the app
+    initializeSentry();
 
-  const app = await NestFactory.create(AppModule, {
-    logger: new LoggerService('Bootstrap'),
-  });
+    console.log('*********************** Creating App **************************');
+    const app = await NestFactory.create(AppModule, {
+      logger: new LoggerService('Bootstrap'),
+    });
+    console.log('*********************** App created **************************');
 
   // Cookie parser middleware
   app.use(cookieParser());
@@ -125,12 +128,24 @@ async function bootstrap() {
     console.log(`📄 OpenAPI spec exported to: ${outputPath}`);
   }
 
-  const port = configService.get<number>('port', 4000);
-  await app.listen(port);
+    const port = configService.get<number>('port', 4000);
+    await app.listen(port);
 
-  console.log(`🚀 Backend running on port ${port}`);
-  console.log(`📡 API available at http://localhost:${port}/api`);
-  console.log(`💚 Health check at http://localhost:${port}/health`);
+    console.log(`🚀 Backend running on port ${port}`);
+    console.log(`📡 API available at http://localhost:${port}/api`);
+    console.log(`💚 Health check at http://localhost:${port}/health`);
+  } catch (error) {
+    console.error('❌ FATAL ERROR during bootstrap:', error);
+    console.error('Error details:', {
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name,
+      cause: error?.cause,
+    });
+
+    // Exit with error code
+    process.exit(1);
+  }
 }
 
 void bootstrap();

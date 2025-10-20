@@ -11,6 +11,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     const redisConfig = this.configService.get('redis');
+
+    console.log(`🔄 Initializing Redis connection to ${redisConfig.host}:${redisConfig.port}...`);
+
     this.client = new Redis({
       host: redisConfig.host,
       port: redisConfig.port,
@@ -18,8 +21,14 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       db: 0,
       maxRetriesPerRequest: 3,
       enableReadyCheck: true,
+      lazyConnect: false,
       retryStrategy: (times: number) => {
-        const delay = Math.min(times * 50, 2000);
+        if (times > 10) {
+          console.error(`❌ Redis connection failed after ${times} attempts. Giving up.`);
+          return null; // Stop retrying
+        }
+        const delay = Math.min(times * 500, 3000);
+        console.log(`⏳ Redis retry attempt ${times}, waiting ${delay}ms...`);
         return delay;
       },
       reconnectOnError: (err) => {
@@ -32,12 +41,34 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.client.on('connect', () => {
-      console.log('Redis connected');
+      console.log('✅ Redis connected successfully');
+    });
+
+    this.client.on('ready', () => {
+      console.log('✅ Redis is ready to accept commands');
     });
 
     this.client.on('error', (err) => {
-      console.error('Redis error:', err);
+      console.error('❌ Redis error:', err.message);
+      console.error(`Connection details: host=${redisConfig.host}, port=${redisConfig.port}`);
     });
+
+    this.client.on('close', () => {
+      console.warn('⚠️  Redis connection closed');
+    });
+
+    this.client.on('reconnecting', () => {
+      console.log('🔄 Redis reconnecting...');
+    });
+
+    // Wait for Redis to be ready
+    try {
+      await this.client.ping();
+      console.log('✅ Redis ping successful');
+    } catch (error) {
+      console.error('❌ Redis ping failed:', error instanceof Error ? error.message : error);
+      throw new Error(`Failed to connect to Redis: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   async onModuleDestroy() {

@@ -83,16 +83,32 @@ export class Database implements OnModuleInit, OnModuleDestroy {
    * Test database connection
    */
   private async testConnection(): Promise<void> {
-    try {
-      await this.db.connect();
-      this.isConnected = true;
-      this.logger.log('Database connected successfully');
-    } catch (error) {
-      this.isConnected = false;
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(`Failed to connect to database: ${errorMessage}`);
-      throw error;
+    const maxRetries = 5;
+    const retryDelay = 2000; // 2 seconds
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        this.logger.log(`Attempting database connection (${attempt}/${maxRetries})...`);
+        await this.db.connect();
+        this.isConnected = true;
+        this.logger.log('✅ Database connected successfully');
+        return;
+      } catch (error) {
+        this.isConnected = false;
+        const errorMessage =
+          error instanceof Error ? error.message : 'Unknown error';
+
+        this.logger.error(`❌ Database connection attempt ${attempt}/${maxRetries} failed: ${errorMessage}`);
+        this.logger.error(`Connection config: host=${this.configService.get('POSTGRES_HOST')}, port=${this.configService.get('POSTGRES_PORT')}, db=${this.configService.get('POSTGRES_DB')}`);
+
+        if (attempt < maxRetries) {
+          this.logger.log(`Retrying in ${retryDelay / 1000} seconds...`);
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+        } else {
+          this.logger.error('❌ All database connection attempts failed. Application will exit.');
+          throw error;
+        }
+      }
     }
   }
 
