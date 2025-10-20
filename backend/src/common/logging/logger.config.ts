@@ -1,9 +1,11 @@
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
+import * as path from 'path';
 
-const logDir = process.env.LOG_DIR || 'logs';
 const isDevelopment = process.env.NODE_ENV === 'development';
+// Use absolute path for logs in production, relative in development
+const logDir = process.env.LOG_DIR || (isDevelopment ? 'logs' : path.join(process.cwd(), 'logs'));
 
 // Custom format for structured logging
 const logFormat = winston.format.combine(
