@@ -12,7 +12,12 @@
 set -e
 
 # Configuration
-DOMAIN="app-socialselling.willianbvsanches.com"
+DOMAINS=(
+    "app-socialselling.willianbvsanches.com"
+    "api.app-socialselling.willianbvsanches.com"
+    "grafana.app-socialselling.willianbvsanches.com"
+    "prometheus.app-socialselling.willianbvsanches.com"
+)
 EMAIL="willian.sanches@example.com"
 WEBROOT="/var/www/certbot"
 
@@ -22,7 +27,15 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}=== SSL Certificate Setup for $DOMAIN ===${NC}"
+echo -e "${GREEN}======================================${NC}"
+echo -e "${GREEN}SSL Certificate Setup for Social Selling${NC}"
+echo -e "${GREEN}======================================${NC}"
+echo ""
+echo -e "${YELLOW}Domains to be certified:${NC}"
+for domain in "${DOMAINS[@]}"; do
+    echo "  - $domain"
+done
+echo ""
 
 # Check if running as root
 if [ "$EUID" -ne 0 ]; then
@@ -30,13 +43,22 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Check if domain resolves to this server
+# Check if domains resolve to this server
 echo -e "${YELLOW}Checking DNS configuration...${NC}"
 SERVER_IP=$(curl -s ifconfig.me)
-DOMAIN_IP=$(dig +short $DOMAIN | tail -n1)
+DNS_CHECK_FAILED=0
 
-if [ "$SERVER_IP" != "$DOMAIN_IP" ]; then
-  echo -e "${RED}Warning: Domain $DOMAIN resolves to $DOMAIN_IP but this server's IP is $SERVER_IP${NC}"
+for domain in "${DOMAINS[@]}"; do
+    DOMAIN_IP=$(dig +short $domain | tail -n1)
+    if [ "$SERVER_IP" != "$DOMAIN_IP" ]; then
+        echo -e "${RED}Warning: $domain resolves to $DOMAIN_IP but this server's IP is $SERVER_IP${NC}"
+        DNS_CHECK_FAILED=1
+    else
+        echo -e "${GREEN}✓ $domain resolves correctly to $SERVER_IP${NC}"
+    fi
+done
+
+if [ $DNS_CHECK_FAILED -eq 1 ]; then
   echo -e "${YELLOW}Please ensure DNS is properly configured before proceeding.${NC}"
   read -p "Do you want to continue anyway? (y/n) " -n 1 -r
   echo
@@ -73,37 +95,60 @@ echo -e "${GREEN}Nginx configuration is valid${NC}"
 echo -e "${YELLOW}Stopping Nginx temporarily for certificate acquisition...${NC}"
 docker stop social-selling-nginx || true
 
-# Obtain SSL certificate using standalone mode
-echo -e "${YELLOW}Obtaining SSL certificate from Let's Encrypt...${NC}"
-certbot certonly \
-  --standalone \
-  -d $DOMAIN \
-  --non-interactive \
-  --agree-tos \
-  --email $EMAIL \
-  --preferred-challenges http \
-  --http-01-port 80
+# Obtain SSL certificates for all domains
+echo ""
+echo -e "${YELLOW}Obtaining SSL certificates from Let's Encrypt...${NC}"
+FAILED_DOMAINS=()
 
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}SSL certificate obtained successfully!${NC}"
-else
-  echo -e "${RED}Failed to obtain SSL certificate${NC}"
+for domain in "${DOMAINS[@]}"; do
+    echo ""
+    echo -e "${YELLOW}Processing: $domain${NC}"
+
+    certbot certonly \
+      --standalone \
+      -d $domain \
+      --non-interactive \
+      --agree-tos \
+      --email $EMAIL \
+      --preferred-challenges http \
+      --http-01-port 80
+
+    if [ $? -eq 0 ]; then
+      echo -e "${GREEN}✓ Certificate obtained for $domain${NC}"
+    else
+      echo -e "${RED}✗ Failed to obtain certificate for $domain${NC}"
+      FAILED_DOMAINS+=("$domain")
+    fi
+done
+
+# Check if any domains failed
+if [ ${#FAILED_DOMAINS[@]} -gt 0 ]; then
+  echo ""
+  echo -e "${RED}Failed to obtain certificates for the following domains:${NC}"
+  for domain in "${FAILED_DOMAINS[@]}"; do
+    echo "  - $domain"
+  done
+  echo -e "${YELLOW}Please check DNS configuration and try again.${NC}"
   docker start social-selling-nginx
   exit 1
 fi
 
 # Start Nginx again
+echo ""
 echo -e "${YELLOW}Starting Nginx with SSL configuration...${NC}"
 docker start social-selling-nginx
 
-# Verify certificate files exist
-CERT_PATH="/etc/letsencrypt/live/$DOMAIN"
-if [ ! -f "$CERT_PATH/fullchain.pem" ] || [ ! -f "$CERT_PATH/privkey.pem" ]; then
-  echo -e "${RED}Error: Certificate files not found at $CERT_PATH${NC}"
-  exit 1
-fi
-
-echo -e "${GREEN}Certificate files verified at $CERT_PATH${NC}"
+# Verify certificate files exist for all domains
+echo ""
+echo -e "${YELLOW}Verifying certificate files...${NC}"
+for domain in "${DOMAINS[@]}"; do
+    CERT_PATH="/etc/letsencrypt/live/$domain"
+    if [ ! -f "$CERT_PATH/fullchain.pem" ] || [ ! -f "$CERT_PATH/privkey.pem" ]; then
+      echo -e "${RED}✗ Certificate files not found for $domain at $CERT_PATH${NC}"
+      exit 1
+    fi
+    echo -e "${GREEN}✓ Certificate verified for $domain${NC}"
+done
 
 # Test certificate renewal
 echo -e "${YELLOW}Testing automatic renewal...${NC}"
@@ -144,16 +189,34 @@ echo -e "${YELLOW}Reloading Nginx configuration...${NC}"
 docker exec social-selling-nginx nginx -s reload || docker restart social-selling-nginx
 
 # Print certificate information
-echo -e "${GREEN}=== Certificate Information ===${NC}"
+echo ""
+echo -e "${GREEN}======================================${NC}"
+echo -e "${GREEN}Certificate Information${NC}"
+echo -e "${GREEN}======================================${NC}"
 certbot certificates
 
-echo -e "${GREEN}=== SSL Setup Complete ===${NC}"
-echo -e "Certificate location: $CERT_PATH"
-echo -e "Certificate expiry: $(openssl x509 -enddate -noout -in $CERT_PATH/fullchain.pem | cut -d= -f2)"
-echo -e "Automatic renewal: Configured (runs daily at 3 AM)"
-echo -e ""
+echo ""
+echo -e "${GREEN}======================================${NC}"
+echo -e "${GREEN}SSL Setup Complete! 🎉${NC}"
+echo -e "${GREEN}======================================${NC}"
+echo ""
+echo -e "${GREEN}Your domains are now secured:${NC}"
+for domain in "${DOMAINS[@]}"; do
+    CERT_PATH="/etc/letsencrypt/live/$domain"
+    EXPIRY=$(openssl x509 -enddate -noout -in $CERT_PATH/fullchain.pem | cut -d= -f2)
+    echo -e "  ✓ https://$domain (expires: $EXPIRY)"
+done
+echo ""
+echo -e "${YELLOW}Automatic renewal: Configured (runs daily at 3 AM)${NC}"
+echo ""
 echo -e "${YELLOW}Next steps:${NC}"
-echo -e "1. Verify HTTPS access: https://$DOMAIN"
-echo -e "2. Test HTTP redirect: http://$DOMAIN"
-echo -e "3. Check SSL Labs rating: https://www.ssllabs.com/ssltest/analyze.html?d=$DOMAIN"
-echo -e "4. Monitor renewal logs: /var/log/letsencrypt/letsencrypt.log"
+echo -e "1. Enable SSL config: mv infrastructure/nginx/conf.d/default.conf infrastructure/nginx/conf.d/default.conf.disabled"
+echo -e "2. Enable SSL config: mv infrastructure/nginx/conf.d/ssl.conf.disabled infrastructure/nginx/conf.d/ssl.conf (if disabled)"
+echo -e "3. Restart Nginx: docker compose restart nginx"
+echo -e "4. Verify HTTPS access for all domains:"
+for domain in "${DOMAINS[@]}"; do
+    echo -e "   - https://$domain"
+done
+echo -e "5. Check SSL Labs rating: https://www.ssllabs.com/ssltest/"
+echo -e "6. Monitor renewal logs: /var/log/letsencrypt/letsencrypt.log"
+echo ""
