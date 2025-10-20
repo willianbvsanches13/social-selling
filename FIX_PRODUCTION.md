@@ -140,6 +140,37 @@ curl http://localhost:9000/minio/health/live
 
 Esse é um aviso, não é crítico. O Prometheus está tentando coletar métricas mas o endpoint não está implementado ainda.
 
+### Containers marcados como "unhealthy"
+
+Se `docker compose ps` mostrar backend ou frontend como "unhealthy" mesmo com a aplicação funcionando:
+
+**Causa**: Health check usando URL externa em vez de localhost.
+
+**Sintoma nos logs**:
+```
+wget: can't connect to remote host (82.197.93.247): Connection refused
+```
+
+**Solução**: Já corrigido! O docker-compose.yml agora usa:
+- Backend: `http://localhost:4000/health/ready`
+- Frontend: `http://localhost:3000`
+
+**Testar manualmente**:
+```bash
+# Testar health check do backend
+docker exec social-selling-backend wget -qO- http://localhost:4000/health/ready
+
+# Testar health check do frontend
+docker exec social-selling-frontend wget -qO- http://localhost:3000
+
+# Deve retornar JSON/HTML sem erros
+```
+
+**Reiniciar para aplicar**:
+```bash
+docker compose restart backend frontend
+```
+
 ## Checklist Pós-Deploy
 
 - [ ] Backend iniciou sem erros
@@ -148,7 +179,8 @@ Esse é um aviso, não é crítico. O Prometheus está tentando coletar métrica
 - [ ] Grafana acessível
 - [ ] Prometheus coletando métricas
 - [ ] Sem erros nos logs do backend
-- [ ] Healthcheck passando: `curl http://localhost:4000/health`
+- [ ] Healthcheck passando: `docker exec social-selling-backend wget -qO- http://localhost:4000/health/ready`
+- [ ] Containers healthy: `docker compose ps` (deve mostrar "healthy" para backend e frontend)
 
 ## Se Nada Funcionar
 
