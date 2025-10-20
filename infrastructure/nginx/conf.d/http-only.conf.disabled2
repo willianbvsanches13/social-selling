@@ -1,0 +1,34 @@
+# Temporary HTTP-only configuration for SSL certificate acquisition
+# This config does NOT require backend or frontend to be running
+
+# Redirect all domains to a simple response during SSL setup
+server {
+    listen 80;
+    server_name app-socialselling.willianbvsanches.com
+                api.app-socialselling.willianbvsanches.com
+                grafana.app-socialselling.willianbvsanches.com
+                prometheus.app-socialselling.willianbvsanches.com;
+
+    # Security headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Allow certbot validation
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    # Health check endpoint
+    location /health {
+        access_log off;
+        return 200 "SSL setup in progress\n";
+        add_header Content-Type text/plain;
+    }
+
+    # Default response for all other requests
+    location / {
+        return 200 "Social Selling Platform - SSL Setup in Progress\n";
+        add_header Content-Type text/plain;
+    }
+}
