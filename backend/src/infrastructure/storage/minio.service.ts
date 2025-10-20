@@ -11,18 +11,27 @@ export class MinioService implements OnModuleInit {
   constructor(private readonly configService: ConfigService) {}
 
   async onModuleInit() {
+    const minioHost = this.configService.get<string>('minio.host', 'minio');
+    const minioPort = this.configService.get<number>('minio.port', 9000);
+    const accessKey = this.configService.get<string>(
+      'minio.accessKey',
+      'minioadmin',
+    );
+    const secretKey = this.configService.get<string>(
+      'minio.secretKey',
+      'changeme',
+    );
+
+    this.logger.log(
+      `Initializing MinIO client: ${minioHost}:${minioPort} (user: ${accessKey})`,
+    );
+
     this.client = new Minio.Client({
-      endPoint: this.configService.get<string>('minio.host', 'localhost'),
-      port: this.configService.get<number>('minio.port', 9000),
+      endPoint: minioHost,
+      port: minioPort,
       useSSL: false,
-      accessKey: this.configService.get<string>(
-        'minio.accessKey',
-        'minioadmin',
-      ),
-      secretKey: this.configService.get<string>(
-        'minio.secretKey',
-        'minioadmin123',
-      ),
+      accessKey,
+      secretKey,
     });
 
     this.bucketName = this.configService.get<string>(

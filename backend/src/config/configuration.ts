@@ -16,8 +16,8 @@ export default () => ({
   minio: {
     host: process.env.MINIO_HOST || 'minio',
     port: parseInt(process.env.MINIO_PORT || '9000', 10),
-    accessKey: process.env.MINIO_ROOT_USER || 'minioadmin',
-    secretKey: process.env.MINIO_ROOT_PASSWORD || 'changeme',
+    accessKey: process.env.MINIO_ACCESS_KEY || process.env.MINIO_ROOT_USER || 'minioadmin',
+    secretKey: process.env.MINIO_SECRET_KEY || process.env.MINIO_ROOT_PASSWORD || 'changeme',
     bucket: process.env.MINIO_BUCKET_NAME || 'social-selling-media',
   },
   jwt: {

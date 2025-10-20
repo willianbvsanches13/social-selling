@@ -99,14 +99,41 @@ docker compose up -d --build
 
 Se aparecer: `"The request signature we calculated does not match..."`
 
-**Solução**: Verificar se `MINIO_ENDPOINT` está correto no `.env`:
+**Causa**: Credenciais do MinIO incorretas ou não configuradas.
+
+**Solução**:
 
 ```bash
-# Para produção (ajustar domínio):
-MINIO_ENDPOINT=http://minio:9000
+# Editar o .env
+nano .env
 
-# OU se usar domínio externo:
-MINIO_ENDPOINT=https://minio.app-socialselling.willianbvsanches.com
+# Verificar se estas variáveis estão definidas:
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=sua_senha_forte_aqui
+
+# IMPORTANTE: Adicionar estas linhas também:
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=sua_senha_forte_aqui
+
+# Ou usar substituição de variáveis:
+MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
+MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+```
+
+**Reiniciar os serviços:**
+
+```bash
+docker compose restart backend worker minio
+```
+
+**Verificar se MinIO está funcionando:**
+
+```bash
+# Ver logs do MinIO
+docker logs social-selling-minio --tail 50
+
+# Testar conexão
+curl http://localhost:9000/minio/health/live
 ```
 
 ### Endpoint /metrics não encontrado
