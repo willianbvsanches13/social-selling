@@ -76,10 +76,18 @@ MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=              # ← Mesma senha do MINIO_ROOT_PASSWORD
 
 # Email / SendGrid (OBRIGATÓRIO para notificações)
+EMAIL_PROVIDER=sendgrid        # ou 'mailgun'
+SENDGRID_API_KEY=              # ← Sua API key do SendGrid (https://app.sendgrid.com/settings/api_keys)
+
+# OU se usar Mailgun:
+# MAILGUN_API_KEY=
+# MAILGUN_DOMAIN=mg.yourdomain.com
+
+# SMTP genérico (opcional/legacy)
 SMTP_HOST=smtp.sendgrid.net
 SMTP_PORT=587
 SMTP_USER=apikey
-SMTP_PASSWORD=                 # ← Sua API key do SendGrid
+SMTP_PASSWORD=                 # ← Mesma que SENDGRID_API_KEY
 SMTP_FROM_EMAIL=noreply@seudominio.com
 SMTP_FROM_NAME=SocialSelling Platform
 

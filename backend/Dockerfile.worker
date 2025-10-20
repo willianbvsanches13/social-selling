@@ -56,6 +56,10 @@ COPY --from=build --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=build --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=nestjs:nodejs /app/package.json ./package.json
 
+# Create directories with correct permissions
+RUN mkdir -p /app/temp/media /app/logs && \
+    chown -R nestjs:nodejs /app/temp /app/logs
+
 # Switch to non-root user
 USER nestjs
 
