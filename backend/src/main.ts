@@ -59,6 +59,9 @@ async function bootstrap() {
   const nodeEnv = configService.get<string>('nodeEnv', 'development');
   const enableDocs = configService.get<boolean>('enableDocs', true);
 
+  console.log(`*********************** Environment: ${nodeEnv} **************************`);
+  console.log(`*********************** Enable Docs: ${enableDocs} **************************`);
+
   if (nodeEnv !== 'production' || enableDocs) {
     const config = new DocumentBuilder()
       .setTitle(SWAGGER_CONFIG.title)
@@ -123,10 +126,14 @@ async function bootstrap() {
       // Use /tmp/app in production, cwd in development
       const baseDir = nodeEnv === 'production' ? '/tmp/app' : process.cwd();
       const outputPath = path.join(baseDir, 'openapi-spec.json');
+      console.log(`*********************** Attempting to write OpenAPI spec to: ${outputPath} **************************`);
       fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
-      console.log(`📄 OpenAPI spec exported to: ${outputPath}`);
+      console.log(`✅ OpenAPI spec exported to: ${outputPath}`);
     } catch (error) {
       console.warn('⚠️  Could not export OpenAPI spec to file (permission denied or read-only filesystem)');
+      if (error instanceof Error) {
+        console.warn(`Error details: ${error.message}`);
+      }
     }
 
     console.log(
