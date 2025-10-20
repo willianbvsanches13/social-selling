@@ -115,12 +115,12 @@ services:
     container_name: social-selling-nginx
     restart: unless-stopped
     volumes:
-      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
-      # SSL certificates - mount Let's Encrypt directory
-      # Uncomment these lines after running setup-ssl.sh on production VPS
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /var/www/certbot:/var/www/certbot:ro
+      # Use environment-specific configuration
+      - ./infrastructure/nginx/${NODE_ENV:-development}/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/${NODE_ENV:-development}/conf.d:/etc/nginx/conf.d:ro
+      # SSL certificates - only mount in production
+      - ${SSL_CERT_PATH:-./infrastructure/nginx/ssl-dummy}:/etc/letsencrypt:ro
+      - ${SSL_WEBROOT_PATH:-./infrastructure/nginx/ssl-dummy}:/var/www/certbot:ro
     ports:
       - "80:80"
       - "443:443"
