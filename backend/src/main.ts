@@ -139,14 +139,29 @@ async function bootstrap() {
     console.log(
       `📚 API Documentation: http://localhost:${configService.get<number>('port', 4000)}/api/docs`,
     );
+    console.log(`*********************** Swagger setup completed **************************`);
   }
 
     const port = configService.get<number>('port', 4000);
-    await app.listen(port);
+    console.log(`*********************** Port configured: ${port} **************************`);
+    console.log(`🚀 Backend starting on port ${port}`);
 
-    console.log(`🚀 Backend running on port ${port}`);
-    console.log(`📡 API available at http://localhost:${port}/api`);
-    console.log(`💚 Health check at http://localhost:${port}/health`);
+    try {
+      await app.listen(port, '0.0.0.0');
+      console.log(`✅ Backend successfully listening on port ${port}`);
+      console.log(`📡 API available at http://localhost:${port}/api`);
+      console.log(`💚 Health check at http://localhost:${port}/health`);
+    } catch (error) {
+      console.error('❌ Failed to start server on port', port);
+      if (error instanceof Error) {
+        console.error('Listen error:', {
+          message: error.message,
+          code: (error as any).code,
+          stack: error.stack,
+        });
+      }
+      throw error;
+    }
   } catch (error) {
     console.error('❌ FATAL ERROR during bootstrap:', error);
     if (error instanceof Error) {
