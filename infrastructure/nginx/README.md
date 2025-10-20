@@ -11,6 +11,8 @@ Nginx serves as the main entry point for all HTTP traffic, routing requests base
 - **API Subdomain** (`api.app-socialselling.willianbvsanches.com`) → Backend API (NestJS)
   - All API endpoints accessible at root path on subdomain
   - WebSocket connections at `/socket.io`
+- **Monitoring Subdomain** (`grafana.app-socialselling.willianbvsanches.com`) → Grafana
+- **Metrics Subdomain** (`prometheus.app-socialselling.willianbvsanches.com`) → Prometheus
 - **Media Storage** (`/media` on main domain) → MinIO
 
 ### Development Setup
@@ -40,8 +42,13 @@ infrastructure/nginx/
 #### Main Domain (`app-socialselling.willianbvsanches.com`)
 - **Frontend**: All requests to `/` are proxied to the Next.js frontend container
 - **Media Storage**: MinIO object storage accessible at `/media/*`
-- **Monitoring**: Grafana at `/grafana/`, Prometheus at `/prometheus/`
 - **Health Check**: `/health` endpoint returns "healthy" status
+
+#### Monitoring Subdomain (`grafana.app-socialselling.willianbvsanches.com`)
+- **Grafana**: Complete dashboard access with WebSocket support for live updates
+
+#### Metrics Subdomain (`prometheus.app-socialselling.willianbvsanches.com`)
+- **Prometheus**: Metrics and monitoring data (includes commented basic auth for production)
 
 ### 2. Rate Limiting
 - **API endpoints**: 10 requests/second with burst of 20
@@ -148,6 +155,16 @@ For the subdomain structure to work, you need to configure DNS records:
    - Points to: Your VPS IP address (or CNAME to main domain)
    - Example: `api.app-socialselling.willianbvsanches.com → 192.168.1.100`
 
+3. **Grafana Subdomain (A Record or CNAME)**
+   - Host: `grafana.app-socialselling`
+   - Points to: Your VPS IP address (or CNAME to main domain)
+   - Example: `grafana.app-socialselling.willianbvsanches.com → 192.168.1.100`
+
+4. **Prometheus Subdomain (A Record or CNAME)**
+   - Host: `prometheus.app-socialselling`
+   - Points to: Your VPS IP address (or CNAME to main domain)
+   - Example: `prometheus.app-socialselling.willianbvsanches.com → 192.168.1.100`
+
 After DNS configuration, restart Nginx:
 ```bash
 docker compose restart nginx
@@ -161,11 +178,15 @@ docker compose restart nginx
 - API Health: `https://api.app-socialselling.willianbvsanches.com/health`
 - WebSocket: `wss://api.app-socialselling.willianbvsanches.com/socket.io`
 - Media: `https://app-socialselling.willianbvsanches.com/media/...`
+- Grafana: `https://grafana.app-socialselling.willianbvsanches.com`
+- Prometheus: `https://prometheus.app-socialselling.willianbvsanches.com`
 
 ### Development URLs
 - Frontend: `http://localhost:3000`
 - API: `http://localhost:4000`
 - WebSocket: `ws://localhost:4000/socket.io`
+- Grafana: `http://localhost:3001`
+- Prometheus: `http://localhost:9090`
 
 ## SSL/TLS Configuration (Future)
 
