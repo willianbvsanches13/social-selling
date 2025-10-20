@@ -59,8 +59,9 @@ COPY --from=build --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=build --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=nestjs:nodejs /app/package.json ./package.json
 
-# Create temp directory for OpenAPI spec with correct permissions
-RUN mkdir -p /tmp/app && chown nestjs:nodejs /tmp/app
+# Create directories with correct permissions
+RUN mkdir -p /tmp/app /app/logs && \
+    chown -R nestjs:nodejs /tmp/app /app/logs
 
 # Switch to non-root user
 USER nestjs
