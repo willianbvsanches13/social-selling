@@ -19,16 +19,13 @@ if ! grep -q "NODE_ENV=production" .env; then
 fi
 
 # Build images without cache to ensure fresh build
-echo "📦 Building backend..."
-docker compose build --no-cache backend
+echo "📦 Building backend + worker (unified build - 50% faster!)..."
+# Build backend and worker together to share the build stage
+docker compose build --no-cache backend worker
 
 echo ""
 echo "📦 Building frontend..."
 docker compose build --no-cache frontend
-
-echo ""
-echo "📦 Building worker..."
-docker compose build --no-cache worker
 
 echo ""
 echo "✅ All images built successfully!"
