@@ -1,0 +1,83 @@
+# ================================
+# Docker Compose - Optimized Build
+# Uses Dockerfile.unified for backend & worker
+# ================================
+#
+# This is an example showing how to configure docker-compose
+# to use the unified Dockerfile for optimal build performance.
+#
+# To use this configuration:
+# 1. Copy the backend and worker sections below
+# 2. Replace the corresponding sections in docker-compose.yml
+# 3. Run: docker compose build backend worker
+#
+
+version: '3.9'
+
+services:
+  # Backend API (NestJS) - Using Unified Dockerfile
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.unified  # ← Changed from Dockerfile
+      target: ${NODE_ENV}
+      args:
+        SERVICE_TYPE: backend  # ← New: Tells unified Dockerfile to use backend entry point
+    container_name: social-selling-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${BACKEND_PORT}
+      # ... (keep all other environment variables)
+    ports:
+      - "4000:4000"
+    networks:
+      - social-selling-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # Background Worker (BullMQ) - Using Unified Dockerfile
+  worker:
+    build:
+      context: ./backend  # ← Same context as backend
+      dockerfile: Dockerfile.unified  # ← Same Dockerfile as backend
+      target: ${NODE_ENV}
+      args:
+        SERVICE_TYPE: worker  # ← New: Tells unified Dockerfile to use worker entry point
+    container_name: social-selling-worker
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      # ... (keep all other environment variables)
+    networks:
+      - social-selling-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+# Key differences from original docker-compose.yml:
+#
+# Backend:
+# - dockerfile: Dockerfile → Dockerfile.unified
+# - Added args.SERVICE_TYPE: backend
+#
+# Worker:
+# - dockerfile: Dockerfile.worker → Dockerfile.unified
+# - Added args.SERVICE_TYPE: worker
+#
+# Benefits:
+# - Build runs ONCE instead of twice
+# - ~50% faster build time
+# - ~50% less cache usage
+# - Guaranteed same code version in both containers

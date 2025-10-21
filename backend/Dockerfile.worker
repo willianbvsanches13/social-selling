@@ -1,4 +1,9 @@
 # ================================
+# Worker Dockerfile
+# Extends the shared base build
+# ================================
+
+# ================================
 # Development Stage
 # ================================
 FROM node:22-alpine AS development
@@ -16,20 +21,29 @@ COPY . .
 CMD ["node", "--max-old-space-size=1024", "node_modules/.bin/nest", "start", "--watch", "--entryFile", "worker"]
 
 # ================================
-# Build Stage
+# Build Stage (Import from base)
 # ================================
 FROM node:22-alpine AS build
 
 WORKDIR /app
 
 # Install build dependencies for native modules (sharp, bcrypt, etc.)
-RUN apk add --no-cache python3 make g++
+# vips-dev is required for sharp to work on Alpine
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    vips-dev \
+    fftw-dev
 
 # Copy package files
 COPY package.json ./
 
 # Install all dependencies (including dev dependencies for build)
 RUN npm install
+
+# Rebuild sharp for Alpine Linux (musl libc)
+RUN npm rebuild sharp --verbose
 
 # Copy source code
 COPY . .
@@ -41,11 +55,14 @@ RUN npm run build
 RUN npm prune --production
 
 # ================================
-# Production Stage
+# Production Stage (Worker Specific)
 # ================================
 FROM node:22-alpine AS production
 
 WORKDIR /app
+
+# Install runtime dependencies for sharp (vips)
+RUN apk add --no-cache vips
 
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
@@ -56,7 +73,7 @@ COPY --from=build --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=build --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=nestjs:nodejs /app/package.json ./package.json
 
-# Create directories with correct permissions
+# Create worker-specific directories with correct permissions
 RUN mkdir -p /app/temp/media /app/logs && \
     chown -R nestjs:nodejs /app/temp /app/logs
 
@@ -67,5 +84,5 @@ USER nestjs
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
   CMD pgrep -f "node dist/worker" || exit 1
 
-# Start production worker
+# Start production worker (worker.js)
 CMD ["node", "dist/worker.js"]

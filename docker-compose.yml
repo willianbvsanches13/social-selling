@@ -152,8 +152,10 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.unified
       target: ${NODE_ENV}
+      args:
+        SERVICE_TYPE: backend
     container_name: social-selling-backend
     restart: unless-stopped
     environment:
@@ -261,8 +263,10 @@ services:
   worker:
     build:
       context: ./backend
-      dockerfile: Dockerfile.worker
+      dockerfile: Dockerfile.unified
       target: ${NODE_ENV}
+      args:
+        SERVICE_TYPE: worker
     container_name: social-selling-worker
     restart: unless-stopped
     environment:

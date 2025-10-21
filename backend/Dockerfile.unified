@@ -1,10 +1,14 @@
 # ================================
-# Backend API Dockerfile
-# Extends the shared base build
+# Unified Dockerfile for Backend & Worker
+# Single build, multiple entry points
 # ================================
 
-# Import shared stages
-ARG NODE_ENV=production
+# Build argument to determine entry point (backend or worker)
+ARG SERVICE_TYPE=backend
+
+# ================================
+# Development Stage
+# ================================
 FROM node:22-alpine AS development
 
 WORKDIR /app
@@ -16,14 +20,11 @@ RUN npm install
 # Copy source code
 COPY . .
 
-# Expose port
-EXPOSE 4000
-
-# Start development server
+# Default to backend in development (can be overridden in docker-compose)
 CMD ["npm", "run", "start:dev"]
 
 # ================================
-# Build Stage (Import from base)
+# Build Stage (SHARED - runs only once!)
 # ================================
 FROM node:22-alpine AS build
 
@@ -50,16 +51,20 @@ RUN npm rebuild sharp --verbose
 # Copy source code
 COPY . .
 
-# Build application
+# Build application (compiles BOTH main.ts AND worker.ts)
 RUN npm run build
+
+# List dist directory to verify build
+RUN echo "📦 Build completed. Dist directory contents:" && \
+    ls -lah dist/
 
 # Remove dev dependencies
 RUN npm prune --production
 
 # ================================
-# Production Stage (Backend Specific)
+# Production Base (SHARED)
 # ================================
-FROM node:22-alpine AS production
+FROM node:22-alpine AS production-base
 
 WORKDIR /app
 
@@ -70,17 +75,22 @@ RUN apk add --no-cache vips
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001
 
-# Copy built application and production dependencies
+# Copy built application and production dependencies (ONCE!)
 COPY --from=build --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=build --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=build --chown=nestjs:nodejs /app/package.json ./package.json
 
-# Create backend-specific directories with correct permissions
-RUN mkdir -p /tmp/app /app/logs && \
-    chown -R nestjs:nodejs /tmp/app /app/logs
+# Create all necessary directories
+RUN mkdir -p /tmp/app /app/temp/media /app/logs && \
+    chown -R nestjs:nodejs /tmp/app /app/temp /app/logs
 
 # Switch to non-root user
 USER nestjs
+
+# ================================
+# Backend Production
+# ================================
+FROM production-base AS backend-production
 
 # Expose port
 EXPOSE 4000
@@ -89,5 +99,25 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
   CMD node -e "require('http').get('http://localhost:4000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); }).on('error', () => process.exit(1));"
 
-# Start production server (main.js)
+# Start backend API
 CMD ["node", "dist/main.js"]
+
+# ================================
+# Worker Production
+# ================================
+FROM production-base AS worker-production
+
+# Health check for worker
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+  CMD pgrep -f "node dist/worker" || exit 1
+
+# Start worker
+CMD ["node", "dist/worker.js"]
+
+# ================================
+# Final Stage Selector
+# ================================
+FROM ${SERVICE_TYPE}-production AS production
+
+# This stage will be either backend-production or worker-production
+# depending on the SERVICE_TYPE build arg

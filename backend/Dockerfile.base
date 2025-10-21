@@ -1,0 +1,64 @@
+# ================================
+# Base Dockerfile for Backend & Worker
+# This file contains shared build stages
+# ================================
+
+# ================================
+# Development Stage
+# ================================
+FROM node:22-alpine AS development
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json ./
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# This stage is used by both backend and worker in development
+# The CMD will be overridden in docker-compose.yml
+
+# ================================
+# Build Stage (Shared)
+# ================================
+FROM node:22-alpine AS build
+
+WORKDIR /app
+
+# Install build dependencies for native modules (sharp, bcrypt, etc.)
+RUN apk add --no-cache python3 make g++
+
+# Copy package files
+COPY package.json ./
+
+# Install all dependencies (including dev dependencies for build)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Build application (builds both main.ts and worker.ts)
+RUN npm run build
+
+# Remove dev dependencies
+RUN npm prune --production
+
+# ================================
+# Production Base Stage (Shared)
+# ================================
+FROM node:22-alpine AS production-base
+
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nestjs -u 1001
+
+# Copy built application and production dependencies from build stage
+COPY --from=build --chown=nestjs:nodejs /app/dist ./dist
+COPY --from=build --chown=nestjs:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=nestjs:nodejs /app/package.json ./package.json
+
+# This is the shared base - backend and worker will extend this
