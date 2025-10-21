@@ -26,6 +26,10 @@ process.on('uncaughtException', (error) => {
 
 async function bootstrap() {
   try {
+    // Increase max listeners for process to prevent warnings
+    // Multiple modules (Sentry, NestJS, Database, Queue, etc.) add listeners
+    process.setMaxListeners(20);
+
     // Initialize Sentry before creating the app
     initializeSentry();
 

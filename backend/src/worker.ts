@@ -9,6 +9,10 @@ import { WorkerModule } from './worker.module';
  * Starts only the worker processors without the HTTP server
  */
 async function bootstrapWorker() {
+  // Increase max listeners for process to prevent warnings
+  // Multiple modules (Sentry, BullMQ, Database, etc.) add listeners
+  process.setMaxListeners(20);
+
   // Initialize Sentry before creating the app
   initializeSentry();
 
