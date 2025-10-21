@@ -31,12 +31,14 @@ const consoleFormat = winston.format.combine(
 const transports: winston.transport[] = [];
 
 // Console transport (always enabled)
-transports.push(
-  new winston.transports.Console({
-    format: isDevelopment ? consoleFormat : logFormat,
-    level: isDevelopment ? 'debug' : 'info',
-  }),
-);
+const consoleTransport = new winston.transports.Console({
+  format: isDevelopment ? consoleFormat : logFormat,
+  level: isDevelopment ? 'debug' : 'info',
+});
+// Increase max listeners for console transport to prevent warnings
+// Multiple NestJS modules use the logger simultaneously
+consoleTransport.setMaxListeners(50);
+transports.push(consoleTransport);
 
 // File transports only in development
 if (isDevelopment) {
@@ -76,17 +78,18 @@ if (isDevelopment) {
 }
 
 // Exception and rejection handlers
-const exceptionHandlers: winston.transport[] = [
-  new winston.transports.Console({
-    format: logFormat,
-  }),
-];
+const exceptionConsole = new winston.transports.Console({
+  format: logFormat,
+});
+exceptionConsole.setMaxListeners(50);
 
-const rejectionHandlers: winston.transport[] = [
-  new winston.transports.Console({
-    format: logFormat,
-  }),
-];
+const rejectionConsole = new winston.transports.Console({
+  format: logFormat,
+});
+rejectionConsole.setMaxListeners(50);
+
+const exceptionHandlers: winston.transport[] = [exceptionConsole];
+const rejectionHandlers: winston.transport[] = [rejectionConsole];
 
 // Only add file handlers in development
 if (isDevelopment) {

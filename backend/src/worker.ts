@@ -10,8 +10,8 @@ import { WorkerModule } from './worker.module';
  */
 async function bootstrapWorker() {
   // Increase max listeners for process to prevent warnings
-  // Multiple modules (Sentry, BullMQ, Database, etc.) add listeners
-  process.setMaxListeners(20);
+  // Multiple modules (Sentry, BullMQ, Database, MinIO, etc.) add listeners
+  process.setMaxListeners(30);
 
   // Initialize Sentry before creating the app
   initializeSentry();
