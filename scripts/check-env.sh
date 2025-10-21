@@ -81,6 +81,24 @@ done
 echo ""
 echo "=================================="
 
+# Validate DATABASE_URL format
+if grep -q "^DATABASE_URL=" .env; then
+    DB_URL=$(grep "^DATABASE_URL=" .env | cut -d '=' -f2-)
+
+    # Check if DATABASE_URL contains ${POSTGRES_DB} at the end (correct)
+    # or ${POSTGRES_USER} at the end (wrong)
+    if echo "$DB_URL" | grep -q '/\${POSTGRES_USER}$'; then
+        echo ""
+        echo "❌ DATABASE_URL ERROR: Using \${POSTGRES_USER} as database name!"
+        echo "   Current: $DB_URL"
+        echo "   Should be: postgresql://\${POSTGRES_USER}:\${POSTGRES_PASSWORD}@\${POSTGRES_HOST}:\${POSTGRES_PORT}/\${POSTGRES_DB}"
+        echo ""
+        echo "   This will cause error: database \"social_selling_user\" does not exist"
+        echo ""
+        MISSING_VARS+=("DATABASE_URL (incorrect format)")
+    fi
+fi
+
 if [ ${#MISSING_VARS[@]} -gt 0 ]; then
     echo ""
     echo "❌ Missing required variables:"

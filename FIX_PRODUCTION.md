@@ -160,6 +160,54 @@ curl http://localhost:9000/minio/health/live
 
 Esse é um aviso, não é crítico. O Prometheus está tentando coletar métricas mas o endpoint não está implementado ainda.
 
+### Database "social_selling_user" does not exist
+
+**Erro**: Backend tentando conectar ao banco errado.
+
+**Sintoma**:
+```
+FATAL: database "social_selling_user" does not exist
+```
+
+**Causa**: DATABASE_URL usando ${POSTGRES_USER} em vez de ${POSTGRES_DB} no nome do banco.
+
+**Solução**:
+
+```bash
+# Editar .env
+nano .env
+
+# Verificar estas variáveis:
+POSTGRES_DB=social_selling                    # ← Nome do banco
+POSTGRES_USER=social_selling_user             # ← Usuário
+POSTGRES_PASSWORD=sua_senha_aqui
+
+# DATABASE_URL deve usar ${POSTGRES_DB}, NÃO ${POSTGRES_USER}
+DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+
+# OU se preferir hardcoded (não recomendado):
+DATABASE_URL=postgresql://social_selling_user:sua_senha@postgres:5432/social_selling
+```
+
+**Verificar se o banco existe**:
+
+```bash
+docker exec -it social-selling-postgres psql -U social_selling_user -d social_selling -c "\l"
+```
+
+Se o banco não existir, criar:
+
+```bash
+docker exec -it social-selling-postgres psql -U postgres -c "CREATE DATABASE social_selling OWNER social_selling_user;"
+```
+
+**Reiniciar backend**:
+
+```bash
+docker compose restart backend
+docker logs social-selling-backend --tail 50
+```
+
 ### Containers marcados como "unhealthy"
 
 Se `docker compose ps` mostrar backend ou frontend como "unhealthy" mesmo com a aplicação funcionando:
@@ -172,18 +220,34 @@ wget: can't connect to remote host (82.197.93.247): Connection refused
 ```
 
 **Solução**: Já corrigido! O docker-compose.yml agora usa:
-- Backend: `http://localhost:4000/health/ready`
+- Backend: `http://localhost:4000/health`
 - Frontend: `http://localhost:3000`
 
 **Testar manualmente**:
 ```bash
 # Testar health check do backend
-docker exec social-selling-backend wget -qO- http://localhost:4000/health/ready
+docker exec social-selling-backend wget -qO- http://localhost:4000/health
+
+# OU via curl do host
+curl http://localhost:4000/health
 
 # Testar health check do frontend
 docker exec social-selling-frontend wget -qO- http://localhost:3000
 
 # Deve retornar JSON/HTML sem erros
+```
+
+**Resposta esperada do backend**:
+```json
+{
+  "status": "ok",
+  "info": {
+    "redis": {"status": "up"},
+    "memory_heap": {"status": "up"},
+    "memory_rss": {"status": "up"},
+    "storage": {"status": "up"}
+  }
+}
 ```
 
 **Reiniciar para aplicar**:
@@ -199,7 +263,7 @@ docker compose restart backend frontend
 - [ ] Grafana acessível
 - [ ] Prometheus coletando métricas
 - [ ] Sem erros nos logs do backend
-- [ ] Healthcheck passando: `docker exec social-selling-backend wget -qO- http://localhost:4000/health/ready`
+- [ ] Healthcheck passando: `curl http://localhost:4000/health` ou `docker exec social-selling-backend wget -qO- http://localhost:4000/health`
 - [ ] Containers healthy: `docker compose ps` (deve mostrar "healthy" para backend e frontend)
 
 ## Se Nada Funcionar
