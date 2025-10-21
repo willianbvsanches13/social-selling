@@ -67,12 +67,6 @@ export class EmailNotificationsQueue {
   }
 
   private initializeQueue() {
-    console.log('teste ==========> ', {
-      host: this.configService.get('redis.host'),
-      port: this.configService.get('redis.port'),
-      password: this.configService.get('redis.password'),
-      db: this.configService.get('REDIS_DB', 0),
-    }, this.configService);
     const queueOptions: QueueOptions = {
       connection: {
         host: this.configService.get('redis.host'),
