@@ -14,216 +14,155 @@ Esta é uma plataforma SaaS de **Social Selling** que permite gerenciar múltipl
 
 ## 2. Arquitetura do Sistema
 
-### 2.1 Arquitetura Monorepo com Turborepo
+### 2.1 Arquitetura com Yarn Workspaces
 
 ```mermaid
 graph TB
-    subgraph "Turborepo Monorepo"
-        subgraph "Apps"
+    subgraph "Yarn Workspace"
+        subgraph "Frontend"
             WEB[Web App<br/>Next.js 14]
-            WORKERS[Workers App<br/>Node.js]
-            MOBILE[Mobile App<br/>React Native - Opcional]
         end
 
-        subgraph "Packages"
-            UI[UI Package<br/>Shared Components]
-            DB[Database Package<br/>Prisma + Schema]
-            API_CLIENT[API Client<br/>Type-safe API calls]
-            CONFIG[Config<br/>ESLint, TS, Tailwind]
-            UTILS[Utils<br/>Shared utilities]
-            TYPES[Types<br/>Shared TypeScript types]
+        subgraph "Backend"
+            API[API Service<br/>NestJS]
+            WORKER[Background Workers<br/>NestJS Worker]
         end
     end
 
     subgraph "Backend Services"
-        AUTH[Auth Service<br/>Supabase Auth]
-        REALTIME[Real-time Service<br/>Supabase Realtime]
+        AUTH[Authentication<br/>JWT + Passport]
+        REALTIME[Real-time<br/>WebSocket]
         QUEUE[Job Queue<br/>BullMQ]
     end
 
     subgraph "Data Layer"
-        SUPABASE_DB[(PostgreSQL<br/>Supabase)]
-        CACHE[(Redis<br/>Upstash)]
-        STORAGE[File Storage<br/>Supabase Storage]
+        POSTGRES[(PostgreSQL<br/>Database)]
+        REDIS[(Redis<br/>Cache & Queue)]
+        STORAGE[File Storage<br/>MinIO]
     end
 
     subgraph "External APIs"
         META[Meta Graph API<br/>Instagram & WhatsApp]
     end
 
-    WEB --> UI
-    WEB --> DB
-    WEB --> API_CLIENT
-    WEB --> CONFIG
-    WEB --> TYPES
-
-    WORKERS --> DB
-    WORKERS --> UTILS
-    WORKERS --> TYPES
-    WORKERS --> QUEUE
-
-    MOBILE --> UI
-    MOBILE --> API_CLIENT
-    MOBILE --> TYPES
-
-    WEB --> AUTH
+    WEB --> API
     WEB --> REALTIME
-    WEB --> SUPABASE_DB
-    WEB --> CACHE
-    WEB --> QUEUE
 
-    WORKERS --> META
-    WORKERS --> SUPABASE_DB
-    WORKERS --> CACHE
+    API --> POSTGRES
+    API --> REDIS
+    API --> QUEUE
+    API --> STORAGE
 
-    META -.Webhooks.-> WEB
+    WORKER --> QUEUE
+    WORKER --> POSTGRES
+    WORKER --> META
+    WORKER --> REDIS
+
+    META -.Webhooks.-> API
 ```
 
-### 2.2 Benefícios do Turborepo
+### 2.2 Benefícios da Estrutura
 
-- **Build Cache**: Cache inteligente de builds entre apps e packages
-- **Parallel Execution**: Execução paralela de tasks com dependências
-- **Remote Caching**: Cache compartilhado entre desenvolvedores
-- **Incremental Builds**: Rebuild apenas o que mudou
-- **Type Safety**: TypeScript compartilhado entre todos os packages
-- **Code Sharing**: Reutilização de código entre web, mobile e workers
+- **Code Sharing**: Compartilhamento de código entre frontend e backend via workspace
+- **Type Safety**: TypeScript compartilhado para types comuns
+- **Simplified Build**: Gerenciamento centralizado de dependências com Yarn
+- **Parallel Development**: Frontend e backend podem ser desenvolvidos em paralelo
+- **Unified Testing**: Testes E2E com Playwright integrando frontend e backend
 
 ---
 
-## 3. Stack Tecnológica Recomendada
+## 3. Stack Tecnológica
 
-### Monorepo
-```typescript
-// Build System
-- Turborepo 2.x
-- pnpm (package manager)
-- Changesets (versioning)
-
-// Shared Configuration
-- TypeScript 5.x
-- ESLint + Prettier
-- Tailwind CSS (shared config)
-```
-
-### Apps
-
-**Web App (Next.js)**
+### Frontend (Next.js)
 ```typescript
 // Framework
-- Next.js 14+ (App Router)
+- Next.js 14 (App Router)
 - React 18+
 - TypeScript 5.x
 
 // UI & Styling
 - TailwindCSS 3.x
-- Shadcn/ui (component library)
-- Framer Motion (animations)
+- Radix UI (component primitives)
+- Lucide React (icons)
+- class-variance-authority (variants)
 
 // State Management
 - Zustand (client state)
-- React Query / TanStack Query (server state)
-
-// Real-time
-- Supabase Realtime Client
-- WebSocket support
+- TanStack Query / React Query (server state)
 
 // Forms & Validation
 - React Hook Form
 - Zod (schema validation)
+- @hookform/resolvers
 
 // Charts & Analytics
 - Recharts
-- Date-fns
+- React Big Calendar
+- Date-fns & Moment.js
+
+// Additional Features
+- React DnD (drag and drop)
+- React Dropzone (file uploads)
+- React Hot Toast (notifications)
 ```
 
-**Workers App (Node.js)**
+### Backend (NestJS)
 ```typescript
-// Runtime
+// Framework
+- NestJS 11.x
 - Node.js 20+
 - TypeScript 5.x
 
+// Database & ORM
+- PostgreSQL (via pg-promise)
+- SQL Migrations
+
 // Background Jobs
 - BullMQ (job queue)
-- node-cron (scheduling)
 - IORedis (Redis client)
 
+// Authentication & Security
+- Passport JWT
+- bcrypt (password hashing)
+- @nestjs/throttler (rate limiting)
+
+// API & Documentation
+- Swagger/OpenAPI (@nestjs/swagger)
+- Class Validator & Transformer
+
+// File Storage
+- MinIO (S3-compatible storage)
+- Sharp (image processing)
+
+// Email Services
+- SendGrid
+- Mailgun.js
+- MJML (email templates)
+- Handlebars (templating)
+
+// Monitoring & Logging
+- Sentry (error tracking)
+- Winston (logging)
+- Prometheus (metrics)
+- @nestjs/terminus (health checks)
+
 // API Clients
-- @facebook/graph-api (Instagram)
-- whatsapp-cloud-api (WhatsApp Business)
 - Axios (HTTP client)
-```
-
-**Mobile App (Opcional)**
-```typescript
-// Framework
-- React Native / Expo
-- TypeScript 5.x
-
-// Navigation
-- React Navigation
-
-// State
-- Zustand
-- React Query
-```
-
-### Packages
-
-**@repo/database**
-```typescript
-- Prisma ORM 5.x
-- Supabase Client
-- PostgreSQL types
-```
-
-**@repo/ui**
-```typescript
-- Shared React components
-- Shadcn/ui components
-- Tailwind CSS
-- Storybook (documentation)
-```
-
-**@repo/api-client**
-```typescript
-- Type-safe API client
-- OpenAPI/tRPC
-- Zod validation
-```
-
-**@repo/config**
-```typescript
-- ESLint config
-- TypeScript config
-- Tailwind config
-- Prettier config
-```
-
-**@repo/types**
-```typescript
-- Shared TypeScript types
-- API types
-- Database types
-```
-
-**@repo/lib**
-```typescript
-- Utility functions
-- Shared business logic
-- Constants
-- Helpers
+- Form Data (multipart)
 ```
 
 ### Infrastructure
 ```yaml
-Hosting: Vercel (Next.js) + Railway (Workers)
-Database: Supabase (PostgreSQL + Real-time)
-Cache: Upstash Redis
-Storage: Supabase Storage
-CDN: Cloudflare (para mídia)
-Queue: Upstash Redis + BullMQ
-Monitoring: Sentry + Vercel Analytics
-CI/CD: GitHub Actions + Turborepo Remote Cache
+Frontend: Next.js standalone server
+Backend API: NestJS application
+Workers: NestJS worker processes
+Database: PostgreSQL 13+
+Cache/Queue: Redis 7+
+Storage: MinIO (S3-compatible)
+Monitoring: Prometheus + Grafana + Sentry
+Container: Docker + Docker Compose
+Proxy: Nginx (reverse proxy & SSL)
+CI/CD: GitHub Actions
 ```
 
 ---
@@ -232,114 +171,148 @@ CI/CD: GitHub Actions + Turborepo Remote Cache
 
 ```mermaid
 erDiagram
-    USERS ||--o{ WORKSPACES : owns
-    WORKSPACES ||--o{ TEAM_MEMBERS : has
-    WORKSPACES ||--o{ SOCIAL_ACCOUNTS : manages
+    USERS ||--o{ CLIENT_ACCOUNTS : manages
+    CLIENT_ACCOUNTS ||--o{ OAUTH_TOKENS : has
+    CLIENT_ACCOUNTS ||--o{ CONVERSATIONS : receives
+    CLIENT_ACCOUNTS ||--o{ INSTAGRAM_MEDIA : has
+    CLIENT_ACCOUNTS ||--o{ ANALYTICS : generates
 
-    SOCIAL_ACCOUNTS ||--o{ INSTAGRAM_POSTS : has
-    SOCIAL_ACCOUNTS ||--o{ INSTAGRAM_STORIES : has
-    SOCIAL_ACCOUNTS ||--o{ INSTAGRAM_MESSAGES : receives
-    SOCIAL_ACCOUNTS ||--o{ WHATSAPP_MESSAGES : receives
-    SOCIAL_ACCOUNTS ||--o{ ANALYTICS_DATA : generates
+    CONVERSATIONS ||--o{ MESSAGES : contains
+    MESSAGES ||--o{ MESSAGE_PRODUCTS : references
 
-    INSTAGRAM_POSTS ||--o{ POST_COMMENTS : has
-    INSTAGRAM_POSTS ||--o{ POST_MEDIA : contains
-    INSTAGRAM_POSTS }o--|| SCHEDULED_POSTS : schedules
+    PRODUCTS ||--o{ PRODUCT_LINKS : has
+    PRODUCTS ||--o{ MESSAGE_PRODUCTS : referenced_in
 
-    WHATSAPP_MESSAGES ||--o{ MESSAGE_TEMPLATES : uses
+    INSTAGRAM_MESSAGE_TEMPLATES ||--|| CLIENT_ACCOUNTS : belongs_to
+    INSTAGRAM_QUICK_REPLIES ||--|| CLIENT_ACCOUNTS : belongs_to
 
     USERS {
         uuid id PK
         string email
         string password_hash
-        string name
-        string avatar_url
+        string full_name
+        string role
         timestamp created_at
         timestamp updated_at
     }
 
-    WORKSPACES {
+    CLIENT_ACCOUNTS {
         uuid id PK
-        uuid owner_id FK
-        string name
-        string plan
-        jsonb settings
-        timestamp created_at
-    }
-
-    TEAM_MEMBERS {
-        uuid id PK
-        uuid workspace_id FK
         uuid user_id FK
-        string role
-        jsonb permissions
-    }
-
-    SOCIAL_ACCOUNTS {
-        uuid id PK
-        uuid workspace_id FK
         string platform
-        string account_id
+        string instagram_account_id
+        string whatsapp_phone_number
         string username
-        jsonb credentials
-        jsonb settings
         boolean is_active
+        jsonb settings
         timestamp last_synced_at
     }
 
-    INSTAGRAM_POSTS {
+    OAUTH_TOKENS {
         uuid id PK
-        uuid account_id FK
-        string post_id
-        string caption
-        string post_type
-        jsonb media_urls
-        integer likes_count
-        integer comments_count
-        timestamp published_at
+        uuid client_account_id FK
+        string platform
+        string access_token
+        string refresh_token
+        timestamp expires_at
     }
 
-    INSTAGRAM_MESSAGES {
+    CONVERSATIONS {
         uuid id PK
-        uuid account_id FK
+        uuid client_account_id FK
+        string platform
         string conversation_id
+        string participant_id
+        string participant_name
+        string status
+        timestamp last_message_at
+    }
+
+    MESSAGES {
+        uuid id PK
+        uuid conversation_id FK
+        string message_id
         string sender_id
-        text message
-        jsonb attachments
-        boolean is_read
-        timestamp created_at
-    }
-
-    WHATSAPP_MESSAGES {
-        uuid id PK
-        uuid account_id FK
-        string conversation_id
-        string from_number
-        text message
-        string status
+        string message_type
+        text content
         jsonb metadata
-        timestamp created_at
+        boolean is_read
+        timestamp sent_at
     }
 
-    SCHEDULED_POSTS {
+    PRODUCTS {
         uuid id PK
-        uuid account_id FK
-        string caption
-        jsonb media_files
-        timestamp scheduled_for
-        string status
-        jsonb error_log
+        uuid user_id FK
+        string name
+        text description
+        decimal price
+        string image_url
+        boolean is_active
     }
 
-    ANALYTICS_DATA {
+    PRODUCT_LINKS {
         uuid id PK
-        uuid account_id FK
+        uuid product_id FK
+        string platform
+        string link_url
+        boolean is_active
+    }
+
+    MESSAGE_PRODUCTS {
+        uuid message_id FK
+        uuid product_id FK
+        timestamp linked_at
+    }
+
+    ANALYTICS {
+        uuid id PK
+        uuid client_account_id FK
+        string platform
         date date
         integer followers_count
         integer engagement_rate
         integer reach
         integer impressions
         jsonb metrics
+    }
+
+    INSTAGRAM_MEDIA {
+        uuid id PK
+        uuid client_account_id FK
+        string media_id
+        string media_type
+        string media_url
+        text caption
+        integer like_count
+        integer comment_count
+        timestamp published_at
+    }
+
+    INSTAGRAM_MESSAGE_TEMPLATES {
+        uuid id PK
+        uuid client_account_id FK
+        string name
+        text content
+        string category
+        boolean is_active
+    }
+
+    INSTAGRAM_QUICK_REPLIES {
+        uuid id PK
+        uuid client_account_id FK
+        string shortcut
+        text message
+        boolean is_active
+    }
+
+    NOTIFICATIONS {
+        uuid id PK
+        uuid user_id FK
+        string type
+        text message
+        jsonb metadata
+        boolean is_read
+        timestamp created_at
     }
 ```
 
@@ -547,7 +520,7 @@ graph LR
 - ✅ Moderar comentários (aprovar/deletar/ocultar)
 - ✅ Responder DMs
 - ✅ Organizar conversas (labels, arquivar)
-- ✅ Mensagens rápidas (templates)
+- ✅ Mensagens rápidas (templates & quick replies)
 
 **Analytics:**
 - ✅ Crescimento de seguidores
@@ -677,56 +650,52 @@ sequenceDiagram
 ```mermaid
 graph TB
     subgraph "Auth Flow"
-        LOGIN[Login] --> SUPABASE_AUTH[Supabase Auth]
-        SUPABASE_AUTH --> JWT[JWT Token]
-        JWT --> SESSION[Session Management]
+        LOGIN[Login] --> JWT_AUTH[JWT Authentication]
+        JWT_AUTH --> TOKEN[Access & Refresh Tokens]
+        TOKEN --> SESSION[Session Management]
     end
 
     subgraph "Authorization Levels"
-        OWNER[Owner]
         ADMIN[Admin]
-        MEMBER[Member]
-        VIEWER[Viewer]
+        USER[User]
+        CLIENT[Client]
     end
 
     subgraph "Permissions"
-        P1[Manage Accounts]
-        P2[Publish Content]
-        P3[Respond Messages]
-        P4[View Analytics]
-        P5[Manage Team]
+        P1[Manage All Accounts]
+        P2[Manage Own Accounts]
+        P3[Publish Content]
+        P4[Respond Messages]
+        P5[View Analytics]
     end
 
-    OWNER --> P1 & P2 & P3 & P4 & P5
-    ADMIN --> P1 & P2 & P3 & P4
-    MEMBER --> P2 & P3 & P4
-    VIEWER --> P4
+    ADMIN --> P1 & P3 & P4 & P5
+    USER --> P2 & P3 & P4 & P5
+    CLIENT --> P5
 ```
 
-**Row Level Security (RLS) no Supabase:**
-```sql
--- Exemplo: Apenas membros do workspace podem ver suas contas
-CREATE POLICY "Users can view workspace social accounts"
-ON social_accounts FOR SELECT
-USING (
-  workspace_id IN (
-    SELECT workspace_id
-    FROM team_members
-    WHERE user_id = auth.uid()
-  )
-);
+**Implementação com Passport JWT:**
+```typescript
+// JWT Strategy
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(configService: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get('JWT_SECRET'),
+    });
+  }
 
--- Apenas owners e admins podem deletar posts
-CREATE POLICY "Only owners/admins can delete posts"
-ON instagram_posts FOR DELETE
-USING (
-  account_id IN (
-    SELECT sa.id FROM social_accounts sa
-    JOIN team_members tm ON tm.workspace_id = sa.workspace_id
-    WHERE tm.user_id = auth.uid()
-    AND tm.role IN ('owner', 'admin')
-  )
-);
+  async validate(payload: any) {
+    return { userId: payload.sub, email: payload.email, role: payload.role };
+  }
+}
+
+// Guards
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin', 'user')
+export class ProtectedController {}
 ```
 
 ---
@@ -754,25 +723,26 @@ const whatsappWebhookEvents = [
 ];
 
 // Handler Example
-export async function POST(req: Request) {
-  const signature = req.headers.get('x-hub-signature-256');
-  const body = await req.text();
+@Controller('webhooks')
+export class WebhooksController {
+  @Post('instagram')
+  async handleInstagramWebhook(@Req() req: Request, @Res() res: Response) {
+    const signature = req.headers['x-hub-signature-256'];
 
-  // Verificar assinatura
-  if (!verifySignature(body, signature)) {
-    return new Response('Unauthorized', { status: 401 });
+    // Verificar assinatura
+    if (!this.verifySignature(req.body, signature)) {
+      throw new UnauthorizedException();
+    }
+
+    // Processar via queue para não bloquear
+    await this.queueService.add('process-webhook', {
+      platform: 'instagram',
+      event: req.body.entry[0].changes[0],
+      timestamp: Date.now()
+    });
+
+    return res.status(200).send('OK');
   }
-
-  const data = JSON.parse(body);
-
-  // Processar via queue para não bloquear
-  await queue.add('process-webhook', {
-    platform: 'instagram', // ou 'whatsapp'
-    event: data.entry[0].changes[0],
-    timestamp: Date.now()
-  });
-
-  return new Response('OK', { status: 200 });
 }
 ```
 
@@ -780,48 +750,47 @@ export async function POST(req: Request) {
 
 ## 10. Considerações de Segurança
 
-### 10.1 Proteções Necessárias
+### 10.1 Proteções Implementadas
 
 ```typescript
 // 1. Rate Limiting
-import { Ratelimit } from '@upstash/ratelimit';
-import { kv } from '@vercel/kv';
-
-const ratelimit = new Ratelimit({
-  redis: kv,
-  limiter: Ratelimit.slidingWindow(10, '10 s'),
-});
+@UseGuards(ThrottlerGuard)
+@Controller('api')
+export class ApiController {}
 
 // 2. Validação de Webhooks
-function verifySignature(payload: string, signature: string): boolean {
+verifySignature(payload: string, signature: string): boolean {
   const expectedSignature = crypto
-    .createHmac('sha256', process.env.APP_SECRET!)
+    .createHmac('sha256', process.env.APP_SECRET)
     .update(payload)
     .digest('hex');
   return signature === `sha256=${expectedSignature}`;
 }
 
-// 3. Encriptação de Tokens
-import { encrypt, decrypt } from '@/lib/encryption';
-
-async function saveCredentials(accountId: string, tokens: any) {
-  await db.socialAccounts.update({
-    where: { id: accountId },
-    data: {
-      credentials: encrypt(JSON.stringify(tokens))
-    }
-  });
-}
+// 3. Encriptação de Tokens (em desenvolvimento)
+// Tokens sensíveis devem ser encriptados antes de salvar no banco
 
 // 4. Sanitização de Inputs
-import DOMPurify from 'isomorphic-dompurify';
+import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
 
-function sanitizeCaption(text: string): string {
-  return DOMPurify.sanitize(text, {
-    ALLOWED_TAGS: [],
-    ALLOWED_ATTR: []
-  });
+export class CreatePostDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(2200)
+  caption: string;
 }
+
+// 5. CORS Configuration
+app.enableCors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+});
+
+// 6. Helmet para security headers
+app.use(helmet());
+
+// 7. CSRF Protection (cookie-parser)
+app.use(cookieParser());
 ```
 
 ### 10.2 Compliance
@@ -829,7 +798,7 @@ function sanitizeCaption(text: string): string {
 - ✅ **LGPD/GDPR**: Consentimento explícito para acesso às contas
 - ✅ **Meta Platform Terms**: Respeitar limites de taxa e políticas
 - ✅ **Retenção de Dados**: Políticas claras de armazenamento
-- ✅ **Audit Logs**: Registrar todas as ações sensíveis
+- ✅ **Audit Logs**: Registrar todas as ações sensíveis (em implementação)
 
 ---
 
@@ -839,50 +808,69 @@ function sanitizeCaption(text: string): string {
 graph TB
     subgraph "Development"
         DEV[Local Dev<br/>Docker Compose]
-        STAGING[Staging<br/>Vercel Preview]
+        TESTS[E2E Tests<br/>Playwright]
     end
 
     subgraph "Production"
-        PROD[Vercel Production]
-        DB[Supabase Production]
-        REDIS[Upstash Redis]
-        STORAGE[Supabase Storage]
+        NGINX[Nginx<br/>Reverse Proxy]
+        FRONTEND[Next.js<br/>Frontend]
+        API[NestJS API]
+        WORKER[NestJS Worker]
+        DB[PostgreSQL]
+        REDIS[Redis]
+        MINIO[MinIO Storage]
     end
 
     subgraph "Monitoring"
-        SENTRY[Sentry<br/>Error Tracking]
-        ANALYTICS[Vercel Analytics]
-        LOGS[Supabase Logs]
+        PROMETHEUS[Prometheus]
+        GRAFANA[Grafana]
+        SENTRY[Sentry]
+        WINSTON[Winston Logs]
     end
 
-    subgraph "CI/CD"
-        GH[GitHub Actions]
-        TESTS[Unit & E2E Tests]
-    end
+    DEV --> TESTS
+    TESTS --> NGINX
 
-    DEV --> STAGING
-    STAGING --> GH
-    GH --> TESTS
-    TESTS --> PROD
+    NGINX --> FRONTEND
+    NGINX --> API
 
-    PROD --> DB
-    PROD --> REDIS
-    PROD --> STORAGE
+    API --> DB
+    API --> REDIS
+    API --> MINIO
 
-    PROD --> SENTRY
-    PROD --> ANALYTICS
-    DB --> LOGS
+    WORKER --> REDIS
+    WORKER --> DB
+
+    API --> PROMETHEUS
+    WORKER --> PROMETHEUS
+    PROMETHEUS --> GRAFANA
+    API --> SENTRY
+    API --> WINSTON
 ```
 
 ### Environment Variables
 
 ```bash
-# .env.local
+# .env
 
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=social_selling
+DATABASE_USER=postgres
+DATABASE_PASSWORD=
+DATABASE_SSL=false
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# JWT
+JWT_SECRET=
+JWT_EXPIRES_IN=1d
+JWT_REFRESH_SECRET=
+JWT_REFRESH_EXPIRES_IN=7d
 
 # Meta/Facebook
 META_APP_ID=
@@ -893,104 +881,60 @@ META_WEBHOOK_VERIFY_TOKEN=
 WHATSAPP_PHONE_NUMBER_ID=
 WHATSAPP_BUSINESS_ACCOUNT_ID=
 
-# Redis/Queue
-UPSTASH_REDIS_URL=
-UPSTASH_REDIS_TOKEN=
+# MinIO/S3
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_ACCESS_KEY=
+MINIO_SECRET_KEY=
+MINIO_BUCKET_NAME=social-selling
 
-# Encryption
-ENCRYPTION_KEY=
+# Email
+SENDGRID_API_KEY=
+MAILGUN_API_KEY=
+MAILGUN_DOMAIN=
 
 # Monitoring
 SENTRY_DSN=
+
+# Frontend
+NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 ---
 
-## 12. Roadmap de Desenvolvimento
-
-### Fase 1: MVP (2-3 meses)
-- ✅ Setup infraestrutura (Supabase, Vercel)
-- ✅ Autenticação e gestão de usuários
-- ✅ Conexão Instagram (OAuth)
-- ✅ Publicação de posts básicos
-- ✅ Visualização de métricas básicas
-- ✅ Inbox Instagram DMs
-
-### Fase 2: WhatsApp Integration (1-2 meses)
-- ✅ Conexão WhatsApp Business
-- ✅ Envio/recebimento de mensagens
-- ✅ Templates de mensagem
-- ✅ Auto-resposta básica
-- ✅ Analytics WhatsApp
-
-### Fase 3: Automation (1-2 meses)
-- ✅ Sistema de agendamento robusto
-- ✅ Calendário editorial
-- ✅ Biblioteca de conteúdo
-- ✅ Chatbot WhatsApp
-- ✅ Respostas rápidas
-
-### Fase 4: Advanced Analytics (1 mês)
-- ✅ Dashboards personalizáveis
-- ✅ Relatórios exportáveis (PDF)
-- ✅ Comparativos de performance
-- ✅ Sugestões baseadas em AI
-- ✅ Melhores horários para postar
-
-### Fase 5: Scale & Polish (Contínuo)
-- ✅ Multi-tenancy otimizado
-- ✅ Mobile app
-- ✅ Integrações adicionais (TikTok, LinkedIn)
-- ✅ AI Content Assistant
-- ✅ White-label options
-
----
-
-## 13. Estimativa de Custos Mensais
-
-```typescript
-// Estimativa para 100 contas de clientes ativos
-
-Supabase (Pro):           $25/mês
-  - Database
-  - Auth
-  - Realtime
-  - Storage (50GB)
-
-Vercel (Pro):             $20/mês
-  - Hosting
-  - Edge Functions
-  - Analytics
-
-Upstash Redis:            $20/mês
-  - Queue processing
-  - Caching
-
-Meta APIs:                $0
-  - Instagram Graph API: Free
-  - WhatsApp Business: Free (até 1000 conversas/mês)
-  - Após isso: $0.005-0.009 por conversa
-
-Sentry:                   $26/mês
-  - Error tracking
-
-CDN (Cloudflare):         $20/mês
-  - Média/Imagem delivery
-
-Estimativa Total:         ~$111/mês (inicial)
-
-// Com escala (1000+ contas):
-// $300-500/mês dependendo do uso de WhatsApp
-```
-
----
-
-## 14. Estrutura de Diretórios (Turborepo)
+## 12. Estrutura de Diretórios
 
 ```
 social-selling-platform/
-├── apps/
-│   ├── web/                      # Next.js Web Application
+├── backend/                     # NestJS Backend
+│   ├── src/
+│   │   ├── modules/
+│   │   │   ├── auth/           # Authentication
+│   │   │   ├── users/          # User management
+│   │   │   ├── client-accounts/ # Client accounts
+│   │   │   ├── instagram/      # Instagram integration
+│   │   │   ├── whatsapp/       # WhatsApp integration
+│   │   │   ├── conversations/  # Conversations & messages
+│   │   │   ├── products/       # Product management
+│   │   │   ├── analytics/      # Analytics & insights
+│   │   │   ├── notifications/  # Notifications
+│   │   │   └── webhooks/       # Webhook handlers
+│   │   ├── common/
+│   │   │   ├── decorators/
+│   │   │   ├── guards/
+│   │   │   ├── interceptors/
+│   │   │   ├── pipes/
+│   │   │   └── filters/
+│   │   ├── config/
+│   │   ├── database/
+│   │   ├── main.ts            # API entry point
+│   │   └── worker.ts          # Worker entry point
+│   ├── migrations/            # SQL migrations
+│   ├── test/
+│   └── package.json
+│
+├── frontend/                   # Next.js Frontend
+│   ├── src/
 │   │   ├── app/
 │   │   │   ├── (auth)/
 │   │   │   │   ├── login/
@@ -1001,359 +945,174 @@ social-selling-platform/
 │   │   │   │   ├── posts/
 │   │   │   │   ├── inbox/
 │   │   │   │   ├── analytics/
+│   │   │   │   ├── products/
 │   │   │   │   └── settings/
-│   │   │   ├── api/
-│   │   │   │   ├── auth/
-│   │   │   │   ├── instagram/
-│   │   │   │   ├── whatsapp/
-│   │   │   │   ├── posts/
-│   │   │   │   ├── messages/
-│   │   │   │   └── webhooks/
-│   │   │   └── layout.tsx
+│   │   │   └── api/          # API routes (optional)
 │   │   ├── components/
+│   │   │   ├── ui/           # Radix UI components
 │   │   │   ├── dashboard/
 │   │   │   ├── posts/
 │   │   │   ├── inbox/
 │   │   │   └── analytics/
 │   │   ├── hooks/
 │   │   ├── lib/
-│   │   ├── public/
-│   │   ├── styles/
-│   │   ├── next.config.js
-│   │   ├── package.json
-│   │   ├── tailwind.config.ts
-│   │   └── tsconfig.json
-│   │
-│   ├── workers/                  # Background Workers
-│   │   ├── src/
-│   │   │   ├── jobs/
-│   │   │   │   ├── post-scheduler.ts
-│   │   │   │   ├── message-handler.ts
-│   │   │   │   ├── analytics-collector.ts
-│   │   │   │   └── webhook-processor.ts
-│   │   │   ├── services/
-│   │   │   │   ├── instagram.service.ts
-│   │   │   │   ├── whatsapp.service.ts
-│   │   │   │   └── queue.service.ts
-│   │   │   ├── queues/
-│   │   │   │   ├── posts.queue.ts
-│   │   │   │   ├── messages.queue.ts
-│   │   │   │   └── analytics.queue.ts
-│   │   │   └── index.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   └── mobile/                   # React Native App (opcional)
-│       ├── src/
-│       ├── package.json
-│       └── tsconfig.json
+│   │   │   ├── api.ts        # API client
+│   │   │   ├── utils.ts
+│   │   │   └── constants.ts
+│   │   ├── stores/           # Zustand stores
+│   │   ├── types/
+│   │   └── styles/
+│   ├── public/
+│   ├── next.config.js
+│   ├── tailwind.config.ts
+│   └── package.json
 │
-├── packages/
-│   ├── database/                 # Prisma + Database Logic
-│   │   ├── prisma/
-│   │   │   ├── schema.prisma
-│   │   │   ├── migrations/
-│   │   │   └── seed.ts
-│   │   ├── src/
-│   │   │   ├── client.ts
-│   │   │   ├── queries/
-│   │   │   └── mutations/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── ui/                       # Shared UI Components
-│   │   ├── src/
-│   │   │   ├── components/
-│   │   │   │   ├── ui/           # Shadcn components
-│   │   │   │   │   ├── button.tsx
-│   │   │   │   │   ├── card.tsx
-│   │   │   │   │   ├── input.tsx
-│   │   │   │   │   └── ...
-│   │   │   │   ├── analytics/
-│   │   │   │   ├── charts/
-│   │   │   │   └── forms/
-│   │   │   └── index.ts
-│   │   ├── package.json
-│   │   ├── tailwind.config.ts
-│   │   └── tsconfig.json
-│   │
-│   ├── api-client/               # Type-safe API Client
-│   │   ├── src/
-│   │   │   ├── client.ts
-│   │   │   ├── endpoints/
-│   │   │   │   ├── instagram.ts
-│   │   │   │   ├── whatsapp.ts
-│   │   │   │   ├── posts.ts
-│   │   │   │   └── analytics.ts
-│   │   │   └── index.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── types/                    # Shared TypeScript Types
-│   │   ├── src/
-│   │   │   ├── api/
-│   │   │   ├── database/
-│   │   │   ├── instagram/
-│   │   │   ├── whatsapp/
-│   │   │   └── index.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   ├── lib/                      # Shared Utilities
-│   │   ├── src/
-│   │   │   ├── supabase/
-│   │   │   ├── encryption/
-│   │   │   ├── validation/
-│   │   │   ├── queue/
-│   │   │   ├── constants/
-│   │   │   └── utils/
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   │
-│   └── config/                   # Shared Configurations
-│       ├── eslint/
-│       │   ├── base.js
-│       │   ├── next.js
-│       │   └── react.js
-│       ├── typescript/
-│       │   ├── base.json
-│       │   ├── nextjs.json
-│       │   └── react.json
-│       ├── tailwind/
-│       │   └── tailwind.config.ts
-│       └── package.json
+├── infrastructure/            # Infrastructure configs
+│   ├── nginx/
+│   ├── prometheus/
+│   ├── grafana/
+│   └── docker/
 │
-├── .github/
-│   └── workflows/
-│       ├── ci.yml
-│       ├── deploy-web.yml
-│       └── deploy-workers.yml
+├── scripts/                  # Utility scripts
+│   ├── start.sh
+│   ├── stop.sh
+│   ├── logs.sh
+│   └── status.sh
 │
-├── docs/
-│   ├── OVERVIEW.md
-│   ├── API.md
-│   └── SETUP.md
+├── e2e/                      # E2E tests (Playwright)
+│   ├── tests/
+│   └── fixtures/
 │
-├── turbo.json                    # Turborepo configuration
-├── package.json                  # Root package.json
-├── pnpm-workspace.yaml          # pnpm workspace config
-├── .env.example
-├── .gitignore
-└── README.md
+├── docker-compose.yml
+├── docker-compose.unified.yml
+├── package.json              # Root workspace config
+└── yarn.lock
 ```
 
 ---
 
-## 15. Configuração do Turborepo
-
-### 15.1 turbo.json
-
-```json
-{
-  "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local"],
-  "pipeline": {
-    "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
-    },
-    "dev": {
-      "cache": false,
-      "persistent": true
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "type-check": {
-      "dependsOn": ["^type-check"]
-    },
-    "test": {
-      "dependsOn": ["^build"],
-      "outputs": ["coverage/**"],
-      "inputs": ["src/**/*.tsx", "src/**/*.ts", "test/**/*.ts"]
-    },
-    "db:migrate": {
-      "cache": false
-    },
-    "db:push": {
-      "cache": false
-    },
-    "db:seed": {
-      "cache": false
-    }
-  }
-}
-```
-
-### 15.2 package.json (root)
-
-```json
-{
-  "name": "social-selling-platform",
-  "version": "1.0.0",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "type-check": "turbo run type-check",
-    "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "db:migrate": "turbo run db:migrate",
-    "db:push": "turbo run db:push",
-    "db:seed": "turbo run db:seed",
-    "web:dev": "turbo run dev --filter=web",
-    "workers:dev": "turbo run dev --filter=workers"
-  },
-  "devDependencies": {
-    "turbo": "^2.0.0",
-    "prettier": "^3.0.0",
-    "@repo/config": "workspace:*"
-  },
-  "packageManager": "pnpm@8.15.0",
-  "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
-  }
-}
-```
-
-### 15.3 pnpm-workspace.yaml
-
-```yaml
-packages:
-  - "apps/*"
-  - "packages/*"
-```
-
-### 15.4 Exemplo de package.json (@repo/ui)
-
-```json
-{
-  "name": "@repo/ui",
-  "version": "0.0.0",
-  "private": true,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
-  "scripts": {
-    "lint": "eslint . --max-warnings 0",
-    "type-check": "tsc --noEmit",
-    "build": "tsup src/index.ts --format esm,cjs --dts",
-    "dev": "tsup src/index.ts --format esm,cjs --dts --watch"
-  },
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  },
-  "devDependencies": {
-    "@repo/config": "workspace:*",
-    "@repo/types": "workspace:*",
-    "@types/react": "^18.0.0",
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.0.0",
-    "tailwind-merge": "^2.0.0"
-  }
-}
-```
-
-### 15.5 Exemplo de package.json (apps/web)
-
-```json
-{
-  "name": "web",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "type-check": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@repo/database": "workspace:*",
-    "@repo/ui": "workspace:*",
-    "@repo/api-client": "workspace:*",
-    "@repo/types": "workspace:*",
-    "@repo/lib": "workspace:*",
-    "next": "14.2.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@supabase/supabase-js": "^2.39.0",
-    "zustand": "^4.5.0",
-    "@tanstack/react-query": "^5.0.0"
-  },
-  "devDependencies": {
-    "@repo/config": "workspace:*",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "typescript": "^5",
-    "tailwindcss": "^3.4.0"
-  }
-}
-```
-
-### 15.6 Comandos Úteis do Turborepo
+## 13. Comandos Úteis
 
 ```bash
 # Desenvolvimento
-pnpm dev                    # Roda dev em todos os apps
-pnpm web:dev               # Roda apenas o web app
-pnpm workers:dev           # Roda apenas os workers
+yarn dev                    # Roda backend API
+yarn dev:frontend          # Roda frontend
+yarn dev:workers           # Roda workers
 
 # Build
-pnpm build                 # Build de todos os apps e packages
-pnpm build --filter=web    # Build apenas do web app
+yarn build                 # Build todos os workspaces
 
-# Testing e Linting
-pnpm lint                  # Lint em todo o monorepo
-pnpm type-check            # Type check em todo o monorepo
-pnpm test                  # Tests em todo o monorepo
+# Testing
+yarn test                  # Testes unitários
+yarn test:e2e              # Testes E2E
+yarn test:e2e:ui           # Testes E2E com UI
+
+# Linting
+yarn lint                  # Lint em todos os workspaces
 
 # Database
-pnpm db:migrate            # Roda migrations
-pnpm db:push               # Push schema para DB
-pnpm db:seed               # Seed do database
+cd backend
+npm run migrate:up         # Roda migrations
+npm run migrate:down       # Reverte última migration
+npm run migrate:status     # Status das migrations
+npm run db:seed            # Seed do database
 
-# Limpeza
-pnpm clean                 # Limpa build artifacts e node_modules
+# Docker
+docker-compose up -d       # Inicia todos os serviços
+docker-compose down        # Para todos os serviços
+docker-compose logs -f     # Vê logs em tempo real
 
-# Adicionar dependências
-pnpm add <package> --filter=web              # Adiciona ao web app
-pnpm add <package> --filter=@repo/ui         # Adiciona ao package ui
-pnpm add -w <package>                        # Adiciona ao workspace root
+# Scripts personalizados
+./start.sh                 # Inicia ambiente completo
+./stop.sh                  # Para ambiente
+./status.sh                # Verifica status dos serviços
+./logs.sh [service]        # Mostra logs de um serviço
 ```
 
-### 15.7 Benefícios da Estrutura
+---
 
-**Code Sharing**
-- UI components compartilhados entre web e mobile
-- Business logic reutilizada entre apps e workers
-- Types consistentes em toda a aplicação
+## 14. Roadmap de Desenvolvimento
 
-**Performance**
-- Cache inteligente reduz tempo de build em até 85%
-- Builds incrementais - apenas o que mudou é reconstruído
-- Execução paralela de tasks
+### Fase 1: MVP ✅ (Concluída)
+- ✅ Setup infraestrutura (PostgreSQL, Redis, MinIO)
+- ✅ Autenticação JWT e gestão de usuários
+- ✅ CRUD de client accounts
+- ✅ Conexão Instagram (OAuth)
+- ✅ Sistema de conversas e mensagens
+- ✅ Inbox básico
 
-**Developer Experience**
-- Hot reload funciona perfeitamente em todos os apps
-- Type-safety entre packages
-- Fácil de adicionar novos apps ou packages
+### Fase 2: Instagram Features 🚧 (Em Progresso)
+- ✅ Message templates
+- ✅ Quick replies
+- ✅ Enhanced conversations
+- ⏳ Publicação de posts
+- ⏳ Analytics Instagram
+- ⏳ Media library
 
-**Scalability**
-- Fácil adicionar novos apps (admin panel, mobile, etc)
-- Packages podem ser publicados separadamente se necessário
-- Deploy independente de cada app
+### Fase 3: WhatsApp Integration ⏳ (Planejada)
+- ⏳ Conexão WhatsApp Business
+- ⏳ Envio/recebimento de mensagens
+- ⏳ Templates de mensagem
+- ⏳ Auto-resposta básica
+- ⏳ Analytics WhatsApp
+
+### Fase 4: Automation ⏳ (Planejada)
+- ⏳ Sistema de agendamento robusto
+- ⏳ Calendário editorial
+- ⏳ Biblioteca de conteúdo avançada
+- ⏳ Chatbot básico
+- ⏳ Respostas automáticas inteligentes
+
+### Fase 5: Advanced Analytics ⏳ (Planejada)
+- ⏳ Dashboards personalizáveis
+- ⏳ Relatórios exportáveis (PDF)
+- ⏳ Comparativos de performance
+- ⏳ Sugestões baseadas em dados
+- ⏳ Melhores horários para postar
+
+### Fase 6: Scale & Polish ⏳ (Futura)
+- ⏳ Otimizações de performance
+- ⏳ Mobile app (React Native)
+- ⏳ Integrações adicionais (TikTok, LinkedIn)
+- ⏳ AI Content Assistant
+- ⏳ Multi-language support
+
+---
+
+## 15. Estimativa de Custos Mensais
+
+```typescript
+// Estimativa para 100 contas de clientes ativos
+
+VPS/Cloud Server (4GB RAM):   $20-40/mês
+  - Backend API
+  - Workers
+  - Database (PostgreSQL)
+  - Redis
+  - MinIO
+
+Domain & SSL:                  $10/mês
+  - Domain registration
+  - SSL certificate (Let's Encrypt: Free)
+
+Meta APIs:                     $0
+  - Instagram Graph API: Free
+  - WhatsApp Business: Free (até 1000 conversas/mês)
+  - Após isso: $0.005-0.009 por conversa
+
+Monitoring:                    $0-30/mês
+  - Sentry (Free tier available)
+  - Prometheus + Grafana (self-hosted)
+
+Email Services:                $0-15/mês
+  - SendGrid (Free tier: 100 emails/day)
+  - Mailgun (Pay as you go)
+
+Estimativa Total:              ~$30-95/mês (inicial)
+
+// Com escala (1000+ contas):
+// $100-300/mês dependendo do uso de WhatsApp e recursos
+```
 
 ---
 
@@ -1365,13 +1124,14 @@ pnpm add -w <package>                        # Adiciona ao workspace root
 - [Meta for Developers](https://developers.facebook.com/)
 
 ### Frameworks e Ferramentas
-- [Turborepo Documentation](https://turbo.build/repo/docs)
+- [NestJS Documentation](https://docs.nestjs.com/)
 - [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
 - [BullMQ Documentation](https://docs.bullmq.io/)
-- [Shadcn/ui](https://ui.shadcn.com/)
-- [pnpm Documentation](https://pnpm.io/)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Redis Documentation](https://redis.io/docs/)
+- [TanStack Query](https://tanstack.com/query/latest)
+- [Radix UI](https://www.radix-ui.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
 
 ### Compliance e Segurança
 - [Meta Platform Terms](https://developers.facebook.com/terms)
@@ -1382,189 +1142,65 @@ pnpm add -w <package>                        # Adiciona ao workspace root
 
 ## 17. Próximos Passos
 
-Para começar a implementação com Turborepo:
+Para continuar o desenvolvimento:
 
-### 1. Setup Inicial do Monorepo
+### 1. Implementar Publicação de Posts Instagram
 ```bash
-# Criar diretório do projeto
-mkdir social-selling-platform
-cd social-selling-platform
+# Criar módulo de posts
+cd backend/src/modules
+nest g module posts
+nest g service posts
+nest g controller posts
 
-# Inicializar git
-git init
-
-# Criar estrutura básica
-mkdir -p apps packages
-
-# Inicializar pnpm workspace
-pnpm init
-
-# Criar pnpm-workspace.yaml
-echo "packages:" > pnpm-workspace.yaml
-echo "  - 'apps/*'" >> pnpm-workspace.yaml
-echo "  - 'packages/*'" >> pnpm-workspace.yaml
-
-# Instalar Turborepo
-pnpm add turbo -Dw
-
-# Criar turbo.json
-# (copiar configuração da seção 15.1)
+# Implementar:
+- Upload de mídia para MinIO
+- Integração com Instagram Graph API
+- Sistema de agendamento com BullMQ
+- Preview de posts no frontend
 ```
 
-### 2. Setup dos Packages Shared
-
+### 2. Implementar Analytics
 ```bash
-# Criar package de configuração
-mkdir -p packages/config
-cd packages/config
-pnpm init
-
-# Criar package de types
-cd ../..
-mkdir -p packages/types
-cd packages/types
-pnpm init
-
-# Criar package database
-cd ../..
-mkdir -p packages/database
-cd packages/database
-pnpm init
-pnpm add prisma @prisma/client @supabase/supabase-js
-
-# Criar package ui
-cd ../..
-mkdir -p packages/ui
-cd packages/ui
-pnpm init
+# Criar worker para coleta de métricas
+- Cron job diário para buscar insights do Instagram
+- Agregação de dados no PostgreSQL
+- Cache de métricas no Redis
+- Dashboard de visualização no frontend
 ```
 
-### 3. Setup do Web App
-
+### 3. Melhorar Sistema de Mensagens
 ```bash
-cd ../..
-cd apps
-pnpm create next-app@latest web --typescript --tailwind --app --src-dir
-
-# Adicionar dependências internas
-cd web
-pnpm add @repo/database@workspace:* @repo/ui@workspace:* @repo/types@workspace:*
+# Implementar features avançadas
+- Typing indicators
+- Read receipts
+- File attachments
+- Message reactions
+- Conversation search
 ```
 
-### 4. Setup dos Workers
-
+### 4. Implementar WhatsApp Integration
 ```bash
-cd ../..
-mkdir -p apps/workers/src
-cd apps/workers
-pnpm init
-pnpm add bullmq ioredis @repo/database@workspace:* @repo/types@workspace:*
-pnpm add -D @types/node tsx nodemon typescript
+# Setup WhatsApp Business Cloud API
+- Configurar webhooks
+- Implementar envio/recebimento de mensagens
+- Criar templates de mensagem
+- Sistema de auto-resposta
 ```
 
-### 5. Database Schema
-
+### 5. Adicionar Testes
 ```bash
-# No package database
-cd ../../packages/database
-npx prisma init
+# Backend
+- Unit tests com Jest
+- Integration tests
+- E2E tests com Supertest
 
-# Editar prisma/schema.prisma com o modelo de dados
-# Configurar .env com DATABASE_URL do Supabase
-
-# Criar primeira migration
-npx prisma migrate dev --name init
-
-# Gerar Prisma Client
-npx prisma generate
+# Frontend
+- Component tests
+- E2E tests com Playwright (já iniciado)
 ```
-
-### 6. Configurar Supabase
-
-```bash
-# No root do projeto
-pnpm add -w @supabase/supabase-js
-
-# Criar conta no Supabase
-# Copiar URL e ANON_KEY para .env
-```
-
-### 7. Setup CI/CD
-
-```bash
-# Criar .github/workflows/ci.yml
-mkdir -p .github/workflows
-
-# Configurar GitHub Actions para:
-# - Lint
-# - Type-check
-# - Build
-# - Tests
-# - Deploy (Vercel para web, Railway para workers)
-```
-
-### 8. Desenvolvimento Inicial
-
-**Ordem de implementação:**
-
-1. **Shared Packages** (1-2 semanas)
-   - ✅ Setup @repo/config
-   - ✅ Setup @repo/types
-   - ✅ Setup @repo/database (Prisma schema completo)
-   - ✅ Setup @repo/ui (componentes base do Shadcn)
-   - ✅ Setup @repo/lib (utils)
-
-2. **Web App - Autenticação** (1 semana)
-   - ✅ Implementar Supabase Auth
-   - ✅ Criar páginas de login/registro
-   - ✅ Setup de middleware de auth
-   - ✅ Configurar RLS no Supabase
-
-3. **Web App - Dashboard Base** (1-2 semanas)
-   - ✅ Layout principal
-   - ✅ Sidebar navigation
-   - ✅ Overview page
-   - ✅ Settings page
-
-4. **Integrações Meta** (2 semanas)
-   - ✅ Criar app no Meta for Developers
-   - ✅ Implementar OAuth flow para Instagram
-   - ✅ Implementar conexão WhatsApp Business
-   - ✅ Configurar webhooks
-
-5. **Workers App** (2 semanas)
-   - ✅ Setup BullMQ + Redis
-   - ✅ Implementar post scheduler
-   - ✅ Implementar message handler
-   - ✅ Implementar analytics collector
-   - ✅ Implementar webhook processor
-
-6. **Features Instagram** (2-3 semanas)
-   - ✅ Publicação de posts
-   - ✅ Agendamento
-   - ✅ Inbox de DMs
-   - ✅ Analytics
-
-7. **Features WhatsApp** (2-3 semanas)
-   - ✅ Envio/recebimento de mensagens
-   - ✅ Templates
-   - ✅ Auto-resposta
-   - ✅ Analytics
-
-### Checklist de Setup
-
-- [ ] Turborepo configurado
-- [ ] pnpm workspace funcionando
-- [ ] Todos os packages criados
-- [ ] Web app rodando
-- [ ] Workers app rodando
-- [ ] Supabase conectado
-- [ ] Prisma configurado
-- [ ] CI/CD configurado
-- [ ] Environment variables documentadas
-- [ ] README atualizado
 
 ---
 
-**Documento gerado em:** 2025-10-17
-**Versão:** 2.0.0 (Turborepo Edition)
+**Documento gerado em:** 2025-10-21
+**Versão:** 3.0.0 (Yarn Workspace Edition)
+**Status:** Em desenvolvimento ativo

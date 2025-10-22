@@ -4,14 +4,16 @@ import { initializeSentry } from './common/monitoring/sentry.config';
 import { LoggerService } from './common/logging/logger.service';
 import { WorkerModule } from './worker.module';
 
+// Set unlimited listeners to prevent warnings
+// Multiple modules (Sentry, BullMQ, Database, MinIO, Winston, etc.) add listeners
+// Winston already handles uncaughtException and unhandledRejection through exceptionHandlers
+process.setMaxListeners(0);
+
 /**
  * Bootstrap function for BullMQ workers
  * Starts only the worker processors without the HTTP server
  */
 async function bootstrapWorker() {
-  // Increase max listeners for process to prevent warnings
-  // Multiple modules (Sentry, BullMQ, Database, MinIO, etc.) add listeners
-  process.setMaxListeners(30);
 
   // Initialize Sentry before creating the app
   initializeSentry();

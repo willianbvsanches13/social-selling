@@ -12,23 +12,13 @@ import { ValidationExceptionFilter } from './common/filters/validation-exception
 import { initializeSentry } from './common/monitoring/sentry.config';
 import { LoggerService } from './common/logging/logger.service';
 
-// Global error handlers
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Rejection at:', promise);
-  console.error('❌ Reason:', reason);
-  process.exit(1);
-});
-
-process.on('uncaughtException', (error) => {
-  console.error('❌ Uncaught Exception:', error);
-  process.exit(1);
-});
+// Set unlimited listeners to prevent warnings
+// Multiple modules (Sentry, NestJS, Database, Queue, MinIO, Winston, etc.) add listeners
+// Winston already handles uncaughtException and unhandledRejection through exceptionHandlers
+process.setMaxListeners(0);
 
 async function bootstrap() {
   try {
-    // Increase max listeners for process to prevent warnings
-    // Multiple modules (Sentry, NestJS, Database, Queue, MinIO, etc.) add listeners
-    process.setMaxListeners(30);
 
     // Initialize Sentry before creating the app
     initializeSentry();

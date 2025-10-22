@@ -23,3 +23,5 @@ Como social selling, preciso ter o controle total das redes sociais dos meus cli
 - Automated message responses
 - Broadcast message management
 - Answering messages
+
+faça esse software pra mim.

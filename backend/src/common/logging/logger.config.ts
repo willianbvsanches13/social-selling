@@ -35,9 +35,9 @@ const consoleTransport = new winston.transports.Console({
   format: isDevelopment ? consoleFormat : logFormat,
   level: isDevelopment ? 'debug' : 'info',
 });
-// Increase max listeners for console transport to prevent warnings
+// Set unlimited listeners to prevent warnings (0 = unlimited)
 // Multiple NestJS modules use the logger simultaneously
-consoleTransport.setMaxListeners(50);
+consoleTransport.setMaxListeners(0);
 transports.push(consoleTransport);
 
 // File transports only in development
@@ -81,12 +81,12 @@ if (isDevelopment) {
 const exceptionConsole = new winston.transports.Console({
   format: logFormat,
 });
-exceptionConsole.setMaxListeners(50);
+exceptionConsole.setMaxListeners(0); // Unlimited
 
 const rejectionConsole = new winston.transports.Console({
   format: logFormat,
 });
-rejectionConsole.setMaxListeners(50);
+rejectionConsole.setMaxListeners(0); // Unlimited
 
 const exceptionHandlers: winston.transport[] = [exceptionConsole];
 const rejectionHandlers: winston.transport[] = [rejectionConsole];
