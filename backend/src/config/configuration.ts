@@ -35,8 +35,10 @@ export default () => ({
     webhookVerifyToken: process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN || '',
   },
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-    credentials: true,
+    origin: process.env.CORS_ORIGIN
+      ? process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
+      : process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: process.env.CORS_CREDENTIALS === 'true' || true,
   },
   enableDocs: process.env.ENABLE_DOCS !== 'false', // Enabled by default, set to 'false' to disable
 });
