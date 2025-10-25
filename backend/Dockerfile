@@ -42,10 +42,10 @@ RUN apk add --no-cache \
 COPY package.json ./
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm install
+RUN npm install --include=optional
 
-# Rebuild sharp for Alpine Linux (musl libc)
-RUN npm rebuild sharp --verbose
+# Rebuild sharp for Alpine Linux (musl libc) with platform-specific flags
+RUN npm rebuild sharp --platform=linuxmusl --arch=x64 --verbose
 
 # Copy source code
 COPY . .
@@ -66,14 +66,23 @@ WORKDIR /app
 # Install runtime dependencies for sharp (vips)
 RUN apk add --no-cache vips
 
+# Copy built application and production dependencies FIRST
+# This is needed before we can reinstall sharp
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+
+# Reinstall sharp with correct binaries for runtime
+RUN npm install --include=optional sharp
+
 # Create non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001
 
-# Copy built application and production dependencies
+# Copy built application
 COPY --from=build --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=build --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=build --chown=nestjs:nodejs /app/package.json ./package.json
+
+# Fix ownership of already copied files
+RUN chown -R nestjs:nodejs /app/node_modules /app/package.json
 
 # Create backend-specific directories with correct permissions
 RUN mkdir -p /tmp/app /app/logs && \
