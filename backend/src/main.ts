@@ -51,7 +51,7 @@ async function bootstrap() {
   // Get config service
   const configService = app.get(ConfigService);
 
-  // CORS - Allow multiple origins
+  // CORS - Allow multiple origins and subdomain patterns
   const corsOrigins = configService.get<string | string[]>('cors.origin');
   const allowedOrigins = Array.isArray(corsOrigins) ? corsOrigins : [corsOrigins];
 
@@ -60,7 +60,24 @@ async function bootstrap() {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
+      // Check if origin matches allowed origins or subdomain patterns
+      const isAllowed = allowedOrigins.some((allowedOrigin) => {
+        // Exact match
+        if (allowedOrigin === origin) return true;
+
+        // Wildcard subdomain pattern (e.g., https://*.willianbvsanches.com)
+        if (allowedOrigin.includes('*')) {
+          const pattern = allowedOrigin
+            .replace(/\./g, '\\.') // Escape dots
+            .replace(/\*/g, '[a-zA-Z0-9-]+'); // Replace * with subdomain pattern
+          const regex = new RegExp(`^${pattern}$`);
+          return regex.test(origin);
+        }
+
+        return false;
+      });
+
+      if (isAllowed) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
