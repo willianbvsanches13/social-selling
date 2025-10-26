@@ -61,7 +61,9 @@ async function bootstrap() {
       if (!origin) return callback(null, true);
 
       // Check if origin matches allowed origins or subdomain patterns
-      const isAllowed = allowedOrigins.some((allowedOrigin) => {
+      const isAllowed = allowedOrigins.some((allowedOrigin: string | undefined) => {
+        if (!allowedOrigin) return false;
+
         // Exact match
         if (allowedOrigin === origin) return true;
 
