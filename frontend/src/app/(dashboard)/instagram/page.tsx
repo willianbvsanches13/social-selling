@@ -45,9 +45,14 @@ export default function InstagramAccountsPage() {
     }
   };
 
-  const handleConnectAccount = () => {
-    const authUrl = instagramService.getAuthUrl();
-    window.location.href = authUrl;
+  const handleConnectAccount = async () => {
+    try {
+      const authUrl = await instagramService.initiateOAuth();
+      window.location.href = authUrl;
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to initiate OAuth';
+      showError(errorMessage);
+    }
   };
 
   const handleRefreshAccount = async (accountId: string) => {

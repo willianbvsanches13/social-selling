@@ -40,19 +40,14 @@ export const instagramService = {
     return response.data!;
   },
 
-  getAuthUrl(): string {
-    const clientId = process.env.NEXT_PUBLIC_INSTAGRAM_CLIENT_ID;
-    const redirectUri = encodeURIComponent(
-      `${process.env.NEXT_PUBLIC_APP_URL}/auth/instagram/callback`
+  /**
+   * Inicia o fluxo OAuth do Instagram
+   * Chama o backend que retorna a URL de autorização
+   */
+  async initiateOAuth(): Promise<string> {
+    const response = await apiClient.get<{ authorizationUrl: string }>(
+      API_ENDPOINTS.INSTAGRAM_OAUTH_AUTHORIZE
     );
-    const scope = encodeURIComponent('instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish');
-    const state = Math.random().toString(36).substring(7);
-
-    // Store state in sessionStorage for verification
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem('instagram_oauth_state', state);
-    }
-
-    return `https://www.facebook.com/v21.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&state=${state}`;
+    return response.data?.authorizationUrl || '';
   },
 };
