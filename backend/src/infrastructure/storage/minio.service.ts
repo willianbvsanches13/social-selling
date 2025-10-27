@@ -194,21 +194,19 @@ export class MinioService implements OnModuleInit {
     expirySeconds = 3600,
   ): Promise<string> {
     try {
+      // If public URL is configured, construct URL without pre-signing
+      // The nginx proxy will handle the routing
+      if (this.publicUrl) {
+        // Simple public URL without AWS signature
+        return `${this.publicUrl}/${this.bucketName}/${objectName}`;
+      }
+
+      // Fallback to pre-signed URL for local/internal access
       const url = await this.client.presignedGetObject(
         this.bucketName,
         objectName,
         expirySeconds,
       );
-
-      // Replace internal hostname with public URL if configured
-      if (this.publicUrl) {
-        const urlObj = new URL(url);
-        const publicUrlObj = new URL(this.publicUrl);
-        urlObj.protocol = publicUrlObj.protocol;
-        urlObj.hostname = publicUrlObj.hostname;
-        urlObj.port = publicUrlObj.port;
-        return urlObj.toString();
-      }
 
       return url;
     } catch (error: any) {
