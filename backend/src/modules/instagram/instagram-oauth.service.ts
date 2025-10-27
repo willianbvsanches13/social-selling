@@ -165,16 +165,23 @@ export class InstagramOAuthService {
     const params = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
-      code,
+      grant_type: 'authorization_code',
       redirect_uri: this.redirectUri,
+      code,
     });
 
-    const response = await fetch(`${this.tokenUrl}?${params.toString()}`);
+    const response = await fetch(this.tokenUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: params.toString(),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      this.logger.error(`Facebook token exchange failed: ${errorText}`);
-      throw new Error(`Facebook token exchange failed: ${response.statusText}`);
+      this.logger.error(`Instagram token exchange failed: ${errorText}`);
+      throw new Error(`Instagram token exchange failed: ${response.statusText}`);
     }
 
     return response.json();
