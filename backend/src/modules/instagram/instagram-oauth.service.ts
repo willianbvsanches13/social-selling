@@ -26,9 +26,9 @@ import {
 @Injectable()
 export class InstagramOAuthService {
   private readonly logger = new Logger(InstagramOAuthService.name);
-  private readonly authBaseUrl = 'https://www.facebook.com/v21.0/dialog/oauth';
-  private readonly tokenUrl = 'https://graph.facebook.com/v21.0/oauth/access_token';
-  private readonly graphBaseUrl = 'https://graph.facebook.com/v21.0';
+  private readonly authBaseUrl = 'https://www.facebook.com/v24.0/dialog/oauth';
+  private readonly tokenUrl = 'https://graph.facebook.com/v24.0/oauth/access_token';
+  private readonly graphBaseUrl = 'https://graph.facebook.com/v24.0';
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly redirectUri: string;
