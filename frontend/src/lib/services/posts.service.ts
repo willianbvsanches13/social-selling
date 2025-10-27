@@ -79,12 +79,21 @@ export const postsService = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await apiClient.upload<{ url: string }>(
+    const response = await apiClient.upload<{
+      id: string;
+      s3Url: string;
+      filename: string;
+      mediaType: string;
+    }>(
       API_ENDPOINTS.POST_UPLOAD_MEDIA,
       formData,
       onProgress
     );
-    return response.data!;
+
+    // Map the backend response to the expected format
+    return {
+      url: response.data!.s3Url,
+    };
   },
 
   /**
