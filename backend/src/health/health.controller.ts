@@ -23,8 +23,8 @@ export class HealthController {
   check() {
     return this.health.check([
       () => this.redis.isHealthy('redis'),
-      () => this.memory.checkHeap('memory_heap', 150 * 1024 * 1024),
-      () => this.memory.checkRSS('memory_rss', 150 * 1024 * 1024),
+      () => this.memory.checkHeap('memory_heap', 512 * 1024 * 1024), // 512MB heap
+      () => this.memory.checkRSS('memory_rss', 768 * 1024 * 1024), // 768MB RSS (more realistic for NestJS)
       () =>
         this.disk.checkStorage('storage', {
           path: '/',

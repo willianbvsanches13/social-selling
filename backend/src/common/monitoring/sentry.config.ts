@@ -17,10 +17,34 @@ export function initializeSentry() {
 
     // Profiling
     profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    integrations: [nodeProfilingIntegration(), Sentry.httpIntegration()],
+    integrations: [
+      nodeProfilingIntegration(),
+      Sentry.httpIntegration({
+        // Don't track health check requests
+        ignoreIncomingRequests: (url) => {
+          return (
+            url.includes('/health') ||
+            url.includes('/health/ready') ||
+            url.includes('/health/live')
+          );
+        },
+      }),
+    ],
 
     // Error filtering
     beforeSend(event, hint) {
+      // Filter out health check requests
+      if (event.request?.url) {
+        const url = event.request.url;
+        if (
+          url.includes('/health') ||
+          url.includes('/health/ready') ||
+          url.includes('/health/live')
+        ) {
+          return null;
+        }
+      }
+
       // Filter out specific errors
       const error = hint.originalException;
 
@@ -34,8 +58,29 @@ export function initializeSentry() {
         if (error.message.includes('Not Found')) {
           return null;
         }
+
+        // Don't send Service Unavailable from health checks
+        if (
+          error.message.includes('Service Unavailable') &&
+          error.message.includes('health')
+        ) {
+          return null;
+        }
       }
 
+      return event;
+    },
+
+    // Ignore health check transactions in performance monitoring
+    beforeSendTransaction(event) {
+      if (event.transaction) {
+        if (
+          event.transaction.includes('/health') ||
+          event.transaction.includes('GET /health')
+        ) {
+          return null;
+        }
+      }
       return event;
     },
 
