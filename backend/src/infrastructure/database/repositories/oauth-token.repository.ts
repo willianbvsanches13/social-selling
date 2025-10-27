@@ -33,7 +33,9 @@ export class OAuthTokenRepository
     const query = `
       SELECT
         id,
+        user_id,
         client_account_id,
+        platform,
         pgp_sym_decrypt(access_token::bytea, $2) as access_token,
         token_type,
         expires_at,
@@ -57,7 +59,9 @@ export class OAuthTokenRepository
     const query = `
       SELECT
         id,
+        user_id,
         client_account_id,
+        platform,
         pgp_sym_decrypt(access_token::bytea, $2) as access_token,
         token_type,
         expires_at,
@@ -87,7 +91,9 @@ export class OAuthTokenRepository
     const query = `
       INSERT INTO oauth_tokens (
         id,
+        user_id,
         client_account_id,
+        platform,
         access_token,
         token_type,
         expires_at,
@@ -96,14 +102,16 @@ export class OAuthTokenRepository
         updated_at
       )
       VALUES (
-        $1, $2,
-        pgp_sym_encrypt($3, $4),
-        $5, $6, $7, $8, $9
+        $1, $2, $3, $4,
+        pgp_sym_encrypt($5, $6),
+        $7, $8, $9, $10, $11
       )
       RETURNING
         id,
+        user_id,
         client_account_id,
-        pgp_sym_decrypt(access_token::bytea, $4) as access_token,
+        platform,
+        pgp_sym_decrypt(access_token::bytea, $6) as access_token,
         token_type,
         expires_at,
         scopes,
@@ -118,7 +126,9 @@ export class OAuthTokenRepository
 
     const values = [
       json.id,
+      privateProps.userId,
       json.clientAccountId,
+      privateProps.platform,
       privateProps.encryptedAccessToken, // Will be encrypted by pgp_sym_encrypt
       this.encryptionKey,
       json.tokenType || 'Bearer',
@@ -189,7 +199,9 @@ export class OAuthTokenRepository
     const query = `
       SELECT
         id,
+        user_id,
         client_account_id,
+        platform,
         pgp_sym_decrypt(access_token::bytea, $2) as access_token,
         token_type,
         expires_at,
@@ -219,7 +231,9 @@ export class OAuthTokenRepository
 
     return OAuthToken.reconstitute({
       id: mapped.id,
+      userId: mapped.userId,
       clientAccountId: mapped.clientAccountId,
+      platform: mapped.platform,
       encryptedAccessToken: mapped.accessToken, // Already decrypted from DB
       tokenType: mapped.tokenType,
       expiresAt: new Date(mapped.expiresAt),

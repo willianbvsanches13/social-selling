@@ -2,7 +2,9 @@ import { DomainException } from '../exceptions/domain.exception';
 
 export interface OAuthTokenProps {
   id: string;
+  userId: string;
   clientAccountId: string;
+  platform: string;
   encryptedAccessToken: string;
   encryptedRefreshToken?: string;
   tokenType: string;
@@ -45,8 +47,16 @@ export class OAuthToken {
     return this.props.id;
   }
 
+  get userId(): string {
+    return this.props.userId;
+  }
+
   get clientAccountId(): string {
     return this.props.clientAccountId;
+  }
+
+  get platform(): string {
+    return this.props.platform;
   }
 
   get isExpired(): boolean {

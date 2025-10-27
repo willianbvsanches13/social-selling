@@ -95,20 +95,36 @@ export class InstagramOAuthService {
     await this.redisService.del(`oauth:instagram:state:${state}`);
 
     try {
+      this.logger.log('Step 1: Exchanging code for short-lived token');
       const shortLivedToken = await this.exchangeCodeForToken(code);
+      this.logger.log('Step 1 completed: Short-lived token received');
+
+      this.logger.log('Step 2: Exchanging for long-lived token');
       const longLivedToken = await this.exchangeForLongLivedToken(
         shortLivedToken.access_token,
       );
+      this.logger.log(
+        `Step 2 completed: Long-lived token received (expires in ${longLivedToken.expires_in}s)`,
+      );
+
+      this.logger.log('Step 3: Fetching user profile');
       const userProfile = await this.fetchUserProfile(
         longLivedToken.access_token,
       );
+      this.logger.log(`Step 3 completed: Profile fetched for @${userProfile.username}`);
+
+      this.logger.log('Step 4: Storing client account');
       const clientAccount = await this.storeClientAccount(userId, userProfile);
+      this.logger.log(`Step 4 completed: Account stored with ID ${clientAccount.id}`);
+
+      this.logger.log('Step 5: Storing OAuth token');
       await this.storeOAuthToken(
         userId,
         clientAccount.id,
         longLivedToken.access_token,
         longLivedToken.expires_in,
       );
+      this.logger.log('Step 5 completed: OAuth token stored');
 
       return {
         accountId: clientAccount.id,
@@ -314,7 +330,9 @@ export class InstagramOAuthService {
     }
 
     const oauthToken = OAuthToken.create({
+      userId,
       clientAccountId,
+      platform: 'instagram',
       encryptedAccessToken: accessToken,
       tokenType: 'Bearer',
       expiresAt,
