@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Delete,
   Param,
   Query,
@@ -17,9 +18,11 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiQuery,
+  ApiParam,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { InstagramOAuthService } from './instagram-oauth.service';
+import { InstagramAccountService } from './services/instagram-account.service';
 import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Instagram Integration')
@@ -30,6 +33,7 @@ export class InstagramController {
 
   constructor(
     private readonly instagramOAuthService: InstagramOAuthService,
+    private readonly instagramAccountService: InstagramAccountService,
     private readonly configService: ConfigService,
   ) {
     this.frontendUrl =
@@ -116,6 +120,35 @@ export class InstagramController {
       return res.redirect(
         `${this.frontendUrl}/clients?error=connection_failed`,
       );
+    }
+  }
+
+  @Post('accounts/:id/sync')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Sync Instagram account data' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Account synced successfully',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Account not found',
+  })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Unauthorized' })
+  async syncAccount(@Request() req: any, @Param('id') accountId: string) {
+    try {
+      const account = await this.instagramAccountService.syncAccount(
+        req.user.id,
+        accountId,
+      );
+      this.logger.log(`Instagram account synced: ${accountId}`);
+      return account;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Sync account error: ${errorMessage}`);
+      throw error;
     }
   }
 

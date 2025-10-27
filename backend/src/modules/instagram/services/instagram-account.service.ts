@@ -161,6 +161,23 @@ export class InstagramAccountService {
   /**
    * Sync account metadata from Instagram API
    */
+  async syncAccount(
+    userId: string,
+    accountId: string,
+  ): Promise<ClientAccount> {
+    const account = await this.accountRepository.findById(accountId);
+
+    if (!account) {
+      throw new NotFoundException('Account not found');
+    }
+
+    if (account.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this account');
+    }
+
+    return this.syncAccountMetadata(accountId);
+  }
+
   async syncAccountMetadata(accountId: string): Promise<ClientAccount> {
     const account = await this.accountRepository.findById(accountId);
 
