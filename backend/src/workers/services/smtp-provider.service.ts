@@ -53,7 +53,9 @@ export class SmtpProviderService {
   private initializeSendGrid() {
     const apiKey = this.configService.get('SENDGRID_API_KEY');
     if (!apiKey) {
-      this.logger.warn('SENDGRID_API_KEY is not configured - email notifications will be disabled');
+      this.logger.warn(
+        'SENDGRID_API_KEY is not configured - email notifications will be disabled',
+      );
       return;
     }
 
@@ -68,7 +70,9 @@ export class SmtpProviderService {
     const domain = this.configService.get('MAILGUN_DOMAIN');
 
     if (!apiKey || !domain) {
-      this.logger.warn('MAILGUN_API_KEY or MAILGUN_DOMAIN is not configured - email notifications will be disabled');
+      this.logger.warn(
+        'MAILGUN_API_KEY or MAILGUN_DOMAIN is not configured - email notifications will be disabled',
+      );
       return;
     }
 
@@ -85,12 +89,16 @@ export class SmtpProviderService {
     try {
       if (this.provider === 'sendgrid') {
         if (!this.sendgridClient) {
-          throw new Error('SendGrid client is not initialized. Please configure SENDGRID_API_KEY.');
+          throw new Error(
+            'SendGrid client is not initialized. Please configure SENDGRID_API_KEY.',
+          );
         }
         return await this.sendViaSendGrid(options);
       } else if (this.provider === 'mailgun') {
         if (!this.mailgunClient) {
-          throw new Error('Mailgun client is not initialized. Please configure MAILGUN_API_KEY and MAILGUN_DOMAIN.');
+          throw new Error(
+            'Mailgun client is not initialized. Please configure MAILGUN_API_KEY and MAILGUN_DOMAIN.',
+          );
         }
         return await this.sendViaMailgun(options);
       }

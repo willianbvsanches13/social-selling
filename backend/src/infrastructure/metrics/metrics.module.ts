@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
-import { makeCounterProvider, makeHistogramProvider } from '@willsoto/nestjs-prometheus';
+import {
+  makeCounterProvider,
+  makeHistogramProvider,
+} from '@willsoto/nestjs-prometheus';
 import { MetricsService } from './metrics.service';
 
 @Module({

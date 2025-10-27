@@ -88,7 +88,9 @@ export class Database implements OnModuleInit, OnModuleDestroy {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        this.logger.log(`Attempting database connection (${attempt}/${maxRetries})...`);
+        this.logger.log(
+          `Attempting database connection (${attempt}/${maxRetries})...`,
+        );
         await this.db.connect();
         this.isConnected = true;
         this.logger.log('✅ Database connected successfully');
@@ -98,14 +100,20 @@ export class Database implements OnModuleInit, OnModuleDestroy {
         const errorMessage =
           error instanceof Error ? error.message : 'Unknown error';
 
-        this.logger.error(`❌ Database connection attempt ${attempt}/${maxRetries} failed: ${errorMessage}`);
-        this.logger.error(`Connection config: host=${this.configService.get('POSTGRES_HOST')}, port=${this.configService.get('POSTGRES_PORT')}, db=${this.configService.get('POSTGRES_DB')}`);
+        this.logger.error(
+          `❌ Database connection attempt ${attempt}/${maxRetries} failed: ${errorMessage}`,
+        );
+        this.logger.error(
+          `Connection config: host=${this.configService.get('POSTGRES_HOST')}, port=${this.configService.get('POSTGRES_PORT')}, db=${this.configService.get('POSTGRES_DB')}`,
+        );
 
         if (attempt < maxRetries) {
           this.logger.log(`Retrying in ${retryDelay / 1000} seconds...`);
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
         } else {
-          this.logger.error('❌ All database connection attempts failed. Application will exit.');
+          this.logger.error(
+            '❌ All database connection attempts failed. Application will exit.',
+          );
           throw error;
         }
       }

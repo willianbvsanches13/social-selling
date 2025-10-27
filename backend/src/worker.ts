@@ -14,7 +14,6 @@ process.setMaxListeners(0);
  * Starts only the worker processors without the HTTP server
  */
 async function bootstrapWorker() {
-
   // Initialize Sentry before creating the app
   initializeSentry();
 
@@ -26,10 +25,7 @@ async function bootstrapWorker() {
   // Get config service
   const configService = app.get(ConfigService);
 
-  const workerConcurrency = configService.get<number>(
-    'WORKER_CONCURRENCY',
-    5,
-  );
+  const workerConcurrency = configService.get<number>('WORKER_CONCURRENCY', 5);
 
   // Debug: Log Redis configuration
   const redisConfig = configService.get('redis');
@@ -50,7 +46,9 @@ async function bootstrapWorker() {
   const signals: NodeJS.Signals[] = ['SIGTERM', 'SIGINT'];
   signals.forEach((signal) => {
     process.on(signal, async () => {
-      console.log(`\n🛑 Received ${signal}, shutting down worker gracefully...`);
+      console.log(
+        `\n🛑 Received ${signal}, shutting down worker gracefully...`,
+      );
       await app.close();
       console.log('✅ Worker shutdown complete');
       process.exit(0);

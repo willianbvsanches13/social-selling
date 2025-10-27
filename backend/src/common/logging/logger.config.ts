@@ -5,7 +5,9 @@ import * as path from 'path';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 // Use absolute path for logs in production, relative in development
-const logDir = process.env.LOG_DIR || (isDevelopment ? 'logs' : path.join(process.cwd(), 'logs'));
+const logDir =
+  process.env.LOG_DIR ||
+  (isDevelopment ? 'logs' : path.join(process.cwd(), 'logs'));
 
 // Custom format for structured logging
 const logFormat = winston.format.combine(

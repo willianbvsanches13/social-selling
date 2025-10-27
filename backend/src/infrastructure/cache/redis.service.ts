@@ -12,7 +12,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
     const redisConfig = this.configService.get('redis');
 
-    console.log(`🔄 Initializing Redis connection to ${redisConfig.host}:${redisConfig.port}...`);
+    console.log(
+      `🔄 Initializing Redis connection to ${redisConfig.host}:${redisConfig.port}...`,
+    );
 
     this.client = new Redis({
       host: redisConfig.host,
@@ -24,7 +26,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       lazyConnect: false,
       retryStrategy: (times: number) => {
         if (times > 10) {
-          console.error(`❌ Redis connection failed after ${times} attempts. Giving up.`);
+          console.error(
+            `❌ Redis connection failed after ${times} attempts. Giving up.`,
+          );
           return null; // Stop retrying
         }
         const delay = Math.min(times * 500, 3000);
@@ -50,7 +54,9 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
 
     this.client.on('error', (err) => {
       console.error('❌ Redis error:', err.message);
-      console.error(`Connection details: host=${redisConfig.host}, port=${redisConfig.port}`);
+      console.error(
+        `Connection details: host=${redisConfig.host}, port=${redisConfig.port}`,
+      );
     });
 
     this.client.on('close', () => {
@@ -66,8 +72,13 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       await this.client.ping();
       console.log('✅ Redis ping successful');
     } catch (error) {
-      console.error('❌ Redis ping failed:', error instanceof Error ? error.message : error);
-      throw new Error(`Failed to connect to Redis: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error(
+        '❌ Redis ping failed:',
+        error instanceof Error ? error.message : error,
+      );
+      throw new Error(
+        `Failed to connect to Redis: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 
