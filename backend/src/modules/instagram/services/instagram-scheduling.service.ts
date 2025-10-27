@@ -48,7 +48,7 @@ export class InstagramSchedulingService {
     @Inject('IClientAccountRepository')
     private readonly accountRepository: IClientAccountRepository,
     private readonly instagramApi: InstagramApiService,
-    @InjectQueue('instagram-publishing')
+    @InjectQueue('instagram-post-publishing')
     private readonly publishQueue: Queue,
   ) {}
 

@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import { InstagramSchedulingService } from '../services/instagram-scheduling.service';
 
-@Processor('instagram-publishing')
+@Processor('instagram-post-publishing')
 export class InstagramPublishingProcessor {
   private readonly logger = new Logger(InstagramPublishingProcessor.name);
 

@@ -79,7 +79,7 @@ export class InstagramScheduledPostRepository
 
     const result = await this.db.query(query, [id]);
 
-    if (result.rows.length === 0) {
+    if (!result?.rows || result.rows.length === 0) {
       return null;
     }
 
@@ -96,7 +96,7 @@ export class InstagramScheduledPostRepository
     `;
 
     const result = await this.db.query(query, [clientAccountId]);
-    return result.rows.map((row: any) => this.mapToEntity(row));
+    return result?.rows ? result.rows.map((row: any) => this.mapToEntity(row)) : [];
   }
 
   async update(post: InstagramScheduledPost): Promise<InstagramScheduledPost> {
@@ -176,7 +176,7 @@ export class InstagramScheduledPostRepository
     `;
 
     const result = await this.db.query(query, [PostStatus.SCHEDULED, now]);
-    return result.rows.map((row: any) => this.mapToEntity(row));
+    return result?.rows ? result.rows.map((row: any) => this.mapToEntity(row)) : [];
   }
 
   async list(
@@ -220,7 +220,10 @@ export class InstagramScheduledPostRepository
     `;
 
     const countResult = await this.db.query(countQuery, params);
-    const total = parseInt(countResult.rows[0].count, 10);
+    const total =
+      countResult?.rows && countResult.rows.length > 0
+        ? parseInt(countResult.rows[0].count, 10)
+        : 0;
 
     // Get items with pagination
     let dataQuery = `
@@ -241,7 +244,7 @@ export class InstagramScheduledPostRepository
     }
 
     const result = await this.db.query(dataQuery, params);
-    const items = result.rows.map((row: any) => this.mapToEntity(row));
+    const items = result?.rows ? result.rows.map((row: any) => this.mapToEntity(row)) : [];
 
     return { items, total };
   }

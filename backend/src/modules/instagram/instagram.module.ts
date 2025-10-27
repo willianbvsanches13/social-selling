@@ -37,7 +37,7 @@ import {
     CacheModule,
     StorageModule,
     BullModule.registerQueue({
-      name: 'instagram-publishing',
+      name: 'instagram-post-publishing',
     }),
   ],
   controllers: [
