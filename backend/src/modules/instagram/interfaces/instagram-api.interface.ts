@@ -13,8 +13,14 @@ export interface InstagramLongLivedTokenResponse {
 export interface InstagramUserProfile {
   id: string;
   username: string;
-  account_type: 'BUSINESS' | 'MEDIA_CREATOR' | 'PERSONAL';
+  name?: string;
+  profile_picture_url?: string;
+  followers_count?: number;
+  follows_count?: number;
   media_count?: number;
+  biography?: string;
+  website?: string;
+  account_type: 'BUSINESS' | 'MEDIA_CREATOR' | 'PERSONAL';
 }
 
 export interface OAuthState {
