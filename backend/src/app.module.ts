@@ -13,6 +13,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { UserModule } from './modules/user/user.module';
 import { InstagramModule } from './modules/instagram/instagram.module';
+import { PostsModule } from './modules/posts/posts.module';
 import { HttpLoggerMiddleware } from './common/middleware/http-logger.middleware';
 import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
 import configuration from './config/configuration';
@@ -38,6 +39,7 @@ import configuration from './config/configuration';
     NotificationModule,
     UserModule,
     InstagramModule,
+    PostsModule,
     HealthModule,
   ],
   controllers: [AppController],
