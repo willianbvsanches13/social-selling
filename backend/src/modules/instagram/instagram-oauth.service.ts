@@ -26,19 +26,18 @@ import {
 @Injectable()
 export class InstagramOAuthService {
   private readonly logger = new Logger(InstagramOAuthService.name);
-  private readonly authBaseUrl = 'https://www.facebook.com/v24.0/dialog/oauth';
-  private readonly tokenUrl = 'https://graph.facebook.com/v24.0/oauth/access_token';
-  private readonly graphBaseUrl = 'https://graph.facebook.com/v24.0';
+  private readonly authBaseUrl = 'https://www.instagram.com/oauth/authorize';
+  private readonly tokenUrl = 'https://api.instagram.com/oauth/access_token';
+  private readonly graphBaseUrl = 'https://graph.instagram.com';
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly redirectUri: string;
   private readonly scopes = [
-    'instagram_basic',
-    'instagram_manage_messages',
-    'instagram_manage_comments',
-    'instagram_content_publish',
-    'pages_show_list',
-    'pages_read_engagement',
+    'instagram_business_basic',
+    'instagram_business_manage_messages',
+    'instagram_business_manage_comments',
+    'instagram_business_content_publish',
+    'instagram_business_manage_insights',
   ];
 
   constructor(
@@ -225,38 +224,25 @@ export class InstagramOAuthService {
   private async fetchUserProfile(
     accessToken: string,
   ): Promise<InstagramUserProfile> {
-    // First, get the user's Facebook pages
-    const pagesParams = new URLSearchParams({
-      fields: 'instagram_business_account{id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography,website}',
+    // Get Instagram Business Account profile using Instagram Graph API
+    const profileParams = new URLSearchParams({
+      fields: 'id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography,website',
       access_token: accessToken,
     });
 
-    const pagesResponse = await fetch(
-      `${this.graphBaseUrl}/me/accounts?${pagesParams.toString()}`,
+    const profileResponse = await fetch(
+      `${this.graphBaseUrl}/me?${profileParams.toString()}`,
     );
 
-    if (!pagesResponse.ok) {
-      const errorText = await pagesResponse.text();
-      this.logger.error(`Failed to fetch Facebook pages: ${errorText}`);
+    if (!profileResponse.ok) {
+      const errorText = await profileResponse.text();
+      this.logger.error(`Failed to fetch Instagram profile: ${errorText}`);
       throw new Error(
-        `Failed to fetch Facebook pages: ${pagesResponse.statusText}`,
+        `Failed to fetch Instagram profile: ${profileResponse.statusText}`,
       );
     }
 
-    const pagesData = await pagesResponse.json();
-
-    // Find the first page with an Instagram account
-    const pageWithInstagram = pagesData.data?.find(
-      (page: any) => page.instagram_business_account,
-    );
-
-    if (!pageWithInstagram || !pageWithInstagram.instagram_business_account) {
-      throw new Error(
-        'No Instagram Business account found. Please convert your Instagram account to Business or Creator account and link it to a Facebook Page.',
-      );
-    }
-
-    const igAccount = pageWithInstagram.instagram_business_account;
+    const igAccount = await profileResponse.json();
 
     return {
       id: igAccount.id,
@@ -268,7 +254,7 @@ export class InstagramOAuthService {
       media_count: igAccount.media_count,
       biography: igAccount.biography,
       website: igAccount.website,
-      account_type: 'BUSINESS', // Business or Creator
+      account_type: 'BUSINESS',
     };
   }
 
