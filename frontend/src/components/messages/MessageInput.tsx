@@ -58,8 +58,9 @@ export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
 
     try {
       setIsUploading(true);
-      const { url } = await messagesService.uploadMedia(file);
-      setMediaPreview(url);
+      const response = await messagesService.uploadMedia(file);
+      console.log('response Message Input', response)
+      setMediaPreview(response.url);
     } catch (err: any) {
       showError(err.message || 'Failed to upload file');
     } finally {

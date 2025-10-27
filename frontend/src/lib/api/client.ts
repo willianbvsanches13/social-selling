@@ -184,7 +184,7 @@ class ApiClient {
     formData: FormData,
     onProgress?: (progress: number) => void
   ): Promise<ApiResponse<T>> {
-    const response = await this.client.post<ApiResponse<T>>(url, formData, {
+    const response = await this.client.post<T>(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -195,7 +195,11 @@ class ApiClient {
         }
       },
     });
-    return response.data;
+    return {
+      success: true,
+      data: response.data,
+      message: 'success',
+    };
   }
 }
 

@@ -90,6 +90,8 @@ export const postsService = {
       onProgress
     );
 
+    console.log('response post service', response)
+
     // Map the backend response to the expected format
     return {
       url: response.data!.s3Url,
