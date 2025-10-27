@@ -7,6 +7,7 @@ export class MinioService implements OnModuleInit {
   private readonly logger = new Logger(MinioService.name);
   private client!: Minio.Client;
   private bucketName!: string;
+  private publicUrl?: string | null;
 
   constructor(private readonly configService: ConfigService) {}
 
@@ -38,6 +39,12 @@ export class MinioService implements OnModuleInit {
       'minio.bucket',
       'social-selling-media',
     );
+
+    this.publicUrl = this.configService.get<string>('minio.publicUrl');
+
+    if (this.publicUrl) {
+      this.logger.log(`Using public URL for MinIO: ${this.publicUrl}`);
+    }
 
     // Create bucket if not exists (non-blocking)
     this.createBucketIfNotExists().catch((error) => {
@@ -187,11 +194,23 @@ export class MinioService implements OnModuleInit {
     expirySeconds = 3600,
   ): Promise<string> {
     try {
-      return await this.client.presignedGetObject(
+      const url = await this.client.presignedGetObject(
         this.bucketName,
         objectName,
         expirySeconds,
       );
+
+      // Replace internal hostname with public URL if configured
+      if (this.publicUrl) {
+        const urlObj = new URL(url);
+        const publicUrlObj = new URL(this.publicUrl);
+        urlObj.protocol = publicUrlObj.protocol;
+        urlObj.hostname = publicUrlObj.hostname;
+        urlObj.port = publicUrlObj.port;
+        return urlObj.toString();
+      }
+
+      return url;
     } catch (error: any) {
       this.logger.error(
         `Failed to generate presigned URL for ${objectName}: ${error?.message || 'Unknown error'}`,

@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Get,
   UseGuards,
   Request,
   UseInterceptors,
@@ -16,10 +17,13 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiConsumes,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { InstagramMediaUploadService } from '../../instagram/services/instagram-media-upload.service';
+import { InstagramSchedulingService } from '../../instagram/services/instagram-scheduling.service';
 import { MediaUploadResponseDto } from '../../instagram/dto/media-upload.dto';
+import { ScheduledPostResponseDto } from '../../instagram/dto/scheduled-post.dto';
 
 @ApiTags('Posts')
 @ApiBearerAuth()
@@ -28,6 +32,7 @@ import { MediaUploadResponseDto } from '../../instagram/dto/media-upload.dto';
 export class PostsController {
   constructor(
     private readonly mediaUploadService: InstagramMediaUploadService,
+    private readonly schedulingService: InstagramSchedulingService,
   ) {}
 
   /**
@@ -58,6 +63,47 @@ export class PostsController {
     return this.mediaUploadService.uploadMedia(
       req.user.id,
       file,
+      clientAccountId,
+    );
+  }
+
+  /**
+   * Get calendar posts for a date range
+   */
+  @Get('calendar')
+  @ApiOperation({ summary: 'Get posts for calendar view' })
+  @ApiQuery({
+    name: 'startDate',
+    required: true,
+    description: 'Start date in ISO format (e.g., 2025-10-01)',
+    example: '2025-10-01',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: true,
+    description: 'End date in ISO format (e.g., 2025-11-30)',
+    example: '2025-11-30',
+  })
+  @ApiQuery({
+    name: 'clientAccountId',
+    required: false,
+    description: 'Filter by client account ID',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Calendar posts retrieved successfully',
+    type: [ScheduledPostResponseDto],
+  })
+  async getCalendarPosts(
+    @Request() req: any,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+    @Query('clientAccountId') clientAccountId?: string,
+  ): Promise<ScheduledPostResponseDto[]> {
+    return this.schedulingService.getCalendarPosts(
+      req.user.id,
+      startDate,
+      endDate,
       clientAccountId,
     );
   }

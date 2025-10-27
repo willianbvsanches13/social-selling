@@ -25,6 +25,7 @@ export default () => ({
       process.env.MINIO_ROOT_PASSWORD ||
       'changeme',
     bucket: process.env.MINIO_BUCKET_NAME || 'social-selling-media',
+    publicUrl: process.env.MINIO_PUBLIC_URL || null,
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'your-secret-key-change-in-production',

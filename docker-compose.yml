@@ -449,3 +449,21 @@ services:
         limits:
           cpus: '0.1'
           memory: 64M
+
+  # Certbot for SSL certificate management
+  certbot:
+    image: certbot/certbot:latest
+    container_name: social-selling-certbot
+    volumes:
+      - ${SSL_CERT_PATH:-./infrastructure/ssl/letsencrypt}:/etc/letsencrypt
+      - ${SSL_WEBROOT_PATH:-./infrastructure/ssl/webroot}:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - social-selling-network
+    depends_on:
+      - nginx
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 128M

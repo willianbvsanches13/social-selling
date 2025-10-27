@@ -198,6 +198,67 @@ export class InstagramSchedulingService {
   }
 
   /**
+   * Get posts for calendar view (date range)
+   */
+  async getCalendarPosts(
+    userId: string,
+    startDate: string,
+    endDate: string,
+    clientAccountId?: string,
+  ): Promise<ScheduledPostResponseDto[]> {
+    // Validate dates
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
+
+    if (!start.isValid() || !end.isValid()) {
+      throw new BadRequestException('Invalid date format');
+    }
+
+    if (end.isBefore(start)) {
+      throw new BadRequestException('End date must be after start date');
+    }
+
+    // Verify account access if provided
+    if (clientAccountId) {
+      const account = await this.accountRepository.findById(clientAccountId);
+      if (!account || account.userId !== userId) {
+        throw new NotFoundException('Instagram account not found');
+      }
+    }
+
+    const filters: any = {
+      scheduledAfter: start.toDate(),
+      scheduledBefore: end.toDate(),
+    };
+
+    // Get all posts in date range
+    let posts: InstagramScheduledPost[];
+    if (clientAccountId) {
+      const { items } = await this.scheduledPostRepository.list(
+        clientAccountId,
+        filters,
+      );
+      posts = items;
+    } else {
+      // Get posts from all user's accounts
+      const accounts = await this.accountRepository.findByUserId(userId);
+      posts = [];
+      for (const account of accounts) {
+        const { items } = await this.scheduledPostRepository.list(
+          account.id,
+          filters,
+        );
+        posts.push(...items);
+      }
+    }
+
+    // Sort by scheduled time
+    posts.sort((a, b) => a.scheduledFor.getTime() - b.scheduledFor.getTime());
+
+    return posts.map((p) => this.mapToDto(p));
+  }
+
+  /**
    * Get scheduled post by ID
    */
   async getScheduledPost(
