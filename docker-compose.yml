@@ -198,6 +198,9 @@ services:
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT}
       SENTRY_TRACES_SAMPLE_RATE: ${SENTRY_TRACES_SAMPLE_RATE}
       SENTRY_PROFILES_SAMPLE_RATE: ${SENTRY_PROFILES_SAMPLE_RATE}
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      CORS_CREDENTIALS: ${CORS_CREDENTIALS:-true}
+      FRONTEND_URL: ${FRONTEND_URL}
     # Volumes for development are in docker-compose.override.yml
     # Production uses code from Docker image (no volumes)
     ports:
