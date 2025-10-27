@@ -9,8 +9,8 @@ export interface InstagramAccount {
   mediaCount?: number;
   biography?: string;
   website?: string;
-  status: 'active' | 'error' | 'disconnected' | 'token_expired' | 'refreshing';
-  accountType: string;
+  status: 'active' | 'error' | 'disconnected' | 'token_expired' | 'rate_limited';
+  accountType: 'personal' | 'business' | 'creator';
   createdAt: string;
   lastSyncAt?: string;
   tokenExpiresAt?: string;

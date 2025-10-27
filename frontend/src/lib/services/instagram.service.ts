@@ -22,21 +22,20 @@ export const instagramService = {
     return response.data!;
   },
 
-  async connectAccount(data: ConnectInstagramRequest): Promise<InstagramAccount> {
+  async disconnectAccount(accountId: string): Promise<void> {
+    await apiClient.delete(API_ENDPOINTS.INSTAGRAM_ACCOUNT_DELETE(accountId));
+  },
+
+  async syncAccount(accountId: string): Promise<InstagramAccount> {
     const response = await apiClient.post<InstagramAccount>(
-      API_ENDPOINTS.INSTAGRAM_CONNECT,
-      data
+      API_ENDPOINTS.INSTAGRAM_ACCOUNT_SYNC(accountId)
     );
     return response.data!;
   },
 
-  async disconnectAccount(accountId: string): Promise<void> {
-    await apiClient.delete(API_ENDPOINTS.INSTAGRAM_DISCONNECT(accountId));
-  },
-
-  async refreshAccount(accountId: string): Promise<InstagramAccount> {
-    const response = await apiClient.post<InstagramAccount>(
-      `${API_ENDPOINTS.INSTAGRAM_ACCOUNT(accountId)}/refresh`
+  async refreshAccountStatus(accountId: string): Promise<{ status: string }> {
+    const response = await apiClient.post<{ status: string }>(
+      API_ENDPOINTS.INSTAGRAM_ACCOUNT_REFRESH_STATUS(accountId)
     );
     return response.data!;
   },

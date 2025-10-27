@@ -10,11 +10,11 @@ import type { PaginatedResponse } from '@/types/common';
 
 export const postsService = {
   /**
-   * Get all scheduled posts with optional filters
+   * Get all scheduled posts for an account with optional filters
    */
-  async getPosts(filters?: PostFilters): Promise<PaginatedResponse<ScheduledPost>> {
+  async getPosts(accountId: string, filters?: PostFilters): Promise<PaginatedResponse<ScheduledPost>> {
     const response = await apiClient.get<PaginatedResponse<ScheduledPost>>(
-      API_ENDPOINTS.POSTS,
+      API_ENDPOINTS.SCHEDULED_POSTS_LIST(accountId),
       { params: filters }
     );
     return response.data!;
@@ -40,8 +40,10 @@ export const postsService = {
   /**
    * Get a single scheduled post by ID
    */
-  async getPost(id: string): Promise<ScheduledPost> {
-    const response = await apiClient.get<ScheduledPost>(API_ENDPOINTS.POST_DETAIL(id));
+  async getPost(accountId: string, postId: string): Promise<ScheduledPost> {
+    const response = await apiClient.get<ScheduledPost>(
+      API_ENDPOINTS.SCHEDULED_POST_DETAIL(accountId, postId)
+    );
     return response.data!;
   },
 
@@ -49,18 +51,20 @@ export const postsService = {
    * Create a new scheduled post
    */
   async createPost(data: CreatePostRequest): Promise<ScheduledPost> {
-    const response = await apiClient.post<ScheduledPost>(API_ENDPOINTS.POSTS, data);
+    const response = await apiClient.post<ScheduledPost>(
+      API_ENDPOINTS.SCHEDULED_POSTS_CREATE,
+      data
+    );
     return response.data!;
   },
 
   /**
    * Update an existing scheduled post
    */
-  async updatePost(data: UpdatePostRequest): Promise<ScheduledPost> {
-    const { id, ...updateData } = data;
+  async updatePost(postId: string, data: Partial<UpdatePostRequest>): Promise<ScheduledPost> {
     const response = await apiClient.put<ScheduledPost>(
-      API_ENDPOINTS.POST_DETAIL(id),
-      updateData
+      API_ENDPOINTS.SCHEDULED_POST_UPDATE(postId),
+      data
     );
     return response.data!;
   },
@@ -68,8 +72,18 @@ export const postsService = {
   /**
    * Delete a scheduled post
    */
-  async deletePost(id: string): Promise<void> {
-    await apiClient.delete(API_ENDPOINTS.POST_DETAIL(id));
+  async deletePost(postId: string): Promise<void> {
+    await apiClient.delete(API_ENDPOINTS.SCHEDULED_POST_DELETE(postId));
+  },
+
+  /**
+   * Publish a scheduled post immediately
+   */
+  async publishNow(postId: string): Promise<ScheduledPost> {
+    const response = await apiClient.post<ScheduledPost>(
+      API_ENDPOINTS.SCHEDULED_POST_PUBLISH_NOW(postId)
+    );
+    return response.data!;
   },
 
   /**
@@ -101,10 +115,56 @@ export const postsService = {
   /**
    * Reschedule a post to a new time
    */
-  async reschedulePost(id: string, newScheduledTime: string): Promise<ScheduledPost> {
-    return this.updatePost({
-      id,
-      scheduledTime: newScheduledTime,
+  async reschedulePost(postId: string, newScheduledFor: string): Promise<ScheduledPost> {
+    return this.updatePost(postId, {
+      scheduledFor: newScheduledFor,
     });
+  },
+
+  /**
+   * Upload media for scheduling (alternative endpoint)
+   */
+  async uploadSchedulingMedia(
+    file: File,
+    clientAccountId?: string,
+    onProgress?: (progress: number) => void
+  ): Promise<{ url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const url = clientAccountId
+      ? `${API_ENDPOINTS.MEDIA_UPLOAD}?clientAccountId=${clientAccountId}`
+      : API_ENDPOINTS.MEDIA_UPLOAD;
+
+    const response = await apiClient.upload<{
+      id: string;
+      s3Url: string;
+      filename: string;
+      mediaType: string;
+    }>(url, formData, onProgress);
+
+    return {
+      url: response.data!.s3Url,
+    };
+  },
+
+  /**
+   * List media assets for an account
+   */
+  async listMedia(accountId: string): Promise<any[]> {
+    const response = await apiClient.get<any[]>(
+      API_ENDPOINTS.MEDIA_LIST(accountId)
+    );
+    return response.data || [];
+  },
+
+  /**
+   * Get optimal posting times for an account
+   */
+  async getOptimalTimes(accountId: string): Promise<any> {
+    const response = await apiClient.get<any>(
+      API_ENDPOINTS.OPTIMAL_TIMES(accountId)
+    );
+    return response.data!;
   },
 };

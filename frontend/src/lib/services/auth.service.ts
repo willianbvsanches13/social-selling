@@ -29,21 +29,22 @@ export const authService = {
     await apiClient.post(API_ENDPOINTS.LOGOUT, { refreshToken });
   },
 
-  async forgotPassword(data: ForgotPasswordFormData): Promise<{ message: string }> {
-    const response = await apiClient.post<{ message: string }>(
-      API_ENDPOINTS.FORGOT_PASSWORD,
-      data
-    );
-    return response.data!;
-  },
+  // TODO: Implementar forgot/reset password no backend
+  // async forgotPassword(data: ForgotPasswordFormData): Promise<{ message: string }> {
+  //   const response = await apiClient.post<{ message: string }>(
+  //     API_ENDPOINTS.FORGOT_PASSWORD,
+  //     data
+  //   );
+  //   return response.data!;
+  // },
 
-  async resetPassword(data: ResetPasswordFormData): Promise<{ message: string }> {
-    const response = await apiClient.post<{ message: string }>(
-      API_ENDPOINTS.RESET_PASSWORD,
-      data
-    );
-    return response.data!;
-  },
+  // async resetPassword(data: ResetPasswordFormData): Promise<{ message: string }> {
+  //   const response = await apiClient.post<{ message: string }>(
+  //     API_ENDPOINTS.RESET_PASSWORD,
+  //     data
+  //   );
+  //   return response.data!;
+  // },
 
   async getCurrentUser(): Promise<User> {
     const response = await apiClient.get<User>(API_ENDPOINTS.ME);

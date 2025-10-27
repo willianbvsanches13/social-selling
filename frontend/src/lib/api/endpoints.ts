@@ -5,8 +5,9 @@ export const API_ENDPOINTS = {
   LOGOUT: '/auth/logout',
   REFRESH: '/auth/refresh',
   ME: '/auth/me',
-  FORGOT_PASSWORD: '/auth/forgot-password',
-  RESET_PASSWORD: '/auth/reset-password',
+  // TODO: Implementar forgot/reset password no backend
+  // FORGOT_PASSWORD: '/auth/forgot-password',
+  // RESET_PASSWORD: '/auth/reset-password',
 
   // User Management
   USER_PROFILE: '/users/me',
@@ -19,14 +20,13 @@ export const API_ENDPOINTS = {
   // Instagram OAuth
   INSTAGRAM_OAUTH_AUTHORIZE: '/instagram/oauth/authorize',
   INSTAGRAM_OAUTH_CALLBACK: '/instagram/oauth/callback',
-  INSTAGRAM_CONNECT: '/instagram/accounts/connect',
 
   // Instagram Accounts
   INSTAGRAM_ACCOUNTS: '/instagram/accounts',
   INSTAGRAM_ACCOUNT: (id: string) => `/instagram/accounts/${id}`,
   INSTAGRAM_ACCOUNT_SYNC: (id: string) => `/instagram/accounts/${id}/sync`,
   INSTAGRAM_ACCOUNT_REFRESH_STATUS: (id: string) => `/instagram/accounts/${id}/refresh-status`,
-  INSTAGRAM_DISCONNECT: (id: string) => `/instagram/accounts/${id}/disconnect`,
+  INSTAGRAM_ACCOUNT_DELETE: (id: string) => `/instagram/accounts/${id}`,
 
   // Instagram Webhooks
   INSTAGRAM_WEBHOOK_CREATE: '/instagram/webhooks/subscriptions',
@@ -54,10 +54,26 @@ export const API_ENDPOINTS = {
   MESSAGE_UPLOAD: '/messages/upload',
 
   // Posts & Content Scheduling
-  POSTS: '/posts',
-  POST_DETAIL: (id: string) => `/posts/${id}`,
+  // Upload and Calendar (from /posts controller)
   POST_UPLOAD_MEDIA: '/posts/upload',
   POSTS_CALENDAR: '/posts/calendar',
+
+  // Scheduled Posts CRUD (from /instagram/scheduling controller)
+  SCHEDULED_POSTS_CREATE: '/instagram/scheduling/posts',
+  SCHEDULED_POSTS_LIST: (accountId: string) => `/instagram/scheduling/posts/${accountId}`,
+  SCHEDULED_POST_DETAIL: (accountId: string, postId: string) => `/instagram/scheduling/posts/${accountId}/${postId}`,
+  SCHEDULED_POST_UPDATE: (postId: string) => `/instagram/scheduling/posts/${postId}`,
+  SCHEDULED_POST_DELETE: (postId: string) => `/instagram/scheduling/posts/${postId}`,
+  SCHEDULED_POST_PUBLISH_NOW: (postId: string) => `/instagram/scheduling/posts/${postId}/publish-now`,
+
+  // Media Management
+  MEDIA_UPLOAD: '/instagram/scheduling/media/upload',
+  MEDIA_LIST: (accountId: string) => `/instagram/scheduling/media/${accountId}`,
+  MEDIA_DETAIL: (accountId: string, assetId: string) => `/instagram/scheduling/media/${accountId}/${assetId}`,
+  MEDIA_DELETE: (assetId: string) => `/instagram/scheduling/media/${assetId}`,
+
+  // Optimal Posting Times
+  OPTIMAL_TIMES: (accountId: string) => `/instagram/scheduling/optimal-times/${accountId}`,
 
   // Health
   HEALTH: '/health',

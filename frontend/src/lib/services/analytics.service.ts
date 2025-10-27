@@ -98,68 +98,76 @@ export const analyticsService = {
   },
 
   /**
-   * Export analytics data
+   * Generate analytics report
    */
-  async exportData(
+  async generateReport(
     accountId: string,
-    dateRange: AnalyticsDateRange,
-    format: 'csv' | 'json' = 'csv'
-  ): Promise<Blob> {
-    const params = new URLSearchParams({
-      accountId,
-      startDate: dateRange.start.toISOString(),
-      endDate: dateRange.end.toISOString(),
-      format,
-    });
-
-    const response = await apiClient.get<Blob>(
-      `${API_ENDPOINTS.ANALYTICS_REPORTS}?${params.toString()}`,
+    reportType: string,
+    startDate: string,
+    endDate: string
+  ): Promise<any> {
+    const response = await apiClient.post<any>(
+      API_ENDPOINTS.ANALYTICS_REPORTS,
       {
-        responseType: 'blob',
+        clientAccountId: accountId,
+        reportType,
+        startDate,
+        endDate,
       }
     );
     return response.data!;
   },
 
   /**
-   * Export analytics to PDF
+   * List reports for an account
    */
-  async exportToPDF(data: any): Promise<Blob> {
-    const response = await apiClient.post<Blob>(
-      `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/pdf`,
-      data,
-      {
-        responseType: 'blob',
-      }
+  async listReports(accountId: string, limit: number = 10): Promise<any[]> {
+    const response = await apiClient.get<any[]>(
+      `${API_ENDPOINTS.ANALYTICS_REPORTS_LIST(accountId)}?limit=${limit}`
     );
-    return response.data!;
+    return response.data || [];
   },
 
-  /**
-   * Export analytics to CSV
-   */
-  async exportToCSV(data: any): Promise<Blob> {
-    const response = await apiClient.post<Blob>(
-      `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/csv`,
-      data,
-      {
-        responseType: 'blob',
-      }
-    );
-    return response.data!;
-  },
+  // TODO: Implementar endpoints de export no backend
+  // /**
+  //  * Export analytics to PDF
+  //  */
+  // async exportToPDF(data: any): Promise<Blob> {
+  //   const response = await apiClient.post<Blob>(
+  //     `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/pdf`,
+  //     data,
+  //     {
+  //       responseType: 'blob',
+  //     }
+  //   );
+  //   return response.data!;
+  // },
 
-  /**
-   * Export analytics to Excel
-   */
-  async exportToExcel(data: any): Promise<Blob> {
-    const response = await apiClient.post<Blob>(
-      `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/excel`,
-      data,
-      {
-        responseType: 'blob',
-      }
-    );
-    return response.data!;
-  },
+  // /**
+  //  * Export analytics to CSV
+  //  */
+  // async exportToCSV(data: any): Promise<Blob> {
+  //   const response = await apiClient.post<Blob>(
+  //     `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/csv`,
+  //     data,
+  //     {
+  //       responseType: 'blob',
+  //     }
+  //   );
+  //   return response.data!;
+  // },
+
+  // /**
+  //  * Export analytics to Excel
+  //  */
+  // async exportToExcel(data: any): Promise<Blob> {
+  //   const response = await apiClient.post<Blob>(
+  //     `${API_ENDPOINTS.ANALYTICS_REPORTS}/export/excel`,
+  //     data,
+  //     {
+  //       responseType: 'blob',
+  //     }
+  //   );
+  //   return response.data!;
+  // },
 };

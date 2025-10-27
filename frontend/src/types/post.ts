@@ -1,5 +1,5 @@
-export type PostType = 'feed' | 'story' | 'reel';
-export type PostStatus = 'scheduled' | 'publishing' | 'published' | 'failed' | 'draft';
+export type PostMediaType = 'IMAGE' | 'VIDEO' | 'CAROUSEL' | 'REELS';
+export type PostStatus = 'scheduled' | 'publishing' | 'published' | 'failed' | 'cancelled';
 
 export interface PostMedia {
   id: string;
@@ -9,52 +9,62 @@ export interface PostMedia {
   position: number;
 }
 
+export interface ProductTag {
+  productId: string;
+  x: number;
+  y: number;
+}
+
 export interface ScheduledPost {
   id: string;
   clientAccountId: string;
-  postType: PostType;
+  userId: string;
+  scheduledFor: string; // Backend uses scheduledFor, not scheduledTime
+  publishedAt?: string;
   caption: string;
   mediaUrls: string[];
   media?: PostMedia[];
-  scheduledTime: string;
+  mediaType: PostMediaType;
   status: PostStatus;
-  publishedAt?: string;
-  platformPostId?: string;
-  errorDetails?: {
-    message: string;
-    code?: string;
-    retryCount: number;
-  };
-  retryCount: number;
+  publishAttempts: number;
+  lastPublishError?: string;
+  instagramMediaId?: string;
+  permalink?: string;
+  productTags?: ProductTag[];
+  locationId?: string;
+  templateId?: string;
+  templateVariables?: Record<string, string>;
   createdAt: string;
   updatedAt: string;
+  cancelledAt?: string;
 }
 
 export interface CreatePostRequest {
   clientAccountId: string;
-  postType: PostType;
+  scheduledFor: string; // Backend uses scheduledFor
   caption: string;
   mediaUrls: string[];
-  scheduledTime: string;
-  status?: 'scheduled' | 'draft';
+  mediaType: PostMediaType;
+  productTags?: ProductTag[];
+  locationId?: string;
+  templateId?: string;
+  templateVariables?: Record<string, string>;
 }
 
 export interface UpdatePostRequest {
-  id: string;
+  scheduledFor?: string; // Backend uses scheduledFor
   caption?: string;
   mediaUrls?: string[];
-  scheduledTime?: string;
-  status?: 'scheduled' | 'draft';
+  productTags?: ProductTag[];
+  locationId?: string;
 }
 
 export interface PostFilters {
-  clientAccountId?: string;
-  postType?: PostType;
   status?: PostStatus;
-  startDate?: string;
-  endDate?: string;
+  scheduledAfter?: string;
+  scheduledBefore?: string;
   page?: number;
-  perPage?: number;
+  limit?: number;
 }
 
 export interface CalendarEvent {
