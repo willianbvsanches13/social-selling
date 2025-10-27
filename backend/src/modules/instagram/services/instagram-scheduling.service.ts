@@ -63,8 +63,16 @@ export class InstagramSchedulingService {
 
     // Validate scheduled time is in future
     // Add 5-minute buffer to account for timezone differences and processing time
+    this.logger.log(`Received scheduledFor: ${dto.scheduledFor}`);
+    this.logger.log(`Current UTC time: ${dayjs().utc().format()}`);
+
     const scheduledDate = dayjs(dto.scheduledFor).utc();
     const now = dayjs().utc().subtract(5, 'minutes');
+
+    this.logger.log(`Parsed scheduled date (UTC): ${scheduledDate.format()}`);
+    this.logger.log(`Now minus 5 min (UTC): ${now.format()}`);
+    this.logger.log(`Is before? ${scheduledDate.isBefore(now)}`);
+
     if (scheduledDate.isBefore(now)) {
       throw new BadRequestException('Scheduled time must be at least 5 minutes in the future');
     }

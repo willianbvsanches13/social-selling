@@ -110,12 +110,16 @@ export function PostSchedulerModal({
       setIsSubmitting(true);
 
       // Transform form data to match backend API
+      // Convert local datetime to ISO 8601 UTC format
+      const scheduledDate = new Date(data.scheduledTime);
+      const scheduledForUTC = scheduledDate.toISOString();
+
       const apiData = {
         clientAccountId: data.clientAccountId,
         caption: data.caption,
         mediaUrls,
         mediaType: data.postType, // Form uses postType, API expects mediaType
-        scheduledFor: data.scheduledTime, // Form uses scheduledTime, API expects scheduledFor
+        scheduledFor: scheduledForUTC, // Send as ISO 8601 UTC
       };
 
       if (post) {

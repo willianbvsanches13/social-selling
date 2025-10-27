@@ -39,7 +39,7 @@ export class InstagramScheduledPostRepository
       )
     `;
 
-    await this.db.query(query, [
+    await this.db.none(query, [
       postData.id,
       postData.clientAccountId,
       postData.userId,
@@ -77,13 +77,13 @@ export class InstagramScheduledPostRepository
       SELECT * FROM instagram_scheduled_posts WHERE id = $1
     `;
 
-    const result = await this.db.query(query, [id]);
+    const row = await this.db.oneOrNone(query, [id]);
 
-    if (!result?.rows || result.rows.length === 0) {
+    if (!row) {
       return null;
     }
 
-    return this.mapToEntity(result.rows[0]);
+    return this.mapToEntity(row);
   }
 
   async findByClientAccount(
@@ -95,8 +95,8 @@ export class InstagramScheduledPostRepository
       ORDER BY scheduled_for ASC
     `;
 
-    const result = await this.db.query(query, [clientAccountId]);
-    return result?.rows ? result.rows.map((row: any) => this.mapToEntity(row)) : [];
+    const rows = await this.db.manyOrNone(query, [clientAccountId]);
+    return rows ? rows.map((row: any) => this.mapToEntity(row)) : [];
   }
 
   async update(post: InstagramScheduledPost): Promise<InstagramScheduledPost> {
@@ -128,7 +128,7 @@ export class InstagramScheduledPostRepository
       WHERE id = $22
     `;
 
-    await this.db.query(query, [
+    await this.db.none(query, [
       postData.scheduledFor,
       postData.publishedAt || null,
       postData.caption,
@@ -163,7 +163,7 @@ export class InstagramScheduledPostRepository
       DELETE FROM instagram_scheduled_posts WHERE id = $1
     `;
 
-    await this.db.query(query, [id]);
+    await this.db.none(query, [id]);
   }
 
   async findScheduledForPublishing(
@@ -175,8 +175,8 @@ export class InstagramScheduledPostRepository
       ORDER BY scheduled_for ASC
     `;
 
-    const result = await this.db.query(query, [PostStatus.SCHEDULED, now]);
-    return result?.rows ? result.rows.map((row: any) => this.mapToEntity(row)) : [];
+    const rows = await this.db.manyOrNone(query, [PostStatus.SCHEDULED, now]);
+    return rows ? rows.map((row: any) => this.mapToEntity(row)) : [];
   }
 
   async list(
@@ -219,11 +219,8 @@ export class InstagramScheduledPostRepository
       ${whereClause}
     `;
 
-    const countResult = await this.db.query(countQuery, params);
-    const total =
-      countResult?.rows && countResult.rows.length > 0
-        ? parseInt(countResult.rows[0].count, 10)
-        : 0;
+    const countRow = await this.db.one(countQuery, params);
+    const total = parseInt(countRow.count, 10);
 
     // Get items with pagination
     let dataQuery = `
@@ -243,8 +240,8 @@ export class InstagramScheduledPostRepository
       params.push(filters.skip);
     }
 
-    const result = await this.db.query(dataQuery, params);
-    const items = result?.rows ? result.rows.map((row: any) => this.mapToEntity(row)) : [];
+    const rows = await this.db.manyOrNone(dataQuery, params);
+    const items = rows ? rows.map((row: any) => this.mapToEntity(row)) : [];
 
     return { items, total };
   }
