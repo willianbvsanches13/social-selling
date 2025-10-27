@@ -6,10 +6,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, Loader2, Calendar, Eye } from 'lucide-react';
 import { postsService } from '@/lib/services/posts.service';
+import { instagramService } from '@/lib/services/instagram.service';
 import { useToast } from '@/lib/hooks/useToast';
 import { MediaUploader } from './MediaUploader';
 import { PostPreview } from './PostPreview';
 import { ScheduledPost, PostType } from '@/types/post';
+import type { InstagramAccount } from '@/types/instagram';
 import { format } from 'date-fns';
 
 const postSchema = z.object({
@@ -39,6 +41,8 @@ export function PostSchedulerModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mediaUrls, setMediaUrls] = useState<string[]>(post?.mediaUrls || []);
   const [showPreview, setShowPreview] = useState(false);
+  const [accounts, setAccounts] = useState<InstagramAccount[]>([]);
+  const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
 
   const {
     register,
@@ -67,6 +71,27 @@ export function PostSchedulerModal({
 
   const postType = watch('postType');
   const caption = watch('caption');
+
+  // Fetch Instagram accounts
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        setIsLoadingAccounts(true);
+        const data = await instagramService.getAccounts();
+        // Only show active accounts
+        const activeAccounts = data.filter((acc) => acc.status === 'active');
+        setAccounts(activeAccounts);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load accounts';
+        showError(errorMessage);
+      } finally {
+        setIsLoadingAccounts(false);
+      }
+    };
+
+    fetchAccounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Set default account if provided
   useEffect(() => {
@@ -153,15 +178,25 @@ export function PostSchedulerModal({
                 <select
                   {...register('clientAccountId')}
                   className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isLoadingAccounts}
                 >
-                  <option value="">Select an account</option>
-                  {/* These would be fetched from backend */}
-                  <option value="account-1">@my_account</option>
-                  <option value="account-2">@business_account</option>
+                  <option value="">
+                    {isLoadingAccounts ? 'Loading accounts...' : 'Select an account'}
+                  </option>
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      @{account.username}
+                      {account.displayName ? ` (${account.displayName})` : ''}
+                    </option>
+                  ))}
                 </select>
                 {errors.clientAccountId && (
                   <p className="mt-1 text-sm text-red-600">{errors.clientAccountId.message}</p>
+                )}
+                {!isLoadingAccounts && accounts.length === 0 && (
+                  <p className="mt-1 text-sm text-orange-600">
+                    No active Instagram accounts. Please connect an account first.
+                  </p>
                 )}
               </div>
 
