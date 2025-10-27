@@ -200,7 +200,6 @@ export class InstagramAccountService {
         website: profile.website,
         metadata: {
           igId: profile.id,
-          isVerified: profile.is_verified,
         },
       });
 

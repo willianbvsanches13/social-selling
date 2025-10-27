@@ -71,7 +71,6 @@ export class InstagramApiService {
       'followers_count',
       'follows_count',
       'media_count',
-      'is_verified',
     ];
 
     const response = await this.makeRequest<InstagramProfileDto>(
