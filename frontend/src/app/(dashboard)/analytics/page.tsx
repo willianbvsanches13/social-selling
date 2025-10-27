@@ -235,37 +235,42 @@ export default function AnalyticsPage() {
         data: analyticsData,
       };
 
-      let blob: Blob;
+      // TODO: Implementar endpoints de export no backend
+      // let blob: Blob;
       let filename: string;
 
       switch (format) {
         case 'pdf':
-          blob = await analyticsService.exportToPDF(exportData);
+          // blob = await analyticsService.exportToPDF(exportData);
           filename = `analytics-${formatDate(dateRange.startDate, 'yyyy-MM-dd')}-to-${formatDate(dateRange.endDate, 'yyyy-MM-dd')}.pdf`;
           break;
         case 'csv':
-          blob = await analyticsService.exportToCSV(exportData);
+          // blob = await analyticsService.exportToCSV(exportData);
           filename = `analytics-${formatDate(dateRange.startDate, 'yyyy-MM-dd')}-to-${formatDate(dateRange.endDate, 'yyyy-MM-dd')}.csv`;
           break;
         case 'excel':
-          blob = await analyticsService.exportToExcel(exportData);
+          // blob = await analyticsService.exportToExcel(exportData);
           filename = `analytics-${formatDate(dateRange.startDate, 'yyyy-MM-dd')}-to-${formatDate(dateRange.endDate, 'yyyy-MM-dd')}.xlsx`;
           break;
         default:
           throw new Error('Unsupported export format');
       }
 
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // Temporarily show error message until backend implements export endpoints
+      throw new Error('Export feature is not yet implemented. Coming soon!');
 
-      toast.success(`Analytics exported as ${format.toUpperCase()}`);
+      // TODO: Uncomment when backend export endpoints are implemented
+      // // Create download link
+      // const url = window.URL.createObjectURL(blob);
+      // const link = document.createElement('a');
+      // link.href = url;
+      // link.download = filename;
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      // window.URL.revokeObjectURL(url);
+
+      // toast.success(`Analytics exported as ${format.toUpperCase()}`);
     } catch (error) {
       console.error('Export failed:', error);
       toast.error('Failed to export analytics');

@@ -1,4 +1,6 @@
 export type PostMediaType = 'IMAGE' | 'VIDEO' | 'CAROUSEL' | 'REELS';
+// Alias for backward compatibility
+export type PostType = PostMediaType;
 export type PostStatus = 'scheduled' | 'publishing' | 'published' | 'failed' | 'cancelled';
 
 export interface PostMedia {

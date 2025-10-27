@@ -44,6 +44,8 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^14.2.0",
+    "@rushstack/eslint-patch": "^1.14.1",
     "@tailwindcss/forms": "^0.5.7",
     "@types/node": "^20",
     "@types/react": "^18",
@@ -53,8 +55,14 @@
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.0.0-canary-7118f5dd7-20230705",
+    "globby": "^11.1.0",
     "postcss": "^8",
     "prettier": "^3.2.0",
+    "rimraf": "^3.0.2",
     "tailwindcss": "^3.4.0",
     "tailwindcss-animate": "^1.0.7"
   }

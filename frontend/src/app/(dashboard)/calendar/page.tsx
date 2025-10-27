@@ -56,8 +56,8 @@ export default function CalendarPage() {
   const events: CalendarEvent[] = posts.map((post) => ({
     id: post.id,
     title: post.caption.substring(0, 50) + (post.caption.length > 50 ? '...' : ''),
-    start: new Date(post.scheduledTime),
-    end: new Date(post.scheduledTime),
+    start: new Date(post.scheduledFor),
+    end: new Date(post.scheduledFor),
     resource: post,
   }));
 
@@ -77,7 +77,7 @@ export default function CalendarPage() {
       publishing: { backgroundColor: '#eab308', color: 'white' },
       published: { backgroundColor: '#22c55e', color: 'white' },
       failed: { backgroundColor: '#ef4444', color: 'white' },
-      draft: { backgroundColor: '#9ca3af', color: 'white' },
+      cancelled: { backgroundColor: '#9ca3af', color: 'white' },
     };
 
     return {

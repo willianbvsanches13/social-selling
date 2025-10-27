@@ -22,11 +22,11 @@ export function AccountStatusBadge({ status, className }: AccountStatusBadgeProp
       className: 'bg-red-100 text-red-700',
       iconClassName: 'text-red-500',
     },
-    refreshing: {
-      icon: RefreshCw,
-      text: 'Refreshing',
-      className: 'bg-blue-100 text-blue-700',
-      iconClassName: 'text-blue-500 animate-spin',
+    rate_limited: {
+      icon: AlertCircle,
+      text: 'Rate Limited',
+      className: 'bg-orange-100 text-orange-700',
+      iconClassName: 'text-orange-500',
     },
     token_expired: {
       icon: AlertCircle,

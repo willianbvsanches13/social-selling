@@ -40,9 +40,9 @@ function InstagramCallbackContent() {
         throw new Error('Invalid state parameter - possible CSRF attack');
       }
 
-      // Connect the account
-      const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/instagram/callback`;
-      await instagramService.connectAccount({ code, redirectUri });
+      // Note: The OAuth callback is handled by the backend automatically
+      // The backend receives the code and processes it via GET /instagram/oauth/callback
+      // So we just need to wait and then redirect
 
       // Clean up
       sessionStorage.removeItem('instagram_oauth_state');

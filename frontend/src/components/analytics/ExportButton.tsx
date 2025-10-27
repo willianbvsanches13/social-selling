@@ -20,17 +20,20 @@ export function ExportButton({ accountId, dateRange }: ExportButtonProps) {
       setIsExporting(true);
       setExportSuccess(false);
 
-      const blob = await analyticsService.exportData(accountId, dateRange, format);
+      // TODO: Implementar export no backend
+      throw new Error('Export feature is not yet implemented. Coming soon!');
 
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `analytics-export-${dateRange.start.toISOString().split('T')[0]}-to-${dateRange.end.toISOString().split('T')[0]}.${format}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      // const blob = await analyticsService.exportData(accountId, dateRange, format);
+
+      // // Create download link
+      // const url = window.URL.createObjectURL(blob);
+      // const link = document.createElement('a');
+      // link.href = url;
+      // link.download = `analytics-export-${dateRange.start.toISOString().split('T')[0]}-to-${dateRange.end.toISOString().split('T')[0]}.${format}`;
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+      // window.URL.revokeObjectURL(url);
 
       setExportSuccess(true);
       setTimeout(() => setExportSuccess(false), 2000);

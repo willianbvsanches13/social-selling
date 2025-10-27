@@ -19,15 +19,11 @@ export function PostPreview({
   accountUsername = 'your_account',
   accountProfilePic,
 }: PostPreviewProps) {
-  if (postType === 'story') {
-    return <StoryPreview media={mediaUrls[0]} caption={caption} username={accountUsername} />;
-  }
-
-  if (postType === 'reel') {
+  if (postType === 'REELS') {
     return <ReelPreview media={mediaUrls[0]} caption={caption} username={accountUsername} />;
   }
 
-  // Feed post
+  // Feed post (IMAGE, VIDEO, CAROUSEL)
   return <FeedPreview mediaUrls={mediaUrls} caption={caption} username={accountUsername} profilePic={accountProfilePic} />;
 }
 

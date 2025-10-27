@@ -14,10 +14,10 @@ import { format } from 'date-fns';
 
 const postSchema = z.object({
   clientAccountId: z.string().min(1, 'Please select an account'),
-  postType: z.enum(['feed', 'story', 'reel']),
+  postType: z.enum(['IMAGE', 'VIDEO', 'CAROUSEL', 'REELS']),
   caption: z.string().min(1, 'Caption is required').max(2200, 'Caption is too long'),
   scheduledTime: z.string().min(1, 'Scheduled time is required'),
-  status: z.enum(['scheduled', 'draft']).default('scheduled'),
+  status: z.enum(['scheduled', 'cancelled']).default('scheduled'),
 });
 
 type PostFormData = z.infer<typeof postSchema>;
@@ -51,14 +51,14 @@ export function PostSchedulerModal({
     defaultValues: post
       ? {
           clientAccountId: post.clientAccountId,
-          postType: post.postType,
+          postType: post.mediaType,
           caption: post.caption,
-          scheduledTime: format(new Date(post.scheduledTime), "yyyy-MM-dd'T'HH:mm"),
-          status: post.status === 'scheduled' || post.status === 'draft' ? post.status : 'scheduled',
+          scheduledTime: format(new Date(post.scheduledFor), "yyyy-MM-dd'T'HH:mm"),
+          status: post.status === 'scheduled' || post.status === 'cancelled' ? post.status : 'scheduled',
         }
       : {
           clientAccountId: defaultAccount || '',
-          postType: 'feed',
+          postType: 'IMAGE',
           caption: '',
           scheduledTime: format(new Date(Date.now() + 3600000), "yyyy-MM-dd'T'HH:mm"), // 1 hour from now
           status: 'scheduled',
@@ -84,18 +84,20 @@ export function PostSchedulerModal({
     try {
       setIsSubmitting(true);
 
+      // Transform form data to match backend API
+      const apiData = {
+        clientAccountId: data.clientAccountId,
+        caption: data.caption,
+        mediaUrls,
+        mediaType: data.postType, // Form uses postType, API expects mediaType
+        scheduledFor: data.scheduledTime, // Form uses scheduledTime, API expects scheduledFor
+      };
+
       if (post) {
-        await postsService.updatePost({
-          id: post.id,
-          ...data,
-          mediaUrls,
-        });
+        await postsService.updatePost(post.id, apiData);
         success('Post updated successfully');
       } else {
-        await postsService.createPost({
-          ...data,
-          mediaUrls,
-        });
+        await postsService.createPost(apiData);
         success('Post scheduled successfully');
       }
 
@@ -110,10 +112,11 @@ export function PostSchedulerModal({
 
   const getMaxFiles = (type: PostType): number => {
     switch (type) {
-      case 'story':
-      case 'reel':
+      case 'REELS':
+      case 'VIDEO':
         return 1;
-      case 'feed':
+      case 'IMAGE':
+      case 'CAROUSEL':
         return 10;
       default:
         return 10;
@@ -165,8 +168,8 @@ export function PostSchedulerModal({
               {/* Post Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Post Type *</label>
-                <div className="mt-2 grid grid-cols-3 gap-3">
-                  {(['feed', 'story', 'reel'] as const).map((type) => (
+                <div className="mt-2 grid grid-cols-4 gap-3">
+                  {(['IMAGE', 'VIDEO', 'CAROUSEL', 'REELS'] as const).map((type) => (
                     <label
                       key={type}
                       className={`
@@ -185,7 +188,7 @@ export function PostSchedulerModal({
                         className="sr-only"
                         disabled={isSubmitting}
                       />
-                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                      {type.charAt(0) + type.slice(1).toLowerCase()}
                     </label>
                   ))}
                 </div>

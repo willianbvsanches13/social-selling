@@ -53,13 +53,13 @@ export default function InstagramAccountsPage() {
   const handleRefreshAccount = async (accountId: string) => {
     try {
       setRefreshingIds((prev) => new Set(prev).add(accountId));
-      const updatedAccount = await instagramService.refreshAccount(accountId);
+      const updatedAccount = await instagramService.syncAccount(accountId);
       setAccounts((prev) =>
         prev.map((acc) => (acc.id === accountId ? updatedAccount : acc))
       );
-      success('Account refreshed successfully');
+      success('Account synced successfully');
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to refresh account';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sync account';
       showError(errorMessage);
     } finally {
       setRefreshingIds((prev) => {
@@ -181,12 +181,12 @@ function InstagramAccountCard({
           className: 'bg-red-100 text-red-700',
           iconClassName: 'text-red-500',
         };
-      case 'refreshing':
+      case 'rate_limited':
         return {
-          icon: RefreshCw,
-          text: 'Refreshing',
-          className: 'bg-blue-100 text-blue-700',
-          iconClassName: 'text-blue-500 animate-spin',
+          icon: AlertCircle,
+          text: 'Rate Limited',
+          className: 'bg-orange-100 text-orange-700',
+          iconClassName: 'text-orange-500',
         };
       default:
         return {

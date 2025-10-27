@@ -32,9 +32,11 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
       setIsLoading(true);
-      await authService.forgotPassword(data);
-      setIsSubmitted(true);
-      success('Password reset email sent successfully!');
+      // TODO: Implementar forgot password no backend
+      // await authService.forgotPassword(data);
+      showError('Password reset feature is not yet implemented. Please contact support.');
+      // setIsSubmitted(true);
+      // success('Password reset email sent successfully!');
     } catch (err) {
       const error = err as Error;
       showError(error.message || 'Failed to send reset email. Please try again.');

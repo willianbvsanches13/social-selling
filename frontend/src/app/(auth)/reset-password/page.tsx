@@ -67,15 +67,17 @@ function ResetPasswordForm() {
 
     try {
       setIsLoading(true);
-      await authService.resetPassword({
-        ...data,
-        token,
-      });
-      setIsSuccess(true);
-      success('Password reset successfully!');
-      setTimeout(() => {
-        router.push('/login');
-      }, 3000);
+      // TODO: Implementar reset password no backend
+      // await authService.resetPassword({
+      //   ...data,
+      //   token,
+      // });
+      showError('Password reset feature is not yet implemented. Please contact support.');
+      // setIsSuccess(true);
+      // success('Password reset successfully!');
+      // setTimeout(() => {
+      //   router.push('/login');
+      // }, 3000);
     } catch (err) {
       const error = err as Error;
       showError(error.message || 'Failed to reset password. Please try again.');
