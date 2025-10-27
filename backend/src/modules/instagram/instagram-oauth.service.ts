@@ -26,17 +26,19 @@ import {
 @Injectable()
 export class InstagramOAuthService {
   private readonly logger = new Logger(InstagramOAuthService.name);
-  private readonly authBaseUrl = 'https://api.instagram.com/oauth';
-  private readonly graphBaseUrl = 'https://graph.instagram.com';
+  private readonly authBaseUrl = 'https://www.facebook.com/v21.0/dialog/oauth';
+  private readonly tokenUrl = 'https://graph.facebook.com/v21.0/oauth/access_token';
+  private readonly graphBaseUrl = 'https://graph.facebook.com/v21.0';
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly redirectUri: string;
   private readonly scopes = [
-    'user_profile',
-    'user_media',
     'instagram_basic',
     'instagram_manage_messages',
     'instagram_manage_comments',
+    'instagram_content_publish',
+    'pages_show_list',
+    'pages_read_engagement',
   ];
 
   constructor(
@@ -76,7 +78,7 @@ export class InstagramOAuthService {
       state,
     });
 
-    return `${this.authBaseUrl}/authorize?${params.toString()}`;
+    return `${this.authBaseUrl}?${params.toString()}`;
   }
 
   async handleCallback(
@@ -161,24 +163,19 @@ export class InstagramOAuthService {
   private async exchangeCodeForToken(
     code: string,
   ): Promise<InstagramTokenResponse> {
-    const formData = new URLSearchParams({
+    const params = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
-      grant_type: 'authorization_code',
-      redirect_uri: this.redirectUri,
       code,
+      redirect_uri: this.redirectUri,
     });
 
-    const response = await fetch(`${this.authBaseUrl}/access_token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData.toString(),
-    });
+    const response = await fetch(`${this.tokenUrl}?${params.toString()}`);
 
     if (!response.ok) {
-      throw new Error(
-        `Instagram token exchange failed: ${response.statusText}`,
-      );
+      const errorText = await response.text();
+      this.logger.error(`Facebook token exchange failed: ${errorText}`);
+      throw new Error(`Facebook token exchange failed: ${response.statusText}`);
     }
 
     return response.json();
@@ -228,22 +225,51 @@ export class InstagramOAuthService {
   private async fetchUserProfile(
     accessToken: string,
   ): Promise<InstagramUserProfile> {
-    const params = new URLSearchParams({
-      fields: 'id,username,account_type,media_count',
+    // First, get the user's Facebook pages
+    const pagesParams = new URLSearchParams({
+      fields: 'instagram_business_account{id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography,website}',
       access_token: accessToken,
     });
 
-    const response = await fetch(
-      `${this.graphBaseUrl}/me?${params.toString()}`,
+    const pagesResponse = await fetch(
+      `${this.graphBaseUrl}/me/accounts?${pagesParams.toString()}`,
     );
 
-    if (!response.ok) {
+    if (!pagesResponse.ok) {
+      const errorText = await pagesResponse.text();
+      this.logger.error(`Failed to fetch Facebook pages: ${errorText}`);
       throw new Error(
-        `Instagram user profile fetch failed: ${response.statusText}`,
+        `Failed to fetch Facebook pages: ${pagesResponse.statusText}`,
       );
     }
 
-    return response.json();
+    const pagesData = await pagesResponse.json();
+
+    // Find the first page with an Instagram account
+    const pageWithInstagram = pagesData.data?.find(
+      (page: any) => page.instagram_business_account,
+    );
+
+    if (!pageWithInstagram || !pageWithInstagram.instagram_business_account) {
+      throw new Error(
+        'No Instagram Business account found. Please convert your Instagram account to Business or Creator account and link it to a Facebook Page.',
+      );
+    }
+
+    const igAccount = pageWithInstagram.instagram_business_account;
+
+    return {
+      id: igAccount.id,
+      username: igAccount.username,
+      name: igAccount.name,
+      profile_picture_url: igAccount.profile_picture_url,
+      followers_count: igAccount.followers_count,
+      follows_count: igAccount.follows_count,
+      media_count: igAccount.media_count,
+      biography: igAccount.biography,
+      website: igAccount.website,
+      account_type: 'BUSINESS', // Business or Creator
+    };
   }
 
   private async storeClientAccount(
