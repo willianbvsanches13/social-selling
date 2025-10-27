@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
+import { BullModule } from '@nestjs/bullmq';
 import { InstagramController } from './instagram.controller';
 import { InstagramAccountController } from './controllers/instagram-account.controller';
 import { InstagramWebhooksController } from './controllers/instagram-webhooks.controller';

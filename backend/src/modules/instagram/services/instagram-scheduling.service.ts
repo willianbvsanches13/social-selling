@@ -9,8 +9,8 @@ import {
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
-import { Queue } from 'bull';
-import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bullmq';
+import { InjectQueue } from '@nestjs/bullmq';
 import {
   CreateScheduledPostDto,
   UpdateScheduledPostDto,
@@ -62,9 +62,11 @@ export class InstagramSchedulingService {
     this.logger.log(`Creating scheduled post for user ${userId}`);
 
     // Validate scheduled time is in future
-    const scheduledDate = dayjs(dto.scheduledFor);
-    if (scheduledDate.isBefore(dayjs())) {
-      throw new BadRequestException('Scheduled time must be in the future');
+    // Add 5-minute buffer to account for timezone differences and processing time
+    const scheduledDate = dayjs(dto.scheduledFor).utc();
+    const now = dayjs().utc().subtract(5, 'minutes');
+    if (scheduledDate.isBefore(now)) {
+      throw new BadRequestException('Scheduled time must be at least 5 minutes in the future');
     }
 
     // Validate not too far in future (max 6 months)
@@ -294,9 +296,11 @@ export class InstagramSchedulingService {
 
     // Update scheduled time if provided
     if (dto.scheduledFor) {
-      const newScheduledDate = dayjs(dto.scheduledFor);
-      if (newScheduledDate.isBefore(dayjs())) {
-        throw new BadRequestException('Scheduled time must be in the future');
+      // Add 5-minute buffer to account for timezone differences and processing time
+      const newScheduledDate = dayjs(dto.scheduledFor).utc();
+      const now = dayjs().utc().subtract(5, 'minutes');
+      if (newScheduledDate.isBefore(now)) {
+        throw new BadRequestException('Scheduled time must be at least 5 minutes in the future');
       }
 
       post.updateScheduledTime(newScheduledDate.toDate());
