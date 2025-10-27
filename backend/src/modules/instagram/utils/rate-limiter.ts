@@ -12,14 +12,15 @@ export interface RateLimitInfo {
 export class InstagramRateLimiter {
   private readonly logger = new Logger(InstagramRateLimiter.name);
   private readonly RATE_LIMIT_PREFIX = 'ig:rate_limit:';
-  private redis: Redis;
 
   // Instagram Graph API rate limits (per access token per hour)
   private readonly DEFAULT_RATE_LIMIT = 200; // calls per hour
   private readonly WINDOW_MS = 60 * 60 * 1000; // 1 hour in milliseconds
 
-  constructor(private readonly redisService: RedisService) {
-    this.redis = this.redisService.getClient();
+  constructor(private readonly redisService: RedisService) {}
+
+  private get redis(): Redis {
+    return this.redisService.getClient();
   }
 
   /**

@@ -71,7 +71,6 @@ export class InstagramApiService {
       'followers_count',
       'follows_count',
       'media_count',
-      'ig_id',
       'is_verified',
     ];
 
