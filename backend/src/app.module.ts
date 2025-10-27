@@ -35,17 +35,20 @@ import configuration from './config/configuration';
     // Configure BullMQ with Redis connection
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
-          password: configService.get<string>('REDIS_PASSWORD'),
-          db: configService.get<number>('REDIS_DB', 0),
-          maxRetriesPerRequest: 3,
-          enableReadyCheck: true,
-          connectTimeout: 10000,
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const redisConfig = configService.get('redis');
+        return {
+          connection: {
+            host: redisConfig.host,
+            port: redisConfig.port,
+            password: redisConfig.password,
+            db: redisConfig.db || 0,
+            maxRetriesPerRequest: null, // Required by BullMQ
+            enableReadyCheck: true,
+            connectTimeout: 10000,
+          },
+        };
+      },
       inject: [ConfigService],
     }),
     DatabaseModule,

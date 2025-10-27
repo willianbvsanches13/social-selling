@@ -12,6 +12,7 @@ export default () => ({
     host: process.env.REDIS_HOST || 'redis',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
     password: process.env.REDIS_PASSWORD || 'changeme',
+    db: parseInt(process.env.REDIS_DB || '0', 10),
   },
   minio: {
     host: process.env.MINIO_HOST || 'minio',

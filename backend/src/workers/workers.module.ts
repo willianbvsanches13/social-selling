@@ -42,29 +42,37 @@ import { DatabaseModule } from '../infrastructure/database/database.module';
     // Configure BullMQ with Redis connection
     BullModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        connection: {
-          host: configService.get<string>('REDIS_HOST'),
-          port: configService.get<number>('REDIS_PORT'),
-          password: configService.get<string>('REDIS_PASSWORD'),
-          db: configService.get<number>('REDIS_DB', 0),
-          // Connection pool settings
-          maxRetriesPerRequest: 3,
-          enableReadyCheck: true,
-          connectTimeout: 10000,
-        },
-        // Default job options
-        defaultJobOptions: {
-          removeOnComplete: {
-            count: 1000, // Keep last 1000 completed jobs
-            age: 24 * 3600, // Keep for 24 hours
+      useFactory: (configService: ConfigService) => {
+        const redisConfig = configService.get('redis');
+        console.log('🔍 Redis Configuration:', {
+          host: redisConfig.host,
+          port: redisConfig.port,
+          hasPassword: !!redisConfig.password,
+        });
+        return {
+          connection: {
+            host: redisConfig.host,
+            port: redisConfig.port,
+            password: redisConfig.password,
+            db: redisConfig.db || 0,
+            // Connection pool settings
+            maxRetriesPerRequest: null, // Required by BullMQ
+            enableReadyCheck: true,
+            connectTimeout: 10000,
           },
-          removeOnFail: {
-            count: 5000, // Keep last 5000 failed jobs for debugging
-            age: 7 * 24 * 3600, // Keep for 7 days
+          // Default job options
+          defaultJobOptions: {
+            removeOnComplete: {
+              count: 1000, // Keep last 1000 completed jobs
+              age: 24 * 3600, // Keep for 24 hours
+            },
+            removeOnFail: {
+              count: 5000, // Keep last 5000 failed jobs for debugging
+              age: 7 * 24 * 3600, // Keep for 7 days
+            },
           },
-        },
-      }),
+        };
+      },
       inject: [ConfigService],
     }),
     // Register instagram-post-publishing queue
