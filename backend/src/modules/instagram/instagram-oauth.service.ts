@@ -26,18 +26,24 @@ import {
 @Injectable()
 export class InstagramOAuthService {
   private readonly logger = new Logger(InstagramOAuthService.name);
-  private readonly authBaseUrl = 'https://www.instagram.com/oauth/authorize';
-  private readonly tokenUrl = 'https://api.instagram.com/oauth/access_token';
+  // Use Facebook OAuth for Instagram Business API access
+  private readonly authBaseUrl = 'https://www.facebook.com/v24.0/dialog/oauth';
+  private readonly tokenUrl = 'https://graph.facebook.com/v24.0/oauth/access_token';
   private readonly graphBaseUrl = 'https://graph.instagram.com';
+  private readonly fbGraphBaseUrl = 'https://graph.facebook.com/v24.0';
   private readonly clientId: string;
   private readonly clientSecret: string;
   private readonly redirectUri: string;
+  // Scopes for Facebook Login to access Instagram Business
   private readonly scopes = [
-    'instagram_business_basic',
-    'instagram_business_manage_messages',
-    'instagram_business_manage_comments',
-    'instagram_business_content_publish',
-    'instagram_business_manage_insights',
+    'instagram_basic',
+    'instagram_content_publish',
+    'instagram_manage_comments',
+    'instagram_manage_insights',
+    'pages_show_list',
+    'pages_read_engagement',
+    'pages_manage_metadata', // Required to read instagram_business_account field
+    'business_management',
   ];
 
   constructor(
@@ -95,36 +101,31 @@ export class InstagramOAuthService {
     await this.redisService.del(`oauth:instagram:state:${state}`);
 
     try {
-      this.logger.log('Step 1: Exchanging code for short-lived token');
-      const shortLivedToken = await this.exchangeCodeForToken(code);
-      this.logger.log('Step 1 completed: Short-lived token received');
+      this.logger.log('Step 1: Exchanging code for token');
+      const tokenResponse = await this.exchangeCodeForToken(code);
+      this.logger.log('Step 1 completed: Token received');
 
-      this.logger.log('Step 2: Exchanging for long-lived token');
-      const longLivedToken = await this.exchangeForLongLivedToken(
-        shortLivedToken.access_token,
-      );
-      this.logger.log(
-        `Step 2 completed: Long-lived token received (expires in ${longLivedToken.expires_in}s)`,
-      );
+      // Facebook tokens are already long-lived (60 days) when using Facebook Login
+      // No need to exchange for Instagram long-lived token
+      const accessToken = tokenResponse.access_token;
+      const expiresIn = tokenResponse.expires_in || 5184000; // Default to 60 days if not provided
 
-      this.logger.log('Step 3: Fetching user profile');
-      const userProfile = await this.fetchUserProfile(
-        longLivedToken.access_token,
-      );
-      this.logger.log(`Step 3 completed: Profile fetched for @${userProfile.username}`);
+      this.logger.log('Step 2: Fetching user profile');
+      const userProfile = await this.fetchUserProfile(accessToken);
+      this.logger.log(`Step 2 completed: Profile fetched for @${userProfile.username}`);
 
-      this.logger.log('Step 4: Storing client account');
+      this.logger.log('Step 3: Storing client account');
       const clientAccount = await this.storeClientAccount(userId, userProfile);
-      this.logger.log(`Step 4 completed: Account stored with ID ${clientAccount.id}`);
+      this.logger.log(`Step 3 completed: Account stored with ID ${clientAccount.id}`);
 
-      this.logger.log('Step 5: Storing OAuth token');
+      this.logger.log('Step 4: Storing OAuth token');
       await this.storeOAuthToken(
         userId,
         clientAccount.id,
-        longLivedToken.access_token,
-        longLivedToken.expires_in,
+        accessToken,
+        expiresIn,
       );
-      this.logger.log('Step 5 completed: OAuth token stored');
+      this.logger.log('Step 4 completed: OAuth token stored');
 
       return {
         accountId: clientAccount.id,
@@ -161,7 +162,7 @@ export class InstagramOAuthService {
 
     if (token.isExpiringSoon(7)) {
       const decryptedToken = (token as any).props.encryptedAccessToken;
-      const refreshed = await this.refreshLongLivedToken(decryptedToken);
+      const refreshed = await this.refreshFacebookToken(decryptedToken);
 
       token.updateToken(
         refreshed.access_token,
@@ -203,42 +204,25 @@ export class InstagramOAuthService {
     return response.json();
   }
 
-  private async exchangeForLongLivedToken(
-    shortLivedToken: string,
-  ): Promise<InstagramLongLivedTokenResponse> {
-    const params = new URLSearchParams({
-      grant_type: 'ig_exchange_token',
-      client_secret: this.clientSecret,
-      access_token: shortLivedToken,
-    });
-
-    const response = await fetch(
-      `${this.graphBaseUrl}/access_token?${params.toString()}`,
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        `Instagram long-lived token exchange failed: ${response.statusText}`,
-      );
-    }
-
-    return response.json();
-  }
-
-  private async refreshLongLivedToken(
+  private async refreshFacebookToken(
     token: string,
   ): Promise<InstagramLongLivedTokenResponse> {
+    // Exchange short-lived token for long-lived token using Facebook Graph API
     const params = new URLSearchParams({
-      grant_type: 'ig_refresh_token',
-      access_token: token,
+      grant_type: 'fb_exchange_token',
+      client_id: this.clientId,
+      client_secret: this.clientSecret,
+      fb_exchange_token: token,
     });
 
     const response = await fetch(
-      `${this.graphBaseUrl}/refresh_access_token?${params.toString()}`,
+      `${this.fbGraphBaseUrl}/oauth/access_token?${params.toString()}`,
     );
 
     if (!response.ok) {
-      throw new Error(`Instagram token refresh failed: ${response.statusText}`);
+      const errorText = await response.text();
+      this.logger.error(`Facebook token refresh failed: ${errorText}`);
+      throw new Error(`Facebook token refresh failed: ${response.statusText}`);
     }
 
     return response.json();
@@ -247,37 +231,76 @@ export class InstagramOAuthService {
   private async fetchUserProfile(
     accessToken: string,
   ): Promise<InstagramUserProfile> {
-    // Get Instagram Business Account profile using Instagram Graph API
+    // Step 1: Get Facebook Pages
+    this.logger.log('Fetching Facebook Pages...');
+    const pagesParams = new URLSearchParams({
+      fields: 'id,name,instagram_business_account',
+      access_token: accessToken,
+    });
+
+    const pagesResponse = await fetch(
+      `${this.fbGraphBaseUrl}/me/accounts?${pagesParams.toString()}`,
+    );
+
+    if (!pagesResponse.ok) {
+      const errorText = await pagesResponse.text();
+      this.logger.error(`Failed to fetch Facebook pages: ${errorText}`);
+      throw new Error('Failed to fetch Facebook pages. Make sure you have a Facebook Page connected.');
+    }
+
+    const pagesData = await pagesResponse.json();
+    this.logger.log(`Facebook Pages response: ${JSON.stringify(pagesData, null, 2)}`);
+
+    if (!pagesData.data || pagesData.data.length === 0) {
+      throw new Error('No Facebook Pages found. Please create a Facebook Page and link your Instagram Business Account to it.');
+    }
+
+    this.logger.log(`Found ${pagesData.data.length} Facebook Page(s)`);
+    pagesData.data.forEach((page: any, index: number) => {
+      this.logger.log(`Page ${index + 1}: ${page.name} (ID: ${page.id}) - Has IG: ${!!page.instagram_business_account}`);
+    });
+
+    // Find first page with Instagram Business Account
+    const pageWithIG = pagesData.data.find((page: any) => page.instagram_business_account);
+
+    if (!pageWithIG || !pageWithIG.instagram_business_account) {
+      const pagesList = pagesData.data.map((p: any) => p.name).join(', ');
+      throw new Error(`No Instagram Business Account found on your Facebook Pages (${pagesList}). Please link your Instagram account to one of these pages.`);
+    }
+
+    const igBusinessAccountId = pageWithIG.instagram_business_account.id;
+    this.logger.log(`Found Instagram Business Account: ${igBusinessAccountId} on page: ${pageWithIG.name}`);
+
+    // Step 2: Get Instagram Business Account details using Facebook Graph API
     const profileParams = new URLSearchParams({
       fields: 'id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography,website',
       access_token: accessToken,
     });
 
     const profileResponse = await fetch(
-      `${this.graphBaseUrl}/me?${profileParams.toString()}`,
+      `${this.fbGraphBaseUrl}/${igBusinessAccountId}?${profileParams.toString()}`,
     );
 
     if (!profileResponse.ok) {
       const errorText = await profileResponse.text();
-      this.logger.error(`Failed to fetch Instagram profile: ${errorText}`);
-      throw new Error(
-        `Failed to fetch Instagram profile: ${profileResponse.statusText}`,
-      );
+      this.logger.error(`Failed to fetch Instagram Business Account profile: ${errorText}`);
+      throw new Error('Failed to fetch Instagram Business Account profile');
     }
 
     const igAccount = await profileResponse.json();
+    this.logger.log(`Instagram Business Account fetched: @${igAccount.username}`);
 
     return {
-      id: igAccount.id,
+      id: igBusinessAccountId,
       username: igAccount.username,
-      name: igAccount.name,
+      name: igAccount.name || igAccount.username,
       profile_picture_url: igAccount.profile_picture_url,
       followers_count: igAccount.followers_count,
       follows_count: igAccount.follows_count,
       media_count: igAccount.media_count,
       biography: igAccount.biography,
       website: igAccount.website,
-      account_type: 'BUSINESS',
+      account_type: 'BUSINESS', // It's a Business Account from Facebook Page
     };
   }
 
@@ -290,12 +313,23 @@ export class InstagramOAuthService {
       profile.id,
     );
 
+    // Map Instagram API account type to our enum
+    const accountType = this.mapAccountType(profile.account_type);
+    this.logger.log(`Storing account as type: ${accountType}`);
+
     if (existing) {
       existing.reactivate();
       existing.updateMetadata({
         mediaCount: profile.media_count || 0,
-        profilePictureUrl: undefined,
+        profilePictureUrl: profile.profile_picture_url,
+        displayName: profile.name,
+        followerCount: profile.followers_count,
+        followingCount: profile.follows_count,
+        biography: profile.biography,
+        website: profile.website,
       });
+      // Update account type
+      (existing as any).accountType = accountType;
       return this.clientAccountRepository.update(existing);
     }
 
@@ -304,14 +338,33 @@ export class InstagramOAuthService {
       platform: Platform.INSTAGRAM,
       platformAccountId: profile.id,
       username: profile.username,
-      profilePictureUrl: undefined,
+      displayName: profile.name,
+      profilePictureUrl: profile.profile_picture_url,
+      followerCount: profile.followers_count,
+      followingCount: profile.follows_count,
+      mediaCount: profile.media_count,
+      biography: profile.biography,
+      website: profile.website,
       status: AccountStatus.ACTIVE,
-      accountType: InstagramAccountType.PERSONAL,
-      permissions: [],
+      accountType,
+      permissions: this.scopes,
       metadata: {},
     });
 
     return this.clientAccountRepository.create(clientAccount);
+  }
+
+  private mapAccountType(apiType: string): InstagramAccountType {
+    switch (apiType?.toUpperCase()) {
+      case 'BUSINESS':
+        return InstagramAccountType.BUSINESS;
+      case 'CREATOR':
+        return InstagramAccountType.CREATOR;
+      case 'MEDIA_CREATOR':
+        return InstagramAccountType.CREATOR;
+      default:
+        return InstagramAccountType.PERSONAL;
+    }
   }
 
   private async storeOAuthToken(

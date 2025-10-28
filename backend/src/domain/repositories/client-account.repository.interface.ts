@@ -7,6 +7,7 @@ import {
 export interface IClientAccountRepository {
   findById(id: string): Promise<ClientAccount | null>;
   findByUserId(userId: string): Promise<ClientAccount[]>;
+  findAll(): Promise<ClientAccount[]>;
   findByPlatformAccountId(
     platform: Platform,
     platformAccountId: string,

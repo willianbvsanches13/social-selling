@@ -1,6 +1,7 @@
 import { Processor, WorkerHost, OnWorkerEvent } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Logger, Injectable, Inject } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   PublishPostJobData,
   PublishPostJobResult,
@@ -11,6 +12,7 @@ import { PostStatusService } from '../services/post-status.service';
 import { PublishingNotificationService } from '../services/publishing-notification.service';
 import { IClientAccountRepository } from '../../domain/repositories/client-account.repository.interface';
 import { IOAuthTokenRepository } from '../../domain/repositories/oauth-token.repository.interface';
+import { InstagramOAuthService } from '../../modules/instagram/instagram-oauth.service';
 
 /**
  * Instagram Publishing Processor
@@ -32,10 +34,12 @@ export class InstagramPublishingProcessor extends WorkerHost {
     private readonly accountRepository: IClientAccountRepository,
     @Inject('IOAuthTokenRepository')
     private readonly oauthTokenRepository: IOAuthTokenRepository,
+    private readonly configService: ConfigService,
     private readonly mediaDownloader: MediaDownloaderService,
     private readonly instagramPublisher: InstagramPublisherService,
     private readonly postStatusService: PostStatusService,
     private readonly notificationService: PublishingNotificationService,
+    private readonly instagramOAuthService: InstagramOAuthService,
   ) {
     super();
     this.logger.log('Instagram Publishing Processor initialized');
@@ -229,23 +233,73 @@ export class InstagramPublishingProcessor extends WorkerHost {
       );
     }
 
-    // Get OAuth token from repository
+    // Try to get OAuth token from repository
     const token =
       await this.oauthTokenRepository.findByClientAccountId(accountId);
 
-    if (!token) {
-      throw new Error(`Instagram account ${accountId} has no access token`);
-    }
+    let accessToken: string | null = null;
 
-    // Check token expiration
-    if (token.isExpired) {
-      throw new Error(
-        `Instagram account ${accountId} access token has expired`,
-      );
-    }
+    // If we have an OAuth token, try to use it
+    if (token) {
+      // Check token expiration and try to refresh if needed
+      if (token.isExpired) {
+        this.logger.warn(
+          `Access token for account ${accountId} has expired.`,
+        );
 
-    // Access the encrypted token (note: encryption/decryption is handled by the repository layer)
-    const accessToken = token.encryptedAccessToken;
+        // Try system user token as fallback
+        const systemToken = this.getSystemUserToken();
+        if (systemToken) {
+          this.logger.log(
+            `Using system user token fallback for account ${accountId}`,
+          );
+          accessToken = systemToken;
+        } else {
+          // Mark account as token_expired
+          account.markAsTokenExpired();
+          await this.accountRepository.update(account);
+
+          throw new Error(
+            `Instagram account access token has expired - please reconnect your Instagram account`,
+          );
+        }
+      } else if (token.isExpiringSoon(7)) {
+        // Try to refresh token if it's expiring soon (within 7 days)
+        this.logger.log(
+          `Access token for account ${accountId} is expiring soon. Attempting to refresh...`,
+        );
+
+        try {
+          accessToken = await this.instagramOAuthService.refreshTokenIfNeeded(
+            accountId,
+          );
+          this.logger.log(
+            `Successfully refreshed access token for account ${accountId}`,
+          );
+        } catch (refreshError) {
+          this.logger.error(
+            `Failed to refresh token for account ${accountId}: ${refreshError instanceof Error ? refreshError.message : 'Unknown error'}`,
+          );
+
+          // If refresh failed, try to use the existing token
+          accessToken = token.encryptedAccessToken;
+        }
+      } else {
+        // Token is still valid and not expiring soon
+        accessToken = token.encryptedAccessToken;
+      }
+    } else {
+      // No OAuth token found, try system user token
+      const systemToken = this.getSystemUserToken();
+      if (systemToken) {
+        this.logger.log(
+          `No OAuth token found for account ${accountId}, using system user token`,
+        );
+        accessToken = systemToken;
+      } else {
+        throw new Error(`Instagram account ${accountId} has no access token`);
+      }
+    }
 
     if (!accessToken) {
       throw new Error(
@@ -257,6 +311,13 @@ export class InstagramPublishingProcessor extends WorkerHost {
       instagramBusinessAccountId: account.platformAccountId,
       accessToken,
     };
+  }
+
+  /**
+   * Get system user token from environment
+   */
+  private getSystemUserToken(): string | null {
+    return this.configService.get<string>('INSTAGRAM_SYSTEM_USER_TOKEN') || null;
   }
 
   /**

@@ -6,6 +6,7 @@ import {
   Inject,
   ConflictException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
@@ -26,7 +27,7 @@ import { InstagramPostTemplate } from '../../../domain/entities/instagram-post-t
 import { InstagramPostingSchedule } from '../../../domain/entities/instagram-posting-schedule.entity';
 import { InstagramApiService } from './instagram-api.service';
 import { IClientAccountRepository } from '../../../domain/repositories/client-account.repository.interface';
-
+import { IOAuthTokenRepository } from '../../../domain/repositories/oauth-token.repository.interface';
 import { IInstagramScheduledPostRepository } from '../../../domain/repositories/instagram-scheduled-post.repository.interface';
 import { IInstagramPostTemplateRepository } from '../../../domain/repositories/instagram-post-template.repository.interface';
 import { IInstagramPostingScheduleRepository } from '../../../domain/repositories/instagram-posting-schedule.repository.interface';
@@ -47,6 +48,9 @@ export class InstagramSchedulingService {
     private readonly scheduleRepository: IInstagramPostingScheduleRepository,
     @Inject('IClientAccountRepository')
     private readonly accountRepository: IClientAccountRepository,
+    @Inject('IOAuthTokenRepository')
+    private readonly oauthTokenRepository: IOAuthTokenRepository,
+    private readonly configService: ConfigService,
     private readonly instagramApi: InstagramApiService,
     @InjectQueue('instagram-post-publishing')
     private readonly publishQueue: Queue,
@@ -364,7 +368,7 @@ export class InstagramSchedulingService {
   }
 
   /**
-   * Publish post immediately
+   * Publish post immediately (from scheduled post)
    */
   async publishNow(
     postId: string,
@@ -392,6 +396,54 @@ export class InstagramSchedulingService {
     }
 
     return this.mapToDto(updated);
+  }
+
+  /**
+   * Publish post instantly without scheduling
+   */
+  async publishInstantly(
+    userId: string,
+    dto: CreateScheduledPostDto,
+  ): Promise<ScheduledPostResponseDto> {
+    this.logger.log(`Publishing post instantly for user ${userId}`);
+
+    // Get and verify Instagram account
+    const account = await this.accountRepository.findById(dto.clientAccountId);
+    if (!account || account.userId !== userId) {
+      throw new NotFoundException('Instagram account not found');
+    }
+
+    // Use caption from DTO
+    const caption = dto.caption;
+
+    // Create post with immediate scheduling (now)
+    const post = InstagramScheduledPost.create({
+      clientAccountId: dto.clientAccountId,
+      userId,
+      scheduledFor: new Date(), // Schedule for immediate execution
+      caption,
+      mediaUrls: dto.mediaUrls,
+      mediaType: dto.mediaType as PostMediaType,
+      locationId: dto.locationId,
+      templateId: dto.templateId,
+    });
+
+    const saved = await this.scheduledPostRepository.create(post);
+
+    // Publish immediately without queue
+    try {
+      await this.executePublish(saved.id);
+
+      const updated = await this.scheduledPostRepository.findById(saved.id);
+      if (!updated) {
+        throw new NotFoundException('Post not found after publishing');
+      }
+
+      return this.mapToDto(updated);
+    } catch (error) {
+      this.logger.error(`Failed to publish instantly: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw error;
+    }
   }
 
   /**
@@ -638,5 +690,156 @@ export class InstagramSchedulingService {
       updatedAt: props.updatedAt,
       cancelledAt: props.cancelledAt,
     };
+  }
+
+  /**
+   * Test publish - executes the same logic as worker but synchronously with detailed logs
+   */
+  async testPublish(postId: string, userId: string): Promise<any> {
+    const logs: string[] = [];
+
+    try {
+      logs.push(`[1] Starting test publish for post ${postId}`);
+
+      // Get post
+      const post = await this.scheduledPostRepository.findById(postId);
+      if (!post || post.userId !== userId) {
+        throw new NotFoundException('Scheduled post not found');
+      }
+      logs.push(`[2] Post found: ${post.caption.substring(0, 50)}...`);
+
+      // Get account
+      const account = await this.accountRepository.findById(post.clientAccountId);
+      if (!account) {
+        throw new Error('Account not found');
+      }
+      logs.push(`[3] Account found: @${account.username} (${account.id})`);
+      logs.push(`[4] Platform Account ID: ${account.platformAccountId}`);
+      logs.push(`[5] Account Type: ${account.accountType}`);
+      logs.push(`[6] Account Status: ${account.status}`);
+
+      // Get access token
+      const token = await this.oauthTokenRepository.findByClientAccountId(post.clientAccountId);
+      let accessToken: string | null = null;
+
+      if (token) {
+        logs.push(`[7] OAuth token found in database`);
+        logs.push(`[8] Token expires at: ${token.expiresAt}`);
+        logs.push(`[9] Token is expired: ${token.isExpired}`);
+
+        if (!token.isExpired) {
+          accessToken = token.encryptedAccessToken;
+          logs.push(`[10] Using OAuth token from database`);
+        } else {
+          logs.push(`[10] OAuth token is expired, trying system token...`);
+        }
+      } else {
+        logs.push(`[7] No OAuth token found in database`);
+      }
+
+      // Fallback to system token
+      if (!accessToken) {
+        const systemToken = this.configService.get<string>('INSTAGRAM_SYSTEM_USER_TOKEN');
+        if (systemToken) {
+          accessToken = systemToken;
+          logs.push(`[11] Using system user token (length: ${systemToken.length})`);
+          logs.push(`[12] System token preview: ${systemToken.substring(0, 20)}...`);
+        } else {
+          logs.push(`[11] No system user token configured`);
+          throw new Error('No valid access token available');
+        }
+      }
+
+      // Test token validity with a simple API call
+      logs.push(`[13] Testing token validity...`);
+      try {
+        const testUrl = `https://graph.instagram.com/v24.0/me?access_token=${accessToken}`;
+        const testResponse = await fetch(testUrl);
+        const testData = await testResponse.json();
+
+        if (testData.error) {
+          logs.push(`[14] ❌ Token test FAILED: ${JSON.stringify(testData.error)}`);
+        } else {
+          logs.push(`[14] ✅ Token test SUCCESS: ${JSON.stringify(testData)}`);
+        }
+      } catch (error) {
+        logs.push(`[14] ❌ Token test ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+
+      // Log metadata
+      const metadata = (account as any).metadata;
+      if (metadata) {
+        logs.push(`[15] Account metadata: ${JSON.stringify(metadata)}`);
+      }
+
+      // Test actual Instagram Graph API publishing capability
+      logs.push(`[16] Testing Instagram Graph API publishing capability...`);
+      try {
+        // Try to create a container (test without actual publish)
+        const mediaUrl = post.mediaUrls[0];
+        logs.push(`[17] Media URL: ${mediaUrl}`);
+
+        // First, check if we have a Facebook page connected
+        const fbPagesUrl = `https://graph.facebook.com/v24.0/me/accounts?access_token=${accessToken}`;
+        const fbPagesResponse = await fetch(fbPagesUrl);
+        const fbPagesData = await fbPagesResponse.json();
+
+        if (fbPagesData.error) {
+          logs.push(`[18] ❌ Facebook Pages check FAILED: ${JSON.stringify(fbPagesData.error)}`);
+        } else {
+          logs.push(`[18] ✅ Facebook Pages found: ${JSON.stringify(fbPagesData.data?.length || 0)} pages`);
+
+          if (fbPagesData.data && fbPagesData.data.length > 0) {
+            for (const page of fbPagesData.data) {
+              logs.push(`[19] - Page: ${page.name} (ID: ${page.id})`);
+
+              // Check if page has Instagram Business Account
+              if (page.instagram_business_account) {
+                logs.push(`[20] ✅ Instagram Business Account ID: ${page.instagram_business_account.id}`);
+              } else {
+                logs.push(`[20] ⚠️ Page "${page.name}" has NO Instagram Business Account linked`);
+              }
+            }
+          } else {
+            logs.push(`[19] ⚠️ No Facebook pages found. You need to link your Instagram to a Facebook Page`);
+          }
+        }
+
+        // Try to get Instagram Business Account directly
+        const igAccountUrl = `https://graph.instagram.com/v24.0/${account.platformAccountId}?fields=id,username,account_type,ig_id&access_token=${accessToken}`;
+        const igAccountResponse = await fetch(igAccountUrl);
+        const igAccountData = await igAccountResponse.json();
+
+        if (igAccountData.error) {
+          logs.push(`[21] ❌ Instagram Account details FAILED: ${JSON.stringify(igAccountData.error)}`);
+        } else {
+          logs.push(`[21] ✅ Instagram Account details: ${JSON.stringify(igAccountData)}`);
+        }
+
+      } catch (error) {
+        logs.push(`[16] ❌ Publishing test ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+
+      return {
+        success: true,
+        postId,
+        accountId: account.id,
+        username: account.username,
+        platformAccountId: account.platformAccountId,
+        accountType: account.accountType,
+        hasOAuthToken: !!token,
+        usingSystemToken: !token || token.isExpired,
+        tokenPreview: accessToken ? `${accessToken.substring(0, 20)}...` : null,
+        logs,
+      };
+
+    } catch (error) {
+      logs.push(`[ERROR] ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        logs,
+      };
+    }
   }
 }

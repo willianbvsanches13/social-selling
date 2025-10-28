@@ -36,6 +36,24 @@ async function bootstrap() {
     // Cookie parser middleware
     app.use(cookieParser());
 
+    // Raw body middleware for webhook signature verification
+    // Must be added BEFORE any body parser
+    app.use('/api/instagram/webhooks', (req: any, res: any, next: any) => {
+      if (req.method === 'POST') {
+        let data = '';
+        req.setEncoding('utf8');
+        req.on('data', (chunk: string) => {
+          data += chunk;
+        });
+        req.on('end', () => {
+          req.rawBody = Buffer.from(data, 'utf8');
+          next();
+        });
+      } else {
+        next();
+      }
+    });
+
     // Global exception filters
     app.useGlobalFilters(
       new AllExceptionsFilter(),

@@ -87,6 +87,17 @@ export const postsService = {
   },
 
   /**
+   * Publish post instantly without scheduling
+   */
+  async publishInstantly(data: CreatePostRequest): Promise<ScheduledPost> {
+    const response = await apiClient.post<ScheduledPost>(
+      API_ENDPOINTS.POST_PUBLISH_INSTANTLY,
+      data
+    );
+    return response.data!;
+  },
+
+  /**
    * Upload media file for post
    */
   async uploadMedia(file: File, onProgress?: (progress: number) => void): Promise<{ url: string }> {

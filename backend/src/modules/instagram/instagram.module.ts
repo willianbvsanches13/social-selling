@@ -8,6 +8,7 @@ import { InstagramSchedulingController } from './controllers/instagram-schedulin
 import { InstagramOAuthService } from './instagram-oauth.service';
 import { InstagramApiService } from './services/instagram-api.service';
 import { InstagramAccountService } from './services/instagram-account.service';
+import { InstagramSystemAccountsService } from './services/instagram-system-accounts.service';
 import { InstagramWebhooksService } from './services/instagram-webhooks.service';
 import { InstagramAnalyticsService } from './services/instagram-analytics.service';
 import { InstagramSchedulingService } from './services/instagram-scheduling.service';
@@ -51,6 +52,7 @@ import {
     InstagramOAuthService,
     InstagramApiService,
     InstagramAccountService,
+    InstagramSystemAccountsService,
     InstagramWebhooksService,
     InstagramAnalyticsService,
     InstagramSchedulingService,
@@ -112,6 +114,7 @@ import {
     InstagramOAuthService,
     InstagramApiService,
     InstagramAccountService,
+    InstagramSystemAccountsService,
     InstagramWebhooksService,
     InstagramAnalyticsService,
     InstagramSchedulingService,

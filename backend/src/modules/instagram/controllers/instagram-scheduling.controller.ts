@@ -56,6 +56,20 @@ export class InstagramSchedulingController {
 
   // ========== Scheduled Posts ==========
 
+  @Post('test-publish/:postId')
+  @ApiOperation({ summary: 'Test publish a scheduled post (DEBUG)' })
+  @ApiParam({ name: 'postId', description: 'Scheduled post ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Test publish result with detailed logs',
+  })
+  async testPublish(
+    @Request() req: any,
+    @Param('postId') postId: string,
+  ): Promise<any> {
+    return this.schedulingService.testPublish(postId, req.user.id);
+  }
+
   @Post('posts')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create scheduled post' })
@@ -165,7 +179,7 @@ export class InstagramSchedulingController {
   }
 
   @Post('posts/:postId/publish-now')
-  @ApiOperation({ summary: 'Publish post immediately' })
+  @ApiOperation({ summary: 'Publish scheduled post immediately' })
   @ApiParam({ name: 'postId', description: 'Scheduled post ID' })
   @ApiResponse({
     status: 200,
@@ -181,6 +195,30 @@ export class InstagramSchedulingController {
     @Param('postId') postId: string,
   ): Promise<PublishNowResponseDto> {
     const result = await this.schedulingService.publishNow(postId, req.user.id);
+    return {
+      message: 'Post published successfully',
+      scheduledPostId: result.id,
+      status: result.status,
+    };
+  }
+
+  @Post('publish')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Publish post immediately without scheduling' })
+  @ApiResponse({
+    status: 201,
+    description: 'Post published successfully',
+    type: PublishNowResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request',
+  })
+  async publishInstantly(
+    @Request() req: any,
+    @Body() dto: CreateScheduledPostDto,
+  ): Promise<PublishNowResponseDto> {
+    const result = await this.schedulingService.publishInstantly(req.user.id, dto);
     return {
       message: 'Post published successfully',
       scheduledPostId: result.id,

@@ -68,11 +68,24 @@ export class InstagramWebhooksService {
         .update(payload)
         .digest('hex');
 
+      this.logger.debug(`Webhook signature verification:
+        - Received signature: ${signatureHash.substring(0, 20)}...
+        - Expected signature: ${expectedHash.substring(0, 20)}...
+        - Payload length: ${payload.length}
+        - App Secret (first 10 chars): ${this.appSecret.substring(0, 10)}...
+        - Payload (first 100 chars): ${payload.substring(0, 100)}`);
+
       // Constant-time comparison to prevent timing attacks
-      return crypto.timingSafeEqual(
+      const isValid = crypto.timingSafeEqual(
         Buffer.from(signatureHash, 'hex'),
         Buffer.from(expectedHash, 'hex'),
       );
+
+      if (!isValid) {
+        this.logger.warn('Webhook signature mismatch');
+      }
+
+      return isValid;
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);

@@ -84,6 +84,38 @@ export class ClientAccountRepository
     return rows ? rows.map((row) => this.mapToEntity(row)) : [];
   }
 
+  async findAll(): Promise<ClientAccount[]> {
+    const query = `
+      SELECT
+        id,
+        user_id,
+        platform,
+        platform_account_id,
+        username,
+        display_name,
+        profile_picture_url,
+        follower_count,
+        following_count,
+        media_count,
+        biography,
+        website,
+        status,
+        account_type,
+        metadata,
+        permissions,
+        last_sync_at,
+        token_expires_at,
+        created_at,
+        updated_at
+      FROM client_accounts
+      WHERE deleted_at IS NULL
+      ORDER BY created_at DESC
+    `;
+
+    const rows = await this.db.manyOrNone(query);
+    return rows ? rows.map((row) => this.mapToEntity(row)) : [];
+  }
+
   async findByPlatformAccountId(
     platform: Platform,
     platformAccountId: string,

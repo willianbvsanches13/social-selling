@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { InstagramPublishingQueue } from './queues/instagram-publishing.queue';
 import { WebhookEventsQueue } from './queues/webhook-events.queue';
 import { EmailNotificationsQueue } from './queues/email-notifications.queue';
@@ -8,6 +9,7 @@ import { MediaDownloaderService } from './services/media-downloader.service';
 import { InstagramPublisherService } from './services/instagram-publisher.service';
 import { PostStatusService } from './services/post-status.service';
 import { PublishingNotificationService } from './services/publishing-notification.service';
+import { TokenMaintenanceService } from './services/token-maintenance.service';
 import { EventDeduplicationService } from './services/event-deduplication.service';
 import { EventNormalizerService } from './services/event-normalizer.service';
 import { AutoReplyService } from './services/auto-reply.service';
@@ -25,6 +27,7 @@ import { ClientAccountRepository } from '../infrastructure/database/repositories
 import { InstagramScheduledPostRepository } from '../infrastructure/database/repositories/instagram-scheduled-post.repository';
 import { OAuthTokenRepository } from '../infrastructure/database/repositories/oauth-token.repository';
 import { DatabaseModule } from '../infrastructure/database/database.module';
+import { InstagramModule } from '../modules/instagram/instagram.module';
 
 /**
  * Workers Module
@@ -33,12 +36,16 @@ import { DatabaseModule } from '../infrastructure/database/database.module';
 @Module({
   imports: [
     ConfigModule,
+    // Enable cron jobs for scheduled tasks
+    ScheduleModule.forRoot(),
     // Import storage module for MinIO service
     StorageModule,
     // Import cache module for Redis service
     CacheModule,
     // Import database module for database access
     DatabaseModule,
+    // Import Instagram module for OAuth service
+    InstagramModule,
     // Configure BullMQ with Redis connection
     BullModule.forRootAsync({
       imports: [ConfigModule],
@@ -98,6 +105,8 @@ import { DatabaseModule } from '../infrastructure/database/database.module';
     InstagramPublisherService,
     PostStatusService,
     PublishingNotificationService,
+    // Token maintenance service
+    TokenMaintenanceService,
     // Webhook worker services
     EventDeduplicationService,
     EventNormalizerService,

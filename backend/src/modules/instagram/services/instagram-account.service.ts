@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { IClientAccountRepository } from '../../../domain/repositories/client-account.repository.interface';
 import {
@@ -14,6 +15,7 @@ import {
 } from '../../../domain/entities/client-account.entity';
 import { InstagramApiService } from './instagram-api.service';
 import { CreateAccountDto, UpdateAccountDto } from '../dto/account.dto';
+import { InstagramBusinessAccount } from './instagram-system-accounts.service';
 
 @Injectable()
 export class InstagramAccountService {
@@ -186,8 +188,8 @@ export class InstagramAccountService {
     }
 
     try {
-      // Fetch profile data from Instagram Graph API
-      const profile = await this.instagramApi.getUserProfile(accountId);
+      // Fetch profile data from Instagram Graph API using platform account ID
+      const profile = await this.instagramApi.getUserProfile(accountId, account.platformAccountId);
 
       // Update account with fresh metadata
       account.updateMetadata({
@@ -244,7 +246,7 @@ export class InstagramAccountService {
 
     // Test API connection
     try {
-      const isValid = await this.instagramApi.testToken(accountId);
+      const isValid = await this.instagramApi.testToken(accountId, account.platformAccountId);
 
       if (isValid) {
         account.reactivate();
@@ -284,5 +286,85 @@ export class InstagramAccountService {
    */
   async countUserAccounts(userId: string): Promise<number> {
     return this.accountRepository.countByUserId(userId);
+  }
+
+  /**
+   * Link an Instagram Business Account to a user using system token
+   * This is used when connecting via system user instead of OAuth flow
+   */
+  async linkBusinessAccount(
+    userId: string,
+    accountDetails: InstagramBusinessAccount,
+  ): Promise<ClientAccount> {
+    // Check if this Instagram Business Account is already linked
+    const existing = await this.accountRepository.findByPlatformAccountId(
+      Platform.INSTAGRAM,
+      accountDetails.id,
+    );
+
+    if (existing) {
+      // If already linked to the same user, just reactivate
+      if (existing.userId === userId) {
+        this.logger.log(
+          `Instagram Business Account ${accountDetails.username} already linked to user ${userId}, reactivating`,
+        );
+        existing.reactivate();
+
+        // Update metadata with latest info
+        existing.updateMetadata({
+          displayName: accountDetails.name,
+          profilePictureUrl: accountDetails.profile_picture_url,
+          followerCount: accountDetails.followers_count,
+          followingCount: accountDetails.follows_count,
+          mediaCount: accountDetails.media_count,
+          biography: accountDetails.biography,
+          website: accountDetails.website,
+          metadata: {
+            igBusinessAccountId: accountDetails.id,
+            facebookPageId: accountDetails.facebookPageId,
+          },
+        });
+
+        return this.accountRepository.update(existing);
+      }
+
+      // If linked to a different user, prevent linking
+      throw new BadRequestException(
+        'This Instagram Business Account is already linked to another user',
+      );
+    }
+
+    // Create new account linked via system token
+    const account = ClientAccount.create({
+      userId,
+      platform: Platform.INSTAGRAM,
+      platformAccountId: accountDetails.id,
+      username: accountDetails.username,
+      displayName: accountDetails.name,
+      profilePictureUrl: accountDetails.profile_picture_url,
+      followerCount: accountDetails.followers_count,
+      followingCount: accountDetails.follows_count,
+      mediaCount: accountDetails.media_count,
+      biography: accountDetails.biography,
+      website: accountDetails.website,
+      accountType: InstagramAccountType.BUSINESS,
+      permissions: [
+        'instagram_basic',
+        'instagram_content_publish',
+        'instagram_manage_messages',
+        'instagram_manage_insights',
+      ],
+      status: AccountStatus.ACTIVE,
+      metadata: {
+        igBusinessAccountId: accountDetails.id,
+        facebookPageId: accountDetails.facebookPageId,
+      },
+    });
+
+    this.logger.log(
+      `Creating new Instagram Business Account link for ${accountDetails.username} (user: ${userId})`,
+    );
+
+    return this.accountRepository.create(account);
   }
 }

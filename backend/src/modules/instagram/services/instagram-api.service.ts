@@ -29,8 +29,9 @@ export interface InstagramGraphApiProfile extends InstagramProfileDto {}
 export class InstagramApiService {
   private readonly logger = new Logger(InstagramApiService.name);
   private readonly client: AxiosInstance;
-  private readonly BASE_URL = 'https://graph.instagram.com';
-  private readonly API_VERSION = 'v18.0';
+  // Use Facebook Graph API for Instagram Business API access via Facebook Login
+  private readonly BASE_URL = 'https://graph.facebook.com';
+  private readonly API_VERSION = 'v24.0';
   private readonly MAX_RETRIES = 3;
   private readonly TIMEOUT_MS = 30000;
 
@@ -56,9 +57,16 @@ export class InstagramApiService {
   }
 
   /**
+   * Get system user token from environment
+   */
+  private getSystemUserToken(): string | null {
+    return this.configService.get<string>('INSTAGRAM_SYSTEM_USER_TOKEN') || null;
+  }
+
+  /**
    * Get Instagram user profile
    */
-  async getUserProfile(accountId: string): Promise<InstagramProfileDto> {
+  async getUserProfile(accountId: string, platformAccountId: string): Promise<InstagramProfileDto> {
     const token = await this.getAccessToken(accountId);
 
     const fields = [
@@ -73,10 +81,17 @@ export class InstagramApiService {
       'media_count',
     ];
 
+    // Use Instagram Business Account ID instead of /me
+    const endpoint = `/${platformAccountId}`;
+
+    // TEMPORARY DEBUG: Log the full request URL with token for curl testing
+    const testUrl = `${this.BASE_URL}/${this.API_VERSION}${endpoint}?fields=${fields.join(',')}&access_token=${token}`;
+    this.logger.log(`🔍 DEBUG - Full API request URL for curl testing:\ncurl "${testUrl}"`);
+
     const response = await this.makeRequest<InstagramProfileDto>(
       accountId,
       'GET',
-      '/me',
+      endpoint,
       {
         fields: fields.join(','),
         access_token: token,
@@ -375,9 +390,9 @@ export class InstagramApiService {
   /**
    * Test if token is valid by making a simple API call
    */
-  async testToken(accountId: string): Promise<boolean> {
+  async testToken(accountId: string, platformAccountId: string): Promise<boolean> {
     try {
-      await this.getUserProfile(accountId);
+      await this.getUserProfile(accountId, platformAccountId);
       return true;
     } catch (error) {
       this.logger.warn(`Token test failed for account ${accountId}:`, error);
@@ -457,12 +472,23 @@ export class InstagramApiService {
 
   /**
    * Get and decrypt access token
+   * Falls back to system user token if available
    */
   private async getAccessToken(accountId: string): Promise<string> {
+    // Try to get user-specific token first
     const token =
       await this.oauthTokenRepository.findByClientAccountId(accountId);
 
     if (!token) {
+      // Fall back to system user token if available
+      const systemToken = this.getSystemUserToken();
+      if (systemToken) {
+        this.logger.log(
+          `Using system user token for account ${accountId} (no user token found)`,
+        );
+        return systemToken;
+      }
+
       throw new HttpException(
         'Access token not found for account',
         HttpStatus.UNAUTHORIZED,
@@ -472,6 +498,15 @@ export class InstagramApiService {
     // Check if token is expired
     const expiresAt = (token as any).props?.expiresAt;
     if (expiresAt && new Date(expiresAt) < new Date()) {
+      // Fall back to system user token if token is expired
+      const systemToken = this.getSystemUserToken();
+      if (systemToken) {
+        this.logger.warn(
+          `User token expired for account ${accountId}, falling back to system token`,
+        );
+        return systemToken;
+      }
+
       throw new HttpException('Access token expired', HttpStatus.UNAUTHORIZED);
     }
 
@@ -479,6 +514,15 @@ export class InstagramApiService {
     const decryptedToken = (token as any).props?.encryptedAccessToken;
 
     if (!decryptedToken) {
+      // Fall back to system user token if decryption fails
+      const systemToken = this.getSystemUserToken();
+      if (systemToken) {
+        this.logger.warn(
+          `Failed to decrypt token for account ${accountId}, falling back to system token`,
+        );
+        return systemToken;
+      }
+
       throw new HttpException(
         'Failed to decrypt access token',
         HttpStatus.UNAUTHORIZED,

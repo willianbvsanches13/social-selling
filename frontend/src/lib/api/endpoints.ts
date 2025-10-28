@@ -65,6 +65,7 @@ export const API_ENDPOINTS = {
   SCHEDULED_POST_UPDATE: (postId: string) => `/instagram/scheduling/posts/${postId}`,
   SCHEDULED_POST_DELETE: (postId: string) => `/instagram/scheduling/posts/${postId}`,
   SCHEDULED_POST_PUBLISH_NOW: (postId: string) => `/instagram/scheduling/posts/${postId}/publish-now`,
+  POST_PUBLISH_INSTANTLY: '/instagram/scheduling/publish',
 
   // Media Management
   MEDIA_UPLOAD: '/instagram/scheduling/media/upload',
