@@ -558,9 +558,36 @@ export class InstagramSchedulingService {
    * Queue publish job
    */
   private async queuePublishJob(postId: string, delay: number): Promise<void> {
+    // Fetch the post to get all required data
+    const post = await this.scheduledPostRepository.findById(postId);
+    if (!post) {
+      throw new Error(`Post not found: ${postId}`);
+    }
+
+    const postData = post.toJSON();
+
     await this.publishQueue.add(
       'publish-post',
-      { postId },
+      {
+        postId: post.id,
+        userId: post.userId,
+        accountId: post.clientAccountId,
+        caption: post.caption,
+        mediaUrls: post.mediaUrls,
+        mediaType: post.mediaType,
+        scheduledFor: post.scheduledFor,
+        publishTime: new Date(),
+        hashtags: [],
+        location: postData.locationId
+          ? { id: postData.locationId, name: '' }
+          : undefined,
+        firstComment: undefined,
+        userTags: [],
+        metadata: {
+          retryCount: post.publishAttempts,
+          originalScheduledTime: post.scheduledFor,
+        },
+      },
       {
         delay,
         jobId: `publish_${postId}`,
