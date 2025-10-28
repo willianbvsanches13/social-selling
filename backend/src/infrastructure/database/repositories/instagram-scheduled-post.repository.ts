@@ -257,13 +257,15 @@ export class InstagramScheduledPostRepository
       scheduledFor: row.scheduled_for,
       publishedAt: row.published_at || undefined,
       caption: row.caption,
-      mediaUrls: JSON.parse(row.media_urls),
+      mediaUrls: typeof row.media_urls === 'string' ? JSON.parse(row.media_urls) : row.media_urls,
       mediaType: row.media_type as PostMediaType,
-      productTags: row.product_tags ? JSON.parse(row.product_tags) : undefined,
+      productTags: row.product_tags
+        ? (typeof row.product_tags === 'string' ? JSON.parse(row.product_tags) : row.product_tags)
+        : undefined,
       locationId: row.location_id || undefined,
       templateId: row.template_id || undefined,
       templateVariables: row.template_variables
-        ? JSON.parse(row.template_variables)
+        ? (typeof row.template_variables === 'string' ? JSON.parse(row.template_variables) : row.template_variables)
         : undefined,
       status: row.status as PostStatus,
       publishAttempts: row.publish_attempts,
@@ -274,7 +276,9 @@ export class InstagramScheduledPostRepository
       initialLikes: row.initial_likes || undefined,
       initialComments: row.initial_comments || undefined,
       initialReach: row.initial_reach || undefined,
-      metadata: row.metadata ? JSON.parse(row.metadata) : undefined,
+      metadata: row.metadata
+        ? (typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata)
+        : undefined,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       cancelledAt: row.cancelled_at || undefined,
