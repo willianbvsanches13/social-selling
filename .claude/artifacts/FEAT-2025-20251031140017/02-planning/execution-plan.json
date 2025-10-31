@@ -1,0 +1,984 @@
+{
+  "planId": "PLAN-2025-20251031140500",
+  "featureId": "FEAT-2025-20251031140017",
+  "timestamp": "2025-10-31T14:05:00Z",
+  "feature": {
+    "title": "Enhanced Instagram Webhook Event Handling - Complete Event Type Coverage",
+    "description": "Add support for 4 additional Instagram webhook event types: message_reactions, messaging_postbacks, messaging_seen, and story_insights to provide complete webhook coverage for social selling features",
+    "priority": "high",
+    "estimatedTotalHours": 10
+  },
+  "architecture": {
+    "approach": "layered-architecture",
+    "patterns": [
+      "DTO Pattern with class-validator",
+      "Domain Entity Pattern with factory methods",
+      "Service Pattern with dependency injection",
+      "Queue-based async processing (BullMQ)",
+      "Event normalization and deduplication",
+      "Database per event type with JSONB raw storage"
+    ],
+    "components": [
+      {
+        "name": "WebhookEventType enum extensions",
+        "type": "dto",
+        "action": "update",
+        "technology": "TypeScript",
+        "description": "Add 4 new event types to enum: MESSAGE_REACTIONS, MESSAGING_POSTBACKS, MESSAGING_SEEN, STORY_INSIGHTS"
+      },
+      {
+        "name": "New event DTOs",
+        "type": "dto",
+        "action": "create",
+        "technology": "TypeScript + class-validator",
+        "description": "Create DTOs for each new event type with validation decorators"
+      },
+      {
+        "name": "InstagramWebhooksService",
+        "type": "service",
+        "action": "update",
+        "technology": "NestJS",
+        "description": "Update determineEventType() and extractEventData() to recognize new event types"
+      },
+      {
+        "name": "WebhookEventsProcessor",
+        "type": "processor",
+        "action": "update",
+        "technology": "BullMQ",
+        "description": "Add storage methods for new event types"
+      },
+      {
+        "name": "EventNormalizerService",
+        "type": "service",
+        "action": "update",
+        "technology": "NestJS",
+        "description": "Add normalization logic for new event structures"
+      },
+      {
+        "name": "instagram_message_reactions table",
+        "type": "database-table",
+        "action": "create",
+        "technology": "PostgreSQL",
+        "description": "Store emoji reactions to messages with action tracking"
+      },
+      {
+        "name": "instagram_messaging_postbacks table",
+        "type": "database-table",
+        "action": "create",
+        "technology": "PostgreSQL",
+        "description": "Store button click events from structured messages"
+      },
+      {
+        "name": "instagram_messaging_seen table",
+        "type": "database-table",
+        "action": "create",
+        "technology": "PostgreSQL",
+        "description": "Store read receipts for message engagement tracking"
+      },
+      {
+        "name": "InstagramMessageReaction entity",
+        "type": "domain-entity",
+        "action": "create",
+        "technology": "TypeScript",
+        "description": "Domain entity with factory pattern following existing conventions"
+      },
+      {
+        "name": "InstagramMessagingPostback entity",
+        "type": "domain-entity",
+        "action": "create",
+        "technology": "TypeScript",
+        "description": "Domain entity for postback events"
+      },
+      {
+        "name": "InstagramMessagingSeen entity",
+        "type": "domain-entity",
+        "action": "create",
+        "technology": "TypeScript",
+        "description": "Domain entity for read receipt events"
+      },
+      {
+        "name": "Integration tests",
+        "type": "tests",
+        "action": "create",
+        "technology": "Jest",
+        "description": "End-to-end tests for webhook processing of new event types"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Database Layer - Create Tables & Migrations",
+      "order": 1,
+      "estimatedHours": 2,
+      "components": [
+        "034-create-instagram-message-reactions.sql",
+        "035-create-instagram-messaging-postbacks.sql",
+        "036-create-instagram-messaging-seen.sql"
+      ],
+      "tasks": [
+        "Create migration for instagram_message_reactions table with proper indexes",
+        "Create migration for instagram_messaging_postbacks table with proper indexes",
+        "Create migration for instagram_messaging_seen table with proper indexes",
+        "Test migrations locally (up and rollback)"
+      ],
+      "dependencies": [],
+      "deliverables": [
+        "3 SQL migration files in backend/migrations/",
+        "Each with CREATE TABLE, indexes, and ROLLBACK comments"
+      ],
+      "acceptanceCriteria": [
+        "All migrations run successfully without errors",
+        "All rollback statements work correctly",
+        "All tables have proper foreign key constraints",
+        "All required indexes are created"
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "DTO Layer - Define TypeScript Interfaces",
+      "order": 2,
+      "estimatedHours": 1.5,
+      "components": [
+        "webhook.dto.ts - enum extensions",
+        "MessageReactionDto and MessageReactionEventDto",
+        "MessagingPostbackDto and MessagingPostbackEventDto",
+        "MessagingSeenEventDto",
+        "StoryInsightsEventDto"
+      ],
+      "tasks": [
+        "Add 4 new values to WebhookEventType enum",
+        "Create DTOs for message_reactions with validation decorators",
+        "Create DTOs for messaging_postbacks with validation decorators",
+        "Create DTOs for messaging_seen with validation decorators",
+        "Create DTOs for story_insights with validation decorators",
+        "Add Swagger @ApiProperty decorators for documentation"
+      ],
+      "dependencies": ["P1"],
+      "deliverables": [
+        "Updated backend/src/modules/instagram/dto/webhook.dto.ts"
+      ],
+      "acceptanceCriteria": [
+        "All DTOs have proper class-validator decorators",
+        "All DTOs have Swagger documentation",
+        "Type safety is maintained across the codebase"
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Domain Layer - Create Entities",
+      "order": 3,
+      "estimatedHours": 1.5,
+      "components": [
+        "instagram-message-reaction.entity.ts",
+        "instagram-messaging-postback.entity.ts",
+        "instagram-messaging-seen.entity.ts"
+      ],
+      "tasks": [
+        "Create InstagramMessageReaction entity with factory pattern",
+        "Create InstagramMessagingPostback entity with factory pattern",
+        "Create InstagramMessagingSeen entity with factory pattern",
+        "Add behavior methods (markAsProcessed, etc.) following existing patterns",
+        "Add toJSON() methods for serialization"
+      ],
+      "dependencies": ["P2"],
+      "deliverables": [
+        "3 new entity files in backend/src/domain/entities/"
+      ],
+      "acceptanceCriteria": [
+        "All entities follow the factory pattern (create/reconstitute)",
+        "All entities have proper TypeScript typing",
+        "All entities have behavior methods for state changes"
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Service Layer - Update Event Recognition",
+      "order": 4,
+      "estimatedHours": 2,
+      "components": [
+        "instagram-webhooks.service.ts"
+      ],
+      "tasks": [
+        "Update determineEventType() to recognize message_reactions field",
+        "Update determineEventType() to recognize messaging_postbacks field",
+        "Update determineEventType() to recognize messaging_seen field",
+        "Update determineEventType() to recognize story_insights field",
+        "Update extractEventData() to extract correct fields for each new event type",
+        "Update generateEventId() to create unique IDs for new event types",
+        "Add comprehensive logging for new event types"
+      ],
+      "dependencies": ["P3"],
+      "deliverables": [
+        "Updated backend/src/modules/instagram/services/instagram-webhooks.service.ts"
+      ],
+      "acceptanceCriteria": [
+        "All 4 new event types are correctly identified from webhook payloads",
+        "Event data extraction returns correct object_type, object_id, sender_id",
+        "Event IDs are unique and follow existing patterns",
+        "Logging provides sufficient debugging information"
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Processor Layer - Add Storage Methods",
+      "order": 5,
+      "estimatedHours": 2,
+      "components": [
+        "webhook-events.processor.ts"
+      ],
+      "tasks": [
+        "Add MESSAGE_REACTIONS case to storeEvent() switch",
+        "Add MESSAGING_POSTBACKS case to storeEvent() switch",
+        "Add MESSAGING_SEEN case to storeEvent() switch",
+        "Add STORY_INSIGHTS case to storeEvent() switch",
+        "Implement storeMessageReaction() with proper SQL INSERT/UPDATE",
+        "Implement storeMessagingPostback() with proper SQL INSERT/UPDATE",
+        "Implement storeMessagingSeen() with proper SQL INSERT",
+        "Implement storeStoryInsightAggregated() using existing story_insights table",
+        "Handle timestamp conversions (Unix to Date)",
+        "Add error handling for each storage method"
+      ],
+      "dependencies": ["P4"],
+      "deliverables": [
+        "Updated backend/src/workers/processors/webhook-events.processor.ts"
+      ],
+      "acceptanceCriteria": [
+        "All 4 new event types can be stored in database",
+        "ON CONFLICT clauses handle duplicates properly",
+        "Timestamps are correctly converted",
+        "Raw JSONB data is preserved for debugging"
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "Normalization Layer - Add Event Normalization",
+      "order": 6,
+      "estimatedHours": 1,
+      "components": [
+        "event-normalizer.service.ts"
+      ],
+      "tasks": [
+        "Add normalization logic for message_reactions events",
+        "Add normalization logic for messaging_postbacks events",
+        "Add normalization logic for messaging_seen events",
+        "Add normalization logic for story_insights events",
+        "Ensure consistent field naming across normalized events",
+        "Handle missing optional fields gracefully"
+      ],
+      "dependencies": ["P5"],
+      "deliverables": [
+        "Updated backend/src/workers/services/event-normalizer.service.ts"
+      ],
+      "acceptanceCriteria": [
+        "All normalized events have consistent structure",
+        "Missing fields are handled without errors",
+        "Normalized events are ready for storage"
+      ]
+    },
+    {
+      "phaseId": "P7",
+      "name": "Testing & Quality Assurance",
+      "order": 7,
+      "estimatedHours": 2,
+      "components": [
+        "Unit tests for DTOs",
+        "Integration tests for webhook flow",
+        "Manual testing with sample payloads"
+      ],
+      "tasks": [
+        "Create unit tests for new DTO validation",
+        "Create integration tests for complete webhook flow (signature → storage)",
+        "Test with Instagram Graph API Explorer webhook samples",
+        "Test deduplication for all new event types",
+        "Test error handling (invalid payloads, missing fields)",
+        "Test database constraints (unique, foreign keys)",
+        "Verify logging output at all levels",
+        "Performance test: verify <200ms response time"
+      ],
+      "dependencies": ["P6"],
+      "deliverables": [
+        "Test files in backend/test/",
+        "Test coverage report",
+        "Manual test results documentation"
+      ],
+      "acceptanceCriteria": [
+        "All unit tests pass",
+        "All integration tests pass",
+        "Test coverage >80% for new code",
+        "Webhook response time <200ms",
+        "No regression in existing event types"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "System recognizes and processes message_reactions webhooks from Instagram",
+      "type": "functional",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Send test webhook with message_reactions field, verify DB insert"
+    },
+    {
+      "id": "AC-002",
+      "description": "System recognizes and processes messaging_postbacks webhooks from Instagram",
+      "type": "functional",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Send test webhook with messaging_postbacks field, verify DB insert"
+    },
+    {
+      "id": "AC-003",
+      "description": "System recognizes and processes messaging_seen webhooks from Instagram",
+      "type": "functional",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Send test webhook with messaging_seen field, verify DB insert"
+    },
+    {
+      "id": "AC-004",
+      "description": "System recognizes and processes story_insights webhooks from Instagram",
+      "type": "functional",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Send test webhook with story_insights field, verify DB insert"
+    },
+    {
+      "id": "AC-005",
+      "description": "All new event types are stored in correct database tables with proper indexing",
+      "type": "functional",
+      "testable": true,
+      "phase": "P1",
+      "verificationMethod": "Query tables after webhook processing, verify data integrity"
+    },
+    {
+      "id": "AC-006",
+      "description": "Deduplication prevents duplicate events from being processed multiple times",
+      "type": "functional",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Send same webhook twice, verify only one DB entry"
+    },
+    {
+      "id": "AC-007",
+      "description": "HMAC signature verification works for all new event types",
+      "type": "security",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Send webhooks with invalid signature, verify rejection"
+    },
+    {
+      "id": "AC-008",
+      "description": "Webhook processing completes within 200ms to avoid Instagram timeout",
+      "type": "performance",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Measure response time with performance tests"
+    },
+    {
+      "id": "AC-009",
+      "description": "BullMQ queue processes new event types asynchronously with retry logic",
+      "type": "reliability",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Monitor queue processing, test retry with failed jobs"
+    },
+    {
+      "id": "AC-010",
+      "description": "Raw webhook payloads are preserved in JSONB for debugging",
+      "type": "observability",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Check raw_data field in database tables"
+    },
+    {
+      "id": "AC-011",
+      "description": "Existing event types (comments, mentions, messages) continue to work without regression",
+      "type": "compatibility",
+      "testable": true,
+      "phase": "P7",
+      "verificationMethod": "Run regression tests for existing event types"
+    },
+    {
+      "id": "AC-012",
+      "description": "All database migrations can be rolled back successfully",
+      "type": "maintainability",
+      "testable": true,
+      "phase": "P1",
+      "verificationMethod": "Execute rollback scripts, verify clean state"
+    }
+  ],
+  "taskBreakdown": {
+    "P1-T1": {
+      "id": "P1-T1",
+      "phase": "P1",
+      "title": "Create instagram_message_reactions migration",
+      "description": "Create SQL migration file 034-create-instagram-message-reactions.sql with table schema, indexes, and rollback",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": [],
+      "files": ["backend/migrations/034-create-instagram-message-reactions.sql"],
+      "sqlSchema": {
+        "tableName": "instagram_message_reactions",
+        "columns": [
+          "id UUID PRIMARY KEY DEFAULT gen_random_uuid()",
+          "message_id VARCHAR(255) NOT NULL",
+          "conversation_id UUID",
+          "account_id UUID NOT NULL REFERENCES client_accounts(id) ON DELETE CASCADE",
+          "sender_ig_id VARCHAR(255) NOT NULL",
+          "recipient_ig_id VARCHAR(255) NOT NULL",
+          "action VARCHAR(50) NOT NULL CHECK (action IN ('react', 'unreact'))",
+          "reaction_type VARCHAR(50)",
+          "emoji VARCHAR(10)",
+          "timestamp TIMESTAMPTZ NOT NULL",
+          "raw_data JSONB",
+          "created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP",
+          "updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP",
+          "UNIQUE(message_id, sender_ig_id, timestamp)"
+        ],
+        "indexes": [
+          "idx_message_reactions_account ON (account_id)",
+          "idx_message_reactions_message ON (message_id)",
+          "idx_message_reactions_sender ON (sender_ig_id)",
+          "idx_message_reactions_timestamp ON (timestamp DESC)",
+          "idx_message_reactions_action ON (action)"
+        ]
+      }
+    },
+    "P1-T2": {
+      "id": "P1-T2",
+      "phase": "P1",
+      "title": "Create instagram_messaging_postbacks migration",
+      "description": "Create SQL migration file 035-create-instagram-messaging-postbacks.sql",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": [],
+      "files": ["backend/migrations/035-create-instagram-messaging-postbacks.sql"],
+      "sqlSchema": {
+        "tableName": "instagram_messaging_postbacks",
+        "columns": [
+          "id UUID PRIMARY KEY DEFAULT gen_random_uuid()",
+          "message_id VARCHAR(255) NOT NULL",
+          "conversation_id UUID",
+          "account_id UUID NOT NULL REFERENCES client_accounts(id) ON DELETE CASCADE",
+          "sender_ig_id VARCHAR(255) NOT NULL",
+          "recipient_ig_id VARCHAR(255) NOT NULL",
+          "is_self BOOLEAN DEFAULT FALSE",
+          "postback_title VARCHAR(255)",
+          "postback_payload TEXT",
+          "timestamp TIMESTAMPTZ NOT NULL",
+          "raw_data JSONB",
+          "processed BOOLEAN DEFAULT FALSE",
+          "processed_at TIMESTAMPTZ",
+          "created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP",
+          "updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP",
+          "UNIQUE(message_id, sender_ig_id)"
+        ],
+        "indexes": [
+          "idx_messaging_postbacks_account ON (account_id)",
+          "idx_messaging_postbacks_message ON (message_id)",
+          "idx_messaging_postbacks_sender ON (sender_ig_id)",
+          "idx_messaging_postbacks_timestamp ON (timestamp DESC)",
+          "idx_messaging_postbacks_payload ON (postback_payload)",
+          "idx_messaging_postbacks_processed ON (processed) WHERE processed = FALSE"
+        ]
+      }
+    },
+    "P1-T3": {
+      "id": "P1-T3",
+      "phase": "P1",
+      "title": "Create instagram_messaging_seen migration",
+      "description": "Create SQL migration file 036-create-instagram-messaging-seen.sql",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": [],
+      "files": ["backend/migrations/036-create-instagram-messaging-seen.sql"],
+      "sqlSchema": {
+        "tableName": "instagram_messaging_seen",
+        "columns": [
+          "id UUID PRIMARY KEY DEFAULT gen_random_uuid()",
+          "last_message_id VARCHAR(255) NOT NULL",
+          "conversation_id UUID",
+          "account_id UUID NOT NULL REFERENCES client_accounts(id) ON DELETE CASCADE",
+          "reader_ig_id VARCHAR(255) NOT NULL",
+          "recipient_ig_id VARCHAR(255) NOT NULL",
+          "timestamp TIMESTAMPTZ NOT NULL",
+          "raw_data JSONB",
+          "created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP",
+          "UNIQUE(last_message_id, reader_ig_id, timestamp)"
+        ],
+        "indexes": [
+          "idx_messaging_seen_account ON (account_id)",
+          "idx_messaging_seen_message ON (last_message_id)",
+          "idx_messaging_seen_reader ON (reader_ig_id)",
+          "idx_messaging_seen_timestamp ON (timestamp DESC)"
+        ]
+      }
+    },
+    "P1-T4": {
+      "id": "P1-T4",
+      "phase": "P1",
+      "title": "Test all migrations locally",
+      "description": "Run all 3 migrations and test rollback functionality",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["P1-T1", "P1-T2", "P1-T3"],
+      "testCommands": [
+        "psql -d social_selling -f backend/migrations/034-create-instagram-message-reactions.sql",
+        "psql -d social_selling -f backend/migrations/035-create-instagram-messaging-postbacks.sql",
+        "psql -d social_selling -f backend/migrations/036-create-instagram-messaging-seen.sql",
+        "\\d instagram_message_reactions",
+        "\\d instagram_messaging_postbacks",
+        "\\d instagram_messaging_seen"
+      ]
+    },
+    "P2-T1": {
+      "id": "P2-T1",
+      "phase": "P2",
+      "title": "Update WebhookEventType enum",
+      "description": "Add 4 new event type values to enum in webhook.dto.ts",
+      "estimatedHours": 0.25,
+      "complexity": "low",
+      "dependencies": ["P1-T4"],
+      "files": ["backend/src/modules/instagram/dto/webhook.dto.ts"],
+      "codeChanges": {
+        "enum": "WebhookEventType",
+        "newValues": [
+          "MESSAGE_REACTIONS = 'message_reactions'",
+          "MESSAGING_POSTBACKS = 'messaging_postbacks'",
+          "MESSAGING_SEEN = 'messaging_seen'",
+          "STORY_INSIGHTS = 'story_insights'"
+        ]
+      }
+    },
+    "P2-T2": {
+      "id": "P2-T2",
+      "phase": "P2",
+      "title": "Create message_reactions DTOs",
+      "description": "Create MessageReactionDto and MessageReactionEventDto classes",
+      "estimatedHours": 0.25,
+      "complexity": "low",
+      "dependencies": ["P2-T1"],
+      "files": ["backend/src/modules/instagram/dto/webhook.dto.ts"]
+    },
+    "P2-T3": {
+      "id": "P2-T3",
+      "phase": "P2",
+      "title": "Create messaging_postbacks DTOs",
+      "description": "Create MessagingPostbackDto and MessagingPostbackEventDto classes",
+      "estimatedHours": 0.25,
+      "complexity": "low",
+      "dependencies": ["P2-T1"],
+      "files": ["backend/src/modules/instagram/dto/webhook.dto.ts"]
+    },
+    "P2-T4": {
+      "id": "P2-T4",
+      "phase": "P2",
+      "title": "Create messaging_seen and story_insights DTOs",
+      "description": "Create MessagingSeenEventDto and StoryInsightsEventDto classes",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["P2-T1"],
+      "files": ["backend/src/modules/instagram/dto/webhook.dto.ts"]
+    },
+    "P2-T5": {
+      "id": "P2-T5",
+      "phase": "P2",
+      "title": "Add Swagger documentation to all DTOs",
+      "description": "Add @ApiProperty and @ApiPropertyOptional decorators",
+      "estimatedHours": 0.25,
+      "complexity": "low",
+      "dependencies": ["P2-T2", "P2-T3", "P2-T4"],
+      "files": ["backend/src/modules/instagram/dto/webhook.dto.ts"]
+    }
+  },
+  "riskMitigation": [
+    {
+      "risk": "Instagram webhook payload format differs from documentation",
+      "severity": "medium",
+      "probability": "medium",
+      "impact": "Parsing failures and missed events",
+      "mitigation": [
+        "Store raw JSONB payload for debugging",
+        "Use optional fields in DTOs where documentation is unclear",
+        "Add comprehensive error logging",
+        "Monitor production logs after deployment",
+        "Iterate based on real webhook data"
+      ],
+      "contingencyPlan": "Fall back to storing in generic instagram_webhook_events table if specific parsing fails"
+    },
+    {
+      "risk": "High volume webhook events overwhelm queue",
+      "severity": "medium",
+      "probability": "low",
+      "impact": "Delayed processing, queue backlog",
+      "mitigation": [
+        "BullMQ already configured with 5 concurrent workers",
+        "Monitor queue depth metrics",
+        "Set up alerts for queue depth >1000",
+        "Consider horizontal scaling if needed"
+      ],
+      "contingencyPlan": "Increase worker concurrency or add more worker instances"
+    },
+    {
+      "risk": "Migration fails in production",
+      "severity": "high",
+      "probability": "low",
+      "impact": "Database inconsistency, deployment failure",
+      "mitigation": [
+        "Test all migrations in development environment",
+        "Test rollback procedures",
+        "Deploy during low-traffic window",
+        "Have rollback script ready"
+      ],
+      "contingencyPlan": "Execute rollback immediately and revert code deployment"
+    },
+    {
+      "risk": "Deduplication fails for new event types",
+      "severity": "medium",
+      "probability": "low",
+      "impact": "Duplicate data in database",
+      "mitigation": [
+        "Test deduplication logic thoroughly",
+        "Use database UNIQUE constraints as backup",
+        "Monitor duplicate_events metrics"
+      ],
+      "contingencyPlan": "Clean up duplicates with SQL query, fix deduplication logic"
+    },
+    {
+      "risk": "Performance degradation due to additional processing",
+      "severity": "low",
+      "probability": "low",
+      "impact": "Slower webhook response time",
+      "mitigation": [
+        "Maintain async processing pattern",
+        "Use database indexes effectively",
+        "Performance test before deployment",
+        "Monitor response time metrics"
+      ],
+      "contingencyPlan": "Optimize slow queries, add caching if needed"
+    }
+  ],
+  "rollbackProcedures": {
+    "databaseRollback": {
+      "description": "Rollback database migrations in reverse order",
+      "steps": [
+        "Stop application to prevent new writes",
+        "Run rollback SQL: DROP TABLE IF EXISTS instagram_messaging_seen CASCADE;",
+        "Run rollback SQL: DROP TABLE IF EXISTS instagram_messaging_postbacks CASCADE;",
+        "Run rollback SQL: DROP TABLE IF EXISTS instagram_message_reactions CASCADE;",
+        "Verify tables are dropped: \\dt",
+        "Restart application with previous code version"
+      ],
+      "dataImpact": "All new event data will be lost. Historical data in existing tables preserved.",
+      "estimatedTime": "5 minutes"
+    },
+    "codeRollback": {
+      "description": "Revert code changes via git",
+      "steps": [
+        "git revert [commit-hash] for webhook service changes",
+        "git revert [commit-hash] for processor changes",
+        "git revert [commit-hash] for DTO changes",
+        "Deploy previous version",
+        "Verify existing event types still work"
+      ],
+      "dataImpact": "No data loss. Unknown event types will be logged but not processed.",
+      "estimatedTime": "10 minutes"
+    },
+    "partialRollback": {
+      "description": "Keep database tables but disable code processing",
+      "steps": [
+        "Comment out new event type cases in determineEventType()",
+        "Keep tables for future use",
+        "Unknown events logged but not processed"
+      ],
+      "dataImpact": "Historical data preserved. New events not processed until re-enabled.",
+      "estimatedTime": "5 minutes"
+    }
+  },
+  "deploymentStrategy": {
+    "approach": "phased-deployment",
+    "steps": [
+      {
+        "step": 1,
+        "name": "Pre-deployment validation",
+        "actions": [
+          "Run all unit tests locally",
+          "Run all integration tests locally",
+          "Review migration SQL files",
+          "Test rollback procedures in development"
+        ]
+      },
+      {
+        "step": 2,
+        "name": "Deploy to staging",
+        "actions": [
+          "Deploy code changes to staging environment",
+          "Run database migrations on staging DB",
+          "Verify tables created successfully",
+          "Run integration tests on staging",
+          "Send test webhooks using Instagram Graph API Explorer",
+          "Verify data in staging database",
+          "Monitor logs for 30 minutes"
+        ]
+      },
+      {
+        "step": 3,
+        "name": "Production deployment - Database",
+        "actions": [
+          "Schedule deployment during low-traffic window (2-4 AM)",
+          "Create database backup before migration",
+          "Run migrations on production DB",
+          "Verify tables and indexes created",
+          "Test connection from application"
+        ]
+      },
+      {
+        "step": 4,
+        "name": "Production deployment - Code",
+        "actions": [
+          "Deploy code changes to production",
+          "Restart application servers",
+          "Monitor application startup logs",
+          "Verify health check endpoints",
+          "Monitor webhook endpoint availability"
+        ]
+      },
+      {
+        "step": 5,
+        "name": "Post-deployment monitoring",
+        "actions": [
+          "Monitor webhook event processing for 24 hours",
+          "Check queue depth metrics",
+          "Check error rates",
+          "Verify new events being stored in database",
+          "Check response time metrics (<200ms)",
+          "Review application logs for errors"
+        ]
+      },
+      {
+        "step": 6,
+        "name": "Webhook subscription update",
+        "actions": [
+          "Update Instagram webhook subscriptions to include new event types",
+          "Test with real Instagram events",
+          "Verify data flow end-to-end",
+          "Document any issues or anomalies"
+        ]
+      }
+    ],
+    "estimatedDeploymentTime": "2 hours",
+    "requiredDowntime": "0 minutes (zero-downtime deployment)",
+    "rollbackThreshold": "If error rate >5% or response time >500ms for 5 minutes"
+  },
+  "monitoringAndObservability": {
+    "metrics": [
+      {
+        "name": "webhook_events_received_total",
+        "type": "counter",
+        "labels": ["event_type"],
+        "description": "Total webhook events received by type"
+      },
+      {
+        "name": "webhook_processing_duration_seconds",
+        "type": "histogram",
+        "labels": ["event_type"],
+        "description": "Webhook processing duration"
+      },
+      {
+        "name": "webhook_processing_failures_total",
+        "type": "counter",
+        "labels": ["event_type", "error_type"],
+        "description": "Failed webhook processing attempts"
+      },
+      {
+        "name": "webhook_queue_depth",
+        "type": "gauge",
+        "description": "Current depth of webhook processing queue"
+      },
+      {
+        "name": "webhook_duplicate_events_total",
+        "type": "counter",
+        "labels": ["event_type"],
+        "description": "Duplicate events detected"
+      }
+    ],
+    "logging": {
+      "DEBUG": [
+        "Event reception with payload preview",
+        "Signature verification details",
+        "Event type determination logic"
+      ],
+      "INFO": [
+        "Event processing started",
+        "Event stored successfully",
+        "Queue job completed"
+      ],
+      "WARN": [
+        "Unknown event type received",
+        "Optional field missing in payload",
+        "Retry attempt"
+      ],
+      "ERROR": [
+        "Signature verification failed",
+        "Database insert failed",
+        "JSON parsing error",
+        "Queue processing error"
+      ]
+    },
+    "alerts": [
+      {
+        "name": "High webhook failure rate",
+        "condition": "failure_rate > 5% over 5 minutes",
+        "severity": "critical",
+        "action": "Page on-call engineer"
+      },
+      {
+        "name": "Queue depth critical",
+        "condition": "queue_depth > 1000 for 10 minutes",
+        "severity": "warning",
+        "action": "Notify team via Slack"
+      },
+      {
+        "name": "No events received",
+        "condition": "no events for 1 hour during business hours",
+        "severity": "warning",
+        "action": "Check webhook subscription status"
+      },
+      {
+        "name": "Slow webhook response",
+        "condition": "p95_latency > 500ms for 5 minutes",
+        "severity": "warning",
+        "action": "Investigate performance issue"
+      }
+    ]
+  },
+  "testingStrategy": {
+    "unitTests": [
+      {
+        "component": "DTOs",
+        "tests": [
+          "MessageReactionDto validation with valid data",
+          "MessageReactionDto validation with invalid action",
+          "MessagingPostbackDto validation",
+          "MessagingSeenEventDto validation",
+          "StoryInsightsEventDto validation with missing fields"
+        ],
+        "framework": "Jest",
+        "estimatedTests": 15
+      },
+      {
+        "component": "InstagramWebhooksService",
+        "tests": [
+          "determineEventType recognizes message_reactions",
+          "determineEventType recognizes messaging_postbacks",
+          "determineEventType recognizes messaging_seen",
+          "determineEventType recognizes story_insights",
+          "extractEventData for each new event type",
+          "generateEventId creates unique IDs"
+        ],
+        "framework": "Jest",
+        "estimatedTests": 12
+      },
+      {
+        "component": "Domain Entities",
+        "tests": [
+          "InstagramMessageReaction.create() factory",
+          "InstagramMessagingPostback.create() factory",
+          "InstagramMessagingSeen.create() factory",
+          "Entity toJSON() methods",
+          "Entity behavior methods"
+        ],
+        "framework": "Jest",
+        "estimatedTests": 10
+      }
+    ],
+    "integrationTests": [
+      {
+        "scenario": "Complete webhook flow for message_reactions",
+        "steps": [
+          "Send webhook with valid signature",
+          "Verify signature validation passes",
+          "Verify event stored in instagram_webhook_events",
+          "Verify queue job created",
+          "Verify data stored in instagram_message_reactions",
+          "Verify deduplication on second send"
+        ],
+        "framework": "Jest + Supertest",
+        "estimatedTests": 4
+      },
+      {
+        "scenario": "Complete webhook flow for messaging_postbacks",
+        "steps": [
+          "Send webhook with valid signature",
+          "Verify event storage",
+          "Verify postback data extracted correctly"
+        ],
+        "framework": "Jest + Supertest",
+        "estimatedTests": 4
+      },
+      {
+        "scenario": "Error handling",
+        "steps": [
+          "Send webhook with invalid signature - expect rejection",
+          "Send webhook with malformed JSON - expect error logged",
+          "Send webhook with missing required fields - expect graceful handling"
+        ],
+        "framework": "Jest + Supertest",
+        "estimatedTests": 3
+      }
+    ],
+    "manualTests": [
+      {
+        "scenario": "Real Instagram webhook testing",
+        "steps": [
+          "Use Instagram Graph API Explorer",
+          "Subscribe to test Instagram account webhooks",
+          "Trigger real message reaction event",
+          "Trigger real postback event (structured message)",
+          "Trigger real seen event",
+          "Verify all events in database",
+          "Check logs for processing details"
+        ]
+      }
+    ],
+    "performanceTests": [
+      {
+        "scenario": "Webhook response time under load",
+        "tool": "Apache Bench or k6",
+        "target": "<200ms response time for 95th percentile",
+        "testLoad": "100 requests/second for 1 minute"
+      }
+    ],
+    "estimatedTestingTime": 2
+  },
+  "documentation": {
+    "updates": [
+      {
+        "file": "README.md",
+        "section": "Webhook Events",
+        "content": "Add documentation for 4 new event types with examples"
+      },
+      {
+        "file": "API_DOCS.md",
+        "section": "Webhook Payload Examples",
+        "content": "Add payload examples for each new event type"
+      },
+      {
+        "file": "ARCHITECTURE.md",
+        "section": "Event Processing Flow",
+        "content": "Update flow diagram to include new event types"
+      }
+    ]
+  },
+  "futureEnhancements": [
+    "Add analytics dashboard for reaction trends",
+    "Implement auto-reply rules triggered by postback payloads",
+    "Create engagement score based on read receipts and reactions",
+    "Build conversation funnel analytics (seen → reaction → reply)",
+    "Add ML-based intent classification for postback payloads",
+    "Implement story insights trend analysis over time",
+    "Create webhook event replay functionality for testing"
+  ]
+}

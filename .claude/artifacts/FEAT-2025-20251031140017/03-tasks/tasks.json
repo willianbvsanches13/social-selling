@@ -1,0 +1,982 @@
+{
+  "taskSetId": "TASKS-2025-20251031143000",
+  "featureId": "FEAT-2025-20251031140017",
+  "planId": "PLAN-2025-20251031140500",
+  "timestamp": "2025-10-31T14:30:00Z",
+  "summary": {
+    "totalTasks": 24,
+    "byCategory": {
+      "database": 4,
+      "dto": 5,
+      "entity": 3,
+      "service": 4,
+      "processor": 5,
+      "testing": 3
+    },
+    "byPriority": {
+      "critical": 7,
+      "high": 11,
+      "medium": 5,
+      "low": 1
+    },
+    "totalEstimatedHours": 10,
+    "parallelizableGroups": 3
+  },
+  "tasks": [
+    {
+      "taskId": "TASK-001",
+      "phaseId": "P1",
+      "title": "Create instagram_message_reactions table migration",
+      "description": "Create SQL migration file 034-create-instagram-message-reactions.sql with complete table schema including UUID primary key, foreign key to client_accounts, indexes for performance, and UNIQUE constraint for deduplication",
+      "category": "database",
+      "priority": "critical",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": [],
+      "canParallelizeWith": ["TASK-002", "TASK-003"],
+      "files": [
+        "backend/migrations/034-create-instagram-message-reactions.sql"
+      ],
+      "dod": [
+        "Migration file created with proper naming convention (034-create-instagram-message-reactions.sql)",
+        "Table created with all required columns: id, message_id, conversation_id, account_id, sender_ig_id, recipient_ig_id, action, reaction_type, emoji, timestamp, raw_data, created_at, updated_at",
+        "Foreign key constraint to client_accounts(id) with ON DELETE CASCADE",
+        "UNIQUE constraint on (message_id, sender_ig_id, timestamp) for deduplication",
+        "5 indexes created: account_id, message_id, sender_ig_id, timestamp DESC, action",
+        "CHECK constraint on action field (IN 'react', 'unreact')",
+        "Rollback SQL commented at top of file"
+      ],
+      "technicalDetails": {
+        "tableName": "instagram_message_reactions",
+        "primaryKey": "UUID DEFAULT gen_random_uuid()",
+        "foreignKeys": ["account_id -> client_accounts(id) ON DELETE CASCADE"],
+        "uniqueConstraints": ["(message_id, sender_ig_id, timestamp)"],
+        "indexes": [
+          "idx_message_reactions_account",
+          "idx_message_reactions_message",
+          "idx_message_reactions_sender",
+          "idx_message_reactions_timestamp",
+          "idx_message_reactions_action"
+        ]
+      },
+      "verification": [
+        "Run migration locally: psql -d social_selling -f backend/migrations/034-create-instagram-message-reactions.sql",
+        "Verify table exists: \\d instagram_message_reactions",
+        "Check indexes: \\di instagram_message_reactions*",
+        "Test rollback: execute commented DROP TABLE statement"
+      ]
+    },
+    {
+      "taskId": "TASK-002",
+      "phaseId": "P1",
+      "title": "Create instagram_messaging_postbacks table migration",
+      "description": "Create SQL migration file 035-create-instagram-messaging-postbacks.sql for storing button click events from Instagram structured messages (ice breakers, quick replies, persistent menu)",
+      "category": "database",
+      "priority": "critical",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": [],
+      "canParallelizeWith": ["TASK-001", "TASK-003"],
+      "files": [
+        "backend/migrations/035-create-instagram-messaging-postbacks.sql"
+      ],
+      "dod": [
+        "Migration file created with naming convention 035-create-instagram-messaging-postbacks.sql",
+        "Table created with columns: id, message_id, conversation_id, account_id, sender_ig_id, recipient_ig_id, is_self, postback_title, postback_payload, timestamp, raw_data, processed, processed_at, created_at, updated_at",
+        "Foreign key to client_accounts(id) with ON DELETE CASCADE",
+        "UNIQUE constraint on (message_id, sender_ig_id) for deduplication",
+        "6 indexes created including partial index on processed field",
+        "Rollback SQL commented at top"
+      ],
+      "technicalDetails": {
+        "tableName": "instagram_messaging_postbacks",
+        "primaryKey": "UUID DEFAULT gen_random_uuid()",
+        "foreignKeys": ["account_id -> client_accounts(id) ON DELETE CASCADE"],
+        "uniqueConstraints": ["(message_id, sender_ig_id)"],
+        "indexes": [
+          "idx_messaging_postbacks_account",
+          "idx_messaging_postbacks_message",
+          "idx_messaging_postbacks_sender",
+          "idx_messaging_postbacks_timestamp",
+          "idx_messaging_postbacks_payload",
+          "idx_messaging_postbacks_processed (WHERE processed = FALSE)"
+        ]
+      },
+      "verification": [
+        "Run migration locally",
+        "Verify table structure",
+        "Check partial index on processed field",
+        "Test UNIQUE constraint with duplicate insert"
+      ]
+    },
+    {
+      "taskId": "TASK-003",
+      "phaseId": "P1",
+      "title": "Create instagram_messaging_seen table migration",
+      "description": "Create SQL migration file 036-create-instagram-messaging-seen.sql for tracking read receipts to measure message engagement and response rates",
+      "category": "database",
+      "priority": "critical",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": [],
+      "canParallelizeWith": ["TASK-001", "TASK-002"],
+      "files": [
+        "backend/migrations/036-create-instagram-messaging-seen.sql"
+      ],
+      "dod": [
+        "Migration file created with naming 036-create-instagram-messaging-seen.sql",
+        "Table created with columns: id, last_message_id, conversation_id, account_id, reader_ig_id, recipient_ig_id, timestamp, raw_data, created_at",
+        "Foreign key to client_accounts(id) with ON DELETE CASCADE",
+        "UNIQUE constraint on (last_message_id, reader_ig_id, timestamp)",
+        "4 indexes created for query performance",
+        "Rollback SQL commented"
+      ],
+      "technicalDetails": {
+        "tableName": "instagram_messaging_seen",
+        "primaryKey": "UUID DEFAULT gen_random_uuid()",
+        "foreignKeys": ["account_id -> client_accounts(id) ON DELETE CASCADE"],
+        "uniqueConstraints": ["(last_message_id, reader_ig_id, timestamp)"],
+        "indexes": [
+          "idx_messaging_seen_account",
+          "idx_messaging_seen_message",
+          "idx_messaging_seen_reader",
+          "idx_messaging_seen_timestamp"
+        ]
+      },
+      "verification": [
+        "Run migration locally",
+        "Verify all indexes created",
+        "Test UNIQUE constraint behavior"
+      ]
+    },
+    {
+      "taskId": "TASK-004",
+      "phaseId": "P1",
+      "title": "Test all database migrations",
+      "description": "Execute all 3 new migrations locally, verify table creation, test rollback procedures, and check foreign key constraints",
+      "category": "database",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003"],
+      "files": [],
+      "dod": [
+        "All 3 migrations run successfully without errors",
+        "All tables exist in database: SELECT table_name FROM information_schema.tables WHERE table_name LIKE 'instagram_%';",
+        "All indexes verified: \\di",
+        "Foreign key constraints validated: \\d+ instagram_message_reactions",
+        "Rollback tested for each migration",
+        "Test data inserted successfully into each table",
+        "UNIQUE constraints prevent duplicates as expected"
+      ],
+      "verification": [
+        "psql -d social_selling -f backend/migrations/034-create-instagram-message-reactions.sql",
+        "psql -d social_selling -f backend/migrations/035-create-instagram-messaging-postbacks.sql",
+        "psql -d social_selling -f backend/migrations/036-create-instagram-messaging-seen.sql",
+        "SELECT COUNT(*) FROM pg_tables WHERE schemaname = 'public' AND tablename LIKE 'instagram_%';",
+        "Execute rollback statements",
+        "Re-run migrations to verify idempotency"
+      ]
+    },
+    {
+      "taskId": "TASK-005",
+      "phaseId": "P2",
+      "title": "Update WebhookEventType enum with 4 new event types",
+      "description": "Add MESSAGE_REACTIONS, MESSAGING_POSTBACKS, MESSAGING_SEEN, and STORY_INSIGHTS to WebhookEventType enum in both webhook.dto.ts and instagram-webhook-event.entity.ts",
+      "category": "dto",
+      "priority": "critical",
+      "estimatedHours": 0.25,
+      "complexity": "low",
+      "dependencies": ["TASK-004"],
+      "files": [
+        "backend/src/modules/instagram/dto/webhook.dto.ts",
+        "backend/src/domain/entities/instagram-webhook-event.entity.ts"
+      ],
+      "dod": [
+        "WebhookEventType enum in webhook.dto.ts includes MESSAGE_REACTIONS = 'message_reactions'",
+        "WebhookEventType enum includes MESSAGING_POSTBACKS = 'messaging_postbacks'",
+        "WebhookEventType enum includes MESSAGING_SEEN = 'messaging_seen'",
+        "WebhookEventType enum includes STORY_INSIGHTS = 'story_insights'",
+        "Enum in instagram-webhook-event.entity.ts updated identically",
+        "TypeScript compiles without errors",
+        "Existing event types remain unchanged"
+      ],
+      "technicalDetails": {
+        "enumLocation": "backend/src/modules/instagram/dto/webhook.dto.ts:14",
+        "newValues": [
+          "MESSAGE_REACTIONS = 'message_reactions'",
+          "MESSAGING_POSTBACKS = 'messaging_postbacks'",
+          "MESSAGING_SEEN = 'messaging_seen'",
+          "STORY_INSIGHTS = 'story_insights'"
+        ]
+      },
+      "verification": [
+        "npm run build -- compiles successfully",
+        "Check enum values exported correctly",
+        "No TypeScript type errors"
+      ]
+    },
+    {
+      "taskId": "TASK-006",
+      "phaseId": "P2",
+      "title": "Create MessageReactionDto and MessageReactionEventDto",
+      "description": "Create DTOs for message_reactions webhook events with class-validator decorators for validation and Swagger decorators for API documentation",
+      "category": "dto",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["TASK-005"],
+      "canParallelizeWith": ["TASK-007", "TASK-008"],
+      "files": [
+        "backend/src/modules/instagram/dto/webhook.dto.ts"
+      ],
+      "dod": [
+        "MessageReactionDto class created with fields: mid (message_id), reaction (emoji or reaction_type), action (react/unreact)",
+        "All fields have @IsString() or appropriate class-validator decorators",
+        "Action field validated with @IsIn(['react', 'unreact'])",
+        "MessageReactionEventDto class wraps MessageReactionDto array",
+        "All DTOs have @ApiProperty decorators with descriptions",
+        "Optional fields marked with @IsOptional()",
+        "Follows existing DTO patterns in webhook.dto.ts"
+      ],
+      "technicalDetails": {
+        "classes": [
+          "MessageReactionDto",
+          "MessageReactionEventDto"
+        ],
+        "validators": [
+          "@IsString()",
+          "@IsIn(['react', 'unreact'])",
+          "@IsOptional()",
+          "@ValidateNested()",
+          "@Type(() => MessageReactionDto)"
+        ]
+      },
+      "verification": [
+        "TypeScript compiles without errors",
+        "DTO validation works with class-validator",
+        "Swagger UI shows new DTO schemas"
+      ]
+    },
+    {
+      "taskId": "TASK-007",
+      "phaseId": "P2",
+      "title": "Create MessagingPostbackDto and MessagingPostbackEventDto",
+      "description": "Create DTOs for messaging_postbacks webhook events (button clicks from ice breakers, quick replies, persistent menu)",
+      "category": "dto",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["TASK-005"],
+      "canParallelizeWith": ["TASK-006", "TASK-008"],
+      "files": [
+        "backend/src/modules/instagram/dto/webhook.dto.ts"
+      ],
+      "dod": [
+        "MessagingPostbackDto class created with fields: mid, title, payload",
+        "PostbackPayloadDto nested class for payload structure",
+        "All required fields validated with @IsNotEmpty()",
+        "Optional fields marked with @IsOptional()",
+        "MessagingPostbackEventDto wraps array of MessagingPostbackDto",
+        "@ApiProperty decorators on all fields",
+        "Example payloads documented in comments"
+      ],
+      "technicalDetails": {
+        "classes": [
+          "PostbackPayloadDto",
+          "MessagingPostbackDto",
+          "MessagingPostbackEventDto"
+        ],
+        "validators": [
+          "@IsString()",
+          "@IsNotEmpty()",
+          "@IsOptional()",
+          "@IsObject()",
+          "@ValidateNested()"
+        ]
+      },
+      "verification": [
+        "DTOs validate correctly",
+        "Nested validation works for payload object",
+        "Swagger documentation complete"
+      ]
+    },
+    {
+      "taskId": "TASK-008",
+      "phaseId": "P2",
+      "title": "Create MessagingSeenEventDto and StoryInsightsEventDto",
+      "description": "Create DTOs for messaging_seen (read receipts) and story_insights webhook events",
+      "category": "dto",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["TASK-005"],
+      "canParallelizeWith": ["TASK-006", "TASK-007"],
+      "files": [
+        "backend/src/modules/instagram/dto/webhook.dto.ts"
+      ],
+      "dod": [
+        "MessagingSeenEventDto class created with watermark (timestamp) field",
+        "StoryInsightsEventDto class created with media_id and insights metrics",
+        "InsightMetricDto nested class for story metrics (reach, impressions, exits, replies, etc.)",
+        "All timestamp fields validated as numbers (Unix timestamps)",
+        "Optional insight metrics marked with @IsOptional()",
+        "@ApiProperty decorators with clear descriptions",
+        "Example webhook payloads in comments"
+      ],
+      "technicalDetails": {
+        "classes": [
+          "MessagingSeenEventDto",
+          "InsightMetricDto",
+          "StoryInsightsEventDto"
+        ],
+        "validators": [
+          "@IsNumber()",
+          "@IsString()",
+          "@IsOptional()",
+          "@ValidateNested()"
+        ]
+      },
+      "verification": [
+        "DTOs compile correctly",
+        "Timestamp validation works",
+        "Story insights structure matches Instagram API docs"
+      ]
+    },
+    {
+      "taskId": "TASK-009",
+      "phaseId": "P2",
+      "title": "Update WebhookChangeValueDto with new event fields",
+      "description": "Add optional fields to WebhookChangeValueDto to support message_reactions, messaging_postbacks, messaging_seen, and story_insights payloads",
+      "category": "dto",
+      "priority": "medium",
+      "estimatedHours": 0.25,
+      "complexity": "low",
+      "dependencies": ["TASK-006", "TASK-007", "TASK-008"],
+      "files": [
+        "backend/src/modules/instagram/dto/webhook.dto.ts"
+      ],
+      "dod": [
+        "message_reactions field added as optional array of MessageReactionDto",
+        "messaging_postbacks field added as optional array of MessagingPostbackDto",
+        "messaging_seen field added as optional MessagingSeenEventDto",
+        "story_insights field added as optional StoryInsightsEventDto",
+        "All new fields marked @IsOptional()",
+        "Existing fields remain unchanged",
+        "@ValidateNested() decorators added where needed"
+      ],
+      "verification": [
+        "Webhook payload validation works for all event types",
+        "No breaking changes to existing event handling"
+      ]
+    },
+    {
+      "taskId": "TASK-010",
+      "phaseId": "P3",
+      "title": "Create InstagramMessageReaction domain entity",
+      "description": "Create domain entity with factory pattern (create/reconstitute methods) following existing entity conventions for message reactions",
+      "category": "entity",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "complexity": "medium",
+      "dependencies": ["TASK-009"],
+      "canParallelizeWith": ["TASK-011", "TASK-012"],
+      "files": [
+        "backend/src/domain/entities/instagram-message-reaction.entity.ts",
+        "backend/src/domain/entities/index.ts"
+      ],
+      "dod": [
+        "InstagramMessageReaction class created with private props pattern",
+        "Props interface includes: id, messageId, conversationId, accountId, senderIgId, recipientIgId, action, reactionType, emoji, timestamp, rawData, createdAt, updatedAt",
+        "static create() factory method generates UUID and sets timestamps",
+        "static reconstitute() method for hydrating from database",
+        "Getters for all properties",
+        "toJSON() method for serialization",
+        "Entity exported from index.ts",
+        "Follows pattern from instagram-webhook-event.entity.ts"
+      ],
+      "technicalDetails": {
+        "pattern": "Factory pattern with private constructor",
+        "imports": ["uuid"],
+        "methods": [
+          "static create(props)",
+          "static reconstitute(props)",
+          "toJSON()"
+        ]
+      },
+      "verification": [
+        "Unit test: create() generates valid entity",
+        "Unit test: reconstitute() hydrates correctly",
+        "Unit test: toJSON() serializes properly",
+        "TypeScript compiles without errors"
+      ]
+    },
+    {
+      "taskId": "TASK-011",
+      "phaseId": "P3",
+      "title": "Create InstagramMessagingPostback domain entity",
+      "description": "Create domain entity for postback events with factory pattern and state management methods (markAsProcessed)",
+      "category": "entity",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "complexity": "medium",
+      "dependencies": ["TASK-009"],
+      "canParallelizeWith": ["TASK-010", "TASK-012"],
+      "files": [
+        "backend/src/domain/entities/instagram-messaging-postback.entity.ts",
+        "backend/src/domain/entities/index.ts"
+      ],
+      "dod": [
+        "InstagramMessagingPostback class created with props interface",
+        "Props include: id, messageId, conversationId, accountId, senderIgId, recipientIgId, isSelf, postbackTitle, postbackPayload, timestamp, rawData, processed, processedAt, createdAt, updatedAt",
+        "static create() and static reconstitute() factory methods",
+        "markAsProcessed() behavior method to update processed flag and timestamp",
+        "Getters for all properties",
+        "toJSON() serialization method",
+        "Exported from index.ts"
+      ],
+      "technicalDetails": {
+        "pattern": "Factory pattern with behavior methods",
+        "behaviorMethods": [
+          "markAsProcessed(): void"
+        ]
+      },
+      "verification": [
+        "Unit test: markAsProcessed() updates state correctly",
+        "Unit test: factory methods work",
+        "Compiles successfully"
+      ]
+    },
+    {
+      "taskId": "TASK-012",
+      "phaseId": "P3",
+      "title": "Create InstagramMessagingSeen domain entity",
+      "description": "Create simple domain entity for read receipts without complex state management",
+      "category": "entity",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["TASK-009"],
+      "canParallelizeWith": ["TASK-010", "TASK-011"],
+      "files": [
+        "backend/src/domain/entities/instagram-messaging-seen.entity.ts",
+        "backend/src/domain/entities/index.ts"
+      ],
+      "dod": [
+        "InstagramMessagingSeen class created with props pattern",
+        "Props: id, lastMessageId, conversationId, accountId, readerIgId, recipientIgId, timestamp, rawData, createdAt",
+        "static create() and static reconstitute() methods",
+        "Getters for all properties",
+        "toJSON() method",
+        "Exported from index.ts"
+      ],
+      "technicalDetails": {
+        "pattern": "Simple factory pattern without behavior methods",
+        "stateManagement": "Immutable - no state changes after creation"
+      },
+      "verification": [
+        "Unit test: entity creation",
+        "TypeScript compilation"
+      ]
+    },
+    {
+      "taskId": "TASK-013",
+      "phaseId": "P4",
+      "title": "Update determineEventType() to recognize new event types",
+      "description": "Update InstagramWebhooksService.determineEventType() method to identify message_reactions, messaging_postbacks, messaging_seen, and story_insights from webhook payloads",
+      "category": "service",
+      "priority": "critical",
+      "estimatedHours": 0.75,
+      "complexity": "medium",
+      "dependencies": ["TASK-012"],
+      "files": [
+        "backend/src/modules/instagram/services/instagram-webhooks.service.ts"
+      ],
+      "dod": [
+        "Method checks for 'message_reactions' field in change.value and returns WebhookEventType.MESSAGE_REACTIONS",
+        "Method checks for 'messaging_postbacks' field and returns WebhookEventType.MESSAGING_POSTBACKS",
+        "Method checks for 'messaging_seen' field and returns WebhookEventType.MESSAGING_SEEN",
+        "Method checks for 'story_insights' field and returns WebhookEventType.STORY_INSIGHTS",
+        "Detection logic follows existing pattern for messages/comments/mentions",
+        "Debug logging added for each event type detection",
+        "Handles messaging array format (alternative to changes array)",
+        "Returns null for unknown event types"
+      ],
+      "technicalDetails": {
+        "method": "determineEventType(change: WebhookChangeDto | any)",
+        "returnType": "WebhookEventType | null",
+        "detectionLogic": "Check for specific fields in change.value or messaging array"
+      },
+      "verification": [
+        "Unit test: recognizes message_reactions payload",
+        "Unit test: recognizes messaging_postbacks payload",
+        "Unit test: recognizes messaging_seen payload",
+        "Unit test: recognizes story_insights payload",
+        "Unit test: returns null for unknown event",
+        "Integration test: end-to-end webhook processing"
+      ]
+    },
+    {
+      "taskId": "TASK-014",
+      "phaseId": "P4",
+      "title": "Update extractEventData() for new event types",
+      "description": "Update InstagramWebhooksService.extractEventData() to extract correct object_type, object_id, sender_id for each new event type",
+      "category": "service",
+      "priority": "critical",
+      "estimatedHours": 0.5,
+      "complexity": "medium",
+      "dependencies": ["TASK-013"],
+      "files": [
+        "backend/src/modules/instagram/services/instagram-webhooks.service.ts"
+      ],
+      "dod": [
+        "MESSAGE_REACTIONS case extracts: object_type='message', object_id=mid, sender_id=from.id",
+        "MESSAGING_POSTBACKS case extracts: object_type='postback', object_id=mid, sender_id=sender.id",
+        "MESSAGING_SEEN case extracts: object_type='seen', object_id=null, sender_id=reader.id",
+        "STORY_INSIGHTS case extracts: object_type='story', object_id=media_id, sender_id=account_id",
+        "Handles missing optional fields gracefully",
+        "Returns structured object: {object_type, object_id, sender_id, recipient_id}",
+        "Logging added for debugging extraction"
+      ],
+      "technicalDetails": {
+        "method": "extractEventData(eventType: WebhookEventType, payload: any)",
+        "returnType": "{ object_type: string; object_id: string | null; sender_id: string; recipient_id?: string }",
+        "errorHandling": "Returns null values for missing fields, doesn't throw"
+      },
+      "verification": [
+        "Unit test: MESSAGE_REACTIONS extraction",
+        "Unit test: MESSAGING_POSTBACKS extraction",
+        "Unit test: MESSAGING_SEEN extraction",
+        "Unit test: STORY_INSIGHTS extraction",
+        "Unit test: handles missing fields without errors"
+      ]
+    },
+    {
+      "taskId": "TASK-015",
+      "phaseId": "P4",
+      "title": "Update generateEventId() for new event types",
+      "description": "Update or verify InstagramWebhooksService.generateEventId() creates unique, deterministic IDs for new event types to support deduplication",
+      "category": "service",
+      "priority": "high",
+      "estimatedHours": 0.25,
+      "complexity": "low",
+      "dependencies": ["TASK-014"],
+      "files": [
+        "backend/src/modules/instagram/services/instagram-webhooks.service.ts"
+      ],
+      "dod": [
+        "Event ID format: {eventType}_{objectId}_{senderId}_{timestamp} or similar deterministic pattern",
+        "MESSAGE_REACTIONS: messageReactions_{mid}_{sender_id}_{timestamp}",
+        "MESSAGING_POSTBACKS: postback_{mid}_{sender_id}_{timestamp}",
+        "MESSAGING_SEEN: seen_{last_message_id}_{reader_id}_{timestamp}",
+        "STORY_INSIGHTS: storyInsights_{media_id}_{timestamp}",
+        "IDs are consistent for duplicate webhooks (same event sent twice)",
+        "IDs are unique across different events"
+      ],
+      "verification": [
+        "Unit test: same payload generates same event ID",
+        "Unit test: different payloads generate different IDs",
+        "Event IDs are URL-safe strings"
+      ]
+    },
+    {
+      "taskId": "TASK-016",
+      "phaseId": "P4",
+      "title": "Add comprehensive logging for new event types",
+      "description": "Add DEBUG, INFO, WARN, and ERROR level logging throughout webhook processing flow for new event types",
+      "category": "service",
+      "priority": "medium",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["TASK-015"],
+      "files": [
+        "backend/src/modules/instagram/services/instagram-webhooks.service.ts"
+      ],
+      "dod": [
+        "DEBUG: Log payload preview when receiving new event types",
+        "INFO: Log successful event type recognition",
+        "INFO: Log successful event data extraction",
+        "WARN: Log when optional fields are missing",
+        "ERROR: Log when event recognition fails",
+        "All logs include eventType and eventId for traceability",
+        "Sensitive data (user IDs) partially redacted in production logs",
+        "Logs follow existing format in service"
+      ],
+      "verification": [
+        "Logs appear correctly during testing",
+        "Log levels appropriate for each scenario",
+        "No PII or sensitive data exposed in logs"
+      ]
+    },
+    {
+      "taskId": "TASK-017",
+      "phaseId": "P5",
+      "title": "Add new event type cases to storeEvent() switch",
+      "description": "Update WebhookEventsProcessor.storeEvent() switch statement to route MESSAGE_REACTIONS, MESSAGING_POSTBACKS, MESSAGING_SEEN, STORY_INSIGHTS to appropriate storage methods",
+      "category": "processor",
+      "priority": "critical",
+      "estimatedHours": 0.25,
+      "complexity": "low",
+      "dependencies": ["TASK-016"],
+      "files": [
+        "backend/src/workers/processors/webhook-events.processor.ts"
+      ],
+      "dod": [
+        "case WebhookEventType.MESSAGE_REACTIONS: await this.storeMessageReaction(normalizedEvent, accountId);",
+        "case WebhookEventType.MESSAGING_POSTBACKS: await this.storeMessagingPostback(normalizedEvent, accountId);",
+        "case WebhookEventType.MESSAGING_SEEN: await this.storeMessagingSeen(normalizedEvent, accountId);",
+        "case WebhookEventType.STORY_INSIGHTS: await this.storeStoryInsight(normalizedEvent, accountId);",
+        "Each case includes error handling",
+        "Logging added for each storage operation",
+        "Existing cases remain unchanged"
+      ],
+      "verification": [
+        "TypeScript compiles (methods don't exist yet, will be created in next tasks)",
+        "Switch statement complete and readable"
+      ]
+    },
+    {
+      "taskId": "TASK-018",
+      "phaseId": "P5",
+      "title": "Implement storeMessageReaction() method",
+      "description": "Create private method in WebhookEventsProcessor to store message reaction events in instagram_message_reactions table with INSERT ON CONFLICT for deduplication",
+      "category": "processor",
+      "priority": "critical",
+      "estimatedHours": 0.5,
+      "complexity": "medium",
+      "dependencies": ["TASK-017"],
+      "canParallelizeWith": ["TASK-019", "TASK-020"],
+      "files": [
+        "backend/src/workers/processors/webhook-events.processor.ts"
+      ],
+      "dod": [
+        "private async storeMessageReaction(event: NormalizedEvent, accountId: string) method created",
+        "SQL INSERT with ON CONFLICT (message_id, sender_ig_id, timestamp) DO UPDATE",
+        "Timestamp conversion from Unix to Date if needed",
+        "raw_data column stores full normalized event as JSONB",
+        "Error handling with try-catch and logging",
+        "Returns boolean success indicator",
+        "Uses parameterized queries to prevent SQL injection"
+      ],
+      "technicalDetails": {
+        "method": "private async storeMessageReaction(event: NormalizedEvent, accountId: string): Promise<boolean>",
+        "sql": "INSERT INTO instagram_message_reactions (...) VALUES (...) ON CONFLICT (message_id, sender_ig_id, timestamp) DO UPDATE SET updated_at = CURRENT_TIMESTAMP",
+        "timestampConversion": "new Date(event.timestamp * 1000)"
+      },
+      "verification": [
+        "Unit test: stores new reaction successfully",
+        "Unit test: handles duplicate reaction (ON CONFLICT)",
+        "Integration test: end-to-end storage from webhook",
+        "Check database after test for correct data"
+      ]
+    },
+    {
+      "taskId": "TASK-019",
+      "phaseId": "P5",
+      "title": "Implement storeMessagingPostback() method",
+      "description": "Create method to store postback events (button clicks) in instagram_messaging_postbacks table",
+      "category": "processor",
+      "priority": "critical",
+      "estimatedHours": 0.5,
+      "complexity": "medium",
+      "dependencies": ["TASK-017"],
+      "canParallelizeWith": ["TASK-018", "TASK-020"],
+      "files": [
+        "backend/src/workers/processors/webhook-events.processor.ts"
+      ],
+      "dod": [
+        "private async storeMessagingPostback(event: NormalizedEvent, accountId: string) method",
+        "INSERT with ON CONFLICT (message_id, sender_ig_id) DO UPDATE",
+        "Stores postback_title, postback_payload, is_self fields",
+        "Sets processed = false initially for later auto-reply processing",
+        "Raw event stored in raw_data JSONB column",
+        "Error handling and logging",
+        "Returns success boolean"
+      ],
+      "technicalDetails": {
+        "method": "private async storeMessagingPostback(event, accountId): Promise<boolean>",
+        "defaultValues": {
+          "processed": false,
+          "is_self": "event.is_self || false"
+        }
+      },
+      "verification": [
+        "Unit test: successful storage",
+        "Unit test: duplicate handling",
+        "Processed flag set to false initially"
+      ]
+    },
+    {
+      "taskId": "TASK-020",
+      "phaseId": "P5",
+      "title": "Implement storeMessagingSeen() method",
+      "description": "Create method to store read receipt events in instagram_messaging_seen table",
+      "category": "processor",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "complexity": "low",
+      "dependencies": ["TASK-017"],
+      "canParallelizeWith": ["TASK-018", "TASK-019"],
+      "files": [
+        "backend/src/workers/processors/webhook-events.processor.ts"
+      ],
+      "dod": [
+        "private async storeMessagingSeen(event: NormalizedEvent, accountId: string) method",
+        "INSERT with ON CONFLICT (last_message_id, reader_ig_id, timestamp) DO NOTHING",
+        "Stores watermark/timestamp as read receipt time",
+        "Maps reader_ig_id and recipient_ig_id correctly",
+        "Raw event in raw_data column",
+        "Error handling and logging"
+      ],
+      "technicalDetails": {
+        "method": "private async storeMessagingSeen(event, accountId): Promise<boolean>",
+        "conflict": "ON CONFLICT DO NOTHING (seen events are immutable)"
+      },
+      "verification": [
+        "Unit test: stores seen event",
+        "Unit test: ignores duplicates silently",
+        "Timestamp stored correctly"
+      ]
+    },
+    {
+      "taskId": "TASK-021",
+      "phaseId": "P5",
+      "title": "Implement or update storeStoryInsight() method",
+      "description": "Create/update method to store story insights in existing instagram_story_insights table (table may already exist from migration 027)",
+      "category": "processor",
+      "priority": "medium",
+      "estimatedHours": 0.5,
+      "complexity": "medium",
+      "dependencies": ["TASK-017"],
+      "files": [
+        "backend/src/workers/processors/webhook-events.processor.ts"
+      ],
+      "dod": [
+        "Check if instagram_story_insights table exists (migration 027)",
+        "If exists, use existing schema; if not, add to migration tasks",
+        "Method stores or updates story metrics: reach, impressions, exits, replies, taps_forward, taps_back",
+        "Uses ON CONFLICT for media_id to update metrics",
+        "Aggregates metrics if multiple webhooks for same story",
+        "Raw event stored in raw_data",
+        "Error handling"
+      ],
+      "technicalDetails": {
+        "method": "private async storeStoryInsight(event, accountId): Promise<boolean>",
+        "aggregation": "Use ON CONFLICT UPDATE to increment/update metrics",
+        "existingTable": "Verify migration 027 schema"
+      },
+      "verification": [
+        "Check existing instagram_story_insights schema",
+        "Unit test: stores insights",
+        "Unit test: aggregates duplicate events"
+      ]
+    },
+    {
+      "taskId": "TASK-022",
+      "phaseId": "P6",
+      "title": "Add normalization logic for new event types",
+      "description": "Update EventNormalizerService to normalize message_reactions, messaging_postbacks, messaging_seen, story_insights events into consistent structure",
+      "category": "service",
+      "priority": "high",
+      "estimatedHours": 1,
+      "complexity": "medium",
+      "dependencies": ["TASK-021"],
+      "files": [
+        "backend/src/workers/services/event-normalizer.service.ts"
+      ],
+      "dod": [
+        "normalizeEvent() method handles MESSAGE_REACTIONS: extracts mid, action, reaction, sender, recipient",
+        "Handles MESSAGING_POSTBACKS: extracts mid, title, payload, sender, recipient",
+        "Handles MESSAGING_SEEN: extracts watermark, reader, recipient",
+        "Handles STORY_INSIGHTS: extracts media_id, insight metrics",
+        "Missing optional fields default to null without throwing errors",
+        "Normalized events have consistent field naming across all types",
+        "validateNormalizedEvent() updated to validate new event structures",
+        "Returns null for invalid/unparseable events with error logging"
+      ],
+      "technicalDetails": {
+        "method": "normalizeEvent(eventType: WebhookEventType, payload: any): NormalizedEvent",
+        "outputStructure": {
+          "eventType": "string",
+          "timestamp": "number",
+          "data": "object with event-specific fields",
+          "rawPayload": "original payload"
+        }
+      },
+      "verification": [
+        "Unit test: normalizes MESSAGE_REACTIONS correctly",
+        "Unit test: normalizes MESSAGING_POSTBACKS correctly",
+        "Unit test: normalizes MESSAGING_SEEN correctly",
+        "Unit test: normalizes STORY_INSIGHTS correctly",
+        "Unit test: handles missing fields gracefully",
+        "Unit test: validation catches invalid events"
+      ]
+    },
+    {
+      "taskId": "TASK-023",
+      "phaseId": "P7",
+      "title": "Create unit tests for new DTOs and entities",
+      "description": "Write comprehensive unit tests for all new DTOs (validation) and domain entities (factory methods, behavior methods)",
+      "category": "testing",
+      "priority": "high",
+      "estimatedHours": 1,
+      "complexity": "medium",
+      "dependencies": ["TASK-022"],
+      "files": [
+        "backend/test/unit/dto/webhook.dto.test.ts",
+        "backend/test/unit/domain/entities/instagram-message-reaction.entity.test.ts",
+        "backend/test/unit/domain/entities/instagram-messaging-postback.entity.test.ts",
+        "backend/test/unit/domain/entities/instagram-messaging-seen.entity.test.ts"
+      ],
+      "dod": [
+        "DTO validation tests: valid data passes, invalid data fails with correct errors",
+        "Test MessageReactionDto with valid/invalid action values",
+        "Test MessagingPostbackDto with missing required fields",
+        "Entity factory tests: create() generates valid entities with UUID and timestamps",
+        "Entity reconstitute tests: hydrates from database data",
+        "Entity behavior tests: markAsProcessed() updates state correctly (for Postback entity)",
+        "Test toJSON() serialization for all entities",
+        "All tests use Jest framework",
+        "Minimum 15 test cases total",
+        "All tests pass"
+      ],
+      "verification": [
+        "npm run test -- unit tests pass",
+        "Test coverage >80% for new DTOs and entities",
+        "No flaky tests"
+      ]
+    },
+    {
+      "taskId": "TASK-024",
+      "phaseId": "P7",
+      "title": "Create integration tests for complete webhook flow",
+      "description": "Write end-to-end integration tests that send webhooks through complete flow: signature verification -> event recognition -> queue -> processing -> storage",
+      "category": "testing",
+      "priority": "critical",
+      "estimatedHours": 1.5,
+      "complexity": "high",
+      "dependencies": ["TASK-023"],
+      "files": [
+        "backend/test/integration/webhooks/message-reactions.e2e.test.ts",
+        "backend/test/integration/webhooks/messaging-postbacks.e2e.test.ts",
+        "backend/test/integration/webhooks/messaging-seen.e2e.test.ts",
+        "backend/test/integration/webhooks/story-insights.e2e.test.ts"
+      ],
+      "dod": [
+        "Test MESSAGE_REACTIONS: POST webhook -> verify stored in instagram_message_reactions table",
+        "Test MESSAGING_POSTBACKS: complete flow to instagram_messaging_postbacks",
+        "Test MESSAGING_SEEN: complete flow to instagram_messaging_seen",
+        "Test STORY_INSIGHTS: complete flow to instagram_story_insights",
+        "Test deduplication: send same webhook twice, verify only one DB entry",
+        "Test signature verification: invalid signature rejected with 401",
+        "Test malformed payload: gracefully handled with error logging",
+        "Test response time: webhook responds in <200ms",
+        "Use test database for integration tests",
+        "Clean up test data after each test",
+        "Minimum 12 integration test cases",
+        "All tests pass"
+      ],
+      "technicalDetails": {
+        "framework": "Jest + Supertest",
+        "database": "Test PostgreSQL instance",
+        "cleanup": "afterEach() hook to DELETE test data"
+      },
+      "verification": [
+        "npm run test:e2e -- integration tests pass",
+        "Tests run in isolation without side effects",
+        "Database state clean after test suite"
+      ]
+    }
+  ],
+  "executionOrder": [
+    "TASK-001",
+    "TASK-002",
+    "TASK-003",
+    "TASK-004",
+    "TASK-005",
+    "TASK-006",
+    "TASK-007",
+    "TASK-008",
+    "TASK-009",
+    "TASK-010",
+    "TASK-011",
+    "TASK-012",
+    "TASK-013",
+    "TASK-014",
+    "TASK-015",
+    "TASK-016",
+    "TASK-017",
+    "TASK-018",
+    "TASK-019",
+    "TASK-020",
+    "TASK-021",
+    "TASK-022",
+    "TASK-023",
+    "TASK-024"
+  ],
+  "parallelizationGroups": {
+    "group1_migrations": {
+      "description": "All 3 database migrations can be created in parallel",
+      "tasks": ["TASK-001", "TASK-002", "TASK-003"],
+      "estimatedTime": "0.5 hours (if done in parallel)"
+    },
+    "group2_dtos": {
+      "description": "DTO classes can be created in parallel after enum is updated",
+      "tasks": ["TASK-006", "TASK-007", "TASK-008"],
+      "estimatedTime": "0.5 hours (if done in parallel)"
+    },
+    "group3_entities": {
+      "description": "Domain entities can be created in parallel",
+      "tasks": ["TASK-010", "TASK-011", "TASK-012"],
+      "estimatedTime": "0.5 hours (if done in parallel)"
+    },
+    "group4_storage": {
+      "description": "Storage methods can be implemented in parallel",
+      "tasks": ["TASK-018", "TASK-019", "TASK-020"],
+      "estimatedTime": "0.5 hours (if done in parallel)"
+    }
+  },
+  "criticalPath": [
+    "TASK-001 -> TASK-004 -> TASK-005 -> TASK-009 -> TASK-012 -> TASK-016 -> TASK-017 -> TASK-021 -> TASK-022 -> TASK-024"
+  ],
+  "estimatedTimeframes": {
+    "sequential": "10 hours (if all tasks done sequentially)",
+    "withParallelization": "7.5 hours (if parallelizable groups executed in parallel)",
+    "optimalWithMultipleDevs": "6 hours (with 2-3 developers working in parallel)"
+  },
+  "riskMitigation": {
+    "highRiskTasks": [
+      {
+        "taskId": "TASK-022",
+        "risk": "Event normalization logic may not match actual Instagram webhook payloads",
+        "mitigation": "Use Instagram Graph API Explorer to get real webhook samples, store raw_data JSONB for debugging, iterate based on production logs"
+      },
+      {
+        "taskId": "TASK-024",
+        "risk": "Integration tests may be flaky due to async queue processing",
+        "mitigation": "Use polling/retry logic in tests to wait for async processing, increase timeouts, use test mode for BullMQ with immediate processing"
+      },
+      {
+        "taskId": "TASK-004",
+        "risk": "Migration rollback may fail if foreign key constraints exist",
+        "mitigation": "Test rollback in development environment, use CASCADE appropriately, document rollback order"
+      }
+    ]
+  },
+  "dependencies": {
+    "external": [
+      "PostgreSQL database with gen_random_uuid() support",
+      "BullMQ queue configured and running",
+      "Instagram Graph API access for testing",
+      "class-validator and class-transformer packages",
+      "uuid package for entity IDs"
+    ],
+    "internal": [
+      "EventDeduplicationService (already exists)",
+      "EventNormalizerService (already exists, needs update)",
+      "AutoReplyService (already exists)",
+      "EventAnalyticsService (already exists)",
+      "Database service (already exists)"
+    ]
+  }
+}

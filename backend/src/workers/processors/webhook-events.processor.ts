@@ -185,26 +185,58 @@ export class WebhookEventsProcessor extends WorkerHost {
     accountId: string,
     event: any,
   ): Promise<void> {
-    switch (eventType) {
-      case WebhookEventType.COMMENT:
-      case WebhookEventType.LIVE_COMMENT:
-        await this.storeComment(accountId, event);
-        break;
+    try {
+      switch (eventType) {
+        case WebhookEventType.COMMENT:
+        case WebhookEventType.LIVE_COMMENT:
+          await this.storeComment(accountId, event);
+          break;
 
-      case WebhookEventType.MENTION:
-        await this.storeMention(accountId, event);
-        break;
+        case WebhookEventType.MENTION:
+          await this.storeMention(accountId, event);
+          break;
 
-      case WebhookEventType.MESSAGE:
-        await this.storeMessage(accountId, event);
-        break;
+        case WebhookEventType.MESSAGE:
+          await this.storeMessage(accountId, event);
+          break;
 
-      case WebhookEventType.STORY_INSIGHT:
-        await this.storeStoryInsight(accountId, event);
-        break;
+        case WebhookEventType.STORY_INSIGHT:
+          await this.storeStoryInsight(accountId, event);
+          break;
 
-      default:
-        this.logger.warn(`Unknown event type for storage: ${eventType}`);
+        // New event types
+        case WebhookEventType.MESSAGE_REACTIONS:
+          this.logger.log(
+            `Storing message reaction: ${event.messageId || event.mid}`,
+          );
+          await this.storeMessageReaction(event, accountId);
+          break;
+
+        case WebhookEventType.MESSAGING_POSTBACKS:
+          this.logger.log(
+            `Storing messaging postback: ${event.messageId || event.mid}`,
+          );
+          await this.storeMessagingPostback(event, accountId);
+          break;
+
+        case WebhookEventType.MESSAGING_SEEN:
+          this.logger.log(`Storing messaging seen event for account: ${accountId}`);
+          await this.storeMessagingSeen(event, accountId);
+          break;
+
+        case WebhookEventType.STORY_INSIGHTS:
+          this.logger.log(`Storing story insights: ${event.mediaId}`);
+          await this.storeStoryInsights(event, accountId);
+          break;
+
+        default:
+          this.logger.warn(`Unknown event type for storage: ${eventType}`);
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error storing ${eventType} event: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw error;
     }
   }
 
@@ -320,6 +352,217 @@ export class WebhookEventsProcessor extends WorkerHost {
         insight,
       ],
     );
+  }
+
+  /**
+   * Store Instagram message reaction in database
+   * Handles both 'react' and 'unreact' actions
+   */
+  private async storeMessageReaction(
+    event: any,
+    accountId: string,
+  ): Promise<void> {
+    try {
+      const timestamp = event.timestamp
+        ? new Date(event.timestamp * 1000)
+        : new Date();
+
+      await this.database.none(
+        `INSERT INTO instagram_message_reactions
+         (message_id, conversation_id, account_id, sender_ig_id, recipient_ig_id,
+          action, reaction_type, emoji, timestamp, raw_data, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+         ON CONFLICT (message_id, sender_ig_id, timestamp)
+         DO UPDATE SET
+           action = EXCLUDED.action,
+           reaction_type = EXCLUDED.reaction_type,
+           emoji = EXCLUDED.emoji,
+           raw_data = EXCLUDED.raw_data,
+           updated_at = NOW()`,
+        [
+          event.messageId || event.mid,
+          event.conversationId || null,
+          accountId,
+          event.senderId || event.from?.id,
+          event.recipientId || event.recipient?.id,
+          event.action || 'react',
+          event.reactionType || event.reaction_type || null,
+          event.emoji || event.reaction || null,
+          timestamp,
+          event,
+        ],
+      );
+
+      this.logger.debug(
+        `Stored message reaction: ${event.action} on message ${event.messageId || event.mid}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to store message reaction: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Store Instagram messaging postback in database
+   * Used for button clicks from ice breakers, quick replies, persistent menu
+   */
+  private async storeMessagingPostback(
+    event: any,
+    accountId: string,
+  ): Promise<void> {
+    try {
+      const timestamp = event.timestamp
+        ? new Date(event.timestamp * 1000)
+        : new Date();
+
+      await this.database.none(
+        `INSERT INTO instagram_messaging_postbacks
+         (message_id, conversation_id, account_id, sender_ig_id, recipient_ig_id,
+          is_self, postback_title, postback_payload, timestamp, raw_data,
+          processed, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), NOW())
+         ON CONFLICT (message_id, sender_ig_id)
+         DO UPDATE SET
+           postback_title = EXCLUDED.postback_title,
+           postback_payload = EXCLUDED.postback_payload,
+           raw_data = EXCLUDED.raw_data,
+           updated_at = NOW()`,
+        [
+          event.messageId || event.mid,
+          event.conversationId || null,
+          accountId,
+          event.senderId || event.sender?.id,
+          event.recipientId || event.recipient?.id,
+          event.isSelf || false,
+          event.postbackTitle || event.title || null,
+          event.postbackPayload || event.payload || null,
+          timestamp,
+          event,
+          false, // Initially not processed for auto-reply workflow
+        ],
+      );
+
+      this.logger.debug(
+        `Stored messaging postback: ${event.postbackPayload || event.payload}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to store messaging postback: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Store Instagram messaging seen event in database
+   * Tracks read receipts for message engagement metrics
+   */
+  private async storeMessagingSeen(
+    event: any,
+    accountId: string,
+  ): Promise<void> {
+    try {
+      const timestamp = event.watermark
+        ? new Date(event.watermark * 1000)
+        : event.timestamp
+          ? new Date(event.timestamp * 1000)
+          : new Date();
+
+      await this.database.none(
+        `INSERT INTO instagram_messaging_seen
+         (last_message_id, conversation_id, account_id, reader_ig_id,
+          recipient_ig_id, timestamp, raw_data, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+         ON CONFLICT (last_message_id, reader_ig_id, timestamp)
+         DO NOTHING`,
+        [
+          event.lastMessageId || event.mid || null,
+          event.conversationId || null,
+          accountId,
+          event.readerId || event.senderId || event.sender?.id,
+          event.recipientId || event.recipient?.id,
+          timestamp,
+          event,
+        ],
+      );
+
+      this.logger.debug(
+        `Stored messaging seen event for message: ${event.lastMessageId || event.mid}`,
+      );
+    } catch (error) {
+      // Seen events are immutable, so duplicates are silently ignored
+      if (
+        error instanceof Error &&
+        error.message.includes('duplicate key value')
+      ) {
+        this.logger.debug(
+          `Duplicate messaging seen event ignored: ${event.lastMessageId || event.mid}`,
+        );
+        return;
+      }
+
+      this.logger.error(
+        `Failed to store messaging seen: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Store Instagram story insights in database
+   * Stores story performance metrics (reach, impressions, exits, replies, etc.)
+   */
+  private async storeStoryInsights(
+    event: any,
+    accountId: string,
+  ): Promise<void> {
+    try {
+      const timestamp = event.timestamp
+        ? new Date(event.timestamp * 1000)
+        : new Date();
+      const insights = event.insights || {};
+
+      // Store or update story insights with aggregation
+      await this.database.none(
+        `INSERT INTO instagram_story_insights
+         (media_id, account_id, reach, impressions, exits, replies,
+          taps_forward, taps_back, timestamp, raw_data, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), NOW())
+         ON CONFLICT (media_id, account_id)
+         DO UPDATE SET
+           reach = GREATEST(instagram_story_insights.reach, EXCLUDED.reach),
+           impressions = GREATEST(instagram_story_insights.impressions, EXCLUDED.impressions),
+           exits = COALESCE(EXCLUDED.exits, instagram_story_insights.exits),
+           replies = COALESCE(EXCLUDED.replies, instagram_story_insights.replies),
+           taps_forward = COALESCE(EXCLUDED.taps_forward, instagram_story_insights.taps_forward),
+           taps_back = COALESCE(EXCLUDED.taps_back, instagram_story_insights.taps_back),
+           raw_data = EXCLUDED.raw_data,
+           updated_at = NOW()`,
+        [
+          event.mediaId || event.media_id,
+          accountId,
+          insights.reach || 0,
+          insights.impressions || 0,
+          insights.exits || 0,
+          insights.replies || 0,
+          insights.taps_forward || insights.tapsForward || 0,
+          insights.taps_back || insights.tapsBack || 0,
+          timestamp,
+          event,
+        ],
+      );
+
+      this.logger.debug(
+        `Stored story insights for media: ${event.mediaId || event.media_id}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to store story insights: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw error;
+    }
   }
 
   /**

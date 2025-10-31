@@ -1,0 +1,313 @@
+{
+  "featureId": "FEAT-2025-20251031140017",
+  "timestamp": "2025-10-31T14:00:17Z",
+  "feature": {
+    "title": "Enhanced Instagram Webhook Event Handling - Complete Event Type Coverage",
+    "description": "Extend the existing Instagram webhook infrastructure to handle additional event types (message_reactions, messaging_postbacks, messaging_seen, story_insights) and persist them to the database. The current system handles comments, mentions, messages, story_mentions, and live_comments. This enhancement will provide complete coverage of all Instagram webhook events to enable comprehensive social selling features.",
+    "category": "enhancement",
+    "priority": "high",
+    "businessValue": "Complete webhook event coverage enables advanced engagement tracking, real-time response automation, and comprehensive analytics for Instagram social selling activities. This directly supports customer engagement, sentiment analysis, and performance measurement."
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Extend webhook DTOs to support message_reactions event type with sender, recipient, timestamp, reaction (mid, action, reaction, emoji) fields",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Extend webhook DTOs to support messaging_postbacks event type with sender, recipient, timestamp, is_self, postback (mid, title, payload) fields",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Extend webhook DTOs to support messaging_seen event type with sender, recipient, timestamp, read (mid) fields",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "Extend webhook DTOs to support story_insights event type with media_id, impressions, reach, taps_forward, taps_back, exits, replies fields",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "Create database migration for instagram_message_reactions table to store reaction events with proper indexing",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-006",
+        "description": "Create database migration for instagram_messaging_postbacks table to store postback events with proper indexing",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-007",
+        "description": "Create database migration for instagram_messaging_seen table to store read receipt events with proper indexing",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-008",
+        "description": "Update instagram_story_insights table migration to handle the complete event structure (currently exists but may need enhancement)",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-009",
+        "description": "Update InstagramWebhooksService.determineEventType() to recognize message_reactions, messaging_postbacks, messaging_seen, story_insights fields",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-010",
+        "description": "Update InstagramWebhooksService.extractEventData() to properly parse new event types and extract relevant data",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-011",
+        "description": "Update WebhookEventsProcessor to handle storage of new event types (message_reactions, messaging_postbacks, messaging_seen, story_insights)",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-012",
+        "description": "Implement domain entities for new event types (InstagramMessageReaction, InstagramMessagingPostback, InstagramMessagingSeen) following existing patterns",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-013",
+        "description": "Update event normalization service to handle new event types and produce consistent normalized structures",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-014",
+        "description": "Ensure idempotency for all new event types using existing deduplication mechanisms",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-015",
+        "description": "Update webhook event statistics endpoints to include counts for new event types",
+        "priority": "should-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "performance",
+        "description": "Webhook processing must complete within 200ms to return success to Instagram before timeout (3-second timeout from Meta)"
+      },
+      {
+        "id": "NFR-002",
+        "type": "scalability",
+        "description": "System must handle concurrent webhook events with BullMQ queue supporting 5 concurrent workers"
+      },
+      {
+        "id": "NFR-003",
+        "type": "reliability",
+        "description": "Implement automatic retry mechanism with exponential backoff (3 attempts max) for failed event processing"
+      },
+      {
+        "id": "NFR-004",
+        "type": "security",
+        "description": "All webhook events must pass HMAC SHA256 signature verification using Instagram App Secret before processing"
+      },
+      {
+        "id": "NFR-005",
+        "type": "data-integrity",
+        "description": "Implement deduplication to prevent duplicate events from being processed multiple times (using event_id unique constraint)"
+      },
+      {
+        "id": "NFR-006",
+        "type": "observability",
+        "description": "Log all webhook events with appropriate levels (DEBUG for receipt, INFO for processing, ERROR for failures) to enable debugging"
+      },
+      {
+        "id": "NFR-007",
+        "type": "maintainability",
+        "description": "Follow existing architectural patterns (DTOs, entities, services, processors) to maintain code consistency"
+      },
+      {
+        "id": "NFR-008",
+        "type": "performance",
+        "description": "Database queries must use proper indexes to ensure efficient retrieval and filtering of webhook events"
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "backend/src/modules/instagram/dto/webhook.dto.ts",
+      "backend/src/modules/instagram/services/instagram-webhooks.service.ts",
+      "backend/src/modules/instagram/controllers/instagram-webhooks.controller.ts",
+      "backend/src/workers/processors/webhook-events.processor.ts",
+      "backend/src/workers/services/event-normalizer.service.ts",
+      "backend/src/domain/entities/ (new entity files)",
+      "backend/migrations/ (new migration files)"
+    ],
+    "databases": [
+      "instagram_webhook_events (UPDATE - new event types)",
+      "instagram_message_reactions (CREATE)",
+      "instagram_messaging_postbacks (CREATE)",
+      "instagram_messaging_seen (CREATE)",
+      "instagram_story_insights (UPDATE - enhance if needed)"
+    ],
+    "externalServices": [
+      "Instagram Graph API Webhooks (receiving events)",
+      "Redis/BullMQ (queue processing)",
+      "PostgreSQL (event persistence)"
+    ],
+    "estimatedComplexity": "medium"
+  },
+  "dependencies": [
+    {
+      "type": "library",
+      "name": "class-validator",
+      "action": "required - already installed"
+    },
+    {
+      "type": "library",
+      "name": "class-transformer",
+      "action": "required - already installed"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/swagger",
+      "action": "required - already installed"
+    },
+    {
+      "type": "library",
+      "name": "bullmq",
+      "action": "required - already installed"
+    },
+    {
+      "type": "feature",
+      "name": "Existing webhook infrastructure",
+      "action": "extend - instagram-webhooks.service.ts, webhook-events.processor.ts"
+    },
+    {
+      "type": "configuration",
+      "name": "INSTAGRAM_APP_SECRET",
+      "action": "required - already configured in .env"
+    },
+    {
+      "type": "configuration",
+      "name": "INSTAGRAM_WEBHOOK_VERIFY_TOKEN",
+      "action": "required - already configured in .env"
+    },
+    {
+      "type": "service",
+      "name": "Database migration system",
+      "action": "required - for creating new tables"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Instagram may send webhook events in slightly different formats than documented, causing parsing failures",
+      "severity": "medium",
+      "mitigation": "Implement comprehensive error handling and logging. Store raw payload in JSONB field for debugging. Use optional fields in DTOs where Instagram documentation is unclear."
+    },
+    {
+      "description": "High volume of webhook events could overwhelm the processing queue during viral content or peak hours",
+      "severity": "medium",
+      "mitigation": "BullMQ queue already configured with concurrency of 5 workers. Monitor queue metrics. Implement rate limiting on webhook endpoint if needed. Consider scaling workers horizontally if queue backlog grows."
+    },
+    {
+      "description": "Database schema changes could cause issues with existing webhook events if not properly migrated",
+      "severity": "low",
+      "mitigation": "Use separate tables for new event types rather than modifying existing tables. Test migrations in development environment. Implement rollback scripts for each migration."
+    },
+    {
+      "description": "Story insights events may have different timing characteristics than real-time events (comments, messages)",
+      "severity": "low",
+      "mitigation": "Story insights are aggregated data sent periodically by Instagram. Existing story_insights table structure should handle this. Add appropriate timestamp handling and consider that these events are not real-time."
+    },
+    {
+      "description": "Event deduplication logic may not work correctly for new event types if event_id generation is inconsistent",
+      "severity": "medium",
+      "mitigation": "Review and update generateEventId() method to handle new event types. Use combination of event_type, object_id, and sender_id for unique identification. Test with duplicate events."
+    },
+    {
+      "description": "Missing or incomplete documentation for messaging_postbacks structure may lead to implementation gaps",
+      "severity": "medium",
+      "mitigation": "Implement flexible schema using JSONB for raw data storage. Monitor logs for actual event structures from Instagram. Iterate based on real-world webhook data."
+    }
+  ],
+  "existingInfrastructure": {
+    "currentWebhookEventTypes": [
+      "COMMENT",
+      "MENTION",
+      "MESSAGE",
+      "STORY_MENTION",
+      "LIVE_COMMENT"
+    ],
+    "newWebhookEventTypes": [
+      "MESSAGE_REACTIONS",
+      "MESSAGING_POSTBACKS",
+      "MESSAGING_SEEN",
+      "STORY_INSIGHTS"
+    ],
+    "existingTables": [
+      "instagram_webhook_events (generic event log)",
+      "instagram_webhook_subscriptions",
+      "instagram_webhook_logs",
+      "instagram_comments",
+      "instagram_mentions",
+      "conversations",
+      "messages",
+      "instagram_story_insights (exists, may need enhancement)"
+    ],
+    "existingServices": [
+      "InstagramWebhooksService - signature verification, event processing, deduplication",
+      "InstagramWebhooksController - webhook endpoints (GET/POST)",
+      "InstagramWebhooksProcessor - async processing placeholder",
+      "WebhookEventsProcessor - BullMQ processor with concurrency 5",
+      "EventDeduplicationService - prevent duplicate processing",
+      "EventNormalizerService - normalize event structures",
+      "AutoReplyService - automated responses to comments/messages"
+    ],
+    "processingFlow": [
+      "1. Instagram sends POST to /api/instagram/webhooks",
+      "2. Raw body captured for signature verification (HMAC SHA256)",
+      "3. Signature verified using INSTAGRAM_APP_SECRET",
+      "4. Event stored in instagram_webhook_events table",
+      "5. Event added to BullMQ queue (instagram-webhook-events)",
+      "6. WebhookEventsProcessor handles async processing",
+      "7. Event normalized and deduplicated",
+      "8. Event stored in specific table (comments, mentions, messages, etc.)",
+      "9. Auto-reply rules evaluated and executed if applicable",
+      "10. Event marked as processed in webhook_events table",
+      "11. Analytics tracked"
+    ],
+    "webhookVerification": {
+      "method": "GET request to /api/instagram/webhooks",
+      "parameters": "hub.mode, hub.verify_token, hub.challenge",
+      "response": "Returns challenge string if verify_token matches"
+    },
+    "securityMechanisms": [
+      "HMAC SHA256 signature verification",
+      "Constant-time comparison to prevent timing attacks",
+      "Raw body preservation for signature calculation",
+      "Verify token validation on subscription"
+    ],
+    "queueConfiguration": {
+      "name": "instagram-webhook-events",
+      "concurrency": 5,
+      "retryAttempts": 3,
+      "backoffType": "exponential",
+      "backoffDelay": 2000
+    }
+  },
+  "technicalNotes": {
+    "dtoPatterns": "Use class-validator decorators (@IsString, @IsOptional, @IsObject, @ValidateNested) with @ApiProperty for Swagger documentation",
+    "entityPatterns": "Domain entities use factory pattern with static create() and reconstitute() methods. Props interface with getters and behavior methods.",
+    "servicePatterns": "Services injected via DI. Database queries use pg-promise through Database service. Logger per service class.",
+    "processorPatterns": "BullMQ processors extend WorkerHost. Job data and result interfaces defined. Concurrency configured via @Processor decorator.",
+    "migrationPatterns": "SQL migrations with timestamp prefix. Include indexes, foreign keys, and ROLLBACK comments. Use JSONB for flexible data storage.",
+    "testingConsiderations": "Unit tests for DTOs validation. Integration tests for webhook endpoint with signature verification. Test deduplication logic. Test queue processing with BullMQ."
+  },
+  "implementationGuidance": {
+    "phase1": "Create database migrations and DTOs for new event types",
+    "phase2": "Update webhook service to recognize and extract new event types",
+    "phase3": "Update processor to store new event types in database",
+    "phase4": "Update normalization service for new event structures",
+    "phase5": "Add comprehensive logging and error handling",
+    "phase6": "Update statistics endpoints and documentation",
+    "phase7": "Integration testing with all event types",
+    "phase8": "Monitor production webhooks and iterate based on real data"
+  }
+}

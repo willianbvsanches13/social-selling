@@ -6,6 +6,10 @@ export enum WebhookEventType {
   MESSAGE = 'message',
   STORY_MENTION = 'story_mention',
   LIVE_COMMENT = 'live_comment',
+  MESSAGE_REACTIONS = 'message_reactions',
+  MESSAGING_POSTBACKS = 'messaging_postbacks',
+  MESSAGING_SEEN = 'messaging_seen',
+  STORY_INSIGHTS = 'story_insights',
 }
 
 export interface InstagramWebhookEventProps {

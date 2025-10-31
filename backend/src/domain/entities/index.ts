@@ -8,3 +8,6 @@ export * from './analytics-event.entity';
 export * from './instagram-media.entity';
 export * from './notification.entity';
 export * from './session.entity';
+export * from './instagram-message-reaction.entity';
+export * from './instagram-messaging-postback.entity';
+export * from './instagram-messaging-seen.entity';

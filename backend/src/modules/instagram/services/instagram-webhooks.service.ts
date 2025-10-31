@@ -167,11 +167,38 @@ export class InstagramWebhooksService {
         return;
       }
 
+      // Log event type recognition
+      this.logger.log(`Recognized webhook event type: ${eventType}`);
+
+      // Log payload preview for debugging (new event types)
+      if (
+        eventType === WebhookEventType.MESSAGE_REACTIONS ||
+        eventType === WebhookEventType.MESSAGING_POSTBACKS ||
+        eventType === WebhookEventType.MESSAGING_SEEN ||
+        eventType === WebhookEventType.STORY_INSIGHTS
+      ) {
+        this.logger.debug(
+          `Payload preview for ${eventType}: ${JSON.stringify(change).substring(0, 200)}...`,
+        );
+      }
+
       // Extract event data
       const eventData = this.extractEventData(change, eventType);
 
+      // Log successful extraction
+      if (eventData.objectId) {
+        this.logger.log(
+          `Successfully extracted event data: objectType=${eventData.objectType}, objectId=${eventData.objectId}`,
+        );
+      } else {
+        this.logger.warn(
+          `Event data extraction incomplete for ${eventType}: missing objectId`,
+        );
+      }
+
       // Generate unique event ID
       const eventId = this.generateEventId(eventType, eventData);
+      this.logger.debug(`Generated event ID: ${eventId}`);
 
       // Check for duplicate event
       const existingEvent: any[] = await this.database.query(
@@ -268,6 +295,30 @@ export class InstagramWebhooksService {
     const field = change.field || '';
     const value = change.value || change;
 
+    // Message Reactions - NEW
+    if (field === 'message_reactions' || value.message_reactions) {
+      this.logger.debug('Detected MESSAGE_REACTIONS event');
+      return WebhookEventType.MESSAGE_REACTIONS;
+    }
+
+    // Messaging Postbacks (button clicks) - NEW
+    if (field === 'messaging_postbacks' || value.messaging_postbacks) {
+      this.logger.debug('Detected MESSAGING_POSTBACKS event');
+      return WebhookEventType.MESSAGING_POSTBACKS;
+    }
+
+    // Messaging Seen (read receipts) - NEW
+    if (field === 'messaging_seen' || value.messaging_seen || value.watermark) {
+      this.logger.debug('Detected MESSAGING_SEEN event');
+      return WebhookEventType.MESSAGING_SEEN;
+    }
+
+    // Story Insights - NEW
+    if (field === 'story_insights' || value.story_insights) {
+      this.logger.debug('Detected STORY_INSIGHTS event');
+      return WebhookEventType.STORY_INSIGHTS;
+    }
+
     // Messages
     if (field === 'messages' || change.message) {
       return WebhookEventType.MESSAGE;
@@ -291,6 +342,7 @@ export class InstagramWebhooksService {
       return WebhookEventType.LIVE_COMMENT;
     }
 
+    this.logger.debug(`Unknown webhook field: ${field}`);
     return null;
   }
 
@@ -307,6 +359,49 @@ export class InstagramWebhooksService {
     };
 
     switch (eventType) {
+      case WebhookEventType.MESSAGE_REACTIONS:
+        // Extract from message_reactions array
+        data.objectType = 'message';
+        data.objectId = value.message_reactions?.[0]?.mid || null;
+        data.senderId = value.from?.id || value.sender?.id || null;
+        data.recipientId = value.recipient?.id || null;
+        this.logger.debug(
+          `Extracted MESSAGE_REACTIONS data: mid=${data.objectId}, sender=${data.senderId}`,
+        );
+        break;
+
+      case WebhookEventType.MESSAGING_POSTBACKS:
+        // Extract from messaging_postbacks array
+        data.objectType = 'postback';
+        data.objectId = value.messaging_postbacks?.[0]?.mid || null;
+        data.senderId = value.sender?.id || value.from?.id || null;
+        data.recipientId = value.recipient?.id || null;
+        this.logger.debug(
+          `Extracted MESSAGING_POSTBACKS data: mid=${data.objectId}, sender=${data.senderId}`,
+        );
+        break;
+
+      case WebhookEventType.MESSAGING_SEEN:
+        // Extract from messaging_seen event
+        data.objectType = 'seen';
+        data.objectId = value.messaging_seen?.mid || null;
+        data.senderId = value.sender?.id || value.from?.id || null;
+        data.recipientId = value.recipient?.id || null;
+        this.logger.debug(
+          `Extracted MESSAGING_SEEN data: sender=${data.senderId}, watermark=${value.messaging_seen?.watermark || value.watermark}`,
+        );
+        break;
+
+      case WebhookEventType.STORY_INSIGHTS:
+        // Extract from story_insights event
+        data.objectType = 'story';
+        data.objectId = value.story_insights?.media_id || value.media_id || null;
+        data.senderId = value.from?.id || null; // Account ID
+        this.logger.debug(
+          `Extracted STORY_INSIGHTS data: media_id=${data.objectId}`,
+        );
+        break;
+
       case WebhookEventType.MESSAGE:
         data.objectType = 'message';
         data.objectId = value.messages?.[0]?.id || value.message?.mid;
@@ -348,6 +443,19 @@ export class InstagramWebhooksService {
       eventData.objectId || 'unknown',
       eventData.senderId || 'unknown',
     ];
+
+    // Add timestamp for event types that can have multiple occurrences
+    // (reactions, postbacks, seen events)
+    if (
+      eventType === WebhookEventType.MESSAGE_REACTIONS ||
+      eventType === WebhookEventType.MESSAGING_POSTBACKS ||
+      eventType === WebhookEventType.MESSAGING_SEEN
+    ) {
+      // Use current timestamp as part of ID for uniqueness
+      // In production, this would come from the webhook payload
+      const timestamp = eventData.timestamp || Date.now();
+      parts.push(timestamp.toString());
+    }
 
     return parts.join('_');
   }

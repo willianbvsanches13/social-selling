@@ -66,13 +66,73 @@ export interface NormalizedStoryInsight {
 }
 
 /**
+ * Normalized Message Reaction structure
+ */
+export interface NormalizedMessageReaction {
+  messageId: string;
+  conversationId?: string;
+  senderId: string;
+  recipientId?: string;
+  action: 'react' | 'unreact';
+  reactionType?: string;
+  emoji?: string;
+  timestamp: Date;
+}
+
+/**
+ * Normalized Messaging Postback structure
+ */
+export interface NormalizedMessagingPostback {
+  messageId: string;
+  conversationId?: string;
+  senderId: string;
+  recipientId?: string;
+  isSelf: boolean;
+  postbackTitle?: string;
+  postbackPayload: string;
+  timestamp: Date;
+}
+
+/**
+ * Normalized Messaging Seen structure
+ */
+export interface NormalizedMessagingSeen {
+  lastMessageId?: string;
+  conversationId?: string;
+  readerId: string;
+  recipientId?: string;
+  watermark: number;
+  timestamp: Date;
+}
+
+/**
+ * Normalized Story Insights structure (with full metrics)
+ */
+export interface NormalizedStoryInsights {
+  mediaId: string;
+  insights: {
+    reach?: number;
+    impressions?: number;
+    exits?: number;
+    replies?: number;
+    tapsForward?: number;
+    tapsBack?: number;
+  };
+  timestamp: Date;
+}
+
+/**
  * Union type for all normalized events
  */
 export type NormalizedEvent =
   | NormalizedComment
   | NormalizedMention
   | NormalizedMessage
-  | NormalizedStoryInsight;
+  | NormalizedStoryInsight
+  | NormalizedMessageReaction
+  | NormalizedMessagingPostback
+  | NormalizedMessagingSeen
+  | NormalizedStoryInsights;
 
 /**
  * Event Normalizer Service
@@ -113,6 +173,19 @@ export class EventNormalizerService {
         case WebhookEventType.LIVE_COMMENT:
           // Live comments use same structure as regular comments
           return this.normalizeComment(rawPayload);
+
+        // New event types
+        case WebhookEventType.MESSAGE_REACTIONS:
+          return this.normalizeMessageReaction(rawPayload);
+
+        case WebhookEventType.MESSAGING_POSTBACKS:
+          return this.normalizeMessagingPostback(rawPayload);
+
+        case WebhookEventType.MESSAGING_SEEN:
+          return this.normalizeMessagingSeen(rawPayload);
+
+        case WebhookEventType.STORY_INSIGHTS:
+          return this.normalizeStoryInsights(rawPayload);
 
         default:
           throw new Error(`Unknown event type: ${eventType}`);
@@ -232,6 +305,124 @@ export class EventNormalizerService {
   }
 
   /**
+   * Normalize Instagram message reaction event
+   *
+   * @param payload - Raw message reaction payload
+   * @returns Normalized message reaction
+   */
+  private normalizeMessageReaction(
+    payload: any,
+  ): NormalizedMessageReaction {
+    // Extract reaction data from various possible formats
+    const reactionData =
+      payload.message_reactions?.[0] || payload.reaction || payload;
+
+    return {
+      messageId: reactionData.mid || payload.mid || '',
+      conversationId: payload.conversation_id || payload.conversationId,
+      senderId:
+        payload.from?.id ||
+        payload.sender?.id ||
+        reactionData.from?.id ||
+        '',
+      recipientId: payload.recipient?.id || payload.recipientId,
+      action: (reactionData.action || 'react') as 'react' | 'unreact',
+      reactionType: reactionData.reaction_type || reactionData.reactionType,
+      emoji: reactionData.emoji || reactionData.reaction,
+      timestamp: this.parseTimestamp(
+        payload.timestamp || reactionData.timestamp,
+      ),
+    };
+  }
+
+  /**
+   * Normalize Instagram messaging postback event
+   *
+   * @param payload - Raw postback payload
+   * @returns Normalized messaging postback
+   */
+  private normalizeMessagingPostback(
+    payload: any,
+  ): NormalizedMessagingPostback {
+    // Extract postback data from various possible formats
+    const postbackData =
+      payload.messaging_postbacks?.[0] || payload.postback || payload;
+
+    return {
+      messageId: postbackData.mid || payload.mid || '',
+      conversationId: payload.conversation_id || payload.conversationId,
+      senderId:
+        payload.sender?.id || payload.from?.id || postbackData.sender?.id || '',
+      recipientId: payload.recipient?.id || payload.recipientId,
+      isSelf: payload.is_self || payload.isSelf || false,
+      postbackTitle: postbackData.title || postbackData.postbackTitle,
+      postbackPayload:
+        postbackData.payload || postbackData.postbackPayload || '',
+      timestamp: this.parseTimestamp(
+        payload.timestamp || postbackData.timestamp,
+      ),
+    };
+  }
+
+  /**
+   * Normalize Instagram messaging seen event
+   *
+   * @param payload - Raw messaging seen payload
+   * @returns Normalized messaging seen
+   */
+  private normalizeMessagingSeen(payload: any): NormalizedMessagingSeen {
+    // Extract seen data from various possible formats
+    const seenData = payload.messaging_seen || payload.seen || payload;
+
+    const watermark =
+      seenData.watermark ||
+      payload.watermark ||
+      (payload.timestamp ? payload.timestamp : Date.now() / 1000);
+
+    return {
+      lastMessageId: seenData.mid || payload.mid || payload.last_message_id,
+      conversationId: payload.conversation_id || payload.conversationId,
+      readerId:
+        payload.sender?.id ||
+        payload.from?.id ||
+        payload.reader_id ||
+        seenData.reader?.id ||
+        '',
+      recipientId: payload.recipient?.id || payload.recipientId,
+      watermark: typeof watermark === 'number' ? watermark : parseInt(watermark, 10),
+      timestamp: this.parseTimestamp(watermark),
+    };
+  }
+
+  /**
+   * Normalize Instagram story insights event
+   *
+   * @param payload - Raw story insights payload
+   * @returns Normalized story insights
+   */
+  private normalizeStoryInsights(payload: any): NormalizedStoryInsights {
+    // Extract insights data from various possible formats
+    const insightsData = payload.story_insights || payload.insights || {};
+    const insights = insightsData.insights || insightsData;
+
+    return {
+      mediaId:
+        payload.media_id || insightsData.media_id || payload.mediaId || '',
+      insights: {
+        reach: insights.reach || 0,
+        impressions: insights.impressions || 0,
+        exits: insights.exits,
+        replies: insights.replies,
+        tapsForward: insights.taps_forward || insights.tapsForward,
+        tapsBack: insights.taps_back || insights.tapsBack,
+      },
+      timestamp: this.parseTimestamp(
+        payload.timestamp || insightsData.timestamp,
+      ),
+    };
+  }
+
+  /**
    * Validate normalized event has required fields
    *
    * @param event - Normalized event
@@ -263,6 +454,36 @@ export class EventNormalizerService {
         case WebhookEventType.STORY_INSIGHT: {
           const insight = event as NormalizedStoryInsight;
           return !!(insight.mediaId && insight.metric && insight.value >= 0);
+        }
+
+        // New event types validation
+        case WebhookEventType.MESSAGE_REACTIONS: {
+          const reaction = event as NormalizedMessageReaction;
+          return !!(
+            reaction.messageId &&
+            reaction.senderId &&
+            reaction.action &&
+            ['react', 'unreact'].includes(reaction.action)
+          );
+        }
+
+        case WebhookEventType.MESSAGING_POSTBACKS: {
+          const postback = event as NormalizedMessagingPostback;
+          return !!(
+            postback.messageId &&
+            postback.senderId &&
+            postback.postbackPayload
+          );
+        }
+
+        case WebhookEventType.MESSAGING_SEEN: {
+          const seen = event as NormalizedMessagingSeen;
+          return !!(seen.readerId && seen.watermark);
+        }
+
+        case WebhookEventType.STORY_INSIGHTS: {
+          const insights = event as NormalizedStoryInsights;
+          return !!(insights.mediaId && insights.insights);
         }
 
         default:
