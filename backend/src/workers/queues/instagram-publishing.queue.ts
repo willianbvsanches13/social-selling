@@ -12,7 +12,7 @@ export interface PublishPostJobData {
   accountId: string;
   caption: string;
   mediaUrls: string[]; // S3 URLs from MinIO
-  mediaType: 'IMAGE' | 'VIDEO' | 'CAROUSEL';
+  mediaType: 'IMAGE' | 'VIDEO' | 'REELS' | 'CAROUSEL' | 'STORIES';
   scheduledFor: Date;
   publishTime: Date;
   hashtags: string[];

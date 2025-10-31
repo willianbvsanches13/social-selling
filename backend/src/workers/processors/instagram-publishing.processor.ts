@@ -108,8 +108,8 @@ export class InstagramPublishingProcessor extends WorkerHost {
               location: job.data.location,
             },
           );
-        } else if (job.data.mediaType === 'VIDEO') {
-          // Video post
+        } else if (job.data.mediaType === 'VIDEO' || job.data.mediaType === 'REELS') {
+          // Video/Reels post
           publishResult = await this.instagramPublisher.publishVideo(
             account.instagramBusinessAccountId,
             account.accessToken,
@@ -119,6 +119,15 @@ export class InstagramPublishingProcessor extends WorkerHost {
             {
               location: job.data.location,
             },
+          );
+        } else if (job.data.mediaType === 'STORIES') {
+          // Story (image or video)
+          const isVideo = this.isVideoUrl(job.data.mediaUrls[0]);
+          publishResult = await this.instagramPublisher.publishStory(
+            account.instagramBusinessAccountId,
+            account.accessToken,
+            job.data.mediaUrls[0],
+            isVideo,
           );
         } else {
           throw new Error(`Unsupported media type: ${job.data.mediaType}`);
@@ -413,5 +422,13 @@ export class InstagramPublishingProcessor extends WorkerHost {
   @OnWorkerEvent('progress')
   onProgress(job: Job<PublishPostJobData>, progress: number) {
     this.logger.debug(`Job ${job.id} progress: ${progress}%`);
+  }
+
+  /**
+   * Check if URL is a video based on file extension
+   */
+  private isVideoUrl(url: string): boolean {
+    const videoExtensions = ['.mp4', '.mov', '.avi', '.mkv', '.webm'];
+    return videoExtensions.some((ext) => url.toLowerCase().includes(ext));
   }
 }

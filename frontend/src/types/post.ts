@@ -1,4 +1,4 @@
-export type PostMediaType = 'IMAGE' | 'VIDEO' | 'CAROUSEL' | 'REELS';
+export type PostMediaType = 'IMAGE' | 'REELS' | 'CAROUSEL' | 'STORIES';
 // Alias for backward compatibility
 export type PostType = PostMediaType;
 export type PostStatus = 'scheduled' | 'publishing' | 'published' | 'failed' | 'cancelled';

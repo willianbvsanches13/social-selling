@@ -96,7 +96,10 @@ export class InstagramPublisherService {
         options,
       );
 
-      // Step 2: Publish the container
+      // Step 2: Wait for container to be ready
+      await this.waitForContainerReady(igAccountId, accessToken, containerId);
+
+      // Step 3: Publish the container
       const result = await this.publishContainer(
         igAccountId,
         accessToken,
@@ -154,7 +157,10 @@ export class InstagramPublisherService {
         options,
       );
 
-      // Step 3: Publish the carousel
+      // Step 3: Wait for carousel container to be ready
+      await this.waitForContainerReady(igAccountId, accessToken, carouselContainerId);
+
+      // Step 4: Publish the carousel
       const result = await this.publishContainer(
         igAccountId,
         accessToken,
@@ -223,6 +229,53 @@ export class InstagramPublisherService {
   }
 
   /**
+   * Publish a story (image or video)
+   */
+  async publishStory(
+    igAccountId: string,
+    accessToken: string,
+    mediaUrl: string,
+    isVideo: boolean = false,
+  ): Promise<InstagramPublishResult> {
+    try {
+      this.logger.log(
+        `Publishing ${isVideo ? 'video' : 'image'} story for account ${igAccountId}`,
+      );
+
+      // Step 1: Create story container
+      const containerId = await this.createStoryContainer(
+        igAccountId,
+        accessToken,
+        mediaUrl,
+        isVideo,
+      );
+
+      // Step 2: Wait for processing (especially important for video stories)
+      if (isVideo) {
+        await this.waitForVideoProcessing(igAccountId, accessToken, containerId);
+      } else {
+        await this.waitForContainerReady(igAccountId, accessToken, containerId);
+      }
+
+      // Step 3: Publish the story container
+      const result = await this.publishContainer(
+        igAccountId,
+        accessToken,
+        containerId,
+      );
+
+      this.logger.log(`Successfully published story: ${result.id}`);
+      return result;
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : undefined;
+      this.logger.error(`Failed to publish story: ${errorMessage}`, errorStack);
+      throw this.transformError(error);
+    }
+  }
+
+  /**
    * Create image container
    */
   private async createImageContainer(
@@ -274,7 +327,7 @@ export class InstagramPublisherService {
     };
 
     if (isVideo) {
-      params.media_type = 'VIDEO';
+      params.media_type = 'REELS';
       params.video_url = mediaUrl;
     } else {
       params.image_url = mediaUrl;
@@ -335,7 +388,7 @@ export class InstagramPublisherService {
     },
   ): Promise<string> {
     const params: any = {
-      media_type: 'VIDEO',
+      media_type: 'REELS',
       video_url: videoUrl,
       caption: caption,
       access_token: accessToken,
@@ -356,6 +409,96 @@ export class InstagramPublisherService {
     );
 
     return response.data.id;
+  }
+
+  /**
+   * Create story container (image or video)
+   */
+  private async createStoryContainer(
+    igAccountId: string,
+    accessToken: string,
+    mediaUrl: string,
+    isVideo: boolean,
+  ): Promise<string> {
+    const params: any = {
+      media_type: 'STORIES',
+      access_token: accessToken,
+    };
+
+    if (isVideo) {
+      params.video_url = mediaUrl;
+    } else {
+      params.image_url = mediaUrl;
+    }
+
+    const response = await this.axiosInstance.post(
+      `${this.baseUrl}/${igAccountId}/media`,
+      null,
+      { params },
+    );
+
+    return response.data.id;
+  }
+
+  /**
+   * Wait for container to be ready for publishing (images/carousel)
+   * Instagram needs time to process media even for images served from URLs
+   */
+  private async waitForContainerReady(
+    igAccountId: string,
+    accessToken: string,
+    containerId: string,
+    maxAttempts: number = 10,
+    initialDelay: number = 2000,
+  ): Promise<void> {
+    // Initial delay before first check
+    await this.sleep(initialDelay);
+
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        // Try to get container status
+        const response = await this.axiosInstance.get(
+          `${this.baseUrl}/${containerId}`,
+          {
+            params: {
+              fields: 'id',
+              access_token: accessToken,
+            },
+          },
+        );
+
+        if (response.data.id) {
+          this.logger.log(
+            `Container ${containerId} is ready for publishing`,
+          );
+          return;
+        }
+      } catch (error: any) {
+        // If we get error 9007 (Media not available), continue waiting
+        if (error.response?.data?.error?.code === 9007) {
+          const delay = initialDelay * Math.pow(1.5, attempt); // Exponential backoff
+          this.logger.log(
+            `Container not ready yet (${attempt + 1}/${maxAttempts}), waiting ${delay}ms...`,
+          );
+          await this.sleep(delay);
+          continue;
+        }
+
+        // Other errors should be thrown
+        throw error;
+      }
+
+      // Exponential backoff
+      const delay = initialDelay * Math.pow(1.5, attempt);
+      this.logger.log(
+        `Waiting for container to be ready (${attempt + 1}/${maxAttempts}), ${delay}ms...`,
+      );
+      await this.sleep(delay);
+    }
+
+    this.logger.warn(
+      `Container ${containerId} took longer than expected, attempting publish anyway`,
+    );
   }
 
   /**
@@ -496,6 +639,7 @@ export class InstagramPublisherService {
         190: 'Invalid access token - please reconnect Instagram account',
         100: 'Invalid parameter - check media format and caption',
         368: 'Temporarily blocked due to rate limiting',
+        9007: 'Media container not ready - this should be handled by retry logic',
         36000: 'Video processing error - check video format and size',
       };
 
@@ -521,6 +665,7 @@ export class InstagramPublisherService {
       2, // Temporary errors
       17, // Rate limit
       368, // Temporarily blocked
+      9007, // Media not available (container not ready)
     ];
 
     return retryableCodes.includes(errorCode);

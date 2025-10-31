@@ -5,6 +5,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as sharp from 'sharp';
 import { MinioService } from '../../infrastructure/storage/minio.service';
+import { ImageAdjusterService } from './image-adjuster.service';
 
 /**
  * Downloaded media information
@@ -30,6 +31,7 @@ export class MediaDownloaderService {
   constructor(
     private readonly configService: ConfigService,
     private readonly minioService: MinioService,
+    private readonly imageAdjusterService: ImageAdjusterService,
   ) {
     this.tempDir = path.join(process.cwd(), 'temp', 'media');
     fs.ensureDirSync(this.tempDir);
@@ -88,11 +90,11 @@ export class MediaDownloaderService {
         }
       }
 
-      // Validate media meets Instagram requirements
-      await this.validateMedia(result);
+      // Validate and auto-adjust media if needed
+      const adjustedResult = await this.validateAndAdjustMedia(result);
 
-      this.logger.log(`Media downloaded successfully: ${fileName}`);
-      return result;
+      this.logger.log(`Media downloaded successfully: ${adjustedResult.fileName}`);
+      return adjustedResult;
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
@@ -177,23 +179,18 @@ export class MediaDownloaderService {
   }
 
   /**
-   * Validate media against Instagram requirements
+   * Validate media against Instagram requirements and auto-adjust if needed
    * @param media Media to validate
-   * @throws Error if validation fails
+   * @returns Adjusted media if modifications were needed, original otherwise
+   * @throws Error if validation fails and cannot be fixed
    */
-  private async validateMedia(media: DownloadedMedia): Promise<void> {
+  private async validateAndAdjustMedia(
+    media: DownloadedMedia,
+  ): Promise<DownloadedMedia> {
     // Instagram image requirements
     if (media.mimeType.startsWith('image/')) {
       if (!media.width || !media.height) {
         throw new Error('Unable to determine image dimensions');
-      }
-
-      // Aspect ratio check (between 4:5 and 1.91:1)
-      const aspectRatio = media.width / media.height;
-      if (aspectRatio < 0.8 || aspectRatio > 1.91) {
-        throw new Error(
-          `Invalid aspect ratio: ${aspectRatio.toFixed(2)}. Must be between 0.8 (4:5) and 1.91 (1.91:1)`,
-        );
       }
 
       // Resolution check
@@ -201,6 +198,37 @@ export class MediaDownloaderService {
         throw new Error(
           `Image resolution too low: ${media.width}x${media.height}. Minimum is 320px`,
         );
+      }
+
+      // Aspect ratio check (between 4:5 and 1.91:1)
+      const aspectRatio = media.width / media.height;
+      if (aspectRatio < 0.8 || aspectRatio > 1.91) {
+        this.logger.warn(
+          `Image aspect ratio ${aspectRatio.toFixed(2)} is outside Instagram limits. Auto-adjusting...`,
+        );
+
+        // Auto-adjust the image
+        const adjustmentResult = await this.imageAdjusterService.adjustImage(
+          media.localPath,
+        );
+
+        // Update stats for adjusted image
+        const adjustedStats = await fs.stat(adjustmentResult.adjustedPath);
+
+        // Clean up original file if it's different from adjusted
+        if (adjustmentResult.adjustedPath !== media.localPath) {
+          await fs.remove(media.localPath);
+        }
+
+        // Return adjusted media info
+        return {
+          localPath: adjustmentResult.adjustedPath,
+          fileName: path.basename(adjustmentResult.adjustedPath),
+          mimeType: media.mimeType,
+          size: adjustedStats.size,
+          width: adjustmentResult.newDimensions.width,
+          height: adjustmentResult.newDimensions.height,
+        };
       }
 
       // File size check (8MB for images)
@@ -227,6 +255,7 @@ export class MediaDownloaderService {
     }
 
     this.logger.log('Media validation passed');
+    return media;
   }
 
   /**

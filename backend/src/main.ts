@@ -33,6 +33,12 @@ async function bootstrap() {
       '*********************** App created **************************',
     );
 
+    // Configure body parser limits for file uploads
+    // This allows larger file uploads (up to 100MB)
+    const express = require('express');
+    app.use(express.json({ limit: '100mb' }));
+    app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
     // Cookie parser middleware
     app.use(cookieParser());
 

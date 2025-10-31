@@ -44,8 +44,8 @@ export class InstagramMediaUploadService {
     );
     this.maxFileSize = this.configService.get<number>(
       'MAX_FILE_SIZE',
-      10 * 1024 * 1024,
-    ); // 10MB default
+      100 * 1024 * 1024,
+    ); // 100MB default (Instagram limit for videos)
   }
 
   /**

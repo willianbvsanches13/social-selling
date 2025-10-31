@@ -7,6 +7,7 @@ import { WebhookEventsQueue } from './queues/webhook-events.queue';
 import { EmailNotificationsQueue } from './queues/email-notifications.queue';
 import { MediaDownloaderService } from './services/media-downloader.service';
 import { InstagramPublisherService } from './services/instagram-publisher.service';
+import { ImageAdjusterService } from './services/image-adjuster.service';
 import { PostStatusService } from './services/post-status.service';
 import { PublishingNotificationService } from './services/publishing-notification.service';
 import { TokenMaintenanceService } from './services/token-maintenance.service';
@@ -103,6 +104,7 @@ import { InstagramModule } from '../modules/instagram/instagram.module';
     // Publishing worker services
     MediaDownloaderService,
     InstagramPublisherService,
+    ImageAdjusterService,
     PostStatusService,
     PublishingNotificationService,
     // Token maintenance service

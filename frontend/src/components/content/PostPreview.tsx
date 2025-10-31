@@ -23,7 +23,11 @@ export function PostPreview({
     return <ReelPreview media={mediaUrls[0]} caption={caption} username={accountUsername} />;
   }
 
-  // Feed post (IMAGE, VIDEO, CAROUSEL)
+  if (postType === 'STORIES') {
+    return <StoryPreview media={mediaUrls[0]} caption={caption} username={accountUsername} />;
+  }
+
+  // Feed post (IMAGE, CAROUSEL)
   return <FeedPreview mediaUrls={mediaUrls} caption={caption} username={accountUsername} profilePic={accountProfilePic} />;
 }
 

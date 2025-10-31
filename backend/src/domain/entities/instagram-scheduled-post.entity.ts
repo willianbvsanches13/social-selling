@@ -3,6 +3,7 @@ export enum PostMediaType {
   VIDEO = 'VIDEO',
   CAROUSEL = 'CAROUSEL',
   REELS = 'REELS',
+  STORIES = 'STORIES',
 }
 
 export enum PostStatus {

@@ -16,7 +16,7 @@ import { format } from 'date-fns';
 
 const postSchema = z.object({
   clientAccountId: z.string().min(1, 'Please select an account'),
-  postType: z.enum(['IMAGE', 'VIDEO', 'CAROUSEL', 'REELS']),
+  postType: z.enum(['IMAGE', 'REELS', 'CAROUSEL', 'STORIES']),
   caption: z.string().min(1, 'Caption is required').max(2200, 'Caption is too long'),
   scheduledTime: z.string().min(1, 'Scheduled time is required'),
   status: z.enum(['scheduled', 'cancelled']).default('scheduled'),
@@ -142,7 +142,7 @@ export function PostSchedulerModal({
   const getMaxFiles = (type: PostType): number => {
     switch (type) {
       case 'REELS':
-      case 'VIDEO':
+      case 'STORIES':
         return 1;
       case 'IMAGE':
       case 'CAROUSEL':
@@ -208,7 +208,7 @@ export function PostSchedulerModal({
               <div>
                 <label className="block text-sm font-medium text-gray-700">Post Type *</label>
                 <div className="mt-2 grid grid-cols-4 gap-3">
-                  {(['IMAGE', 'VIDEO', 'CAROUSEL', 'REELS'] as const).map((type) => (
+                  {(['IMAGE', 'REELS', 'CAROUSEL', 'STORIES'] as const).map((type) => (
                     <label
                       key={type}
                       className={`
