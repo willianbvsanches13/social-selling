@@ -8,6 +8,10 @@ export enum WebhookEventType {
   MESSAGE = 'message',
   STORY_INSIGHT = 'story_insight',
   LIVE_COMMENT = 'live_comment',
+  MESSAGE_REACTIONS = 'message_reactions',
+  MESSAGING_POSTBACKS = 'messaging_postbacks',
+  MESSAGING_SEEN = 'messaging_seen',
+  STORY_INSIGHTS = 'story_insights',
 }
 
 /**
@@ -140,6 +144,36 @@ export class EventDeduplicationService {
           timestamp: payload.timestamp || payload.created_time,
           from: payload.from?.id,
           broadcastId: payload.broadcast_id,
+        };
+
+      case WebhookEventType.MESSAGE_REACTIONS:
+        return {
+          messageId: payload.id || payload.mid,
+          reaction: payload.reaction,
+          timestamp: payload.timestamp || payload.created_time,
+          from: payload.from?.id || payload.sender?.id,
+        };
+
+      case WebhookEventType.MESSAGING_POSTBACKS:
+        return {
+          messageId: payload.id || payload.mid,
+          postback: payload.postback,
+          timestamp: payload.timestamp || payload.created_time,
+          from: payload.from?.id || payload.sender?.id,
+        };
+
+      case WebhookEventType.MESSAGING_SEEN:
+        return {
+          timestamp: payload.timestamp || payload.created_time,
+          from: payload.from?.id || payload.sender?.id,
+          watermark: payload.watermark,
+        };
+
+      case WebhookEventType.STORY_INSIGHTS:
+        return {
+          mediaId: payload.media_id,
+          metrics: payload.metrics,
+          timestamp: payload.timestamp || payload.end_time,
         };
 
       default:

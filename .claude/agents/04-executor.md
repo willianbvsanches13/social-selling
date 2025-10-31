@@ -317,6 +317,9 @@ npm install <package>
 # If creating migrations
 npm run migration:run
 
+# Run build to check for errors
+npm run build
+
 # Run unit tests
 npm run test
 
@@ -462,8 +465,9 @@ cat .claude/rules/review.md          # Code review criteria
 1. **ALWAYS** read `.claude/rules/` files before writing code
 2. **ALWAYS** read existing code examples to understand patterns
 3. **ALWAYS** follow project coding standards
-4. **ALWAYS** test created code according to test guidelines
-5. **ALWAYS** call @05-e2e-tester.md after completing
+5. **ALWAYS** run build in all projects changed before proceeding
+6. **ALWAYS** test created code according to test guidelines
+7. **ALWAYS** call @05-e2e-tester.md after completing
 
 ## Troubleshooting
 
