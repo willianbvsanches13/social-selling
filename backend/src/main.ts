@@ -33,32 +33,23 @@ async function bootstrap() {
       '*********************** App created **************************',
     );
 
-    // Configure body parser limits for file uploads
-    // This allows larger file uploads (up to 100MB)
+    // Configure body parser with raw body capture for webhooks
     const express = require('express');
+
+    // Special handling for Instagram webhooks - capture raw body for signature verification
+    app.use('/api/instagram/webhooks', express.json({
+      limit: '10mb',
+      verify: (req: any, _res: any, buf: Buffer) => {
+        req.rawBody = buf;
+      }
+    }));
+
+    // Standard body parser for all other routes (up to 100MB for file uploads)
     app.use(express.json({ limit: '100mb' }));
     app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
     // Cookie parser middleware
     app.use(cookieParser());
-
-    // Raw body middleware for webhook signature verification
-    // Must be added BEFORE any body parser
-    app.use('/api/instagram/webhooks', (req: any, res: any, next: any) => {
-      if (req.method === 'POST') {
-        let data = '';
-        req.setEncoding('utf8');
-        req.on('data', (chunk: string) => {
-          data += chunk;
-        });
-        req.on('end', () => {
-          req.rawBody = Buffer.from(data, 'utf8');
-          next();
-        });
-      } else {
-        next();
-      }
-    });
 
     // Global exception filters
     app.useGlobalFilters(

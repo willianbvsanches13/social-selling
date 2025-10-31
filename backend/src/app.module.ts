@@ -17,6 +17,7 @@ import { InstagramModule } from './modules/instagram/instagram.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { HttpLoggerMiddleware } from './common/middleware/http-logger.middleware';
 import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
+import { HttpLoggingInterceptor } from './common/interceptors/http-logging.interceptor';
 import configuration from './config/configuration';
 
 @Module({
@@ -68,6 +69,10 @@ import configuration from './config/configuration';
     {
       provide: APP_INTERCEPTOR,
       useClass: MetricsInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpLoggingInterceptor,
     },
   ],
 })

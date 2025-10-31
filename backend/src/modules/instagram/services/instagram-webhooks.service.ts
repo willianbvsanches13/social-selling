@@ -68,12 +68,11 @@ export class InstagramWebhooksService {
         .update(payload)
         .digest('hex');
 
+      // Log signature verification (debug level)
       this.logger.debug(`Webhook signature verification:
         - Received signature: ${signatureHash.substring(0, 20)}...
         - Expected signature: ${expectedHash.substring(0, 20)}...
-        - Payload length: ${payload.length}
-        - App Secret (first 10 chars): ${this.appSecret.substring(0, 10)}...
-        - Payload (first 100 chars): ${payload.substring(0, 100)}`);
+        - Payload length: ${payload.length}`);
 
       // Constant-time comparison to prevent timing attacks
       const isValid = crypto.timingSafeEqual(
@@ -83,6 +82,8 @@ export class InstagramWebhooksService {
 
       if (!isValid) {
         this.logger.warn('Webhook signature mismatch');
+      } else {
+        this.logger.log('✅ Webhook signature is VALID!');
       }
 
       return isValid;
@@ -123,7 +124,7 @@ export class InstagramWebhooksService {
   /**
    * Process webhook event from Meta
    */
-  async processWebhook(payload: any, signature: string): Promise<void> {
+  async processWebhook(payload: any, _signature: string): Promise<void> {
     this.logger.log('Processing Instagram webhook');
 
     const { object, entry } = payload;

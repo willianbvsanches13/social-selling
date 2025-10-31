@@ -10,7 +10,6 @@ import {
   Request,
   HttpCode,
   Req,
-  RawBodyRequest,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -63,26 +62,24 @@ export class InstagramWebhooksController {
     @Headers('x-hub-signature-256') signature: string,
   ): Promise<{ status: string }> {
     // Get raw body for signature verification
-    const rawBody = req.rawBody
-      ? req.rawBody.toString('utf8')
-      : JSON.stringify(req.body);
+    // CRITICAL: Must use the EXACT raw body buffer as received, not re-stringified JSON
+    if (!req.rawBody) {
+      throw new Error('Raw body not available for signature verification');
+    }
+
+    const rawBodyString = req.rawBody.toString('utf8');
 
     this.logger.debug(`Webhook received:
       - Has signature: ${!!signature}
       - Has rawBody: ${!!req.rawBody}
       - Body type: ${typeof req.body}
-      - Raw body length: ${rawBody.length}`);
+      - Raw body length: ${rawBodyString.length}`);
 
-    let payload: any;
+    // Payload is already parsed by express.json()
+    const payload = req.body;
 
-    try {
-      payload = typeof rawBody === 'string' ? JSON.parse(rawBody) : req.body;
-    } catch (_error) {
-      throw new Error('Invalid webhook payload format');
-    }
-
-    // Verify signature
-    const isValid = this.webhooksService.verifySignature(signature, rawBody);
+    // Verify signature - MUST use the exact raw body string as received
+    const isValid = this.webhooksService.verifySignature(signature, rawBodyString);
     if (!isValid) {
       this.logger.error('Webhook signature validation failed');
       throw new Error('Invalid webhook signature');
