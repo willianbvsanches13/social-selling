@@ -74,8 +74,9 @@ ls -la test/
 
 ### 4. Generate Atomic Tasks
 
-Create tasks of 15min to 2h each:
+Create tasks of 15min to 2h each. Each task will be saved in a separate JSON file.
 
+**Index file (_index.json)** - Summary and execution order:
 ```json
 {
   "taskSetId": "TASKS-2025-XXXXXX",
@@ -97,80 +98,6 @@ Create tasks of 15min to 2h each:
       "low": 2
     }
   },
-  "tasks": [
-    {
-      "taskId": "TASK-001",
-      "phaseId": "P1",
-      "title": "Create migration for notifications table",
-      "description": "Create TypeORM migration for notifications table with fields: id, userId, title, message, type, read, createdAt",
-      "category": "database",
-      "priority": "critical",
-      "estimatedHours": 0.5,
-      "dependencies": [],
-      "files": [
-        "src/database/migrations/[timestamp]-CreateNotificationsTable.ts"
-      ],
-      "dod": [
-        "Migration creates notifications table",
-        "Table has all required fields",
-        "Indexes created on userId and read",
-        "Foreign key to users configured"
-      ],
-      "technicalDetails": {
-        "packages": [],
-        "envVars": [],
-        "migrations": "CreateNotificationsTable"
-      }
-    },
-    {
-      "taskId": "TASK-002",
-      "phaseId": "P1",
-      "title": "Create Notification entity",
-      "description": "Create TypeORM entity for Notification mapping notifications table",
-      "category": "backend",
-      "priority": "critical",
-      "estimatedHours": 0.5,
-      "dependencies": ["TASK-001"],
-      "files": [
-        "src/notifications/entities/notification.entity.ts"
-      ],
-      "dod": [
-        "Entity created with TypeORM decorators",
-        "All fields correctly mapped",
-        "Relationship with User configured",
-        "Automatic timestamps working"
-      ],
-      "technicalDetails": {
-        "packages": [],
-        "envVars": [],
-        "migrations": null
-      }
-    },
-    {
-      "taskId": "TASK-003",
-      "phaseId": "P2",
-      "title": "Create NotificationDTO for creation",
-      "description": "Create CreateNotificationDto with validations using class-validator",
-      "category": "backend",
-      "priority": "high",
-      "estimatedHours": 0.5,
-      "dependencies": ["TASK-002"],
-      "files": [
-        "src/notifications/dto/create-notification.dto.ts"
-      ],
-      "dod": [
-        "DTO created with validations",
-        "Required fields validated",
-        "Notification types enumerated",
-        "Swagger decorators added"
-      ],
-      "technicalDetails": {
-        "packages": ["class-validator", "class-transformer"],
-        "envVars": [],
-        "migrations": null
-      }
-    }
-  ],
   "executionOrder": [
     "TASK-001",
     "TASK-002",
@@ -178,6 +105,92 @@ Create tasks of 15min to 2h each:
     "TASK-004",
     "TASK-005"
   ]
+}
+```
+
+**Individual task files** - One file per task (TASK-XXX.json):
+
+**TASK-001.json:**
+```json
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Create migration for notifications table",
+  "description": "Create TypeORM migration for notifications table with fields: id, userId, title, message, type, read, createdAt",
+  "category": "database",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": [],
+  "files": [
+    "src/database/migrations/[timestamp]-CreateNotificationsTable.ts"
+  ],
+  "dod": [
+    "Migration creates notifications table",
+    "Table has all required fields",
+    "Indexes created on userId and read",
+    "Foreign key to users configured"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": "CreateNotificationsTable"
+  }
+}
+```
+
+**TASK-002.json:**
+```json
+{
+  "taskId": "TASK-002",
+  "phaseId": "P1",
+  "title": "Create Notification entity",
+  "description": "Create TypeORM entity for Notification mapping notifications table",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "src/notifications/entities/notification.entity.ts"
+  ],
+  "dod": [
+    "Entity created with TypeORM decorators",
+    "All fields correctly mapped",
+    "Relationship with User configured",
+    "Automatic timestamps working"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}
+```
+
+**TASK-003.json:**
+```json
+{
+  "taskId": "TASK-003",
+  "phaseId": "P2",
+  "title": "Create NotificationDTO for creation",
+  "description": "Create CreateNotificationDto with validations using class-validator",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "src/notifications/dto/create-notification.dto.ts"
+  ],
+  "dod": [
+    "DTO created with validations",
+    "Required fields validated",
+    "Notification types enumerated",
+    "Swagger decorators added"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null
+  }
 }
 ```
 
@@ -195,21 +208,102 @@ Create tasks of 15min to 2h each:
 9. E2E tests
 10. Documentation
 
-### 6. Save Artifact
+### 6. Save Artifacts
 
 ```bash
-# Create directory using FEAT_ID
+# Create directory for tasks using FEAT_ID
 mkdir -p .claude/artifacts/$FEAT_ID/03-tasks
 
-# Save tasks
-cat > .claude/artifacts/$FEAT_ID/03-tasks/tasks.json << 'EOF'
+# Save task index/summary
+cat > .claude/artifacts/$FEAT_ID/03-tasks/_index.json << 'EOF'
 {
   "taskSetId": "TASKS-2025-XXXXXX",
-  ...
+  "featureId": "FEAT-2025-XXXXXX",
+  "planId": "PLAN-2025-XXXXXX",
+  "timestamp": "2025-01-15T10:10:00Z",
+  "summary": {
+    "totalTasks": 12,
+    "byCategory": {
+      "database": 2,
+      "backend": 4,
+      "testing": 3,
+      "documentation": 1
+    },
+    "byPriority": {
+      "critical": 2,
+      "high": 5,
+      "medium": 3,
+      "low": 2
+    }
+  },
+  "executionOrder": [
+    "TASK-001",
+    "TASK-002",
+    "TASK-003"
+  ]
 }
 EOF
 
-echo "✅ Artifact saved at: .claude/artifacts/$FEAT_ID/03-tasks/tasks.json"
+# Save each task in separate file
+cat > .claude/artifacts/$FEAT_ID/03-tasks/TASK-001.json << 'EOF'
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Create migration for notifications table",
+  "description": "Create TypeORM migration for notifications table with fields: id, userId, title, message, type, read, createdAt",
+  "category": "database",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": [],
+  "files": [
+    "src/database/migrations/[timestamp]-CreateNotificationsTable.ts"
+  ],
+  "dod": [
+    "Migration creates notifications table",
+    "Table has all required fields",
+    "Indexes created on userId and read",
+    "Foreign key to users configured"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": "CreateNotificationsTable"
+  }
+}
+EOF
+
+cat > .claude/artifacts/$FEAT_ID/03-tasks/TASK-002.json << 'EOF'
+{
+  "taskId": "TASK-002",
+  "phaseId": "P1",
+  "title": "Create Notification entity",
+  "description": "Create TypeORM entity for Notification mapping notifications table",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "src/notifications/entities/notification.entity.ts"
+  ],
+  "dod": [
+    "Entity created with TypeORM decorators",
+    "All fields correctly mapped",
+    "Relationship with User configured",
+    "Automatic timestamps working"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}
+EOF
+
+# ... repeat for each task
+
+echo "✅ Task files saved at: .claude/artifacts/$FEAT_ID/03-tasks/"
+echo "📋 Index file: .claude/artifacts/$FEAT_ID/03-tasks/_index.json"
+echo "📝 Individual tasks: TASK-001.json, TASK-002.json, ..."
 ```
 
 ### 7. Call Next Agent
@@ -289,8 +383,13 @@ Each task should have 3-5 clear criteria:
   2. TASK-002: Create Notification entity (30min)
   3. TASK-003: Create NotificationDTO (30min)
 
-📄 Artifact saved at:
-.claude/artifacts/FEAT-2025-XXXXXX/03-tasks/tasks.json
+📄 Artifacts saved at:
+.claude/artifacts/FEAT-2025-XXXXXX/03-tasks/
+  - _index.json (summary & execution order)
+  - TASK-001.json
+  - TASK-002.json
+  - TASK-003.json
+  - ... (12 task files total)
 
 ➡️ Next: Call Executor Agent to implement...
 ```
@@ -303,4 +402,6 @@ Each task should have 3-5 clear criteria:
 4. **Always** consider dependencies between tasks
 5. **Database tasks** must come first
 6. **Tests** must come after implementation
-7. **ALWAYS** call @04-executor.md after completing
+7. **ALWAYS** create separate JSON files for each task (TASK-XXX.json)
+8. **ALWAYS** create an index file (_index.json) with summary and execution order
+9. **ALWAYS** call @04-executor.md after completing

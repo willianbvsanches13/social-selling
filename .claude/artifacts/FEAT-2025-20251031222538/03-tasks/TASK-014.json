@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-014",
+  "phaseId": "P5",
+  "title": "Criar hooks React Query para conversas",
+  "description": "Criar custom hooks usando React Query para gerenciar estado de conversas no frontend.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-013"],
+  "files": [
+    "frontend/src/lib/hooks/useConversations.ts",
+    "frontend/src/lib/hooks/useConversation.ts"
+  ],
+  "dod": [
+    "Hook useConversations com filtros e paginação",
+    "Hook useConversation para uma conversa específica",
+    "Hook useMarkConversationAsRead mutation",
+    "Configuração de cache e staleTime",
+    "Polling a cada 5s para atualização automática",
+    "Loading e error states tipados",
+    "Otimistic updates configurados"
+  ],
+  "technicalDetails": {
+    "packages": ["@tanstack/react-query"],
+    "envVars": [],
+    "migrations": null
+  }
+}

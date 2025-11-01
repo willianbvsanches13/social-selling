@@ -1,0 +1,25 @@
+{
+  "taskId": "TASK-011",
+  "phaseId": "P3",
+  "title": "Adicionar endpoint PATCH /conversations/:id/read",
+  "description": "Adicionar endpoint para marcar todas as mensagens de uma conversa como lidas.",
+  "category": "backend",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-008", "TASK-004"],
+  "files": [
+    "backend/src/modules/messaging/controllers/messaging.controller.ts"
+  ],
+  "dod": [
+    "PATCH /conversations/:id/read implementado",
+    "Chamada ao ConversationService.markAsRead",
+    "Atualização de unreadCount para 0",
+    "Status 200 OK",
+    "Swagger docs completo"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

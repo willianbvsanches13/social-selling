@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-003",
+  "phaseId": "P2",
+  "title": "Completar MessageRepository com métodos necessários",
+  "description": "Completar implementação do MessageRepository adicionando métodos findByConversation com paginação, countUnread, markAsRead e outros métodos necessários para a feature.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": [],
+  "files": [
+    "backend/src/infrastructure/database/repositories/message.repository.ts"
+  ],
+  "dod": [
+    "Método findByConversation(conversationId, options) implementado com paginação",
+    "Método countUnread(conversationId) implementado",
+    "Método markAsRead(messageId) implementado",
+    "Método markAllAsRead(conversationId) implementado",
+    "Queries otimizadas com índices apropriados",
+    "Testes unitários básicos criados"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

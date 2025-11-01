@@ -29,7 +29,9 @@ import {
 @ApiTags('Instagram Webhooks')
 @Controller('instagram/webhooks')
 export class InstagramWebhooksController {
-  private readonly logger = new (require('@nestjs/common').Logger)('InstagramWebhooksController');
+  private readonly logger = new (require('@nestjs/common').Logger)(
+    'InstagramWebhooksController',
+  );
 
   constructor(private webhooksService: InstagramWebhooksService) {}
 
@@ -79,7 +81,10 @@ export class InstagramWebhooksController {
     const payload = req.body;
 
     // Verify signature - MUST use the exact raw body string as received
-    const isValid = this.webhooksService.verifySignature(signature, rawBodyString);
+    const isValid = this.webhooksService.verifySignature(
+      signature,
+      rawBodyString,
+    );
     if (!isValid) {
       this.logger.error('Webhook signature validation failed');
       throw new Error('Invalid webhook signature');

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { InstagramController } from './instagram.controller';
 import { InstagramAccountController } from './controllers/instagram-account.controller';
@@ -31,14 +31,23 @@ import {
   InstagramStoryInsightRepository,
   InstagramAnalyticsReportRepository,
 } from '../../infrastructure/database/repositories/instagram-analytics.repository';
+import { ConversationRepository } from '../../infrastructure/database/repositories/conversation.repository';
+import { MessageRepository } from '../../infrastructure/database/repositories/message.repository';
+import { MessageWebhookHandler } from './handlers/message-webhook.handler';
+import { WebhookMessageHandler } from './handlers/webhook-message.handler';
+import { WorkersModule } from '../../workers/workers.module';
 
 @Module({
   imports: [
     DatabaseModule,
     CacheModule,
     StorageModule,
+    forwardRef(() => WorkersModule),
     BullModule.registerQueue({
       name: 'instagram-post-publishing',
+    }),
+    BullModule.registerQueue({
+      name: 'instagram-webhook-events',
     }),
   ],
   controllers: [
@@ -109,6 +118,18 @@ import {
     InstagramMediaInsightRepository,
     InstagramStoryInsightRepository,
     InstagramAnalyticsReportRepository,
+    ConversationRepository,
+    MessageRepository,
+    MessageWebhookHandler,
+    WebhookMessageHandler,
+    {
+      provide: 'IConversationRepository',
+      useClass: ConversationRepository,
+    },
+    {
+      provide: 'IMessageRepository',
+      useClass: MessageRepository,
+    },
   ],
   exports: [
     InstagramOAuthService,
@@ -119,6 +140,9 @@ import {
     InstagramAnalyticsService,
     InstagramSchedulingService,
     InstagramMediaUploadService,
+    WebhookMessageHandler,
+    ConversationRepository,
+    MessageRepository,
   ],
 })
 export class InstagramModule {}

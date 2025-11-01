@@ -158,7 +158,11 @@ export class InstagramPublisherService {
       );
 
       // Step 3: Wait for carousel container to be ready
-      await this.waitForContainerReady(igAccountId, accessToken, carouselContainerId);
+      await this.waitForContainerReady(
+        igAccountId,
+        accessToken,
+        carouselContainerId,
+      );
 
       // Step 4: Publish the carousel
       const result = await this.publishContainer(
@@ -252,7 +256,11 @@ export class InstagramPublisherService {
 
       // Step 2: Wait for processing (especially important for video stories)
       if (isVideo) {
-        await this.waitForVideoProcessing(igAccountId, accessToken, containerId);
+        await this.waitForVideoProcessing(
+          igAccountId,
+          accessToken,
+          containerId,
+        );
       } else {
         await this.waitForContainerReady(igAccountId, accessToken, containerId);
       }
@@ -468,9 +476,7 @@ export class InstagramPublisherService {
         );
 
         if (response.data.id) {
-          this.logger.log(
-            `Container ${containerId} is ready for publishing`,
-          );
+          this.logger.log(`Container ${containerId} is ready for publishing`);
           return;
         }
       } catch (error: any) {

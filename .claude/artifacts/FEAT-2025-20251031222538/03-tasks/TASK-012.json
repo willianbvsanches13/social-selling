@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-012",
+  "phaseId": "P4",
+  "title": "Configurar MessagingModule completo",
+  "description": "Configurar o módulo NestJS de mensageria com todos os providers, imports e exports necessários.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-010", "TASK-011"],
+  "files": [
+    "backend/src/modules/messaging/messaging.module.ts"
+  ],
+  "dod": [
+    "Módulo criado com @Module decorator",
+    "ConversationRepository e MessageRepository registrados",
+    "ConversationService e MessagingService registrados",
+    "MessagingController registrado",
+    "WebhookMessageHandler registrado e exportado",
+    "InstagramModule importado",
+    "Módulo registrado no AppModule"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

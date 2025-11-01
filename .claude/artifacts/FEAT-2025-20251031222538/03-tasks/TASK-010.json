@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-010",
+  "phaseId": "P3",
+  "title": "Adicionar endpoint POST /conversations/:id/messages",
+  "description": "Adicionar endpoint para enviar mensagem de texto para uma conversa.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-008", "TASK-005"],
+  "files": [
+    "backend/src/modules/messaging/controllers/messaging.controller.ts"
+  ],
+  "dod": [
+    "POST /conversations/:id/messages implementado",
+    "Validação de SendMessageDto",
+    "Chamada ao MessagingService.sendTextMessage",
+    "Tratamento de erros (janela expirada, rate limit, API error)",
+    "Retorno da mensagem criada com platformMessageId",
+    "Status 201 Created",
+    "Swagger docs completo"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

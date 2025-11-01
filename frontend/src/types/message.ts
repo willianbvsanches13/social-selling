@@ -1,13 +1,36 @@
+export enum ConversationStatus {
+  ACTIVE = 'active',
+  ARCHIVED = 'archived',
+  BLOCKED = 'blocked',
+}
+
+export enum MessageType {
+  TEXT = 'text',
+  IMAGE = 'image',
+  VIDEO = 'video',
+  AUDIO = 'audio',
+  STORY_MENTION = 'story_mention',
+  STORY_REPLY = 'story_reply',
+  REEL_SHARE = 'reel_share',
+  POST_SHARE = 'post_share',
+}
+
+export enum SenderType {
+  USER = 'user',
+  CUSTOMER = 'customer',
+}
+
 export interface Conversation {
   id: string;
-  instagramAccountId: string;
-  participantId: string;
-  participantUsername: string;
-  participantName: string;
-  participantProfilePic: string;
-  lastMessage: Message | null;
+  clientAccountId: string;
+  platformConversationId: string;
+  participantPlatformId: string;
+  participantUsername?: string;
+  participantProfilePic?: string;
+  lastMessageAt?: string;
   unreadCount: number;
-  isArchived: boolean;
+  status: ConversationStatus;
+  metadata: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
@@ -15,15 +38,18 @@ export interface Conversation {
 export interface Message {
   id: string;
   conversationId: string;
-  senderId: string;
-  senderUsername: string;
-  text?: string;
-  mediaType?: 'image' | 'video' | 'audio';
+  platformMessageId: string;
+  senderType: SenderType;
+  senderPlatformId?: string;
+  messageType: MessageType;
+  content?: string;
   mediaUrl?: string;
-  timestamp: string;
+  mediaType?: string;
   isRead: boolean;
-  isSent: boolean;
-  isDelivered: boolean;
+  sentAt: string;
+  deliveredAt?: string;
+  readAt?: string;
+  metadata: Record<string, unknown>;
   createdAt: string;
 }
 
@@ -36,30 +62,32 @@ export interface MessageTemplate {
 }
 
 export interface SendMessageRequest {
-  conversationId: string;
-  text?: string;
-  mediaUrl?: string;
-  mediaType?: 'image' | 'video' | 'audio';
+  text: string;
 }
 
 export interface ConversationFilters {
-  search?: string;
-  isArchived?: boolean;
-  page?: number;
-  perPage?: number;
+  clientAccountId: string;
+  status?: ConversationStatus;
+  hasUnread?: boolean;
+  limit?: number;
+  offset?: number;
 }
 
 export interface MessageFilters {
-  page?: number;
-  perPage?: number;
+  limit?: number;
+  offset?: number;
 }
 
-export interface ConversationsResponse {
-  data: Conversation[];
+export interface ConversationListResponse {
+  conversations: Conversation[];
   total: number;
+  limit: number;
+  offset: number;
 }
 
-export interface MessagesResponse {
-  data: Message[];
+export interface MessageListResponse {
+  messages: Message[];
   total: number;
+  limit: number;
+  offset: number;
 }

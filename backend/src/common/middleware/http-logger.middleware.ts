@@ -9,7 +9,13 @@ export class HttpLoggerMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: NextFunction) {
     // Skip health check and metrics endpoints
-    const excludedPaths = ['/health', '/health/ready', '/health/live', '/metrics', '/api/metrics'];
+    const excludedPaths = [
+      '/health',
+      '/health/ready',
+      '/health/live',
+      '/metrics',
+      '/api/metrics',
+    ];
     if (excludedPaths.includes(req.path)) {
       next();
       return;

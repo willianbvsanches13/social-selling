@@ -60,13 +60,18 @@ export class InstagramApiService {
    * Get system user token from environment
    */
   private getSystemUserToken(): string | null {
-    return this.configService.get<string>('INSTAGRAM_SYSTEM_USER_TOKEN') || null;
+    return (
+      this.configService.get<string>('INSTAGRAM_SYSTEM_USER_TOKEN') || null
+    );
   }
 
   /**
    * Get Instagram user profile
    */
-  async getUserProfile(accountId: string, platformAccountId: string): Promise<InstagramProfileDto> {
+  async getUserProfile(
+    accountId: string,
+    platformAccountId: string,
+  ): Promise<InstagramProfileDto> {
     const token = await this.getAccessToken(accountId);
 
     const fields = [
@@ -86,7 +91,9 @@ export class InstagramApiService {
 
     // TEMPORARY DEBUG: Log the full request URL with token for curl testing
     const testUrl = `${this.BASE_URL}/${this.API_VERSION}${endpoint}?fields=${fields.join(',')}&access_token=${token}`;
-    this.logger.log(`🔍 DEBUG - Full API request URL for curl testing:\ncurl "${testUrl}"`);
+    this.logger.log(
+      `🔍 DEBUG - Full API request URL for curl testing:\ncurl "${testUrl}"`,
+    );
 
     const response = await this.makeRequest<InstagramProfileDto>(
       accountId,
@@ -390,7 +397,10 @@ export class InstagramApiService {
   /**
    * Test if token is valid by making a simple API call
    */
-  async testToken(accountId: string, platformAccountId: string): Promise<boolean> {
+  async testToken(
+    accountId: string,
+    platformAccountId: string,
+  ): Promise<boolean> {
     try {
       await this.getUserProfile(accountId, platformAccountId);
       return true;

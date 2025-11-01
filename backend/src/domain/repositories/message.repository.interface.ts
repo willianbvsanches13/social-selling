@@ -20,6 +20,7 @@ export interface IMessageRepository {
   create(message: Message): Promise<Message>;
   update(message: Message): Promise<Message>;
   bulkMarkAsRead(messageIds: string[]): Promise<void>;
+  markAllAsReadByConversation(conversationId: string): Promise<number>;
   searchInContent(
     searchTerm: string,
     conversationId?: string,

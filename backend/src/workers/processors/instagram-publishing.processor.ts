@@ -108,7 +108,10 @@ export class InstagramPublishingProcessor extends WorkerHost {
               location: job.data.location,
             },
           );
-        } else if (job.data.mediaType === 'VIDEO' || job.data.mediaType === 'REELS') {
+        } else if (
+          job.data.mediaType === 'VIDEO' ||
+          job.data.mediaType === 'REELS'
+        ) {
           // Video/Reels post
           publishResult = await this.instagramPublisher.publishVideo(
             account.instagramBusinessAccountId,
@@ -252,9 +255,7 @@ export class InstagramPublishingProcessor extends WorkerHost {
     if (token) {
       // Check token expiration and try to refresh if needed
       if (token.isExpired) {
-        this.logger.warn(
-          `Access token for account ${accountId} has expired.`,
-        );
+        this.logger.warn(`Access token for account ${accountId} has expired.`);
 
         // Try system user token as fallback
         const systemToken = this.getSystemUserToken();
@@ -279,9 +280,8 @@ export class InstagramPublishingProcessor extends WorkerHost {
         );
 
         try {
-          accessToken = await this.instagramOAuthService.refreshTokenIfNeeded(
-            accountId,
-          );
+          accessToken =
+            await this.instagramOAuthService.refreshTokenIfNeeded(accountId);
           this.logger.log(
             `Successfully refreshed access token for account ${accountId}`,
           );
@@ -326,7 +326,9 @@ export class InstagramPublishingProcessor extends WorkerHost {
    * Get system user token from environment
    */
   private getSystemUserToken(): string | null {
-    return this.configService.get<string>('INSTAGRAM_SYSTEM_USER_TOKEN') || null;
+    return (
+      this.configService.get<string>('INSTAGRAM_SYSTEM_USER_TOKEN') || null
+    );
   }
 
   /**

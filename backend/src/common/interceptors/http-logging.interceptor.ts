@@ -50,7 +50,10 @@ export class HttpLoggingInterceptor implements NestInterceptor {
       method: request.method,
       url: request.url,
       path: request.path,
-      query_params: request.query && Object.keys(request.query).length > 0 ? request.query : undefined,
+      query_params:
+        request.query && Object.keys(request.query).length > 0
+          ? request.query
+          : undefined,
       request_headers: this.filterSensitiveHeaders(request.headers),
       request_body: this.sanitizeBody(request.body),
       ip_address: this.getClientIp(request),
@@ -106,8 +109,12 @@ export class HttpLoggingInterceptor implements NestInterceptor {
           logData.url,
           logData.path,
           logData.query_params ? JSON.stringify(logData.query_params) : null,
-          logData.request_headers ? JSON.stringify(logData.request_headers) : null,
-          logData.response_headers ? JSON.stringify(logData.response_headers) : null,
+          logData.request_headers
+            ? JSON.stringify(logData.request_headers)
+            : null,
+          logData.response_headers
+            ? JSON.stringify(logData.response_headers)
+            : null,
           logData.request_body ? JSON.stringify(logData.request_body) : null,
           logData.response_body ? JSON.stringify(logData.response_body) : null,
           logData.status_code,
@@ -127,7 +134,9 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     }
   }
 
-  private filterSensitiveHeaders(headers: Record<string, any>): Record<string, any> {
+  private filterSensitiveHeaders(
+    headers: Record<string, any>,
+  ): Record<string, any> {
     const filtered: Record<string, any> = {};
 
     for (const [key, value] of Object.entries(headers)) {
@@ -175,7 +184,13 @@ export class HttpLoggingInterceptor implements NestInterceptor {
 
     if (obj !== null && typeof obj === 'object') {
       const redacted: any = {};
-      const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'api_key'];
+      const sensitiveFields = [
+        'password',
+        'token',
+        'secret',
+        'apiKey',
+        'api_key',
+      ];
 
       for (const [key, value] of Object.entries(obj)) {
         const lowerKey = key.toLowerCase();

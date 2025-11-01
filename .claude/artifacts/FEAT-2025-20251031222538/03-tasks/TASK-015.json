@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-015",
+  "phaseId": "P5",
+  "title": "Criar hooks React Query para mensagens",
+  "description": "Criar custom hooks usando React Query para gerenciar estado de mensagens e envio.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-013"],
+  "files": [
+    "frontend/src/lib/hooks/useMessages.ts",
+    "frontend/src/lib/hooks/useSendMessage.ts"
+  ],
+  "dod": [
+    "Hook useMessages com paginação e scroll infinito",
+    "Hook useSendMessage mutation",
+    "Configuração de cache por conversationId",
+    "Invalidação de queries após envio",
+    "Optimistic updates na mutation",
+    "Auto-refetch a cada 5s",
+    "Loading, error e success states"
+  ],
+  "technicalDetails": {
+    "packages": ["@tanstack/react-query"],
+    "envVars": [],
+    "migrations": null
+  }
+}

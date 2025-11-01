@@ -57,6 +57,10 @@ export class Conversation {
     return this.props.clientAccountId;
   }
 
+  get participantPlatformId(): string {
+    return this.props.participantPlatformId;
+  }
+
   get unreadCount(): number {
     return this.props.unreadCount;
   }

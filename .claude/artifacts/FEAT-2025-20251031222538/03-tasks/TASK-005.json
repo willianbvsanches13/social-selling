@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-005",
+  "phaseId": "P2",
+  "title": "Estender MessagingService com validações completas",
+  "description": "Estender o MessagingService existente com validações de janela de resposta de 24h, verificações de permissão e suporte para diferentes tipos de mensagem.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-003"],
+  "files": [
+    "backend/src/modules/messaging/services/messaging.service.ts"
+  ],
+  "dod": [
+    "Validação de janela de 24h implementada e testada",
+    "Método listMessages(userId, conversationId, options) implementado",
+    "Método sendTextMessage completo com todas validações",
+    "Suporte para envio de mídia (preparação)",
+    "Rate limiting awareness (verificar headers do Instagram)",
+    "Tratamento de erros da Instagram API"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

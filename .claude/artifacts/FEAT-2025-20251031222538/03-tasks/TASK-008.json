@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-008",
+  "phaseId": "P3",
+  "title": "Criar MessagingController com endpoint GET /conversations",
+  "description": "Criar controller de mensageria com endpoint para listar conversas do usuário.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-004", "TASK-006"],
+  "files": [
+    "backend/src/modules/messaging/controllers/messaging.controller.ts"
+  ],
+  "dod": [
+    "Controller criado com rota base /api/messaging",
+    "GET /conversations implementado",
+    "Query params para filtros (status, hasUnread, limit, offset)",
+    "Auth guard aplicado",
+    "Extração de userId do token JWT",
+    "Swagger docs completo",
+    "Retorno paginado com total, page, limit"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

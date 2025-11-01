@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-006",
+  "phaseId": "P3",
+  "title": "Criar DTOs para API de conversas",
+  "description": "Criar DTOs de request/response para endpoints de conversas com validações usando class-validator.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": [],
+  "files": [
+    "backend/src/modules/messaging/dto/conversation.dto.ts",
+    "backend/src/modules/messaging/dto/conversation-filter.dto.ts"
+  ],
+  "dod": [
+    "ConversationResponseDto criado com todos os campos",
+    "ConversationListResponseDto com paginação",
+    "ConversationFilterDto com validações (status, hasUnread, limit, offset)",
+    "Swagger decorators (@ApiProperty) adicionados",
+    "Validações class-validator configuradas"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -272,7 +272,7 @@ export class EventNormalizerService {
     }
 
     return {
-      id: payload.id || payload.mid,
+      id: payload.id || payload.mid || payload.message?.mid,
       text: payload.message?.text || payload.text,
       attachments: attachments.length > 0 ? attachments : undefined,
       timestamp: this.parseTimestamp(payload.timestamp || payload.created_time),
@@ -284,8 +284,9 @@ export class EventNormalizerService {
         payload.conversation_id ||
         payload.recipient?.id ||
         payload.from?.id ||
+        payload.sender?.id ||
         '',
-      isEcho: payload.is_echo || false,
+      isEcho: payload.is_echo || payload.message?.is_echo || false,
     };
   }
 
@@ -310,9 +311,7 @@ export class EventNormalizerService {
    * @param payload - Raw message reaction payload
    * @returns Normalized message reaction
    */
-  private normalizeMessageReaction(
-    payload: any,
-  ): NormalizedMessageReaction {
+  private normalizeMessageReaction(payload: any): NormalizedMessageReaction {
     // Extract reaction data from various possible formats
     const reactionData =
       payload.message_reactions?.[0] || payload.reaction || payload;
@@ -321,10 +320,7 @@ export class EventNormalizerService {
       messageId: reactionData.mid || payload.mid || '',
       conversationId: payload.conversation_id || payload.conversationId,
       senderId:
-        payload.from?.id ||
-        payload.sender?.id ||
-        reactionData.from?.id ||
-        '',
+        payload.from?.id || payload.sender?.id || reactionData.from?.id || '',
       recipientId: payload.recipient?.id || payload.recipientId,
       action: (reactionData.action || 'react') as 'react' | 'unreact',
       reactionType: reactionData.reaction_type || reactionData.reactionType,
@@ -389,7 +385,8 @@ export class EventNormalizerService {
         seenData.reader?.id ||
         '',
       recipientId: payload.recipient?.id || payload.recipientId,
-      watermark: typeof watermark === 'number' ? watermark : parseInt(watermark, 10),
+      watermark:
+        typeof watermark === 'number' ? watermark : parseInt(watermark, 10),
       timestamp: this.parseTimestamp(watermark),
     };
   }

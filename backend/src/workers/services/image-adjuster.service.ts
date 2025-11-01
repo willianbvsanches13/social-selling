@@ -74,7 +74,10 @@ export class ImageAdjusterService {
           adjustedPath: imagePath,
           originalAspectRatio,
           newAspectRatio: originalAspectRatio,
-          originalDimensions: { width: metadata.width, height: metadata.height },
+          originalDimensions: {
+            width: metadata.width,
+            height: metadata.height,
+          },
           newDimensions: { width: metadata.width, height: metadata.height },
           strategy: 'none',
         };
@@ -93,8 +96,12 @@ export class ImageAdjusterService {
       if (strategy === AdjustmentStrategy.SMART) {
         // Smart strategy: crop if close to constraint, pad if far
         const ratioDistance = Math.min(
-          Math.abs(originalAspectRatio - INSTAGRAM_CONSTRAINTS.MIN_ASPECT_RATIO),
-          Math.abs(originalAspectRatio - INSTAGRAM_CONSTRAINTS.MAX_ASPECT_RATIO),
+          Math.abs(
+            originalAspectRatio - INSTAGRAM_CONSTRAINTS.MIN_ASPECT_RATIO,
+          ),
+          Math.abs(
+            originalAspectRatio - INSTAGRAM_CONSTRAINTS.MAX_ASPECT_RATIO,
+          ),
         );
 
         // If the image is within 15% of the constraint, use crop, otherwise pad

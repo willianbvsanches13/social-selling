@@ -46,11 +46,11 @@ export function MessageThread({ messages, isLoading, currentUserId }: MessageThr
     <div className="flex-1 overflow-y-auto p-4">
       <div className="space-y-4">
         {messages.map((message, index) => {
-          const isCurrentUser = message.senderId === currentUserId;
+          const isCurrentUser = message.senderType === 'user';
           const showTimestamp =
             index === 0 ||
-            new Date(message.timestamp).getTime() -
-              new Date(messages[index - 1].timestamp).getTime() >
+            new Date(message.sentAt).getTime() -
+              new Date(messages[index - 1].sentAt).getTime() >
               300000; // 5 minutes
 
           return (
@@ -58,7 +58,7 @@ export function MessageThread({ messages, isLoading, currentUserId }: MessageThr
               {showTimestamp && (
                 <div className="my-4 text-center">
                   <span className="text-xs text-gray-500">
-                    {formatRelativeTime(message.timestamp)}
+                    {formatRelativeTime(message.sentAt)}
                   </span>
                 </div>
               )}
@@ -80,7 +80,7 @@ export function MessageThread({ messages, isLoading, currentUserId }: MessageThr
                       loading="lazy"
                     />
                   )}
-                  {message.text && <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>}
+                  {message.content && <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>}
 
                   <div
                     className={cn(
@@ -89,16 +89,16 @@ export function MessageThread({ messages, isLoading, currentUserId }: MessageThr
                     )}
                   >
                     <span>
-                      {new Date(message.timestamp).toLocaleTimeString('en-US', {
+                      {new Date(message.sentAt).toLocaleTimeString('en-US', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
                     </span>
                     {isCurrentUser && (
                       <>
-                        {message.isDelivered ? (
+                        {message.deliveredAt ? (
                           <CheckCheck className="h-3 w-3" />
-                        ) : message.isSent ? (
+                        ) : message.sentAt ? (
                           <Check className="h-3 w-3" />
                         ) : null}
                       </>

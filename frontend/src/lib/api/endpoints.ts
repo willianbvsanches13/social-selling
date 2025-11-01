@@ -44,12 +44,11 @@ export const API_ENDPOINTS = {
   ANALYTICS_REPORTS_LIST: (accountId: string) => `/instagram/analytics/reports/${accountId}`,
 
   // Conversations & Messages
-  CONVERSATIONS: '/conversations',
-  CONVERSATION_DETAIL: (id: string) => `/conversations/${id}`,
-  CONVERSATION_MESSAGES: (conversationId: string) => `/conversations/${conversationId}/messages`,
-  CONVERSATION_READ: (conversationId: string) => `/conversations/${conversationId}/read`,
-  CONVERSATION_ARCHIVE: (conversationId: string) => `/conversations/${conversationId}/archive`,
-  CONVERSATION_UNARCHIVE: (conversationId: string) => `/conversations/${conversationId}/unarchive`,
+  CONVERSATIONS: '/messaging/conversations',
+  CONVERSATION_DETAIL: (id: string) => `/messaging/conversations/${id}`,
+  CONVERSATION_MESSAGES: (conversationId: string) => `/messaging/conversations/${conversationId}/messages`,
+  CONVERSATION_SEND_MESSAGE: (conversationId: string) => `/messaging/conversations/${conversationId}/messages`,
+  CONVERSATION_READ: (conversationId: string) => `/messaging/conversations/${conversationId}/read`,
   MESSAGE_TEMPLATES: '/message-templates',
   MESSAGE_UPLOAD: '/messages/upload',
 

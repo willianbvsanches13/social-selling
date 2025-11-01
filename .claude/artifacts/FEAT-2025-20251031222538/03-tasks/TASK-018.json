@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-018",
+  "phaseId": "P6",
+  "title": "Integrar MessageInput com useSendMessage",
+  "description": "Integrar o componente MessageInput com mutation de envio de mensagem e feedback visual.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-015"],
+  "files": [
+    "frontend/src/components/messages/MessageInput.tsx"
+  ],
+  "dod": [
+    "Uso de useSendMessage hook implementado",
+    "Validação de texto não vazio",
+    "Validação de janela de 24h (desabilitar input se expirado)",
+    "Loading state durante envio",
+    "Limpeza do input após envio com sucesso",
+    "Toast de erro se falhar",
+    "Desabilitar envio se loading",
+    "Enter para enviar, Shift+Enter para quebra de linha"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

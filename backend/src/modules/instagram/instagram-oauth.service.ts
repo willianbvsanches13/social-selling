@@ -28,7 +28,8 @@ export class InstagramOAuthService {
   private readonly logger = new Logger(InstagramOAuthService.name);
   // Use Facebook OAuth for Instagram Business API access
   private readonly authBaseUrl = 'https://www.facebook.com/v24.0/dialog/oauth';
-  private readonly tokenUrl = 'https://graph.facebook.com/v24.0/oauth/access_token';
+  private readonly tokenUrl =
+    'https://graph.facebook.com/v24.0/oauth/access_token';
   private readonly graphBaseUrl = 'https://graph.instagram.com';
   private readonly fbGraphBaseUrl = 'https://graph.facebook.com/v24.0';
   private readonly clientId: string;
@@ -112,11 +113,15 @@ export class InstagramOAuthService {
 
       this.logger.log('Step 2: Fetching user profile');
       const userProfile = await this.fetchUserProfile(accessToken);
-      this.logger.log(`Step 2 completed: Profile fetched for @${userProfile.username}`);
+      this.logger.log(
+        `Step 2 completed: Profile fetched for @${userProfile.username}`,
+      );
 
       this.logger.log('Step 3: Storing client account');
       const clientAccount = await this.storeClientAccount(userId, userProfile);
-      this.logger.log(`Step 3 completed: Account stored with ID ${clientAccount.id}`);
+      this.logger.log(
+        `Step 3 completed: Account stored with ID ${clientAccount.id}`,
+      );
 
       this.logger.log('Step 4: Storing OAuth token');
       await this.storeOAuthToken(
@@ -198,7 +203,9 @@ export class InstagramOAuthService {
     if (!response.ok) {
       const errorText = await response.text();
       this.logger.error(`Instagram token exchange failed: ${errorText}`);
-      throw new Error(`Instagram token exchange failed: ${response.statusText}`);
+      throw new Error(
+        `Instagram token exchange failed: ${response.statusText}`,
+      );
     }
 
     return response.json();
@@ -245,35 +252,50 @@ export class InstagramOAuthService {
     if (!pagesResponse.ok) {
       const errorText = await pagesResponse.text();
       this.logger.error(`Failed to fetch Facebook pages: ${errorText}`);
-      throw new Error('Failed to fetch Facebook pages. Make sure you have a Facebook Page connected.');
+      throw new Error(
+        'Failed to fetch Facebook pages. Make sure you have a Facebook Page connected.',
+      );
     }
 
     const pagesData = await pagesResponse.json();
-    this.logger.log(`Facebook Pages response: ${JSON.stringify(pagesData, null, 2)}`);
+    this.logger.log(
+      `Facebook Pages response: ${JSON.stringify(pagesData, null, 2)}`,
+    );
 
     if (!pagesData.data || pagesData.data.length === 0) {
-      throw new Error('No Facebook Pages found. Please create a Facebook Page and link your Instagram Business Account to it.');
+      throw new Error(
+        'No Facebook Pages found. Please create a Facebook Page and link your Instagram Business Account to it.',
+      );
     }
 
     this.logger.log(`Found ${pagesData.data.length} Facebook Page(s)`);
     pagesData.data.forEach((page: any, index: number) => {
-      this.logger.log(`Page ${index + 1}: ${page.name} (ID: ${page.id}) - Has IG: ${!!page.instagram_business_account}`);
+      this.logger.log(
+        `Page ${index + 1}: ${page.name} (ID: ${page.id}) - Has IG: ${!!page.instagram_business_account}`,
+      );
     });
 
     // Find first page with Instagram Business Account
-    const pageWithIG = pagesData.data.find((page: any) => page.instagram_business_account);
+    const pageWithIG = pagesData.data.find(
+      (page: any) => page.instagram_business_account,
+    );
 
     if (!pageWithIG || !pageWithIG.instagram_business_account) {
       const pagesList = pagesData.data.map((p: any) => p.name).join(', ');
-      throw new Error(`No Instagram Business Account found on your Facebook Pages (${pagesList}). Please link your Instagram account to one of these pages.`);
+      throw new Error(
+        `No Instagram Business Account found on your Facebook Pages (${pagesList}). Please link your Instagram account to one of these pages.`,
+      );
     }
 
     const igBusinessAccountId = pageWithIG.instagram_business_account.id;
-    this.logger.log(`Found Instagram Business Account: ${igBusinessAccountId} on page: ${pageWithIG.name}`);
+    this.logger.log(
+      `Found Instagram Business Account: ${igBusinessAccountId} on page: ${pageWithIG.name}`,
+    );
 
     // Step 2: Get Instagram Business Account details using Facebook Graph API
     const profileParams = new URLSearchParams({
-      fields: 'id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography,website',
+      fields:
+        'id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography,website',
       access_token: accessToken,
     });
 
@@ -283,12 +305,16 @@ export class InstagramOAuthService {
 
     if (!profileResponse.ok) {
       const errorText = await profileResponse.text();
-      this.logger.error(`Failed to fetch Instagram Business Account profile: ${errorText}`);
+      this.logger.error(
+        `Failed to fetch Instagram Business Account profile: ${errorText}`,
+      );
       throw new Error('Failed to fetch Instagram Business Account profile');
     }
 
     const igAccount = await profileResponse.json();
-    this.logger.log(`Instagram Business Account fetched: @${igAccount.username}`);
+    this.logger.log(
+      `Instagram Business Account fetched: @${igAccount.username}`,
+    );
 
     return {
       id: igBusinessAccountId,

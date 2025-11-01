@@ -3,7 +3,10 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { IClientAccountRepository } from '../../domain/repositories/client-account.repository.interface';
 import { IOAuthTokenRepository } from '../../domain/repositories/oauth-token.repository.interface';
 import { InstagramOAuthService } from '../../modules/instagram/instagram-oauth.service';
-import { Platform, AccountStatus } from '../../domain/entities/client-account.entity';
+import {
+  Platform,
+  AccountStatus,
+} from '../../domain/entities/client-account.entity';
 
 /**
  * Token Maintenance Service
@@ -50,8 +53,9 @@ export class TokenMaintenanceService {
       // Check each account
       for (const account of instagramAccounts) {
         try {
-          const token =
-            await this.tokenRepository.findByClientAccountId(account.id);
+          const token = await this.tokenRepository.findByClientAccountId(
+            account.id,
+          );
 
           if (!token) {
             this.logger.warn(
@@ -138,8 +142,9 @@ export class TokenMaintenanceService {
 
       for (const account of activeInstagramAccounts) {
         try {
-          const token =
-            await this.tokenRepository.findByClientAccountId(account.id);
+          const token = await this.tokenRepository.findByClientAccountId(
+            account.id,
+          );
 
           if (!token) {
             continue;

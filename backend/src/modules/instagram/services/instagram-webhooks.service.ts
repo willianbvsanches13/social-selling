@@ -20,6 +20,7 @@ import {
   WebhookStatsDto,
 } from '../dto/webhook.dto';
 import { Database } from '../../../infrastructure/database/database';
+import { WebhookEventsQueue } from '../../../workers/queues/webhook-events.queue';
 
 @Injectable()
 export class InstagramWebhooksService {
@@ -31,6 +32,7 @@ export class InstagramWebhooksService {
   constructor(
     private configService: ConfigService,
     @Inject(Database) private database: Database,
+    private webhookEventsQueue: WebhookEventsQueue,
   ) {
     this.appSecret =
       this.configService.get<string>('INSTAGRAM_APP_SECRET') || '';
@@ -278,6 +280,46 @@ export class InstagramWebhooksService {
       );
 
       this.logger.log(`Webhook event created: ${newEventId} (${eventType})`);
+      this.logger.log(`🔍 CHECKPOINT 1: After event created log`);
+      this.logger.log(`🔍 CHECKPOINT 2: account=${JSON.stringify({ id: account?.id, hasQueue: !!this.webhookEventsQueue })}`);
+
+      // Queue event for asynchronous processing
+      this.logger.log(`🔍 CHECKPOINT 3: About to check if account?.id`);
+      if (account?.id) {
+        this.logger.log(`🔍 CHECKPOINT 4: Inside if (account?.id) block`);
+        try {
+          this.logger.log(`🔍 CHECKPOINT 5: About to call webhookEventsQueue.addEvent`);
+          await this.webhookEventsQueue.addEvent({
+            eventType: eventType as any, // Convert to WebhookEventType from workers
+            eventId: newEventId,
+            accountId: account.id,
+            payload: change, // Pass individual event object, not full webhook envelope
+            timestamp: new Date(),
+          });
+
+          this.logger.log(
+            `Event queued for processing: ${eventType}:${newEventId}`,
+          );
+        } catch (queueError) {
+          const queueErrorMessage =
+            queueError instanceof Error ? queueError.message : String(queueError);
+          this.logger.error(
+            `Failed to queue event for processing: ${queueErrorMessage}`,
+          );
+
+          // Log queue failure but don't fail the webhook reception
+          await this.createLog(
+            newEventId,
+            WebhookLogLevel.ERROR,
+            'Failed to queue event for processing',
+            { error: queueErrorMessage },
+          );
+        }
+      } else {
+        this.logger.warn(
+          `Event ${newEventId} not queued: no account found for page ${pageId}`,
+        );
+      }
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -396,7 +438,8 @@ export class InstagramWebhooksService {
       case WebhookEventType.STORY_INSIGHTS:
         // Extract from story_insights event
         data.objectType = 'story';
-        data.objectId = value.story_insights?.media_id || value.media_id || null;
+        data.objectId =
+          value.story_insights?.media_id || value.media_id || null;
         data.senderId = value.from?.id || null; // Account ID
         this.logger.debug(
           `Extracted STORY_INSIGHTS data: media_id=${data.objectId}`,
@@ -467,8 +510,8 @@ export class InstagramWebhooksService {
   private async findAccountByPageId(pageId: string): Promise<any | null> {
     try {
       const result = await this.database.query(
-        'SELECT id, user_id FROM client_accounts WHERE instagram_business_account_id = $1 LIMIT 1',
-        [pageId],
+        'SELECT id, user_id FROM client_accounts WHERE platform_account_id = $1 AND platform = $2 AND deleted_at IS NULL LIMIT 1',
+        [pageId, 'instagram'],
       );
       return result && result.length > 0 ? result[0] : null;
     } catch (error) {

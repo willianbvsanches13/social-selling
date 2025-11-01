@@ -1,0 +1,195 @@
+{
+  "featureId": "FEAT-2025-20251031222538",
+  "timestamp": "2025-10-31T22:25:38Z",
+  "feature": {
+    "title": "Sistema de Conversação Instagram - Mensageria Bidirecional",
+    "description": "Implementação completa do sistema de conversação para Instagram, incluindo: (1) Backend para vincular mensagens recebidas via webhook, (2) Persistência de mensagens e conversas no banco de dados, (3) API para enviar mensagens de volta aos usuários, (4) Interface frontend para visualizar e gerenciar conversas",
+    "category": "new-feature",
+    "priority": "high",
+    "businessValue": "Permite comunicação direta e gerenciamento de conversas com clientes através do Instagram DM, essencial para social selling e relacionamento com clientes. Centraliza toda comunicação em uma única plataforma."
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Processar eventos de mensagens recebidas via webhook do Instagram e criar registros na base de dados",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Persistir conversas (Conversation) identificando participantes, status e metadados",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Persistir mensagens (Message) com tipo, conteúdo, mídia, sender e timestamps",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "API REST para listar conversas de um cliente com paginação e filtros",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "API REST para listar mensagens de uma conversa com paginação",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-006",
+        "description": "API REST para enviar mensagens de texto para usuários via Instagram Graph API",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-007",
+        "description": "Interface frontend para listar conversas com busca e ordenação",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-008",
+        "description": "Interface frontend para visualizar thread de mensagens em tempo real",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-009",
+        "description": "Interface frontend para enviar mensagens com suporte a texto",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-010",
+        "description": "Marcar mensagens como lidas e atualizar contador de não lidas",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-011",
+        "description": "Suporte a diferentes tipos de mensagem (texto, imagem, vídeo, story mention, story reply)",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-012",
+        "description": "Indicadores visuais de status de mensagem (enviada, entregue, lida)",
+        "priority": "could-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "performance",
+        "description": "Listar conversas e mensagens com resposta < 500ms para até 1000 conversas"
+      },
+      {
+        "id": "NFR-002",
+        "type": "scalability",
+        "description": "Suportar processamento de webhooks com até 100 mensagens/segundo por conta"
+      },
+      {
+        "id": "NFR-003",
+        "type": "security",
+        "description": "Validar assinatura HMAC de webhooks do Instagram para prevenir spoofing"
+      },
+      {
+        "id": "NFR-004",
+        "type": "usability",
+        "description": "Interface responsiva e intuitiva similar a aplicativos de mensageria conhecidos"
+      },
+      {
+        "id": "NFR-005",
+        "type": "reliability",
+        "description": "Garantir idempotência no processamento de webhooks (deduplicação de eventos)"
+      },
+      {
+        "id": "NFR-006",
+        "type": "performance",
+        "description": "Atualização em tempo real de novas mensagens no frontend (polling ou websocket)"
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "backend/src/modules/messaging",
+      "backend/src/modules/instagram/services/instagram-webhooks.service.ts",
+      "backend/src/modules/instagram/services/instagram-api.service.ts",
+      "backend/src/infrastructure/database/repositories/conversation.repository.ts",
+      "backend/src/infrastructure/database/repositories/message.repository.ts",
+      "backend/src/workers/processors/webhook-events.processor.ts",
+      "frontend/src/components/messages",
+      "frontend/src/app/(dashboard)/inbox",
+      "frontend/src/lib/api/messaging.ts"
+    ],
+    "databases": [
+      "conversations (nova tabela)",
+      "messages (nova tabela)",
+      "instagram_webhook_events (já existe, integração)",
+      "client_accounts (relação)"
+    ],
+    "externalServices": [
+      "Instagram Graph API (Send API)",
+      "Instagram Webhooks (messages field subscription)"
+    ],
+    "estimatedComplexity": "high"
+  },
+  "dependencies": [
+    {
+      "type": "service",
+      "name": "InstagramWebhooksService",
+      "action": "extend"
+    },
+    {
+      "type": "service",
+      "name": "InstagramApiService",
+      "action": "extend"
+    },
+    {
+      "type": "feature",
+      "name": "Webhook Event Processing (webhook-events.processor.ts)",
+      "action": "extend"
+    },
+    {
+      "type": "library",
+      "name": "@nestjs/bull (BullMQ)",
+      "action": "integrate"
+    },
+    {
+      "type": "entity",
+      "name": "Conversation e Message entities",
+      "action": "required"
+    },
+    {
+      "type": "repository",
+      "name": "ConversationRepository e MessageRepository",
+      "action": "required"
+    },
+    {
+      "type": "configuration",
+      "name": "Database migrations para tabelas conversations e messages",
+      "action": "required"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Rate limiting da Instagram Graph API pode bloquear envio de mensagens em alta frequência",
+      "severity": "high",
+      "mitigation": "Implementar retry com exponential backoff, queue de mensagens com BullMQ, monitorar headers de rate limit"
+    },
+    {
+      "description": "Webhooks duplicados ou fora de ordem podem causar inconsistências",
+      "severity": "medium",
+      "mitigation": "Usar event_id para deduplicação, validar timestamps, implementar processamento idempotente"
+    },
+    {
+      "description": "Performance degradada com volume alto de mensagens no banco de dados",
+      "severity": "medium",
+      "mitigation": "Criar índices em conversationId, platformMessageId, sentAt; implementar paginação eficiente; considerar archiving de conversas antigas"
+    },
+    {
+      "description": "Latência na sincronização de mensagens pode criar experiência ruim no frontend",
+      "severity": "medium",
+      "mitigation": "Implementar polling inteligente ou WebSocket para push de novas mensagens, feedback visual de loading/sending"
+    },
+    {
+      "description": "Falha na validação de webhook signature pode permitir ataques de spoofing",
+      "severity": "critical",
+      "mitigation": "Sempre validar X-Hub-Signature-256 header com HMAC SHA256, rejeitar requests sem assinatura válida"
+    }
+  ]
+}

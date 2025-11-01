@@ -15,6 +15,20 @@
         ]
       }
     },
+    "/api/metrics": {
+      "get": {
+        "operationId": "PrometheusController_index",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Prometheus"
+        ]
+      }
+    },
     "/api/auth/register": {
       "post": {
         "description": "Creates a new user account with email and password",
@@ -525,6 +539,45 @@
         ]
       }
     },
+    "/api/instagram/accounts/{id}/sync": {
+      "post": {
+        "operationId": "InstagramAccountController_syncAccount",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account synced successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Sync account metadata from Instagram",
+        "tags": [
+          "Instagram Account Management"
+        ]
+      }
+    },
     "/api/instagram/accounts/{id}/disconnect": {
       "delete": {
         "operationId": "InstagramController_disconnectAccount",
@@ -572,6 +625,116 @@
           }
         ],
         "summary": "Disconnect Instagram account",
+        "tags": [
+          "Instagram Integration"
+        ]
+      }
+    },
+    "/api/instagram/system/accounts": {
+      "get": {
+        "description": "Lists all Instagram Business Accounts accessible via the system user token",
+        "operationId": "InstagramController_listAvailableAccounts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of available Instagram Business Accounts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailableAccountsResponseDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "System user token not configured or API error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List available Instagram Business Accounts",
+        "tags": [
+          "Instagram Integration"
+        ]
+      }
+    },
+    "/api/instagram/system/accounts/{id}": {
+      "get": {
+        "description": "Retrieves detailed information about a specific Instagram Business Account",
+        "operationId": "InstagramController_getAccountDetails",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Instagram Business Account ID",
+            "schema": {
+              "example": "17841405309211844",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instagram Business Account details"
+          },
+          "404": {
+            "description": "Account not found or not accessible"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get Instagram Business Account details",
+        "tags": [
+          "Instagram Integration"
+        ]
+      }
+    },
+    "/api/instagram/system/accounts/link": {
+      "post": {
+        "description": "Links an Instagram Business Account to the authenticated user as a client account",
+        "operationId": "InstagramController_linkInstagramAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkInstagramAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account linked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkAccountResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Instagram Business Account ID or already linked"
+          },
+          "404": {
+            "description": "Instagram Business Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Link Instagram Business Account to client",
         "tags": [
           "Instagram Integration"
         ]
@@ -718,45 +881,6 @@
           }
         ],
         "summary": "Disconnect Instagram account",
-        "tags": [
-          "Instagram Account Management"
-        ]
-      }
-    },
-    "/api/instagram/accounts/{id}/sync": {
-      "post": {
-        "operationId": "InstagramAccountController_syncAccount",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Account synced successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AccountResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Account not found"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Sync account metadata from Instagram",
         "tags": [
           "Instagram Account Management"
         ]
@@ -1296,6 +1420,1021 @@
         ]
       }
     },
+    "/api/instagram/scheduling/test-publish/{postId}": {
+      "post": {
+        "operationId": "InstagramSchedulingController_testPublish",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "description": "Scheduled post ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test publish result with detailed logs"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Test publish a scheduled post (DEBUG)",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/posts": {
+      "post": {
+        "operationId": "InstagramSchedulingController_createScheduledPost",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScheduledPostDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Post scheduled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledPostResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create scheduled post",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/posts/{accountId}": {
+      "get": {
+        "operationId": "InstagramSchedulingController_listScheduledPosts",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "description": "Client account ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter by status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "scheduled",
+                "publishing",
+                "published",
+                "failed",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "scheduledAfter",
+            "required": false,
+            "in": "query",
+            "description": "Get posts scheduled after this date",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "scheduledBefore",
+            "required": false,
+            "in": "query",
+            "description": "Get posts scheduled before this date",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "minimum": 1,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedScheduledPostsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List scheduled posts",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/posts/{accountId}/{postId}": {
+      "get": {
+        "operationId": "InstagramSchedulingController_getScheduledPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "description": "Scheduled post ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "description": "Client account ID",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledPostResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get scheduled post by ID",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/posts/{postId}": {
+      "put": {
+        "operationId": "InstagramSchedulingController_updateScheduledPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "description": "Scheduled post ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateScheduledPostDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Post updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledPostResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot update non-scheduled posts"
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update scheduled post",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      },
+      "delete": {
+        "operationId": "InstagramSchedulingController_cancelScheduledPost",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "description": "Scheduled post ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post cancelled successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelScheduledPostResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Cancel scheduled post",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/posts/{postId}/publish-now": {
+      "post": {
+        "operationId": "InstagramSchedulingController_publishNow",
+        "parameters": [
+          {
+            "name": "postId",
+            "required": true,
+            "in": "path",
+            "description": "Scheduled post ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post published successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishNowResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish scheduled post immediately",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/publish": {
+      "post": {
+        "operationId": "InstagramSchedulingController_publishInstantly",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScheduledPostDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Post published successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishNowResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Publish post immediately without scheduling",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/media/upload": {
+      "post": {
+        "operationId": "InstagramSchedulingController_uploadMedia",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Media uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload media file",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/media/{accountId}": {
+      "get": {
+        "operationId": "InstagramSchedulingController_listMedia",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "description": "Client account ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "mediaType",
+            "required": false,
+            "in": "query",
+            "description": "Filter by media type",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "image",
+                "video"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media assets retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaAssetsListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List media assets",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/media/{accountId}/{assetId}": {
+      "get": {
+        "operationId": "InstagramSchedulingController_getMediaAsset",
+        "parameters": [
+          {
+            "name": "assetId",
+            "required": true,
+            "in": "path",
+            "description": "Media asset ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "description": "Client account ID",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media asset retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploadResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Media asset not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get media asset details",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/media/{assetId}": {
+      "delete": {
+        "operationId": "InstagramSchedulingController_deleteMediaAsset",
+        "parameters": [
+          {
+            "name": "assetId",
+            "required": true,
+            "in": "path",
+            "description": "Media asset ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media asset deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteMediaAssetResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Cannot delete media in use"
+          },
+          "404": {
+            "description": "Media asset not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete media asset",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/instagram/scheduling/optimal-times/{accountId}": {
+      "get": {
+        "operationId": "InstagramSchedulingController_getOptimalTimes",
+        "parameters": [
+          {
+            "name": "accountId",
+            "required": true,
+            "in": "path",
+            "description": "Client account ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Optimal times retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptimalPostingTimesResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get optimal posting times",
+        "tags": [
+          "Instagram Scheduling"
+        ]
+      }
+    },
+    "/api/posts/upload": {
+      "post": {
+        "operationId": "PostsController_uploadMedia",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Media uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload media file for post",
+        "tags": [
+          "Posts"
+        ]
+      }
+    },
+    "/api/posts/calendar": {
+      "get": {
+        "operationId": "PostsController_getCalendarPosts",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "description": "Start date in ISO format (e.g., 2025-10-01)",
+            "schema": {
+              "example": "2025-10-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "description": "End date in ISO format (e.g., 2025-11-30)",
+            "schema": {
+              "example": "2025-11-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "clientAccountId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by client account ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calendar posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduledPostResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get posts for calendar view",
+        "tags": [
+          "Posts"
+        ]
+      }
+    },
+    "/api/messaging/conversations": {
+      "get": {
+        "description": "Retrieves a paginated list of conversations for a client account with optional filters",
+        "operationId": "MessagingController_listConversations",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "open",
+                "closed",
+                "archived"
+              ]
+            }
+          },
+          {
+            "name": "hasUnread",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of conversations retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationListResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Client account not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List conversations",
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
+    "/api/messaging/conversations/{id}": {
+      "get": {
+        "description": "Retrieves detailed information about a specific conversation",
+        "operationId": "MessagingController_getConversation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Conversation ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation details retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get conversation details",
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
+    "/api/messaging/conversations/{id}/messages": {
+      "get": {
+        "description": "Retrieves a paginated list of messages for a specific conversation",
+        "operationId": "MessagingController_listMessages",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Conversation ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 100,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of messages retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageListResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List messages in conversation",
+        "tags": [
+          "Messaging"
+        ]
+      },
+      "post": {
+        "description": "Sends a text message to a participant in a conversation via Instagram",
+        "operationId": "MessagingController_sendMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Conversation ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Message sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid message or 24-hour response window has expired"
+          },
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send a message",
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
+    "/api/messaging/conversations/{id}/read": {
+      "patch": {
+        "description": "Marks all unread messages in a conversation as read",
+        "operationId": "MessagingController_markAsRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Conversation ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conversation marked as read successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Conversation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark conversation as read",
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "HealthController_check",
@@ -1720,6 +2859,139 @@
           "currentPassword",
           "newPassword",
           "confirmPassword"
+        ]
+      },
+      "InstagramBusinessAccountDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Instagram Business Account ID",
+            "example": "17841405309211844"
+          },
+          "username": {
+            "type": "string",
+            "description": "Instagram username",
+            "example": "my_business_account"
+          },
+          "name": {
+            "type": "string",
+            "description": "Account display name",
+            "example": "My Business"
+          },
+          "profile_picture_url": {
+            "type": "string",
+            "description": "Profile picture URL"
+          },
+          "followers_count": {
+            "type": "number",
+            "description": "Number of followers",
+            "example": 1500
+          },
+          "follows_count": {
+            "type": "number",
+            "description": "Number of accounts following",
+            "example": 300
+          },
+          "media_count": {
+            "type": "number",
+            "description": "Number of media posts",
+            "example": 125
+          },
+          "biography": {
+            "type": "string",
+            "description": "Account biography"
+          },
+          "website": {
+            "type": "string",
+            "description": "Website URL"
+          },
+          "facebookPageId": {
+            "type": "string",
+            "description": "Connected Facebook Page ID",
+            "example": "123456789012345"
+          },
+          "facebookPageName": {
+            "type": "string",
+            "description": "Connected Facebook Page Name",
+            "example": "My Business Page"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "facebookPageId",
+          "facebookPageName"
+        ]
+      },
+      "AvailableAccountsResponseDto": {
+        "type": "object",
+        "properties": {
+          "accounts": {
+            "description": "List of available Instagram Business Accounts",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstagramBusinessAccountDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of accounts",
+            "example": 3
+          }
+        },
+        "required": [
+          "accounts",
+          "total"
+        ]
+      },
+      "LinkInstagramAccountDto": {
+        "type": "object",
+        "properties": {
+          "instagramBusinessAccountId": {
+            "type": "string",
+            "description": "Instagram Business Account ID to link",
+            "example": "17841405309211844"
+          },
+          "facebookPageId": {
+            "type": "string",
+            "description": "Optional: Facebook Page ID (for verification)",
+            "example": "123456789012345"
+          }
+        },
+        "required": [
+          "instagramBusinessAccountId"
+        ]
+      },
+      "LinkAccountResponseDto": {
+        "type": "object",
+        "properties": {
+          "accountId": {
+            "type": "string",
+            "description": "Client account ID",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          "username": {
+            "type": "string",
+            "description": "Instagram username",
+            "example": "my_business_account"
+          },
+          "instagramBusinessAccountId": {
+            "type": "string",
+            "description": "Instagram Business Account ID",
+            "example": "17841405309211844"
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Instagram Business Account linked successfully"
+          }
+        },
+        "required": [
+          "accountId",
+          "username",
+          "instagramBusinessAccountId",
+          "message"
         ]
       },
       "AccountResponseDto": {
@@ -2246,6 +3518,695 @@
           "topPosts",
           "insights",
           "generatedAt"
+        ]
+      },
+      "ProductTagDto": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "description": "Product ID"
+          },
+          "x": {
+            "type": "number",
+            "description": "X coordinate (0-1)"
+          },
+          "y": {
+            "type": "number",
+            "description": "Y coordinate (0-1)"
+          }
+        },
+        "required": [
+          "productId",
+          "x",
+          "y"
+        ]
+      },
+      "CreateScheduledPostDto": {
+        "type": "object",
+        "properties": {
+          "clientAccountId": {
+            "type": "string",
+            "description": "Client account ID"
+          },
+          "scheduledFor": {
+            "type": "string",
+            "description": "Scheduled publish time (ISO 8601)"
+          },
+          "caption": {
+            "type": "string",
+            "description": "Post caption"
+          },
+          "mediaUrls": {
+            "description": "Media URLs (uploaded to S3)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Media type",
+            "enum": [
+              "IMAGE",
+              "VIDEO",
+              "CAROUSEL",
+              "REELS",
+              "STORIES"
+            ]
+          },
+          "productTags": {
+            "description": "Product tags for shopping posts",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductTagDto"
+            }
+          },
+          "locationId": {
+            "type": "string",
+            "description": "Location ID"
+          },
+          "templateId": {
+            "type": "string",
+            "description": "Template ID to use"
+          },
+          "templateVariables": {
+            "type": "object",
+            "description": "Template variables"
+          }
+        },
+        "required": [
+          "clientAccountId",
+          "scheduledFor",
+          "caption",
+          "mediaUrls",
+          "mediaType"
+        ]
+      },
+      "ScheduledPostResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "clientAccountId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "scheduledFor": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "publishedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "caption": {
+            "type": "string"
+          },
+          "mediaUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mediaType": {
+            "type": "string",
+            "enum": [
+              "IMAGE",
+              "VIDEO",
+              "CAROUSEL",
+              "REELS",
+              "STORIES"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "publishing",
+              "published",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "publishAttempts": {
+            "type": "number"
+          },
+          "lastPublishError": {
+            "type": "string"
+          },
+          "instagramMediaId": {
+            "type": "string"
+          },
+          "permalink": {
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "cancelledAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "clientAccountId",
+          "userId",
+          "scheduledFor",
+          "caption",
+          "mediaUrls",
+          "mediaType",
+          "status",
+          "publishAttempts",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PaginatedScheduledPostsResponseDto": {
+        "type": "object",
+        "properties": {
+          "posts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ScheduledPostResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "posts",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "UpdateScheduledPostDto": {
+        "type": "object",
+        "properties": {
+          "scheduledFor": {
+            "type": "string",
+            "description": "Scheduled publish time"
+          },
+          "caption": {
+            "type": "string",
+            "description": "Post caption"
+          },
+          "mediaUrls": {
+            "description": "Media URLs",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "productTags": {
+            "description": "Product tags",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductTagDto"
+            }
+          },
+          "locationId": {
+            "type": "string",
+            "description": "Location ID"
+          }
+        }
+      },
+      "CancelScheduledPostResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "scheduledPostId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "scheduledPostId",
+          "status"
+        ]
+      },
+      "PublishNowResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "scheduledPostId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "scheduledPostId",
+          "status"
+        ]
+      },
+      "MediaUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "originalFilename": {
+            "type": "string"
+          },
+          "mimeType": {
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "number"
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "s3Url": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "duration": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "filename",
+          "originalFilename",
+          "mimeType",
+          "fileSize",
+          "mediaType",
+          "s3Url",
+          "createdAt"
+        ]
+      },
+      "MediaAssetsListResponseDto": {
+        "type": "object",
+        "properties": {
+          "assets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaUploadResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "assets",
+          "total",
+          "page",
+          "limit"
+        ]
+      },
+      "DeleteMediaAssetResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "mediaId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "mediaId"
+        ]
+      },
+      "PostingScheduleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "clientAccountId": {
+            "type": "string"
+          },
+          "dayOfWeek": {
+            "type": "number",
+            "description": "Day of week (0-6, where 0 is Sunday)",
+            "minimum": 0,
+            "maximum": 6
+          },
+          "timeSlots": {
+            "description": "Time slots in HH:MM format",
+            "example": [
+              "09:00",
+              "14:00",
+              "20:00"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "isOptimal": {
+            "type": "boolean",
+            "description": "Whether this is an optimal time based on analytics"
+          },
+          "engagementScore": {
+            "type": "number",
+            "description": "Engagement score for this time slot (0-100)",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "clientAccountId",
+          "dayOfWeek",
+          "timeSlots",
+          "timezone",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "OptimalTimeSlotDto": {
+        "type": "object",
+        "properties": {
+          "dayOfWeek": {
+            "type": "number",
+            "description": "Day of week (0-6, where 0 is Sunday)"
+          },
+          "hour": {
+            "type": "number",
+            "description": "Hour of day (0-23)"
+          },
+          "averageEngagement": {
+            "type": "number",
+            "description": "Average engagement score (0-100)"
+          },
+          "sampleSize": {
+            "type": "number",
+            "description": "Number of posts sampled"
+          }
+        },
+        "required": [
+          "dayOfWeek",
+          "hour",
+          "averageEngagement",
+          "sampleSize"
+        ]
+      },
+      "OptimalPostingTimesResponseDto": {
+        "type": "object",
+        "properties": {
+          "schedules": {
+            "description": "Posting schedules for each day of week",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PostingScheduleDto"
+            }
+          },
+          "recommendations": {
+            "description": "Top 5 optimal posting times based on historical engagement",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OptimalTimeSlotDto"
+            }
+          },
+          "timezone": {
+            "type": "string",
+            "description": "User timezone"
+          },
+          "postsAnalyzed": {
+            "type": "number",
+            "description": "Number of posts analyzed"
+          },
+          "analysisPeriodDays": {
+            "type": "number",
+            "description": "Time period analyzed (in days)"
+          }
+        },
+        "required": [
+          "schedules",
+          "recommendations",
+          "timezone",
+          "postsAnalyzed",
+          "analysisPeriodDays"
+        ]
+      },
+      "ConversationResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "clientAccountId": {
+            "type": "string"
+          },
+          "platformConversationId": {
+            "type": "string"
+          },
+          "participantPlatformId": {
+            "type": "string"
+          },
+          "participantUsername": {
+            "type": "string"
+          },
+          "participantProfilePic": {
+            "type": "string"
+          },
+          "lastMessageAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "unreadCount": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "open",
+              "closed",
+              "archived"
+            ]
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "clientAccountId",
+          "platformConversationId",
+          "participantPlatformId",
+          "unreadCount",
+          "status",
+          "metadata",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ConversationListResponseDto": {
+        "type": "object",
+        "properties": {
+          "conversations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ConversationResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "conversations",
+          "total",
+          "limit",
+          "offset"
+        ]
+      },
+      "MessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "conversationId": {
+            "type": "string"
+          },
+          "platformMessageId": {
+            "type": "string"
+          },
+          "senderType": {
+            "type": "string",
+            "enum": [
+              "user",
+              "customer"
+            ]
+          },
+          "senderPlatformId": {
+            "type": "string"
+          },
+          "messageType": {
+            "type": "string",
+            "enum": [
+              "text",
+              "image",
+              "video",
+              "audio",
+              "story_mention",
+              "story_reply"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "mediaUrl": {
+            "type": "string"
+          },
+          "mediaType": {
+            "type": "string"
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "sentAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deliveredAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "readAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "conversationId",
+          "platformMessageId",
+          "senderType",
+          "messageType",
+          "isRead",
+          "sentAt",
+          "metadata",
+          "createdAt"
+        ]
+      },
+      "MessageListResponseDto": {
+        "type": "object",
+        "properties": {
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageResponseDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "offset": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "messages",
+          "total",
+          "limit",
+          "offset"
+        ]
+      },
+      "SendMessageDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "required": [
+          "text"
         ]
       }
     }

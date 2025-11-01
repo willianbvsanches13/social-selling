@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-021",
+  "phaseId": "P8",
+  "title": "Criar testes E2E para fluxo de conversação completo",
+  "description": "Criar testes end-to-end para fluxo completo: webhook recebe mensagem → aparece no inbox → usuário responde → mensagem enviada via API.",
+  "category": "testing",
+  "priority": "medium",
+  "estimatedHours": 3,
+  "dependencies": ["TASK-020"],
+  "files": [
+    "backend/test/e2e/messaging.e2e-spec.ts"
+  ],
+  "dod": [
+    "Teste E2E de webhook processando mensagem recebida",
+    "Teste E2E de listagem de conversas via API",
+    "Teste E2E de listagem de mensagens via API",
+    "Teste E2E de envio de mensagem via API",
+    "Teste E2E de validação de janela de 24h",
+    "Teste E2E de deduplicação de webhooks",
+    "Todos os testes passando",
+    "Coverage > 80% para módulo messaging"
+  ],
+  "technicalDetails": {
+    "packages": ["@nestjs/testing", "supertest"],
+    "envVars": [],
+    "migrations": null
+  }
+}

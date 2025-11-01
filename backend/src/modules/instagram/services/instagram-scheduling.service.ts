@@ -78,7 +78,9 @@ export class InstagramSchedulingService {
     this.logger.log(`Is before? ${scheduledDate.isBefore(now)}`);
 
     if (scheduledDate.isBefore(now)) {
-      throw new BadRequestException('Scheduled time must be at least 5 minutes in the future');
+      throw new BadRequestException(
+        'Scheduled time must be at least 5 minutes in the future',
+      );
     }
 
     // Validate not too far in future (max 6 months)
@@ -312,7 +314,9 @@ export class InstagramSchedulingService {
       const newScheduledDate = dayjs(dto.scheduledFor).utc();
       const now = dayjs().utc().subtract(5, 'minutes');
       if (newScheduledDate.isBefore(now)) {
-        throw new BadRequestException('Scheduled time must be at least 5 minutes in the future');
+        throw new BadRequestException(
+          'Scheduled time must be at least 5 minutes in the future',
+        );
       }
 
       post.updateScheduledTime(newScheduledDate.toDate());
@@ -441,7 +445,9 @@ export class InstagramSchedulingService {
 
       return this.mapToDto(updated);
     } catch (error) {
-      this.logger.error(`Failed to publish instantly: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.error(
+        `Failed to publish instantly: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       throw error;
     }
   }
@@ -709,7 +715,9 @@ export class InstagramSchedulingService {
       logs.push(`[2] Post found: ${post.caption.substring(0, 50)}...`);
 
       // Get account
-      const account = await this.accountRepository.findById(post.clientAccountId);
+      const account = await this.accountRepository.findById(
+        post.clientAccountId,
+      );
       if (!account) {
         throw new Error('Account not found');
       }
@@ -719,7 +727,9 @@ export class InstagramSchedulingService {
       logs.push(`[6] Account Status: ${account.status}`);
 
       // Get access token
-      const token = await this.oauthTokenRepository.findByClientAccountId(post.clientAccountId);
+      const token = await this.oauthTokenRepository.findByClientAccountId(
+        post.clientAccountId,
+      );
       let accessToken: string | null = null;
 
       if (token) {
@@ -739,11 +749,17 @@ export class InstagramSchedulingService {
 
       // Fallback to system token
       if (!accessToken) {
-        const systemToken = this.configService.get<string>('INSTAGRAM_SYSTEM_USER_TOKEN');
+        const systemToken = this.configService.get<string>(
+          'INSTAGRAM_SYSTEM_USER_TOKEN',
+        );
         if (systemToken) {
           accessToken = systemToken;
-          logs.push(`[11] Using system user token (length: ${systemToken.length})`);
-          logs.push(`[12] System token preview: ${systemToken.substring(0, 20)}...`);
+          logs.push(
+            `[11] Using system user token (length: ${systemToken.length})`,
+          );
+          logs.push(
+            `[12] System token preview: ${systemToken.substring(0, 20)}...`,
+          );
         } else {
           logs.push(`[11] No system user token configured`);
           throw new Error('No valid access token available');
@@ -758,12 +774,16 @@ export class InstagramSchedulingService {
         const testData = await testResponse.json();
 
         if (testData.error) {
-          logs.push(`[14] ❌ Token test FAILED: ${JSON.stringify(testData.error)}`);
+          logs.push(
+            `[14] ❌ Token test FAILED: ${JSON.stringify(testData.error)}`,
+          );
         } else {
           logs.push(`[14] ✅ Token test SUCCESS: ${JSON.stringify(testData)}`);
         }
       } catch (error) {
-        logs.push(`[14] ❌ Token test ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        logs.push(
+          `[14] ❌ Token test ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
       }
 
       // Log metadata
@@ -785,9 +805,13 @@ export class InstagramSchedulingService {
         const fbPagesData = await fbPagesResponse.json();
 
         if (fbPagesData.error) {
-          logs.push(`[18] ❌ Facebook Pages check FAILED: ${JSON.stringify(fbPagesData.error)}`);
+          logs.push(
+            `[18] ❌ Facebook Pages check FAILED: ${JSON.stringify(fbPagesData.error)}`,
+          );
         } else {
-          logs.push(`[18] ✅ Facebook Pages found: ${JSON.stringify(fbPagesData.data?.length || 0)} pages`);
+          logs.push(
+            `[18] ✅ Facebook Pages found: ${JSON.stringify(fbPagesData.data?.length || 0)} pages`,
+          );
 
           if (fbPagesData.data && fbPagesData.data.length > 0) {
             for (const page of fbPagesData.data) {
@@ -795,13 +819,19 @@ export class InstagramSchedulingService {
 
               // Check if page has Instagram Business Account
               if (page.instagram_business_account) {
-                logs.push(`[20] ✅ Instagram Business Account ID: ${page.instagram_business_account.id}`);
+                logs.push(
+                  `[20] ✅ Instagram Business Account ID: ${page.instagram_business_account.id}`,
+                );
               } else {
-                logs.push(`[20] ⚠️ Page "${page.name}" has NO Instagram Business Account linked`);
+                logs.push(
+                  `[20] ⚠️ Page "${page.name}" has NO Instagram Business Account linked`,
+                );
               }
             }
           } else {
-            logs.push(`[19] ⚠️ No Facebook pages found. You need to link your Instagram to a Facebook Page`);
+            logs.push(
+              `[19] ⚠️ No Facebook pages found. You need to link your Instagram to a Facebook Page`,
+            );
           }
         }
 
@@ -811,13 +841,18 @@ export class InstagramSchedulingService {
         const igAccountData = await igAccountResponse.json();
 
         if (igAccountData.error) {
-          logs.push(`[21] ❌ Instagram Account details FAILED: ${JSON.stringify(igAccountData.error)}`);
+          logs.push(
+            `[21] ❌ Instagram Account details FAILED: ${JSON.stringify(igAccountData.error)}`,
+          );
         } else {
-          logs.push(`[21] ✅ Instagram Account details: ${JSON.stringify(igAccountData)}`);
+          logs.push(
+            `[21] ✅ Instagram Account details: ${JSON.stringify(igAccountData)}`,
+          );
         }
-
       } catch (error) {
-        logs.push(`[16] ❌ Publishing test ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        logs.push(
+          `[16] ❌ Publishing test ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
       }
 
       return {
@@ -832,9 +867,10 @@ export class InstagramSchedulingService {
         tokenPreview: accessToken ? `${accessToken.substring(0, 20)}...` : null,
         logs,
       };
-
     } catch (error) {
-      logs.push(`[ERROR] ${error instanceof Error ? error.message : 'Unknown error'}`);
+      logs.push(
+        `[ERROR] ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',

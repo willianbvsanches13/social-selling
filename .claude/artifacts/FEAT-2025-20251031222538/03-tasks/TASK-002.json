@@ -1,0 +1,25 @@
+{
+  "taskId": "TASK-002",
+  "phaseId": "P1",
+  "title": "Integrar WebhookMessageHandler no webhook-events.processor",
+  "description": "Integrar o WebhookMessageHandler no processador de eventos de webhook existente (webhook-events.processor.ts) para que eventos MESSAGE sejam processados automaticamente.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "backend/src/workers/processors/webhook-events.processor.ts"
+  ],
+  "dod": [
+    "WebhookMessageHandler injetado no processor",
+    "Roteamento de eventos MESSAGE para o handler implementado",
+    "Eventos processados marcados como processed no banco",
+    "Eventos falhados marcados com erro e retry count",
+    "Logging de sucesso/falha de processamento"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

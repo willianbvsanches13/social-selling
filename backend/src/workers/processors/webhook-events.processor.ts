@@ -1,6 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger, Inject } from '@nestjs/common';
 import { Job } from 'bullmq';
+import * as crypto from 'crypto';
 import {
   WebhookEventJobData,
   WebhookEventJobResult,
@@ -13,6 +14,7 @@ import { EventNormalizerService } from '../services/event-normalizer.service';
 import { AutoReplyService } from '../services/auto-reply.service';
 import { EventAnalyticsService } from '../services/event-analytics.service';
 import { Database } from '../../infrastructure/database/database';
+import { WebhookMessageHandler } from '../../modules/instagram/handlers/webhook-message.handler';
 
 /**
  * Webhook Events Processor
@@ -32,6 +34,7 @@ export class WebhookEventsProcessor extends WorkerHost {
     private normalizerService: EventNormalizerService,
     private autoReplyService: AutoReplyService,
     private analyticsService: EventAnalyticsService,
+    private webhookMessageHandler: WebhookMessageHandler,
   ) {
     super();
     this.logger.log('Webhook Events Processor initialized with concurrency: 5');
@@ -197,6 +200,7 @@ export class WebhookEventsProcessor extends WorkerHost {
           break;
 
         case WebhookEventType.MESSAGE:
+          // Use new WebhookMessageHandler for message processing
           await this.storeMessage(accountId, event);
           break;
 
@@ -220,7 +224,9 @@ export class WebhookEventsProcessor extends WorkerHost {
           break;
 
         case WebhookEventType.MESSAGING_SEEN:
-          this.logger.log(`Storing messaging seen event for account: ${accountId}`);
+          this.logger.log(
+            `Storing messaging seen event for account: ${accountId}`,
+          );
           await this.storeMessagingSeen(event, accountId);
           break;
 
@@ -299,32 +305,48 @@ export class WebhookEventsProcessor extends WorkerHost {
   private async storeMessage(accountId: string, message: any): Promise<void> {
     // Check if conversation exists, create if not
     await this.database.none(
-      `INSERT INTO conversations (id, account_id, participant_id, participant_username)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (id) DO NOTHING`,
+      `INSERT INTO conversations (
+        id, client_account_id, platform_conversation_id,
+        participant_platform_id, participant_username,
+        unread_count, status, metadata
+      )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (client_account_id, platform_conversation_id) DO NOTHING`,
       [
-        message.conversationId,
+        crypto.randomUUID(),
         accountId,
+        message.conversationId,
         message.from.id,
         message.from.username || 'unknown',
+        0,
+        'open',
+        JSON.stringify({}),
       ],
     );
 
     // Store message
     await this.database.none(
       `INSERT INTO messages
-       (id, conversation_id, text, attachments, timestamp, from_id, is_echo, raw_data)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       ON CONFLICT (id) DO NOTHING`,
+       (id, conversation_id, platform_message_id, sender_type, sender_platform_id,
+        message_type, content, sent_at, is_read, metadata)
+       VALUES ($1, (
+         SELECT id FROM conversations
+         WHERE client_account_id = $2 AND platform_conversation_id = $3
+         LIMIT 1
+       ), $4, $5, $6, $7, $8, $9, $10, $11)
+       ON CONFLICT (platform_message_id) DO NOTHING`,
       [
-        message.id,
+        crypto.randomUUID(),
+        accountId,
         message.conversationId,
-        message.text || null,
-        message.attachments ? JSON.stringify(message.attachments) : null,
-        message.timestamp,
+        message.id,
+        message.isEcho ? 'user' : 'customer',
         message.from.id,
-        message.isEcho || false,
-        message,
+        message.attachments && message.attachments.length > 0 ? 'image' : 'text',
+        message.text || '',
+        message.timestamp,
+        false,
+        JSON.stringify(message),
       ],
     );
   }

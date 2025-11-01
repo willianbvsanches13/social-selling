@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-022",
+  "phaseId": "P8",
+  "title": "Criar testes unitários para services e handlers",
+  "description": "Criar testes unitários para ConversationService, MessagingService e WebhookMessageHandler.",
+  "category": "testing",
+  "priority": "low",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-020"],
+  "files": [
+    "backend/src/modules/messaging/services/conversation.service.spec.ts",
+    "backend/src/modules/messaging/services/messaging.service.spec.ts",
+    "backend/src/modules/instagram/handlers/webhook-message.handler.spec.ts"
+  ],
+  "dod": [
+    "ConversationService totalmente testado com mocks",
+    "MessagingService totalmente testado com mocks",
+    "WebhookMessageHandler testado com payloads variados",
+    "Edge cases cobertos (janela expirada, permissão negada, etc)",
+    "Todos os testes passando",
+    "Coverage > 90% nos services"
+  ],
+  "technicalDetails": {
+    "packages": ["@nestjs/testing", "jest"],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "webhooks": [
+    {
+      "description": "Mensagem de @user1 (cliente)",
+      "payload": {
+        "entry": [
+          {
+            "id": "17841403506636395",
+            "time": 1761939354463,
+            "messaging": [
+              {
+                "sender": {
+                  "id": "1378516947077414"
+                },
+                "message": {
+                  "mid": "msg_001",
+                  "text": "Oi! Gostaria de saber mais sobre os produtos"
+                },
+                "recipient": {
+                  "id": "17841403506636395"
+                },
+                "timestamp": 1761938903034
+              }
+            ]
+          }
+        ],
+        "object": "instagram"
+      }
+    },
+    {
+      "description": "Mensagem de @user2 (cliente)",
+      "payload": {
+        "entry": [
+          {
+            "id": "17841403506636395",
+            "time": 1761939378473,
+            "messaging": [
+              {
+                "sender": {
+                  "id": "2149642518895477"
+                },
+                "message": {
+                  "mid": "msg_002",
+                  "text": "Olá, vi seu post no Instagram e me interessei"
+                },
+                "recipient": {
+                  "id": "17841403506636395"
+                },
+                "timestamp": 1761925076572
+              }
+            ]
+          }
+        ],
+        "object": "instagram"
+      }
+    },
+    {
+      "description": "Segunda mensagem de @user2",
+      "payload": {
+        "entry": [
+          {
+            "id": "17841403506636395",
+            "time": 1761939378689,
+            "messaging": [
+              {
+                "sender": {
+                  "id": "2149642518895477"
+                },
+                "message": {
+                  "mid": "msg_003",
+                  "text": "Vocês fazem entrega para São Paulo?"
+                },
+                "recipient": {
+                  "id": "17841403506636395"
+                },
+                "timestamp": 1761925081334
+              }
+            ]
+          }
+        ],
+        "object": "instagram"
+      }
+    },
+    {
+      "description": "Resposta do sistema (echo)",
+      "payload": {
+        "entry": [
+          {
+            "id": "17841403506636395",
+            "time": 1761939379134,
+            "messaging": [
+              {
+                "sender": {
+                  "id": "17841403506636395"
+                },
+                "message": {
+                  "mid": "msg_004",
+                  "text": "Sim, fazemos entrega em toda região metropolitana!",
+                  "is_echo": true
+                },
+                "recipient": {
+                  "id": "2149642518895477"
+                },
+                "timestamp": 1761925109205
+              }
+            ]
+          }
+        ],
+        "object": "instagram"
+      }
+    },
+    {
+      "description": "Terceira mensagem de @user2",
+      "payload": {
+        "entry": [
+          {
+            "id": "17841403506636395",
+            "time": 1761939380000,
+            "messaging": [
+              {
+                "sender": {
+                  "id": "2149642518895477"
+                },
+                "message": {
+                  "mid": "msg_005",
+                  "text": "Perfeito! Qual o prazo de entrega?"
+                },
+                "recipient": {
+                  "id": "17841403506636395"
+                },
+                "timestamp": 1761925120000
+              }
+            ]
+          }
+        ],
+        "object": "instagram"
+      }
+    },
+    {
+      "description": "Segunda mensagem de @user1",
+      "payload": {
+        "entry": [
+          {
+            "id": "17841403506636395",
+            "time": 1761939385000,
+            "messaging": [
+              {
+                "sender": {
+                  "id": "1378516947077414"
+                },
+                "message": {
+                  "mid": "msg_006",
+                  "text": "Vocês aceitam cartão de crédito?"
+                },
+                "recipient": {
+                  "id": "17841403506636395"
+                },
+                "timestamp": 1761938950000
+              }
+            ]
+          }
+        ],
+        "object": "instagram"
+      }
+    },
+    {
+      "description": "Mensagem de @user3 (novo cliente)",
+      "payload": {
+        "entry": [
+          {
+            "id": "17841403506636395",
+            "time": 1761939390000,
+            "messaging": [
+              {
+                "sender": {
+                  "id": "3456789012345678"
+                },
+                "message": {
+                  "mid": "msg_007",
+                  "text": "Boa tarde! Vocês têm estoque disponível?"
+                },
+                "recipient": {
+                  "id": "17841403506636395"
+                },
+                "timestamp": 1761939000000
+              }
+            ]
+          }
+        ],
+        "object": "instagram"
+      }
+    },
+    {
+      "description": "Mensagem com emoji de @user3",
+      "payload": {
+        "entry": [
+          {
+            "id": "17841403506636395",
+            "time": 1761939395000,
+            "messaging": [
+              {
+                "sender": {
+                  "id": "3456789012345678"
+                },
+                "message": {
+                  "mid": "msg_008",
+                  "text": "Adorei os produtos! 😍🛍️"
+                },
+                "recipient": {
+                  "id": "17841403506636395"
+                },
+                "timestamp": 1761939010000
+              }
+            ]
+          }
+        ],
+        "object": "instagram"
+      }
+    }
+  ]
+}

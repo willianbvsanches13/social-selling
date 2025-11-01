@@ -236,7 +236,9 @@ export class InstagramController {
     description: 'Account not found or not accessible',
   })
   async getAccountDetails(@Param('id') accountId: string) {
-    this.logger.log(`Getting details for Instagram Business Account ${accountId}`);
+    this.logger.log(
+      `Getting details for Instagram Business Account ${accountId}`,
+    );
     return this.instagramSystemAccountsService.getAccountDetails(accountId);
   }
 
@@ -276,10 +278,11 @@ export class InstagramController {
       );
 
     // Link the account using the account service
-    const clientAccount = await this.instagramAccountService.linkBusinessAccount(
-      req.user.id,
-      accountDetails,
-    );
+    const clientAccount =
+      await this.instagramAccountService.linkBusinessAccount(
+        req.user.id,
+        accountDetails,
+      );
 
     this.logger.log(
       `Instagram Business Account ${accountDetails.username} linked successfully`,

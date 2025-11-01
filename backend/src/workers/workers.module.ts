@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -46,7 +46,7 @@ import { InstagramModule } from '../modules/instagram/instagram.module';
     // Import database module for database access
     DatabaseModule,
     // Import Instagram module for OAuth service
-    InstagramModule,
+    forwardRef(() => InstagramModule),
     // Configure BullMQ with Redis connection
     BullModule.forRootAsync({
       imports: [ConfigModule],

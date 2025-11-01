@@ -37,12 +37,15 @@ async function bootstrap() {
     const express = require('express');
 
     // Special handling for Instagram webhooks - capture raw body for signature verification
-    app.use('/api/instagram/webhooks', express.json({
-      limit: '10mb',
-      verify: (req: any, _res: any, buf: Buffer) => {
-        req.rawBody = buf;
-      }
-    }));
+    app.use(
+      '/api/instagram/webhooks',
+      express.json({
+        limit: '10mb',
+        verify: (req: any, _res: any, buf: Buffer) => {
+          req.rawBody = buf;
+        },
+      }),
+    );
 
     // Standard body parser for all other routes (up to 100MB for file uploads)
     app.use(express.json({ limit: '100mb' }));

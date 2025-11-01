@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Criar WebhookMessageHandler para processar eventos MESSAGE",
+  "description": "Criar handler especializado para processar eventos de mensagens recebidos via webhook do Instagram. O handler deve extrair dados da mensagem, criar/atualizar conversação e criar registro de mensagem no banco de dados.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 2,
+  "dependencies": [],
+  "files": [
+    "backend/src/modules/instagram/handlers/webhook-message.handler.ts"
+  ],
+  "dod": [
+    "Handler criado com método processMessageEvent()",
+    "Extração correta de dados do payload do webhook (senderId, recipientId, messageId, text, attachments)",
+    "Lógica de criação/atualização de Conversation implementada",
+    "Lógica de criação de Message implementada",
+    "Tratamento de diferentes tipos de mensagem (TEXT, IMAGE, VIDEO, STORY_MENTION, STORY_REPLY)",
+    "Error handling e logging adequados"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

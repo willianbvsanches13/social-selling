@@ -93,7 +93,9 @@ export class MediaDownloaderService {
       // Validate and auto-adjust media if needed
       const adjustedResult = await this.validateAndAdjustMedia(result);
 
-      this.logger.log(`Media downloaded successfully: ${adjustedResult.fileName}`);
+      this.logger.log(
+        `Media downloaded successfully: ${adjustedResult.fileName}`,
+      );
       return adjustedResult;
     } catch (error: unknown) {
       const errorMessage =

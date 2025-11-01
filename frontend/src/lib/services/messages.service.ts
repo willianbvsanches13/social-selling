@@ -7,8 +7,8 @@ import type {
   SendMessageRequest,
   ConversationFilters,
   MessageFilters,
-  ConversationsResponse,
-  MessagesResponse,
+  ConversationListResponse,
+  MessageListResponse,
 } from '@/types/message';
 
 export const messagesService = {
@@ -18,8 +18,8 @@ export const messagesService = {
   async getConversations(
     accountId: string,
     params?: ConversationFilters
-  ): Promise<ConversationsResponse> {
-    const response = await apiClient.get<ConversationsResponse>(
+  ): Promise<ConversationListResponse> {
+    const response = await apiClient.get<ConversationListResponse>(
       API_ENDPOINTS.CONVERSATIONS,
       { params: { accountId, ...params } }
     );
@@ -42,8 +42,8 @@ export const messagesService = {
   async getMessages(
     conversationId: string,
     params?: MessageFilters
-  ): Promise<MessagesResponse> {
-    const response = await apiClient.get<MessagesResponse>(
+  ): Promise<MessageListResponse> {
+    const response = await apiClient.get<MessageListResponse>(
       API_ENDPOINTS.CONVERSATION_MESSAGES(conversationId),
       { params }
     );
@@ -53,9 +53,9 @@ export const messagesService = {
   /**
    * Send a new message
    */
-  async sendMessage(data: SendMessageRequest): Promise<Message> {
+  async sendMessage(conversationId: string, data: SendMessageRequest): Promise<Message> {
     const response = await apiClient.post<Message>(
-      API_ENDPOINTS.CONVERSATION_MESSAGES(data.conversationId),
+      API_ENDPOINTS.CONVERSATION_SEND_MESSAGE(conversationId),
       data
     );
     return response.data!;
@@ -68,19 +68,20 @@ export const messagesService = {
     await apiClient.post(API_ENDPOINTS.CONVERSATION_READ(conversationId));
   },
 
-  /**
-   * Archive a conversation
-   */
-  async archiveConversation(conversationId: string): Promise<void> {
-    await apiClient.post(API_ENDPOINTS.CONVERSATION_ARCHIVE(conversationId));
-  },
+  // TODO: Implement archive/unarchive endpoints in backend
+  // /**
+  //  * Archive a conversation
+  //  */
+  // async archiveConversation(conversationId: string): Promise<void> {
+  //   await apiClient.post(API_ENDPOINTS.CONVERSATION_ARCHIVE(conversationId));
+  // },
 
-  /**
-   * Unarchive a conversation
-   */
-  async unarchiveConversation(conversationId: string): Promise<void> {
-    await apiClient.post(API_ENDPOINTS.CONVERSATION_UNARCHIVE(conversationId));
-  },
+  // /**
+  //  * Unarchive a conversation
+  //  */
+  // async unarchiveConversation(conversationId: string): Promise<void> {
+  //   await apiClient.post(API_ENDPOINTS.CONVERSATION_UNARCHIVE(conversationId));
+  // },
 
   /**
    * Get message templates

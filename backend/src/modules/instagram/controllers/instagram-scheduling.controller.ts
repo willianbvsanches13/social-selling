@@ -218,7 +218,10 @@ export class InstagramSchedulingController {
     @Request() req: any,
     @Body() dto: CreateScheduledPostDto,
   ): Promise<PublishNowResponseDto> {
-    const result = await this.schedulingService.publishInstantly(req.user.id, dto);
+    const result = await this.schedulingService.publishInstantly(
+      req.user.id,
+      dto,
+    );
     return {
       message: 'Post published successfully',
       scheduledPostId: result.id,

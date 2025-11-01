@@ -163,10 +163,7 @@ export class InstagramAccountService {
   /**
    * Sync account metadata from Instagram API
    */
-  async syncAccount(
-    userId: string,
-    accountId: string,
-  ): Promise<ClientAccount> {
+  async syncAccount(userId: string, accountId: string): Promise<ClientAccount> {
     const account = await this.accountRepository.findById(accountId);
 
     if (!account) {
@@ -189,7 +186,10 @@ export class InstagramAccountService {
 
     try {
       // Fetch profile data from Instagram Graph API using platform account ID
-      const profile = await this.instagramApi.getUserProfile(accountId, account.platformAccountId);
+      const profile = await this.instagramApi.getUserProfile(
+        accountId,
+        account.platformAccountId,
+      );
 
       // Update account with fresh metadata
       account.updateMetadata({
@@ -246,7 +246,10 @@ export class InstagramAccountService {
 
     // Test API connection
     try {
-      const isValid = await this.instagramApi.testToken(accountId, account.platformAccountId);
+      const isValid = await this.instagramApi.testToken(
+        accountId,
+        account.platformAccountId,
+      );
 
       if (isValid) {
         account.reactivate();

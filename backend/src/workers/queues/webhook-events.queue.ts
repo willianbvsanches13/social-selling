@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bullmq';
+import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../infrastructure/cache/redis.service';
 import { WebhookEventType } from '../services/event-deduplication.service';
 
@@ -39,13 +40,21 @@ export class WebhookEventsQueue {
   private readonly queue: Queue<WebhookEventJobData, WebhookEventJobResult>;
   private readonly QUEUE_NAME = 'instagram-webhook-events';
 
-  constructor(private redisService: RedisService) {
-    const redisClient = this.redisService.getClient();
+  constructor(
+    private redisService: RedisService,
+    private configService: ConfigService,
+  ) {
+    const redisConfig = this.configService.get('redis');
 
     this.queue = new Queue<WebhookEventJobData, WebhookEventJobResult>(
       this.QUEUE_NAME,
       {
-        connection: redisClient,
+        connection: {
+          host: redisConfig.host,
+          port: redisConfig.port,
+          password: redisConfig.password,
+          db: redisConfig.db || 0,
+        },
         defaultJobOptions: {
           attempts: 3,
           backoff: {

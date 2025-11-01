@@ -1,0 +1,389 @@
+{
+  "planId": "PLAN-2025-20251031222538",
+  "featureId": "FEAT-2025-20251031222538",
+  "timestamp": "2025-10-31T22:30:00Z",
+  "architecture": {
+    "approach": "modular-monolith",
+    "patterns": [
+      "Repository Pattern",
+      "Domain-Driven Design",
+      "Service Layer Pattern",
+      "DTO Pattern",
+      "Event-Driven (BullMQ)",
+      "RESTful API"
+    ],
+    "components": [
+      {
+        "name": "MessageRepository",
+        "type": "backend-repository",
+        "action": "complete",
+        "technology": "TypeORM/pg-promise",
+        "description": "Repository para persistência de mensagens (parcialmente implementado)"
+      },
+      {
+        "name": "ConversationRepository",
+        "type": "backend-repository",
+        "action": "complete",
+        "technology": "TypeORM/pg-promise",
+        "description": "Repository para persistência de conversas (já implementado)"
+      },
+      {
+        "name": "ConversationService",
+        "type": "backend-service",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "Service para lógica de negócio de conversas"
+      },
+      {
+        "name": "MessagingService",
+        "type": "backend-service",
+        "action": "extend",
+        "technology": "NestJS",
+        "description": "Estender service existente com funcionalidades completas"
+      },
+      {
+        "name": "WebhookMessageHandler",
+        "type": "backend-handler",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "Handler para processar eventos MESSAGE do webhook"
+      },
+      {
+        "name": "MessagingController",
+        "type": "backend-controller",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "REST API para conversas e mensagens"
+      },
+      {
+        "name": "MessagingModule",
+        "type": "backend-module",
+        "action": "complete",
+        "technology": "NestJS",
+        "description": "Módulo NestJS para mensageria"
+      },
+      {
+        "name": "ConversationList Component",
+        "type": "frontend-component",
+        "action": "enhance",
+        "technology": "React/Next.js",
+        "description": "Componente para listar conversas (já existe, precisa integrar API)"
+      },
+      {
+        "name": "MessageThread Component",
+        "type": "frontend-component",
+        "action": "enhance",
+        "technology": "React/Next.js",
+        "description": "Componente para thread de mensagens (já existe, precisa integrar API)"
+      },
+      {
+        "name": "MessageInput Component",
+        "type": "frontend-component",
+        "action": "enhance",
+        "technology": "React/Next.js",
+        "description": "Componente para enviar mensagens (já existe, precisa integrar API)"
+      },
+      {
+        "name": "Inbox Page",
+        "type": "frontend-page",
+        "action": "enhance",
+        "technology": "Next.js App Router",
+        "description": "Página inbox já existe, precisa integrar com API real"
+      },
+      {
+        "name": "Messaging API Client",
+        "type": "frontend-api-client",
+        "action": "create",
+        "technology": "Axios/Fetch",
+        "description": "Client para comunicação com backend API"
+      },
+      {
+        "name": "Instagram Send API Integration",
+        "type": "external-integration",
+        "action": "extend",
+        "technology": "Instagram Graph API",
+        "description": "Integração já existe no InstagramApiService, validar funcionamento"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Backend - Webhook Message Processing",
+      "order": 1,
+      "estimatedHours": 4,
+      "components": [
+        "WebhookMessageHandler",
+        "Extend webhook-events.processor.ts"
+      ],
+      "dependencies": [],
+      "tasks": [
+        "Criar handler para processar eventos MESSAGE do webhook",
+        "Implementar criação/atualização de Conversation ao receber mensagem",
+        "Implementar criação de Message ao receber mensagem do cliente",
+        "Adicionar lógica de deduplicação de mensagens",
+        "Integrar handler no webhook-events.processor.ts",
+        "Testar processamento de webhook com payload real"
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Backend - Services & Business Logic",
+      "order": 2,
+      "estimatedHours": 5,
+      "components": [
+        "ConversationService",
+        "MessagingService extension",
+        "MessageRepository completion"
+      ],
+      "dependencies": ["P1"],
+      "tasks": [
+        "Implementar ConversationService com métodos list, get, markAsRead",
+        "Completar MessageRepository com findByConversation, countUnread",
+        "Estender MessagingService com validações de janela de resposta",
+        "Implementar lógica de contador de mensagens não lidas",
+        "Adicionar suporte para diferentes tipos de mensagem (texto, mídia)",
+        "Implementar paginação eficiente em queries"
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Backend - REST API Controllers",
+      "order": 3,
+      "estimatedHours": 4,
+      "components": [
+        "MessagingController",
+        "DTOs",
+        "Guards"
+      ],
+      "dependencies": ["P2"],
+      "tasks": [
+        "Criar GET /api/messaging/conversations - listar conversas",
+        "Criar GET /api/messaging/conversations/:id - obter conversa específica",
+        "Criar GET /api/messaging/conversations/:id/messages - listar mensagens",
+        "Criar POST /api/messaging/conversations/:id/messages - enviar mensagem",
+        "Criar PATCH /api/messaging/conversations/:id/read - marcar como lida",
+        "Criar DTOs de request/response",
+        "Adicionar guards de autenticação",
+        "Documentar endpoints com Swagger"
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Backend - Module Integration & Testing",
+      "order": 4,
+      "estimatedHours": 3,
+      "components": [
+        "MessagingModule",
+        "Integration with InstagramModule"
+      ],
+      "dependencies": ["P3"],
+      "tasks": [
+        "Configurar MessagingModule com providers e exports",
+        "Registrar módulo no AppModule",
+        "Validar integração com InstagramApiService",
+        "Criar testes unitários para ConversationService",
+        "Criar testes unitários para MessagingService",
+        "Criar testes de integração para webhook processing"
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Frontend - API Client & Hooks",
+      "order": 5,
+      "estimatedHours": 3,
+      "components": [
+        "Messaging API Client",
+        "React Query hooks"
+      ],
+      "dependencies": ["P3"],
+      "tasks": [
+        "Criar api/messaging.ts com métodos HTTP",
+        "Implementar useConversations hook com React Query",
+        "Implementar useMessages hook com paginação",
+        "Implementar useSendMessage mutation",
+        "Implementar useMarkAsRead mutation",
+        "Configurar polling/refetch automático para novas mensagens",
+        "Adicionar tratamento de erros e loading states"
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "Frontend - Components Integration",
+      "order": 6,
+      "estimatedHours": 5,
+      "components": [
+        "ConversationList",
+        "MessageThread",
+        "MessageInput",
+        "Inbox Page"
+      ],
+      "dependencies": ["P5"],
+      "tasks": [
+        "Integrar ConversationList com useConversations hook",
+        "Adicionar busca e filtros em ConversationList",
+        "Integrar MessageThread com useMessages hook",
+        "Implementar scroll infinito para mensagens antigas",
+        "Integrar MessageInput com useSendMessage mutation",
+        "Adicionar feedback visual de envio (loading, error, success)",
+        "Implementar indicadores de mensagens não lidas",
+        "Adicionar suporte para diferentes tipos de mensagem (texto, mídia)",
+        "Implementar auto-scroll para novas mensagens"
+      ]
+    },
+    {
+      "phaseId": "P7",
+      "name": "Frontend - UX Enhancements",
+      "order": 7,
+      "estimatedHours": 3,
+      "components": [
+        "Real-time updates",
+        "Optimistic UI",
+        "Error handling"
+      ],
+      "dependencies": ["P6"],
+      "tasks": [
+        "Implementar polling a cada 5s para novas mensagens",
+        "Adicionar optimistic updates ao enviar mensagem",
+        "Implementar skeleton loaders",
+        "Adicionar empty states para conversas e mensagens",
+        "Implementar error boundaries",
+        "Adicionar toast notifications para sucesso/erro",
+        "Melhorar responsividade mobile"
+      ]
+    },
+    {
+      "phaseId": "P8",
+      "name": "E2E Testing & Documentation",
+      "order": 8,
+      "estimatedHours": 4,
+      "components": [
+        "E2E tests",
+        "API documentation",
+        "User guide"
+      ],
+      "dependencies": ["P7"],
+      "tasks": [
+        "Criar testes E2E para fluxo de webhook → database",
+        "Criar testes E2E para fluxo de envio de mensagem",
+        "Criar testes E2E para listagem de conversas/mensagens",
+        "Testar com payloads reais do Instagram",
+        "Validar rate limiting e retry logic",
+        "Documentar API endpoints no Swagger",
+        "Criar guia de uso para frontend",
+        "Adicionar monitoring/logging de mensagens"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "Mensagens recebidas via webhook do Instagram são persistidas corretamente no banco de dados",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "E2E test com payload webhook real"
+    },
+    {
+      "id": "AC-002",
+      "description": "Conversas são criadas automaticamente ao receber primeira mensagem de um participante",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Unit test do WebhookMessageHandler"
+    },
+    {
+      "id": "AC-003",
+      "description": "API GET /api/messaging/conversations retorna lista paginada de conversas",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Integration test do controller"
+    },
+    {
+      "id": "AC-004",
+      "description": "API GET /api/messaging/conversations/:id/messages retorna mensagens da conversa com paginação",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Integration test do controller"
+    },
+    {
+      "id": "AC-005",
+      "description": "API POST /api/messaging/conversations/:id/messages envia mensagem via Instagram e persiste no banco",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "E2E test com mock do Instagram API"
+    },
+    {
+      "id": "AC-006",
+      "description": "Validação de janela de 24h impede envio de mensagens após expiração",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Unit test do MessagingService"
+    },
+    {
+      "id": "AC-007",
+      "description": "Frontend exibe lista de conversas ordenadas por última mensagem",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Component test + visual verification"
+    },
+    {
+      "id": "AC-008",
+      "description": "Frontend exibe thread de mensagens com scroll e paginação",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Component test + visual verification"
+    },
+    {
+      "id": "AC-009",
+      "description": "Usuário consegue enviar mensagem de texto e recebe feedback visual",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "E2E test do fluxo completo"
+    },
+    {
+      "id": "AC-010",
+      "description": "Contador de mensagens não lidas é atualizado corretamente",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Integration test do ConversationService"
+    },
+    {
+      "id": "AC-011",
+      "description": "Listagem de conversas responde em < 500ms para 1000 conversas",
+      "type": "performance",
+      "testable": true,
+      "testMethod": "Load test com dados simulados"
+    },
+    {
+      "id": "AC-012",
+      "description": "Deduplicação de webhooks impede mensagens duplicadas",
+      "type": "reliability",
+      "testable": true,
+      "testMethod": "E2E test enviando webhook duplicado"
+    },
+    {
+      "id": "AC-013",
+      "description": "Interface frontend é responsiva em mobile, tablet e desktop",
+      "type": "usability",
+      "testable": true,
+      "testMethod": "Visual regression tests em diferentes viewports"
+    },
+    {
+      "id": "AC-014",
+      "description": "Novas mensagens aparecem automaticamente no frontend sem refresh manual",
+      "type": "usability",
+      "testable": true,
+      "testMethod": "E2E test com polling"
+    }
+  ],
+  "estimatedTotalHours": 31,
+  "notes": [
+    "Entidades Conversation e Message já existem no domínio",
+    "Migrations 007 e 008 já criaram as tabelas necessárias",
+    "ConversationRepository já está implementado",
+    "MessageRepository precisa ser completado",
+    "MessagingService já existe mas precisa de extensões",
+    "InstagramApiService.sendMessage() já está implementado",
+    "Componentes frontend já existem mas precisam de integração com API real",
+    "Considerar implementar WebSocket no futuro para substituir polling"
+  ]
+}

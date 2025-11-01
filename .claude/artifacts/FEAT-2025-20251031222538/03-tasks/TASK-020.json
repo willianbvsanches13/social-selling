@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-020",
+  "phaseId": "P7",
+  "title": "Implementar UX enhancements (optimistic updates, toasts, skeletons)",
+  "description": "Adicionar melhorias de UX como optimistic updates, toast notifications, skeleton loaders e error boundaries.",
+  "category": "frontend",
+  "priority": "medium",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-019"],
+  "files": [
+    "frontend/src/components/messages/ConversationList.tsx",
+    "frontend/src/components/messages/MessageThread.tsx",
+    "frontend/src/components/messages/MessageInput.tsx"
+  ],
+  "dod": [
+    "Optimistic update ao enviar mensagem (aparece instantaneamente)",
+    "Toast de sucesso/erro ao enviar mensagem",
+    "Skeleton loader na lista de conversas",
+    "Skeleton loader na thread de mensagens",
+    "Empty states com ilustração e call-to-action",
+    "Error boundary para capturar crashes",
+    "Retry button em caso de erro de rede"
+  ],
+  "technicalDetails": {
+    "packages": ["react-hot-toast"],
+    "envVars": [],
+    "migrations": null
+  }
+}

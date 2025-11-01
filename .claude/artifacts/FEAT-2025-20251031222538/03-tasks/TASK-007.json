@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-007",
+  "phaseId": "P3",
+  "title": "Criar DTOs para API de mensagens",
+  "description": "Criar DTOs de request/response para endpoints de mensagens com validações.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": [],
+  "files": [
+    "backend/src/modules/messaging/dto/message.dto.ts",
+    "backend/src/modules/messaging/dto/send-message.dto.ts"
+  ],
+  "dod": [
+    "MessageResponseDto criado com todos os campos",
+    "MessageListResponseDto com paginação",
+    "SendMessageDto com validação de conteúdo",
+    "MessageFilterDto com limit/offset",
+    "Swagger decorators adicionados",
+    "Enum para MessageType exportado"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-016",
+  "phaseId": "P6",
+  "title": "Integrar ConversationList com API real",
+  "description": "Integrar o componente ConversationList existente com hooks e API real, removendo dados mockados.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-014"],
+  "files": [
+    "frontend/src/components/messages/ConversationList.tsx"
+  ],
+  "dod": [
+    "Uso de useConversations hook implementado",
+    "Remoção de dados mockados",
+    "Implementação de busca/filtros funcionais",
+    "Ordenação por lastMessageAt",
+    "Indicador de mensagens não lidas (badge)",
+    "Loading skeleton durante fetch",
+    "Empty state quando sem conversas",
+    "Tratamento de erros com retry"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

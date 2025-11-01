@@ -61,7 +61,7 @@ export function ConversationList({
             <div className="relative">
               <img
                 src={conversation.participantProfilePic}
-                alt={conversation.participantName}
+                alt={conversation.participantUsername}
                 className="h-12 w-12 rounded-full object-cover"
               />
               {conversation.unreadCount > 0 && (
@@ -75,30 +75,28 @@ export function ConversationList({
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-900">
-                    {conversation.participantName}
+                    {conversation.participantUsername}
                   </h4>
                   <p className="text-xs text-gray-600">
                     @{conversation.participantUsername}
                   </p>
                 </div>
                 <span className="text-xs text-gray-500">
-                  {conversation.lastMessage &&
-                    formatRelativeTime(conversation.lastMessage.timestamp)}
+                  {conversation.lastMessageAt &&
+                    formatRelativeTime(conversation.lastMessageAt)}
                 </span>
               </div>
 
-              {conversation.lastMessage && (
-                <p
-                  className={cn(
-                    'mt-1 truncate text-sm',
-                    conversation.unreadCount > 0
-                      ? 'font-medium text-gray-900'
-                      : 'text-gray-600'
-                  )}
-                >
-                  {conversation.lastMessage.text || 'Media'}
-                </p>
-              )}
+              <p
+                className={cn(
+                  'mt-1 truncate text-sm',
+                  conversation.unreadCount > 0
+                    ? 'font-medium text-gray-900'
+                    : 'text-gray-600'
+                )}
+              >
+                {conversation.unreadCount > 0 ? `${conversation.unreadCount} new messages` : 'No new messages'}
+              </p>
             </div>
           </div>
 

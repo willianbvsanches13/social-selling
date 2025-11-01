@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-019",
+  "phaseId": "P6",
+  "title": "Integrar página Inbox com componentes",
+  "description": "Integrar a página /inbox com os componentes atualizados e adicionar layout responsivo.",
+  "category": "frontend",
+  "priority": "medium",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-016", "TASK-017", "TASK-018"],
+  "files": [
+    "frontend/src/app/(dashboard)/inbox/page.tsx"
+  ],
+  "dod": [
+    "Layout 2 colunas (lista + thread) em desktop",
+    "Layout single column em mobile com navegação",
+    "Seleção de conversa ativa",
+    "Estado de 'nenhuma conversa selecionada'",
+    "Breadcrumbs atualizados",
+    "Page title dinâmico",
+    "Tratamento de carregamento inicial"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

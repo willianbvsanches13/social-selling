@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-013",
+  "phaseId": "P5",
+  "title": "Criar API client para messaging no frontend",
+  "description": "Criar módulo de API client no frontend para comunicação com endpoints de mensageria.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-012"],
+  "files": [
+    "frontend/src/lib/api/messaging.ts"
+  ],
+  "dod": [
+    "Função getConversations(filters) implementada",
+    "Função getConversation(id) implementada",
+    "Função getMessages(conversationId, pagination) implementada",
+    "Função sendMessage(conversationId, text) implementada",
+    "Função markConversationAsRead(conversationId) implementada",
+    "Tratamento de erros HTTP",
+    "Tipos TypeScript para request/response"
+  ],
+  "technicalDetails": {
+    "packages": ["axios"],
+    "envVars": ["NEXT_PUBLIC_API_URL"],
+    "migrations": null
+  }
+}

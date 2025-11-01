@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-004",
+  "phaseId": "P2",
+  "title": "Criar ConversationService com lógica de negócio",
+  "description": "Criar service para gerenciar conversas com métodos list, get, markAsRead, search e outras operações de negócio.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-003"],
+  "files": [
+    "backend/src/modules/messaging/services/conversation.service.ts"
+  ],
+  "dod": [
+    "Service criado com injeção de ConversationRepository",
+    "Método listConversations(userId, clientAccountId, filters) implementado",
+    "Método getConversation(userId, conversationId) implementado",
+    "Método markAsRead(userId, conversationId) implementado",
+    "Método searchConversations(userId, query) implementado",
+    "Validações de permissão (usuário deve ter acesso ao clientAccount)",
+    "Error handling adequado"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

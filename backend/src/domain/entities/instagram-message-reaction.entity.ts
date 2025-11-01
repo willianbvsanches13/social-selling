@@ -24,7 +24,10 @@ export class InstagramMessageReaction {
   }
 
   static create(
-    props: Omit<InstagramMessageReactionProps, 'id' | 'createdAt' | 'updatedAt'>,
+    props: Omit<
+      InstagramMessageReactionProps,
+      'id' | 'createdAt' | 'updatedAt'
+    >,
   ): InstagramMessageReaction {
     return new InstagramMessageReaction({
       ...props,
