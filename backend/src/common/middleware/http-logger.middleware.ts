@@ -8,6 +8,13 @@ export class HttpLoggerMiddleware implements NestMiddleware {
   private readonly logger = new LoggerService('HTTP');
 
   use(req: Request, res: Response, next: NextFunction) {
+    // Skip health check and metrics endpoints
+    const excludedPaths = ['/health', '/health/ready', '/health/live', '/metrics', '/api/metrics'];
+    if (excludedPaths.includes(req.path)) {
+      next();
+      return;
+    }
+
     const requestId = req.headers['x-request-id'] || uuidv4();
     req.headers['x-request-id'] = requestId as string;
 

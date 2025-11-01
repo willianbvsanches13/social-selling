@@ -23,12 +23,13 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     'set-cookie',
   ];
 
-  // Paths that should be excluded from logging (e.g., health checks)
+  // Paths that should be excluded from logging (e.g., health checks, metrics)
   private readonly EXCLUDED_PATHS = [
     '/health',
-    '/api/health',
-    '/api/health/ready',
-    '/api/health/live',
+    '/health/ready',
+    '/health/live',
+    '/metrics',
+    '/api/metrics',
   ];
 
   constructor(private database: Database) {}
