@@ -34,7 +34,7 @@ export default function InboxPage() {
   } = useConversations(
     {
       clientAccountId: selectedAccountId,
-      status: showArchived ? ConversationStatus.ARCHIVED : ConversationStatus.ACTIVE,
+      status: showArchived ? ConversationStatus.ARCHIVED : ConversationStatus.OPEN,
       limit: 50,
       offset: 0,
     },

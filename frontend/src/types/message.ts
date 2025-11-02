@@ -1,7 +1,7 @@
 export enum ConversationStatus {
-  ACTIVE = 'active',
+  OPEN = 'open',
+  CLOSED = 'closed',
   ARCHIVED = 'archived',
-  BLOCKED = 'blocked',
 }
 
 export enum MessageType {

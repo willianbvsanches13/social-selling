@@ -62,20 +62,42 @@ export class InstagramWebhooksController {
   async handleWebhook(
     @Req() req: any,
     @Headers('x-hub-signature-256') signature: string,
+    @Headers('x-hub-signature') signatureSha1: string,
   ): Promise<{ status: string }> {
     // Get raw body for signature verification
     // CRITICAL: Must use the EXACT raw body buffer as received, not re-stringified JSON
     if (!req.rawBody) {
+      this.logger.error('Raw body not available for signature verification');
+      this.logger.error('Headers:', JSON.stringify(req.headers, null, 2));
       throw new Error('Raw body not available for signature verification');
     }
 
     const rawBodyString = req.rawBody.toString('utf8');
 
-    this.logger.debug(`Webhook received:
-      - Has signature: ${!!signature}
+    // TEMPORARY DEBUG: Save raw payload for forensic analysis
+    const fs = require('fs');
+    const debugPayload = {
+      timestamp: new Date().toISOString(),
+      signatureSha256: signature,
+      signatureSha1: signatureSha1,
+      rawBodyHex: req.rawBody.toString('hex'),
+      rawBodyUtf8: rawBodyString,
+      rawBodyLength: rawBodyString.length,
+      contentLength: req.headers['content-length'],
+    };
+    fs.writeFileSync('/tmp/webhook-debug.json', JSON.stringify(debugPayload, null, 2));
+    this.logger.log('🔍 DEBUG: Saved webhook payload to /tmp/webhook-debug.json');
+
+    this.logger.log(`📨 Webhook received:
+      - Has SHA-256 signature: ${!!signature}
+      - Has SHA-1 signature: ${!!signatureSha1}
       - Has rawBody: ${!!req.rawBody}
       - Body type: ${typeof req.body}
-      - Raw body length: ${rawBodyString.length}`);
+      - Raw body length: ${rawBodyString.length} bytes
+      - Content-Length header: ${req.headers['content-length']}
+      - SHA-256: ${signature || '(missing)'}
+      - SHA-1: ${signatureSha1 || '(missing)'}
+      - Raw body preview: ${rawBodyString.substring(0, 100)}...`);
 
     // Payload is already parsed by express.json()
     const payload = req.body;
@@ -86,7 +108,12 @@ export class InstagramWebhooksController {
       rawBodyString,
     );
     if (!isValid) {
-      this.logger.error('Webhook signature validation failed');
+      this.logger.error('❌ Webhook signature validation failed');
+      this.logger.error(`Debug info:
+        - Received signature: ${signature}
+        - Raw body first 500 chars: ${rawBodyString.substring(0, 500)}
+        - Raw body length: ${rawBodyString.length}
+        - Expected length from header: ${req.headers['content-length']}`);
       throw new Error('Invalid webhook signature');
     }
 

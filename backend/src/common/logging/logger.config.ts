@@ -44,39 +44,42 @@ transports.push(consoleTransport);
 
 // File transports only in development
 if (isDevelopment) {
-  transports.push(
-    // Error logs
-    new winston.transports.DailyRotateFile({
-      filename: `${logDir}/error-%DATE%.log`,
-      datePattern: 'YYYY-MM-DD',
-      level: 'error',
-      format: logFormat,
-      maxSize: '20m',
-      maxFiles: '30d',
-      zippedArchive: true,
-    }),
+  // Error logs
+  const errorTransport = new winston.transports.DailyRotateFile({
+    filename: `${logDir}/error-%DATE%.log`,
+    datePattern: 'YYYY-MM-DD',
+    level: 'error',
+    format: logFormat,
+    maxSize: '20m',
+    maxFiles: '30d',
+    zippedArchive: true,
+  });
+  errorTransport.setMaxListeners(0);
 
-    // Combined logs
-    new winston.transports.DailyRotateFile({
-      filename: `${logDir}/combined-%DATE%.log`,
-      datePattern: 'YYYY-MM-DD',
-      format: logFormat,
-      maxSize: '20m',
-      maxFiles: '30d',
-      zippedArchive: true,
-    }),
+  // Combined logs
+  const combinedTransport = new winston.transports.DailyRotateFile({
+    filename: `${logDir}/combined-%DATE%.log`,
+    datePattern: 'YYYY-MM-DD',
+    format: logFormat,
+    maxSize: '20m',
+    maxFiles: '30d',
+    zippedArchive: true,
+  });
+  combinedTransport.setMaxListeners(0);
 
-    // HTTP access logs
-    new winston.transports.DailyRotateFile({
-      filename: `${logDir}/access-%DATE%.log`,
-      datePattern: 'YYYY-MM-DD',
-      level: 'http',
-      format: logFormat,
-      maxSize: '20m',
-      maxFiles: '14d',
-      zippedArchive: true,
-    }),
-  );
+  // HTTP access logs
+  const accessTransport = new winston.transports.DailyRotateFile({
+    filename: `${logDir}/access-%DATE%.log`,
+    datePattern: 'YYYY-MM-DD',
+    level: 'http',
+    format: logFormat,
+    maxSize: '20m',
+    maxFiles: '14d',
+    zippedArchive: true,
+  });
+  accessTransport.setMaxListeners(0);
+
+  transports.push(errorTransport, combinedTransport, accessTransport);
 }
 
 // Exception and rejection handlers

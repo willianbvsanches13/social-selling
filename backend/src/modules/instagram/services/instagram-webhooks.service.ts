@@ -57,6 +57,9 @@ export class InstagramWebhooksService {
   verifySignature(signature: string, payload: string): boolean {
     if (!signature || !this.appSecret) {
       this.logger.warn('Missing X-Hub-Signature-256 header or app secret');
+      this.logger.warn(`  - Signature present: ${!!signature}`);
+      this.logger.warn(`  - App secret configured: ${!!this.appSecret}`);
+      this.logger.warn(`  - App secret preview: ${this.appSecret ? this.appSecret.substring(0, 8) + '...' : '(empty)'}`);
       return false;
     }
 
@@ -70,11 +73,13 @@ export class InstagramWebhooksService {
         .update(payload)
         .digest('hex');
 
-      // Log signature verification (debug level)
-      this.logger.debug(`Webhook signature verification:
-        - Received signature: ${signatureHash.substring(0, 20)}...
-        - Expected signature: ${expectedHash.substring(0, 20)}...
-        - Payload length: ${payload.length}`);
+      // Log signature verification (full hashes for debugging)
+      this.logger.log(`🔐 Webhook signature verification:
+        - Received signature: ${signatureHash}
+        - Expected signature: ${expectedHash}
+        - Payload length: ${payload.length} bytes
+        - App secret preview: ${this.appSecret.substring(0, 8)}...
+        - Payload preview: ${payload.substring(0, 100)}...`);
 
       // Constant-time comparison to prevent timing attacks
       const isValid = crypto.timingSafeEqual(
@@ -83,7 +88,15 @@ export class InstagramWebhooksService {
       );
 
       if (!isValid) {
-        this.logger.warn('Webhook signature mismatch');
+        this.logger.error('❌ Webhook signature mismatch!');
+        this.logger.error(`MISMATCH DETAILS:
+          - This means the calculated signature does NOT match what Meta sent
+          - Possible causes:
+            1. Wrong App Secret (check INSTAGRAM_APP_SECRET in .env)
+            2. Request body was modified by nginx/proxy
+            3. Character encoding issue
+          - Received: ${signatureHash}
+          - Expected: ${expectedHash}`);
       } else {
         this.logger.log('✅ Webhook signature is VALID!');
       }
@@ -92,7 +105,8 @@ export class InstagramWebhooksService {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      this.logger.error(`Signature verification failed: ${errorMessage}`);
+      this.logger.error(`Signature verification failed with error: ${errorMessage}`);
+      this.logger.error(`Error stack: ${error instanceof Error ? error.stack : '(no stack)'}`);
       return false;
     }
   }

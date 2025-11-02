@@ -64,13 +64,13 @@ export class MessagingController {
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Unauthorized' })
   async listConversations(
     @Request() req: any,
-    @Query('clientAccountId') clientAccountId: string,
     @Query() filters: ConversationFilterDto,
   ): Promise<ConversationListResponseDto> {
+    const { clientAccountId, ...otherFilters } = filters;
     const result = await this.conversationService.listConversations(
       req.user.id,
       clientAccountId,
-      filters,
+      otherFilters,
     );
 
     return {

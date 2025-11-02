@@ -55,15 +55,16 @@ export class InstagramOAuthService {
     @Inject('IOAuthTokenRepository')
     private readonly oauthTokenRepository: IOAuthTokenRepository,
   ) {
-    this.clientId = this.configService.get<string>('INSTAGRAM_APP_ID') || '';
+    // Use Facebook App ID for OAuth (not Instagram App ID)
+    this.clientId = this.configService.get<string>('FACEBOOK_APP_ID') || '';
     this.clientSecret =
-      this.configService.get<string>('INSTAGRAM_APP_SECRET') || '';
+      this.configService.get<string>('FACEBOOK_APP_SECRET') || '';
     this.redirectUri =
       this.configService.get<string>('INSTAGRAM_REDIRECT_URI') || '';
 
     if (!this.clientId || !this.clientSecret || !this.redirectUri) {
-      this.logger.error('Instagram OAuth credentials not configured');
-      throw new Error('Instagram OAuth credentials are required');
+      this.logger.error('Facebook OAuth credentials not configured');
+      throw new Error('Facebook OAuth credentials are required for Instagram login');
     }
   }
 

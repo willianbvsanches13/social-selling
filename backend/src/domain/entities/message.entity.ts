@@ -57,9 +57,8 @@ export class Message {
   }
 
   private validate(): void {
-    if (this.props.messageType === MessageType.TEXT && !this.props.content) {
-      throw new DomainException('Text messages must have content');
-    }
+    // Text messages can have empty content for reactions, likes, or echo messages
+    // Media messages must have a URL
     if (
       [MessageType.IMAGE, MessageType.VIDEO, MessageType.AUDIO].includes(
         this.props.messageType,
