@@ -1,0 +1,80 @@
+{
+  "testResultsId": "TEST-TASK-014-20251102203045",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-014",
+  "iteration": 1,
+  "executionId": "EXEC-TASK-014-20251102202015",
+  "timestamp": "2025-11-02T20:30:45Z",
+  "summary": {
+    "totalTests": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 22173
+  },
+  "e2eTests": {
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "testFiles": [
+      "src/workers/processors/backfill-participant-profiles.processor.spec.ts"
+    ]
+  },
+  "failures": [],
+  "coverage": {
+    "statements": 1.33,
+    "branches": 0.8,
+    "functions": 0.84,
+    "lines": 1.26,
+    "note": "Low overall coverage is expected as this test focuses on a single processor file in isolation"
+  },
+  "testDetails": [
+    {
+      "testName": "should fetch conversations with NULL participant_username",
+      "status": "passed",
+      "duration": 53
+    },
+    {
+      "testName": "should call Instagram API for each conversation",
+      "status": "passed",
+      "duration": 6
+    },
+    {
+      "testName": "should update conversation with profile data",
+      "status": "passed",
+      "duration": 22
+    },
+    {
+      "testName": "should respect rate limiting",
+      "status": "passed",
+      "duration": 2011
+    },
+    {
+      "testName": "should handle API failures gracefully",
+      "status": "passed",
+      "duration": 3018
+    },
+    {
+      "testName": "should retry on transient failures",
+      "status": "passed",
+      "duration": 2005
+    },
+    {
+      "testName": "should return zero counts when no conversations with missing profiles",
+      "status": "passed",
+      "duration": 4
+    },
+    {
+      "testName": "should use default batch size when not provided",
+      "status": "passed",
+      "duration": 7
+    },
+    {
+      "testName": "should track processing statistics accurately",
+      "status": "passed",
+      "duration": 5009
+    }
+  ],
+  "recommendation": "APPROVE",
+  "rationale": "All 9 integration tests passed successfully. The tests comprehensively validate the BackfillParticipantProfilesProcessor functionality including fetching conversations, calling Instagram API, updating profiles, rate limiting, retry logic, and error handling. Duration of 22.173s is acceptable for integration tests with deliberate delays for rate limiting validation."
+}

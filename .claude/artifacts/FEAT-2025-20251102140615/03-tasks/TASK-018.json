@@ -1,0 +1,32 @@
+{
+  "taskId": "TASK-018",
+  "phaseId": "P7",
+  "title": "Add documentation and deployment notes",
+  "description": "Add JSDoc comments to all new methods, document backfill worker usage, add Swagger annotations, create deployment notes, and update CHANGELOG.md",
+  "category": "documentation",
+  "priority": "low",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-016", "TASK-017"],
+  "files": [
+    "/root/social-selling/backend/src/modules/instagram/services/instagram-api.service.ts",
+    "/root/social-selling/backend/src/modules/instagram/handlers/message-webhook.handler.ts",
+    "/root/social-selling/backend/src/domain/entities/conversation.entity.ts",
+    "/root/social-selling/backend/src/workers/processors/backfill-participant-profiles.processor.ts",
+    "/root/social-selling/CHANGELOG.md"
+  ],
+  "dod": [
+    "JSDoc comments added to getUserProfileById method",
+    "JSDoc comments added to fetchAndUpdateParticipantProfile method",
+    "JSDoc comments added to updateParticipantProfile domain method",
+    "JSDoc comments added to backfill processor",
+    "Swagger annotations verified for InstagramProfileDto",
+    "Deployment notes created explaining backfill worker trigger requirement",
+    "CHANGELOG.md updated with bug fix details",
+    "Instagram API rate limiting strategy documented in code comments"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

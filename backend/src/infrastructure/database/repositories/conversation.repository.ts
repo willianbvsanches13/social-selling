@@ -106,6 +106,20 @@ export class ConversationRepository implements IConversationRepository {
     return rows ? rows.map((row) => this.toDomain(row)) : [];
   }
 
+  async findConversationsWithMissingProfiles(
+    limit: number,
+  ): Promise<Conversation[]> {
+    const rows = await this.database.query(
+      `SELECT * FROM conversations
+       WHERE participant_username IS NULL
+       ORDER BY created_at ASC
+       LIMIT $1`,
+      [limit],
+    );
+
+    return rows ? rows.map((row) => this.toDomain(row)) : [];
+  }
+
   async create(conversation: Conversation): Promise<Conversation> {
     const data = conversation.toJSON();
 

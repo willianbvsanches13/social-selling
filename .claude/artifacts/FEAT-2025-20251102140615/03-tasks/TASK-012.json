@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-012",
+  "phaseId": "P4",
+  "title": "Create BackfillParticipantProfilesProcessor",
+  "description": "Create BullMQ processor to handle backfilling of participant profiles with batch processing and rate limit respect",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-011"],
+  "files": [
+    "/root/social-selling/backend/src/workers/processors/backfill-participant-profiles.processor.ts"
+  ],
+  "dod": [
+    "Processor class created with @Processor decorator",
+    "Process method fetches conversations with missing profiles (batch of 10)",
+    "For each conversation: fetch profile via InstagramApiService.getUserProfileById",
+    "Update conversation with profile data via repository",
+    "Implements rate limiting: respect 200 calls/hour",
+    "Implements retry logic: 3 attempts with exponential backoff",
+    "Logs completion statistics (success count, errors, duration)"
+  ],
+  "technicalDetails": {
+    "packages": ["@nestjs/bullmq"],
+    "envVars": [],
+    "migrations": null
+  }
+}

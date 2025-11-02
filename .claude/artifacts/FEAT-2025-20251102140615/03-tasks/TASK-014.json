@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-014",
+  "phaseId": "P4",
+  "title": "Create integration test for backfill worker",
+  "description": "Create integration test for BackfillParticipantProfilesProcessor to verify batch processing and profile updates",
+  "category": "testing",
+  "priority": "medium",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-013"],
+  "files": [
+    "/root/social-selling/backend/src/workers/processors/backfill-participant-profiles.processor.spec.ts"
+  ],
+  "dod": [
+    "Integration test file created for backfill processor",
+    "Test: processor fetches conversations with NULL participant_username",
+    "Test: processor calls Instagram API for each conversation",
+    "Test: processor updates conversation with profile data",
+    "Test: processor respects rate limiting",
+    "Test: processor handles API failures gracefully",
+    "All tests pass"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "@nestjs/testing"],
+    "envVars": [],
+    "migrations": null
+  }
+}

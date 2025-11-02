@@ -1,0 +1,47 @@
+{
+  "executionId": "EXEC-2025-20251102175500",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-013",
+  "iteration": 1,
+  "timestamp": "2025-11-02T17:55:00Z",
+  "status": "blocked",
+  "blockingReason": "Missing dependency files from TASK-012",
+  "missingDependencies": [
+    {
+      "taskId": "TASK-011",
+      "missingFile": "/root/social-selling/backend/src/workers/queues/backfill-participant-profiles.queue.ts",
+      "status": "not_executed"
+    },
+    {
+      "taskId": "TASK-012",
+      "missingFile": "/root/social-selling/backend/src/workers/processors/backfill-participant-profiles.processor.ts",
+      "status": "not_executed"
+    }
+  ],
+  "summary": {
+    "totalTasks": 1,
+    "completed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "blocked": 1
+  },
+  "results": [
+    {
+      "taskId": "TASK-013",
+      "status": "blocked",
+      "duration": 0,
+      "filesModified": [],
+      "changes": {
+        "linesAdded": 0,
+        "linesRemoved": 0
+      },
+      "error": "Cannot register queue and processor in workers.module.ts because the required files from TASK-011 (BackfillParticipantProfilesQueue) and TASK-012 (BackfillParticipantProfilesProcessor) do not exist yet."
+    }
+  ],
+  "testResults": null,
+  "nextSteps": [
+    "Execute TASK-011 to create BackfillParticipantProfilesQueue",
+    "Execute TASK-012 to create BackfillParticipantProfilesProcessor",
+    "Re-execute TASK-013 to register both in workers.module.ts"
+  ]
+}

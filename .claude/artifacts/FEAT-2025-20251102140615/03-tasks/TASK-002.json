@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-002",
+  "phaseId": "P1",
+  "title": "Add findConversationsWithMissingProfiles method to ConversationRepository",
+  "description": "Add repository method findConversationsWithMissingProfiles(limit: number) to query conversations where participant_username IS NULL for backfill processing",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": [],
+  "files": [
+    "/root/social-selling/backend/src/infrastructure/database/repositories/conversation.repository.ts",
+    "/root/social-selling/backend/src/domain/repositories/conversation.repository.interface.ts"
+  ],
+  "dod": [
+    "Method findConversationsWithMissingProfiles(limit) added to repository",
+    "Method queries WHERE participant_username IS NULL",
+    "Method accepts limit parameter for batch processing",
+    "Method returns array of Conversation domain entities",
+    "Interface updated with new method signature"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

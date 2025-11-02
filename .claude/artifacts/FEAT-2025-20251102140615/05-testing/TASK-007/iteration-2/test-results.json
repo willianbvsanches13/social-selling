@@ -1,0 +1,114 @@
+{
+  "testResultsId": "TEST-TASK007-ITER2-20251102170200",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-007",
+  "iteration": 2,
+  "executionId": "EXEC-TASK007-ITER2-20251102192800",
+  "timestamp": "2025-11-02T17:02:00Z",
+  "summary": {
+    "totalTests": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "duration": 19289
+  },
+  "e2eTests": {
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "testFiles": [
+      "/root/social-selling/backend/test/app.e2e-spec.ts"
+    ]
+  },
+  "failures": [
+    {
+      "testFile": "/root/social-selling/backend/test/app.e2e-spec.ts",
+      "testName": "AppController (e2e) > / (GET)",
+      "error": "getaddrinfo EAI_AGAIN postgres",
+      "stackTrace": "Database connection error: getaddrinfo EAI_AGAIN postgres",
+      "severity": "critical",
+      "rootCause": "E2E test configuration tries to connect to Docker hostnames (postgres, redis) which are not accessible from the test process running outside Docker containers",
+      "details": {
+        "databaseError": "Database connection attempt 5/5 failed: Unknown error - host=postgres, port=5432",
+        "redisError": "getaddrinfo EAI_AGAIN redis - Cannot resolve hostname 'redis'",
+        "environment": "Test process runs in host network, not in Docker network"
+      },
+      "suggestedFix": "E2E tests should use localhost:5432 (postgres) and localhost:6379 (redis) instead of Docker service names, OR tests should run inside Docker containers with access to the Docker network"
+    }
+  ],
+  "coverage": {
+    "statements": 0,
+    "branches": 0,
+    "functions": 0,
+    "lines": 0,
+    "notes": "Coverage not collected due to test infrastructure failures"
+  },
+  "infrastructureIssues": {
+    "identified": true,
+    "problems": [
+      {
+        "type": "network-configuration",
+        "severity": "critical",
+        "description": "E2E test process cannot resolve Docker service hostnames (postgres, redis)",
+        "impact": "All E2E tests fail before reaching actual test code",
+        "resolution": "Tests need environment variables pointing to localhost:5432 and localhost:6379, or tests must run in Docker network"
+      },
+      {
+        "type": "async-cleanup",
+        "severity": "medium",
+        "description": "Jest did not exit after test completion - asynchronous operations not stopped",
+        "impact": "Test process hangs after completion",
+        "resolution": "Add proper cleanup in afterAll/afterEach hooks to close database and Redis connections"
+      }
+    ]
+  },
+  "recommendation": "refine",
+  "reasonForRecommendation": "Critical infrastructure failure - E2E tests cannot run due to network configuration issues. Tests attempt to connect to Docker service names which are not resolvable from the test process running on the host.",
+  "comparisonWithExecutionReport": {
+    "executionReportClaim": "All 6 E2E tests passing (e2e/instagram-api-profile.spec.ts)",
+    "actualE2ETestResult": "1 failed E2E test (backend/test/app.e2e-spec.ts)",
+    "discrepancy": "The execution report references Playwright tests in /root/social-selling/e2e/ directory, but npm run test:e2e runs Jest tests from /root/social-selling/backend/test/ directory",
+    "note": "These are different test suites - Playwright E2E vs Jest E2E"
+  },
+  "nextActions": [
+    {
+      "priority": "critical",
+      "action": "Fix E2E test configuration to use localhost instead of Docker hostnames",
+      "files": [
+        "backend/test/app.e2e-spec.ts",
+        "backend/test/jest-e2e.json"
+      ],
+      "details": "Create test environment configuration that uses localhost:5432 and localhost:6379 or setup test database module with proper host mapping"
+    },
+    {
+      "priority": "high",
+      "action": "Add proper cleanup in E2E test lifecycle hooks",
+      "details": "Implement afterAll hook to close database and Redis connections to prevent test process from hanging"
+    },
+    {
+      "priority": "medium",
+      "action": "Consider running Jest E2E tests inside Docker or document that they should use Playwright instead",
+      "details": "Clarify testing strategy - use Playwright for E2E tests that run against dockerized app, or fix Jest E2E setup"
+    }
+  ],
+  "testEnvironmentDetails": {
+    "jestConfig": "/root/social-selling/backend/test/jest-e2e.json",
+    "testTimeout": 30000,
+    "testPattern": ".e2e-spec.ts$",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/../src/$1"
+    },
+    "dockerContainers": {
+      "postgres": "Up (healthy) - 0.0.0.0:5432->5432/tcp",
+      "redis": "Up (healthy) - 0.0.0.0:6379->6379/tcp",
+      "backend": "Up (healthy) - 0.0.0.0:4000->4000/tcp"
+    },
+    "networkIssue": "Test process runs on host network and cannot resolve Docker service names (postgres, redis)"
+  },
+  "playwrightTestsStatus": {
+    "note": "Execution report shows Playwright tests passing (6/6 in e2e/instagram-api-profile.spec.ts)",
+    "location": "/root/social-selling/e2e/instagram-api-profile.spec.ts",
+    "status": "Passing according to execution report",
+    "separateFromJestE2E": true
+  }
+}

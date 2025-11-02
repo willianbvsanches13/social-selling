@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-007",
+  "phaseId": "P2",
+  "title": "Create E2E test for getUserProfileById",
+  "description": "Create E2E test for InstagramApiService.getUserProfileById using test Instagram account to verify real API integration",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 0.75,
+  "dependencies": ["TASK-004", "TASK-005"],
+  "files": [
+    "/root/social-selling/e2e/instagram-api-profile.spec.ts"
+  ],
+  "dod": [
+    "E2E test file created for Instagram profile fetching",
+    "Test: getUserProfileById successfully fetches profile from Instagram API",
+    "Test: profile data includes username and profile_picture_url",
+    "Test: cache stores profile data after first fetch",
+    "Test: second call returns cached data without API call",
+    "All tests pass with real Instagram test account"
+  ],
+  "technicalDetails": {
+    "packages": ["jest"],
+    "envVars": ["INSTAGRAM_TEST_ACCOUNT_ID", "INSTAGRAM_TEST_PARTICIPANT_ID"],
+    "migrations": null
+  }
+}

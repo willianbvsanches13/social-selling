@@ -142,10 +142,9 @@ export class MessagingController {
 
     const { limit = 100, offset = 0 } = filters;
 
-    const messages = await this.messagingService['messageRepository'].findByConversation(
-      conversationId,
-      { limit, offset },
-    );
+    const messages = await this.messagingService[
+      'messageRepository'
+    ].findByConversation(conversationId, { limit, offset });
 
     // Get total count (in production, you'd want a dedicated count method)
     const total = messages.length;
@@ -175,8 +174,7 @@ export class MessagingController {
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description:
-      'Invalid message or 24-hour response window has expired',
+    description: 'Invalid message or 24-hour response window has expired',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,

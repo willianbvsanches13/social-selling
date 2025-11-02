@@ -25,12 +25,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { InstagramOAuthService } from './instagram-oauth.service';
 import { InstagramAccountService } from './services/instagram-account.service';
 import { InstagramSystemAccountsService } from './services/instagram-system-accounts.service';
+import { InstagramApiService } from './services/instagram-api.service';
 import { ConfigService } from '@nestjs/config';
 import {
   AvailableAccountsResponseDto,
   LinkInstagramAccountDto,
   LinkAccountResponseDto,
 } from './dto/instagram-system-accounts.dto';
+import { InstagramProfileDto } from './dto/instagram-profile.dto';
 
 @ApiTags('Instagram Integration')
 @Controller('instagram')
@@ -42,6 +44,7 @@ export class InstagramController {
     private readonly instagramOAuthService: InstagramOAuthService,
     private readonly instagramAccountService: InstagramAccountService,
     private readonly instagramSystemAccountsService: InstagramSystemAccountsService,
+    private readonly instagramApiService: InstagramApiService,
     private readonly configService: ConfigService,
   ) {
     this.frontendUrl =
@@ -294,5 +297,62 @@ export class InstagramController {
       instagramBusinessAccountId: linkDto.instagramBusinessAccountId,
       message: 'Instagram Business Account linked successfully',
     };
+  }
+
+  @Get('profile/:participantId')
+  @ApiOperation({
+    summary: 'Get Instagram user profile by ID',
+    description:
+      'Fetches Instagram user profile data (username, profile picture) by platform ID with Redis caching',
+  })
+  @ApiParam({
+    name: 'participantId',
+    description: 'Instagram Platform ID',
+    example: '17841403506636395',
+  })
+  @ApiQuery({
+    name: 'accountId',
+    description:
+      'Client account ID for access token (optional, defaults to system token)',
+    required: false,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Instagram profile retrieved successfully',
+    type: InstagramProfileDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Profile not found or inaccessible',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Failed to fetch profile from Instagram API',
+  })
+  async getUserProfile(
+    @Param('participantId') participantId: string,
+    @Query('accountId') accountId?: string,
+  ): Promise<InstagramProfileDto | { error: string }> {
+    this.logger.log(
+      `Fetching Instagram profile for participant ${participantId}`,
+    );
+
+    const effectiveAccountId = accountId || 'system';
+
+    const profile = await this.instagramApiService.getUserProfileById(
+      effectiveAccountId,
+      participantId,
+    );
+
+    if (!profile) {
+      this.logger.warn(
+        `Profile not found or API error for participant ${participantId}`,
+      );
+      return {
+        error: 'Profile not found or unavailable',
+      };
+    }
+
+    return profile;
   }
 }

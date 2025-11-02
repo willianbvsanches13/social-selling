@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-008",
+  "phaseId": "P3",
+  "title": "Add fetchAndUpdateParticipantProfile method to MessageWebhookHandler",
+  "description": "Add private async method fetchAndUpdateParticipantProfile(conversation, senderId, pageId) to fetch participant profile from Instagram API and update conversation entity",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-005"],
+  "files": [
+    "/root/social-selling/backend/src/modules/instagram/handlers/message-webhook.handler.ts"
+  ],
+  "dod": [
+    "Private method fetchAndUpdateParticipantProfile added to handler",
+    "Method calls InstagramApiService.getUserProfileById",
+    "Method calls conversation.updateParticipantProfile with fetched data",
+    "Method persists updated conversation via repository.update",
+    "Method is non-blocking: wrapped in try-catch, logs errors but doesn't throw",
+    "Method handles API failures gracefully (conversation created without profile)"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

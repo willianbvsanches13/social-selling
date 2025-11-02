@@ -51,13 +51,15 @@ export class ConversationService {
 
     const { status, hasUnread, limit = 50, offset = 0 } = filters;
 
-    const conversations =
-      await this.conversationRepository.findByClientAccount(clientAccountId, {
+    const conversations = await this.conversationRepository.findByClientAccount(
+      clientAccountId,
+      {
         status,
         hasUnread,
         limit,
         offset,
-      });
+      },
+    );
 
     const total = conversations.length;
 
@@ -107,7 +109,9 @@ export class ConversationService {
       await this.clientAccountRepository.findById(clientAccountId);
 
     if (!account) {
-      throw new NotFoundException(`Client account ${clientAccountId} not found`);
+      throw new NotFoundException(
+        `Client account ${clientAccountId} not found`,
+      );
     }
 
     if ((account as any).userId !== userId) {

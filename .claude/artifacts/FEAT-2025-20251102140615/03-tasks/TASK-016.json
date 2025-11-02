@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-016",
+  "phaseId": "P6",
+  "title": "Create E2E test for complete webhook flow with profile",
+  "description": "Create E2E test simulating webhook message event and verifying conversation is created with participant username and profile picture populated",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-009", "TASK-010"],
+  "files": [
+    "/root/social-selling/e2e/messaging-participant-profile.spec.ts"
+  ],
+  "dod": [
+    "E2E test file created for webhook with participant profile",
+    "Test: simulate webhook message event",
+    "Test: verify conversation created",
+    "Test: verify participant_username is populated (not NULL)",
+    "Test: verify participant_profile_pic is populated",
+    "Test: verify message displays correct sender attribution",
+    "All tests pass"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "@nestjs/testing"],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "taskId": "TASK-009",
+  "phaseId": "P3",
+  "title": "Modify processMessage to call participant profile fetching",
+  "description": "Modify MessageWebhookHandler.processMessage to call fetchAndUpdateParticipantProfile AFTER creating new conversations",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-008"],
+  "files": [
+    "/root/social-selling/backend/src/modules/instagram/handlers/message-webhook.handler.ts"
+  ],
+  "dod": [
+    "processMessage method modified to call fetchAndUpdateParticipantProfile",
+    "Profile fetching called only for newly created conversations",
+    "Profile fetching happens AFTER conversation.create, before message creation",
+    "Existing message processing flow not broken",
+    "No changes to message creation logic"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

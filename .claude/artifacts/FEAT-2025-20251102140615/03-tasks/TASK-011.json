@@ -1,0 +1,25 @@
+{
+  "taskId": "TASK-011",
+  "phaseId": "P4",
+  "title": "Create BackfillParticipantProfilesQueue",
+  "description": "Create BullMQ queue for backfilling participant profiles following the pattern in webhook-events.queue.ts",
+  "category": "infrastructure",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-002", "TASK-005"],
+  "files": [
+    "/root/social-selling/backend/src/workers/queues/backfill-participant-profiles.queue.ts"
+  ],
+  "dod": [
+    "Queue class created extending BullMQ Queue pattern",
+    "Queue name: backfill-participant-profiles",
+    "Queue accepts job data with conversationId",
+    "Queue configured with Redis connection",
+    "Queue registered as provider in workers module"
+  ],
+  "technicalDetails": {
+    "packages": ["@nestjs/bullmq", "bullmq"],
+    "envVars": [],
+    "migrations": null
+  }
+}

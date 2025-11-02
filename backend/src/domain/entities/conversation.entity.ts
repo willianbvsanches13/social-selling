@@ -121,6 +121,29 @@ export class Conversation {
     return daysSince >= daysSinceLastMessage;
   }
 
+  /**
+   * Update participant profile information
+   *
+   * Sets the username and profile picture URL for the conversation participant.
+   * This method is typically called after fetching profile data from Instagram API
+   * to enrich conversation metadata with participant information.
+   *
+   * @param username - Instagram username (must not be empty)
+   * @param profilePic - Profile picture URL (must not be empty)
+   * @throws DomainException if username or profilePic is empty
+   */
+  updateParticipantProfile(username: string, profilePic: string): void {
+    if (!username || username.trim().length === 0) {
+      throw new DomainException('Username cannot be empty');
+    }
+    if (!profilePic || profilePic.trim().length === 0) {
+      throw new DomainException('Profile picture cannot be empty');
+    }
+    this.props.participantUsername = username;
+    this.props.participantProfilePic = profilePic;
+    this.props.updatedAt = new Date();
+  }
+
   toJSON() {
     return {
       id: this.props.id,

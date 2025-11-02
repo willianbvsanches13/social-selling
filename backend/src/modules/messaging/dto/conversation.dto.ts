@@ -1,5 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsBoolean, IsInt, Min, Max, IsString, MinLength, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsBoolean,
+  IsInt,
+  Min,
+  Max,
+  IsString,
+  MinLength,
+  IsUUID,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ConversationStatus } from '../../../domain/entities/conversation.entity';
 

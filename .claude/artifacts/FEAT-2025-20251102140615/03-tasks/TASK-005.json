@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-005",
+  "phaseId": "P2",
+  "title": "Implement Redis caching for participant profiles",
+  "description": "Add Redis cache layer for participant profiles in InstagramApiService with cache key format instagram:profile:{participantPlatformId} and 24h TTL",
+  "category": "infrastructure",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-004"],
+  "files": [
+    "/root/social-selling/backend/src/modules/instagram/services/instagram-api.service.ts"
+  ],
+  "dod": [
+    "Redis cache integrated in getUserProfileById method",
+    "Cache key format: instagram:profile:{participantPlatformId}",
+    "Cache TTL set to 86400 seconds (24 hours)",
+    "Cache-first logic: check cache before calling Instagram API",
+    "Profile data stored in cache after successful API call",
+    "Cache errors logged but don't block functionality (graceful fallback)"
+  ],
+  "technicalDetails": {
+    "packages": ["ioredis"],
+    "envVars": [],
+    "migrations": null
+  }
+}

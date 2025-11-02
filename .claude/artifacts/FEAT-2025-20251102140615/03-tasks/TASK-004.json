@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-004",
+  "phaseId": "P2",
+  "title": "Add getUserProfileById method to InstagramApiService",
+  "description": "Add new method getUserProfileById(accountId: string, participantPlatformId: string) to fetch Instagram user profile by platform ID using Graph API /{participantPlatformId} endpoint",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-001", "TASK-002"],
+  "files": [
+    "/root/social-selling/backend/src/modules/instagram/services/instagram-api.service.ts"
+  ],
+  "dod": [
+    "Method getUserProfileById(accountId, participantPlatformId) added",
+    "Method calls Graph API /{participantPlatformId} endpoint",
+    "Method requests fields: id, username, profile_picture_url",
+    "Method returns InstagramProfileDto with username and profile_picture_url",
+    "Method handles API errors gracefully (returns null on failure)",
+    "Method uses existing rate limiter and retry logic"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

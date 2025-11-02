@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-010",
+  "phaseId": "P3",
+  "title": "Create unit tests for webhook handler profile fetching",
+  "description": "Create unit tests for MessageWebhookHandler.fetchAndUpdateParticipantProfile using sinon stubs for InstagramApiService and ConversationRepository",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-009"],
+  "files": [
+    "/root/social-selling/backend/src/modules/instagram/handlers/message-webhook.handler.spec.ts"
+  ],
+  "dod": [
+    "Unit test file created for message webhook handler",
+    "Test: fetchAndUpdateParticipantProfile successfully fetches and updates profile",
+    "Test: API success scenario - profile data stored in conversation",
+    "Test: API failure scenario - conversation created without profile, no exception thrown",
+    "Test: Cache hit scenario - API not called, cached data used",
+    "All tests pass with stubbed dependencies"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "sinon"],
+    "envVars": [],
+    "migrations": null
+  }
+}

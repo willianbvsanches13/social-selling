@@ -51,7 +51,7 @@ export class WebhookMessageHandler {
     clientAccountId: string,
   ): Promise<void> {
     try {
-      const payload = this.extractMessagePayload(event);
+       const payload = this.extractMessagePayload(event);
 
       if (!payload) {
         this.logger.warn(`Unable to extract message payload from event ${event.id}`);
@@ -80,14 +80,13 @@ export class WebhookMessageHandler {
       // Determine if message is from customer or from our page
       // If sender is the page, it's a USER message (sent by us)
       // If sender is NOT the page, it's a CUSTOMER message (received from external user)
-      const isFromCustomer = payload.sender.id !== pageId;
-      const customerPlatformId = isFromCustomer
+      const isFromCustomer = payload.sender.id !== payload.recipient.id;
+      const senderId = isFromCustomer
         ? payload.sender.id
         : payload.recipient.id;
-
-      this.logger.debug(
-        `Message ${payload.message.mid}: sender=${payload.sender.id}, recipient=${payload.recipient.id}, pageId=${pageId}, isFromCustomer=${isFromCustomer}`,
-      );
+      const recipientId = isFromCustomer
+        ? payload.recipient.id
+        : payload.sender.id;
 
       // Find or create conversation
       const conversation = await this.findOrCreateConversation(
@@ -216,11 +215,10 @@ export class WebhookMessageHandler {
     // Try to find existing conversation
     const platformConversationId = `${clientAccountId}_${participantPlatformId}`;
 
-    let conversation =
-      await this.conversationRepository.findByPlatformId(
-        clientAccountId,
-        platformConversationId,
-      );
+    let conversation = await this.conversationRepository.findByPlatformId(
+      clientAccountId,
+      platformConversationId,
+    );
 
     if (conversation) {
       return conversation;

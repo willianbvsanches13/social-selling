@@ -14,14 +14,14 @@ export function ReactQueryProvider({ children }: ReactQueryProviderProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Default stale time: 5 minutes
-            staleTime: 5 * 60 * 1000,
+            // Default stale time: 10 seconds
+            staleTime: 10000,
             // Default cache time: 10 minutes
             gcTime: 10 * 60 * 1000,
             // Retry failed queries 1 time
             retry: 1,
-            // Don't refetch on window focus in development
-            refetchOnWindowFocus: process.env.NODE_ENV === 'production',
+            // Disable refetch on window focus
+            refetchOnWindowFocus: false,
           },
         },
       })

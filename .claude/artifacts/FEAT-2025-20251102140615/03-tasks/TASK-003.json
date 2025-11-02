@@ -1,0 +1,25 @@
+{
+  "taskId": "TASK-003",
+  "phaseId": "P1",
+  "title": "Create unit tests for Conversation.updateParticipantProfile",
+  "description": "Create unit tests for the new updateParticipantProfile domain method covering success scenarios, validation, and timestamp updates",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "/root/social-selling/backend/src/domain/entities/conversation.entity.spec.ts"
+  ],
+  "dod": [
+    "Test file created for conversation entity",
+    "Test: updateParticipantProfile successfully updates username and profile pic",
+    "Test: updateParticipantProfile updates updatedAt timestamp",
+    "Test: updateParticipantProfile validates non-empty inputs",
+    "All tests pass"
+  ],
+  "technicalDetails": {
+    "packages": ["jest"],
+    "envVars": [],
+    "migrations": null
+  }
+}

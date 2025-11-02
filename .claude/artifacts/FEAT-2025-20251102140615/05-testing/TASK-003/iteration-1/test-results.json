@@ -1,0 +1,190 @@
+{
+  "testResultsId": "TEST-2025-20251102141500",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-003",
+  "executionId": "EXEC-2025-20251102141200",
+  "iteration": 1,
+  "timestamp": "2025-11-02T14:15:00Z",
+  "summary": {
+    "totalTests": 19,
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 7001
+  },
+  "unitTests": {
+    "passed": 19,
+    "failed": 0,
+    "skipped": 0,
+    "testFiles": [
+      "/root/social-selling/backend/src/domain/entities/conversation.entity.spec.ts"
+    ],
+    "duration": 7001
+  },
+  "e2eTests": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testFiles": [],
+    "note": "This is a domain entity task - only unit tests are applicable"
+  },
+  "failures": [],
+  "coverage": {
+    "statements": 100,
+    "branches": 94.11,
+    "functions": 100,
+    "lines": 100,
+    "uncoveredLines": [42]
+  },
+  "testDetails": [
+    {
+      "suite": "Conversation Entity",
+      "subsuite": "conversation creation",
+      "tests": [
+        {
+          "name": "should create a new conversation with valid properties",
+          "status": "passed",
+          "duration": 10
+        },
+        {
+          "name": "should reconstitute conversation from existing props",
+          "status": "passed",
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "suite": "Conversation Entity",
+      "subsuite": "updateParticipantProfile",
+      "tests": [
+        {
+          "name": "should update participant username and profile picture",
+          "status": "passed",
+          "duration": 2
+        },
+        {
+          "name": "should throw error when username is empty",
+          "status": "passed",
+          "duration": 27
+        },
+        {
+          "name": "should throw error when username is only whitespace",
+          "status": "passed",
+          "duration": 3
+        },
+        {
+          "name": "should throw error when profile picture is empty",
+          "status": "passed",
+          "duration": 2
+        },
+        {
+          "name": "should throw error when profile picture is only whitespace",
+          "status": "passed",
+          "duration": 3
+        },
+        {
+          "name": "should update updatedAt timestamp when profile is updated",
+          "status": "passed",
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "suite": "Conversation Entity",
+      "subsuite": "unread count management",
+      "tests": [
+        {
+          "name": "should increment unread count",
+          "status": "passed",
+          "duration": 1
+        },
+        {
+          "name": "should mark all as read",
+          "status": "passed",
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "suite": "Conversation Entity",
+      "subsuite": "status management",
+      "tests": [
+        {
+          "name": "should close conversation",
+          "status": "passed",
+          "duration": null
+        },
+        {
+          "name": "should reopen closed conversation",
+          "status": "passed",
+          "duration": null
+        },
+        {
+          "name": "should throw error when reopening archived conversation",
+          "status": "passed",
+          "duration": 5
+        },
+        {
+          "name": "should archive conversation",
+          "status": "passed",
+          "duration": null
+        }
+      ]
+    },
+    {
+      "suite": "Conversation Entity",
+      "subsuite": "last message tracking",
+      "tests": [
+        {
+          "name": "should update last message timestamp",
+          "status": "passed",
+          "duration": null
+        }
+      ]
+    },
+    {
+      "suite": "Conversation Entity",
+      "subsuite": "staleness check",
+      "tests": [
+        {
+          "name": "should return false when no last message",
+          "status": "passed",
+          "duration": null
+        },
+        {
+          "name": "should return true when conversation is stale",
+          "status": "passed",
+          "duration": null
+        },
+        {
+          "name": "should return false when conversation is not stale",
+          "status": "passed",
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "suite": "Conversation Entity",
+      "subsuite": "JSON serialization",
+      "tests": [
+        {
+          "name": "should serialize to JSON with all properties",
+          "status": "passed",
+          "duration": 2
+        }
+      ]
+    }
+  ],
+  "dodVerification": {
+    "testFileCreated": true,
+    "allCriteriaMet": true,
+    "specificTests": {
+      "updateParticipantProfileSuccess": true,
+      "updateTimestamp": true,
+      "validationErrors": true
+    }
+  },
+  "recommendation": "approve",
+  "reason": "All 19 unit tests passed successfully with 100% coverage on statements, functions and lines. Branch coverage at 94.11% with only 1 uncovered line (line 42). All DoD criteria met for this domain entity task.",
+  "nextAgent": "reviewer"
+}

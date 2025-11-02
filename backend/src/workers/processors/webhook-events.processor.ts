@@ -342,7 +342,9 @@ export class WebhookEventsProcessor extends WorkerHost {
         message.id,
         message.isEcho ? 'user' : 'customer',
         message.from.id,
-        message.attachments && message.attachments.length > 0 ? 'image' : 'text',
+        message.attachments && message.attachments.length > 0
+          ? 'image'
+          : 'text',
         message.text || '',
         message.timestamp,
         false,

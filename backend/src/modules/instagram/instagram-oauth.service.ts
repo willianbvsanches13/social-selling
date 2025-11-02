@@ -63,7 +63,10 @@ export class InstagramOAuthService {
       this.configService.get<string>('INSTAGRAM_REDIRECT_URI') || '';
 
     if (!this.clientId || !this.clientSecret || !this.redirectUri) {
-      this.logger.warn('Facebook OAuth credentials not configured - Instagram OAuth will not be available');
+      this.logger.error('Facebook OAuth credentials not configured');
+      throw new Error(
+        'Facebook OAuth credentials are required for Instagram login',
+      );
     }
   }
 

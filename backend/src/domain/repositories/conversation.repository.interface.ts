@@ -25,4 +25,5 @@ export interface IConversationRepository {
   update(conversation: Conversation): Promise<Conversation>;
   countUnread(clientAccountId: string): Promise<number>;
   findStaleConversations(days: number): Promise<Conversation[]>;
+  findConversationsWithMissingProfiles(limit: number): Promise<Conversation[]>;
 }

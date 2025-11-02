@@ -1,0 +1,54 @@
+{
+  "testResultsId": "TEST-2025-20251102173000",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-013",
+  "executionId": "EXEC-2025-20251102175500",
+  "iteration": 1,
+  "timestamp": "2025-11-02T17:30:00Z",
+  "status": "blocked",
+  "blockingReason": "Task execution was blocked due to missing dependencies from TASK-011 and TASK-012. No code changes were made, therefore no E2E tests could be executed.",
+  "summary": {
+    "totalTests": 0,
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 0
+  },
+  "e2eTests": {
+    "passed": 0,
+    "failed": 0,
+    "skipped": 0,
+    "testFiles": [],
+    "note": "E2E tests were not executed because the task was blocked. Additionally, test infrastructure (Redis and PostgreSQL) is not available in the current environment."
+  },
+  "failures": [],
+  "coverage": {
+    "statements": 0,
+    "branches": 0,
+    "functions": 0,
+    "lines": 0,
+    "note": "Coverage not collected as no code was executed"
+  },
+  "infrastructureIssues": [
+    {
+      "service": "PostgreSQL",
+      "error": "getaddrinfo EAI_AGAIN postgres",
+      "severity": "critical",
+      "impact": "Cannot run E2E tests that require database connectivity"
+    },
+    {
+      "service": "Redis",
+      "error": "getaddrinfo EAI_AGAIN redis",
+      "severity": "critical",
+      "impact": "Cannot run E2E tests that require queue/cache services"
+    }
+  ],
+  "recommendation": "skip",
+  "reason": "Task was blocked during execution phase. No code changes were made. Dependencies from TASK-011 and TASK-012 must be completed first before TASK-013 can be executed and tested.",
+  "nextSteps": [
+    "Execute TASK-011 to create BackfillParticipantProfilesQueue",
+    "Execute TASK-012 to create BackfillParticipantProfilesProcessor",
+    "Re-execute TASK-013 to register both in workers.module.ts",
+    "Run E2E tests after successful execution of TASK-013"
+  ]
+}

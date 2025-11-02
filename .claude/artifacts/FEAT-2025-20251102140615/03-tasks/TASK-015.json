@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-015",
+  "phaseId": "P5",
+  "title": "Optimize frontend polling intervals",
+  "description": "Reduce refetchInterval for conversations from 10s to 30s and messages from 5s to 15s in useMessaging hook, configure React Query with staleTime and disable refetchOnWindowFocus",
+  "category": "frontend",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": [],
+  "files": [
+    "/root/social-selling/frontend/src/hooks/useMessaging.ts"
+  ],
+  "dod": [
+    "Conversations refetchInterval changed to 30000ms (30s)",
+    "Messages refetchInterval changed to 15000ms (15s)",
+    "React Query staleTime configured to 10000ms (10s)",
+    "refetchOnWindowFocus set to false",
+    "Frontend compiles without errors",
+    "Polling behavior tested in development"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

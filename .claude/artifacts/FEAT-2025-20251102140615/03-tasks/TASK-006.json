@@ -1,0 +1,24 @@
+{
+  "taskId": "TASK-006",
+  "phaseId": "P2",
+  "title": "Verify InstagramProfileDto supports required fields",
+  "description": "Verify that InstagramProfileDto has username and profile_picture_url fields. If missing, add them with proper validation decorators",
+  "category": "backend",
+  "priority": "medium",
+  "estimatedHours": 0.25,
+  "dependencies": ["TASK-004"],
+  "files": [
+    "/root/social-selling/backend/src/modules/instagram/dto/instagram-profile.dto.ts"
+  ],
+  "dod": [
+    "InstagramProfileDto verified to have username field",
+    "InstagramProfileDto verified to have profile_picture_url field",
+    "Fields have appropriate validation decorators",
+    "Swagger/OpenAPI decorators added if missing"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null
+  }
+}

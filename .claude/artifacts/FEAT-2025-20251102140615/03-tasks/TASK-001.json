@@ -1,0 +1,24 @@
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Add updateParticipantProfile method to Conversation entity",
+  "description": "Add domain method updateParticipantProfile(username: string, profilePic: string) to Conversation entity to encapsulate participant profile updates with proper validation and timestamp management",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": [],
+  "files": [
+    "/root/social-selling/backend/src/domain/entities/conversation.entity.ts"
+  ],
+  "dod": [
+    "Method updateParticipantProfile(username, profilePic) added to Conversation entity",
+    "Method updates participantUsername and participantProfilePic properties",
+    "Method automatically updates updatedAt timestamp",
+    "Method validates inputs (non-empty strings)"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

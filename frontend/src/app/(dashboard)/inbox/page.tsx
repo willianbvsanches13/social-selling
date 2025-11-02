@@ -40,7 +40,7 @@ export default function InboxPage() {
     },
     {
       enabled: !!selectedAccountId,
-      refetchInterval: 10000, // Poll every 10 seconds
+      refetchInterval: 30000, // Poll every 30 seconds
     }
   );
 
@@ -54,7 +54,7 @@ export default function InboxPage() {
     { limit: 100, offset: 0 },
     {
       enabled: !!selectedConversation,
-      refetchInterval: 5000, // Poll every 5 seconds
+      refetchInterval: 15000, // Poll every 15 seconds
     }
   );
 

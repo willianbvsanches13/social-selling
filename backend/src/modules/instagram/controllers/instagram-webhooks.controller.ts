@@ -85,8 +85,13 @@ export class InstagramWebhooksController {
       rawBodyLength: rawBodyString.length,
       contentLength: req.headers['content-length'],
     };
-    fs.writeFileSync('/tmp/webhook-debug.json', JSON.stringify(debugPayload, null, 2));
-    this.logger.log('🔍 DEBUG: Saved webhook payload to /tmp/webhook-debug.json');
+    fs.writeFileSync(
+      '/tmp/webhook-debug.json',
+      JSON.stringify(debugPayload, null, 2),
+    );
+    this.logger.log(
+      '🔍 DEBUG: Saved webhook payload to /tmp/webhook-debug.json',
+    );
 
     this.logger.log(`📨 Webhook received:
       - Has SHA-256 signature: ${!!signature}

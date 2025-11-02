@@ -11,40 +11,69 @@ import {
   SenderType,
 } from '../../../domain/entities/message.entity';
 import { WebhookEventType } from '../../../domain/entities/instagram-webhook-event.entity';
+import { InstagramApiService } from '../services/instagram-api.service';
 
+/**
+ * Represents an attachment in Instagram message
+ */
+interface Attachment {
+  type: string;
+  payload: {
+    url: string;
+    text?: string;
+  };
+}
+
+/**
+ * Represents message data from Instagram webhook
+ */
+interface MessageData {
+  id: string;
+  mid?: string;
+  text?: string;
+  attachments?: Attachment[];
+  timestamp?: number;
+  is_story_mention?: boolean;
+  story_mention?: boolean;
+  is_story_reply?: boolean;
+  story_reply?: boolean;
+  media?: {
+    url: string;
+  };
+}
+
+/**
+ * Represents a messaging event from Instagram webhook
+ */
+interface MessagingEvent {
+  sender: { id: string };
+  recipient: { id: string };
+  timestamp: number;
+  message: MessageData;
+}
+
+/**
+ * Represents message change value from Instagram webhook
+ */
+interface MessageChangeValue {
+  from?: { id: string; username?: string };
+  messages?: MessageData[];
+  sender?: { id: string };
+  recipient?: { id: string };
+}
+
+/**
+ * Represents the complete webhook payload from Instagram for message events
+ */
 interface MessageWebhookPayload {
   object: string;
   entry: Array<{
     id: string;
     time: number;
-    messaging?: Array<{
-      sender: { id: string };
-      recipient: { id: string };
-      timestamp: number;
-      message: {
-        mid: string;
-        text?: string;
-        attachments?: Array<{
-          type: string;
-          payload: {
-            url: string;
-          };
-        }>;
-      };
-    }>;
+    messaging?: MessagingEvent[];
     changes?: Array<{
       field: string;
-      value: {
-        from?: { id: string; username?: string };
-        messages?: Array<{
-          id: string;
-          text?: string;
-          attachments?: any[];
-          timestamp?: number;
-        }>;
-        sender?: { id: string };
-        recipient?: { id: string };
-      };
+      value: MessageChangeValue;
     }>;
   }>;
 }
@@ -56,8 +85,20 @@ export class MessageWebhookHandler {
   constructor(
     private conversationRepository: ConversationRepository,
     private messageRepository: MessageRepository,
+    private instagramApiService: InstagramApiService,
   ) {}
 
+  /**
+   * Handles incoming Instagram message webhook events
+   *
+   * Processes both messaging and message change events from Instagram webhooks.
+   * Creates conversations and messages as needed, updating participant profiles
+   * when creating new conversations.
+   *
+   * @param payload - The webhook payload from Instagram containing message events
+   * @returns Promise that resolves when all events are processed
+   * @throws Error if webhook processing fails
+   */
   async handle(payload: MessageWebhookPayload): Promise<void> {
     this.logger.log('Processing MESSAGE webhook event');
 
@@ -91,9 +132,19 @@ export class MessageWebhookHandler {
     }
   }
 
+  /**
+   * Processes a single messaging event from the webhook
+   *
+   * Extracts sender, recipient, and message data from the event and
+   * delegates to processMessage for handling.
+   *
+   * @param pageId - The Instagram page/account ID
+   * @param event - The messaging event containing sender, recipient, and message data
+   * @returns Promise that resolves when event is processed
+   */
   private async processMessagingEvent(
     pageId: string,
-    event: any,
+    event: MessagingEvent,
   ): Promise<void> {
     const senderId = event.sender?.id;
     const recipientId = event.recipient?.id;
@@ -104,8 +155,13 @@ export class MessageWebhookHandler {
       return;
     }
 
-    const platformMessageId = messageData.mid;
+    const platformMessageId = messageData.mid || messageData.id;
     const timestamp = event.timestamp ? new Date(event.timestamp) : new Date();
+
+    if (!platformMessageId) {
+      this.logger.warn('Missing platform message ID');
+      return;
+    }
 
     await this.processMessage(
       pageId,
@@ -117,9 +173,19 @@ export class MessageWebhookHandler {
     );
   }
 
+  /**
+   * Processes message change events from Instagram webhooks
+   *
+   * Handles bulk message notifications by iterating through messages
+   * and processing each one individually.
+   *
+   * @param pageId - The Instagram page/account ID
+   * @param value - The message change value containing messages array
+   * @returns Promise that resolves when all messages are processed
+   */
   private async processMessageChange(
     pageId: string,
-    value: any,
+    value: MessageChangeValue,
   ): Promise<void> {
     const messages = value.messages || [];
 
@@ -152,12 +218,30 @@ export class MessageWebhookHandler {
     }
   }
 
+  /**
+   * Processes an individual message from Instagram
+   *
+   * Core message processing logic:
+   * - Ensures idempotency by checking for existing messages
+   * - Creates or finds conversation
+   * - Fetches participant profile for new conversations
+   * - Creates message entity
+   * - Updates conversation metadata
+   *
+   * @param pageId - The Instagram page/account ID
+   * @param senderId - The sender's Instagram user ID
+   * @param recipientId - The recipient's Instagram user ID
+   * @param platformMessageId - Instagram's unique message ID
+   * @param messageData - The message data containing content and metadata
+   * @param timestamp - Message timestamp
+   * @returns Promise that resolves when message is processed
+   */
   private async processMessage(
     pageId: string,
     senderId: string,
     recipientId: string,
     platformMessageId: string,
-    messageData: any,
+    messageData: MessageData,
     timestamp: Date,
   ): Promise<void> {
     const existingMessage =
@@ -193,6 +277,11 @@ export class MessageWebhookHandler {
       });
 
       conversation = await this.conversationRepository.create(conversation);
+      await this.fetchAndUpdateParticipantProfile(
+        conversation,
+        senderId,
+        pageId,
+      );
     }
 
     const { messageType, content, mediaUrl, mediaType } =
@@ -230,7 +319,63 @@ export class MessageWebhookHandler {
     );
   }
 
-  private extractMessageContent(messageData: any): {
+  /**
+   * Fetches participant profile from Instagram API and updates conversation
+   *
+   * Non-blocking operation that attempts to enrich conversation with
+   * participant profile data (username and profile picture).
+   * Failures are logged but do not prevent conversation creation.
+   *
+   * @param conversation - The conversation entity to update
+   * @param senderId - The participant's Instagram user ID
+   * @param pageId - The Instagram page/account ID for API authentication
+   * @returns Promise that resolves when profile fetch completes (success or failure)
+   */
+  private async fetchAndUpdateParticipantProfile(
+    conversation: Conversation,
+    senderId: string,
+    pageId: string,
+  ): Promise<void> {
+    try {
+      const profile = await this.instagramApiService.getUserProfileById(
+        pageId,
+        senderId,
+      );
+      if (!profile) {
+        this.logger.debug(
+          `Could not fetch profile for participant ${senderId}, conversation created without profile`,
+        );
+        return;
+      }
+      if (profile.username && profile.profile_picture_url) {
+        conversation.updateParticipantProfile(
+          profile.username,
+          profile.profile_picture_url,
+        );
+        await this.conversationRepository.update(conversation);
+        this.logger.log(
+          `Participant profile updated for conversation ${conversation.id}: @${profile.username}`,
+        );
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      this.logger.error(
+        `Non-blocking error fetching participant profile for ${senderId}: ${errorMessage}`,
+      );
+    }
+  }
+
+  /**
+   * Extracts message content and determines message type
+   *
+   * Analyzes message data to determine the type of message (text, image, video, etc.)
+   * and extracts relevant content including media URLs and text.
+   *
+   * @param messageData - The message data from Instagram webhook
+   * @returns Object containing message type, content, and media information
+   */
+  private extractMessageContent(messageData: MessageData): {
     messageType: MessageType;
     content?: string;
     mediaUrl?: string;

@@ -1,0 +1,449 @@
+{
+  "planId": "PLAN-2025-20251102140800",
+  "featureId": "FEAT-2025-20251102140615",
+  "timestamp": "2025-11-02T14:08:00Z",
+  "architecture": {
+    "approach": "layered-architecture-with-domain-driven-design",
+    "patterns": [
+      "Repository Pattern",
+      "Service Pattern",
+      "DTO Pattern",
+      "Domain Entity Pattern",
+      "Queue/Worker Pattern for Async Processing",
+      "Caching Pattern (Redis)",
+      "Early Return Pattern"
+    ],
+    "components": [
+      {
+        "name": "InstagramApiService.getUserProfileById",
+        "type": "backend-service-method",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "New method to fetch Instagram user profile by platform ID (IGID) from Graph API"
+      },
+      {
+        "name": "MessageWebhookHandler.fetchAndUpdateParticipantProfile",
+        "type": "backend-handler-method",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "Private method to fetch participant profile from Instagram API when creating conversations"
+      },
+      {
+        "name": "MessageWebhookHandler.processMessage",
+        "type": "backend-handler-method",
+        "action": "modify",
+        "technology": "NestJS",
+        "description": "Modify to call participant profile fetching when creating new conversations"
+      },
+      {
+        "name": "Conversation.updateParticipantProfile",
+        "type": "domain-entity-method",
+        "action": "create",
+        "technology": "TypeScript",
+        "description": "Domain method to update participant username and profile picture in Conversation entity"
+      },
+      {
+        "name": "ConversationRepository.findConversationsWithMissingProfiles",
+        "type": "repository-method",
+        "action": "create",
+        "technology": "TypeScript/PostgreSQL",
+        "description": "Query method to find conversations where participant_username is NULL"
+      },
+      {
+        "name": "ParticipantProfileCache",
+        "type": "cache-layer",
+        "action": "create",
+        "technology": "Redis",
+        "description": "Redis cache for participant profiles with 24h TTL to avoid Instagram API rate limiting"
+      },
+      {
+        "name": "BackfillParticipantProfilesWorker",
+        "type": "worker-queue",
+        "action": "create",
+        "technology": "BullMQ",
+        "description": "Background job queue to backfill missing participant profiles for existing conversations"
+      },
+      {
+        "name": "BackfillParticipantProfilesProcessor",
+        "type": "worker-processor",
+        "action": "create",
+        "technology": "BullMQ",
+        "description": "Processor to handle backfilling of participant profiles asynchronously"
+      },
+      {
+        "name": "InstagramProfileDto",
+        "type": "dto",
+        "action": "verify",
+        "technology": "TypeScript",
+        "description": "Verify existing DTO supports username and profile_picture_url fields"
+      },
+      {
+        "name": "GetUserProfileById E2E Test",
+        "type": "test-e2e",
+        "action": "create",
+        "technology": "Jest",
+        "description": "E2E test for new Instagram API method to fetch user profile by ID"
+      },
+      {
+        "name": "Webhook Handler Profile Fetch Unit Test",
+        "type": "test-unit",
+        "action": "create",
+        "technology": "Jest/Sinon",
+        "description": "Unit test for webhook handler participant profile fetching logic"
+      },
+      {
+        "name": "Conversation Entity Unit Test",
+        "type": "test-unit",
+        "action": "extend",
+        "technology": "Jest",
+        "description": "Extend existing tests to cover updateParticipantProfile method"
+      },
+      {
+        "name": "Backfill Worker Integration Test",
+        "type": "test-integration",
+        "action": "create",
+        "technology": "Jest",
+        "description": "Integration test for backfill worker processing"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Domain & Repository Layer",
+      "order": 1,
+      "estimatedHours": 2,
+      "components": [
+        "Conversation.updateParticipantProfile domain method",
+        "ConversationRepository.findConversationsWithMissingProfiles method",
+        "Unit tests for domain entity"
+      ],
+      "dependencies": [],
+      "tasks": [
+        "Add updateParticipantProfile() method to Conversation entity to update participantUsername and participantProfilePic",
+        "Add findConversationsWithMissingProfiles() method to ConversationRepository",
+        "Create unit tests for new domain method",
+        "Verify database schema already supports participant_username and participant_profile_pic columns (from migration 007)"
+      ],
+      "validationPoints": [
+        "Conversation entity allows updating participant profile fields",
+        "Repository can query conversations with NULL participant_username",
+        "All unit tests pass"
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Instagram API Integration & Caching",
+      "order": 2,
+      "estimatedHours": 3,
+      "components": [
+        "InstagramApiService.getUserProfileById method",
+        "ParticipantProfileCache (Redis)",
+        "E2E tests for API integration"
+      ],
+      "dependencies": ["P1"],
+      "tasks": [
+        "Add getUserProfileById(accountId: string, participantPlatformId: string) method to InstagramApiService",
+        "Implement Redis caching layer for participant profiles with 24h TTL",
+        "Add cache-first logic: check cache before calling Instagram API",
+        "Handle Instagram API errors gracefully (return null on failure, log error)",
+        "Verify InstagramProfileDto supports username and profile_picture_url fields",
+        "Create E2E test for getUserProfileById with real Instagram API (using test account)",
+        "Create unit test for cache hit/miss scenarios"
+      ],
+      "validationPoints": [
+        "getUserProfileById successfully fetches profile from Instagram Graph API",
+        "Profile data is cached in Redis with correct TTL",
+        "Cache hit returns data without calling API",
+        "API failures are handled gracefully without blocking execution",
+        "Rate limiting is respected (checked via InstagramRateLimiter)"
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Webhook Handler Enhancement",
+      "order": 3,
+      "estimatedHours": 3,
+      "components": [
+        "MessageWebhookHandler.fetchAndUpdateParticipantProfile method",
+        "MessageWebhookHandler.processMessage modification",
+        "Unit tests with stubbed dependencies"
+      ],
+      "dependencies": ["P2"],
+      "tasks": [
+        "Add private method fetchAndUpdateParticipantProfile(conversation, senderId, pageId) to MessageWebhookHandler",
+        "Implement async profile fetching: call InstagramApiService.getUserProfileById",
+        "Update Conversation entity with fetched profile data using updateParticipantProfile",
+        "Persist updated conversation via ConversationRepository.update",
+        "Make profile fetching non-blocking: wrap in try-catch, log errors but don't throw",
+        "Modify processMessage method to call fetchAndUpdateParticipantProfile AFTER creating new conversation",
+        "Create unit tests using sinon stubs for InstagramApiService and ConversationRepository",
+        "Test both success and failure scenarios (API error, cache hit, cache miss)"
+      ],
+      "validationPoints": [
+        "New conversations are created with participant profile information populated",
+        "Participant username displays correctly in conversation list (not 'unknown')",
+        "Profile picture URL is stored in database",
+        "Instagram API errors don't block message processing",
+        "All unit tests pass with stubbed dependencies"
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Backfill Worker for Existing Data",
+      "order": 4,
+      "estimatedHours": 3,
+      "components": [
+        "BackfillParticipantProfilesQueue",
+        "BackfillParticipantProfilesProcessor",
+        "Integration tests",
+        "Worker module registration"
+      ],
+      "dependencies": ["P3"],
+      "tasks": [
+        "Create BackfillParticipantProfilesQueue extending BullMQ Queue pattern (similar to webhook-events.queue.ts)",
+        "Create BackfillParticipantProfilesProcessor with process() method",
+        "Processor logic: fetch conversations with missing profiles, call Instagram API, update database",
+        "Implement batch processing: process 10 conversations at a time to respect rate limits",
+        "Add exponential backoff retry logic (3 attempts)",
+        "Register queue and processor in workers.module.ts",
+        "Create integration test for worker processing",
+        "Create manual trigger endpoint (optional, for admin use): POST /admin/backfill-profiles"
+      ],
+      "validationPoints": [
+        "Worker successfully processes conversations with NULL participant_username",
+        "Profiles are fetched and updated in database",
+        "Rate limiting is respected (max 200 calls per hour per user)",
+        "Failed jobs are retried with exponential backoff",
+        "Integration tests pass"
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Frontend Polling Optimization",
+      "order": 5,
+      "estimatedHours": 1.5,
+      "components": [
+        "useMessaging hook refetchInterval configuration",
+        "React Query stale-while-revalidate strategy"
+      ],
+      "dependencies": [],
+      "tasks": [
+        "Reduce refetchInterval for conversations from 10s to 30s in inbox page",
+        "Reduce refetchInterval for messages from 5s to 15s",
+        "Configure React Query with staleTime: 10000 (10s) to reduce unnecessary re-fetches",
+        "Add refetchOnWindowFocus: false to reduce server load when user switches tabs",
+        "Test polling behavior in development environment"
+      ],
+      "validationPoints": [
+        "Polling intervals reduced to 30s for conversations, 15s for messages",
+        "Server load reduced (measure via network tab)",
+        "User experience remains smooth (no noticeable delay)",
+        "React Query cache behavior is optimized"
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "E2E Testing & Validation",
+      "order": 6,
+      "estimatedHours": 2,
+      "components": [
+        "E2E test for complete webhook flow",
+        "E2E test for conversation display",
+        "Manual testing checklist"
+      ],
+      "dependencies": ["P3", "P4"],
+      "tasks": [
+        "Create E2E test: simulate webhook message event → verify conversation created with participant profile",
+        "Create E2E test: verify existing conversations with NULL username display fallback UI",
+        "Create E2E test: verify backfill worker updates existing conversations",
+        "Manual testing: send real Instagram message → verify username displays correctly",
+        "Manual testing: verify message sender attribution (USER vs CUSTOMER)",
+        "Performance testing: measure API call reduction with caching",
+        "Load testing: verify rate limiting doesn't break under high message volume"
+      ],
+      "validationPoints": [
+        "Webhook creates conversation with participant username populated",
+        "Conversation list displays participant usernames (not 'unknown')",
+        "Messages display correct sender attribution",
+        "Backfill worker successfully updates existing data",
+        "All E2E tests pass",
+        "Performance improvement measured and documented"
+      ]
+    },
+    {
+      "phaseId": "P7",
+      "name": "Documentation & Deployment",
+      "order": 7,
+      "estimatedHours": 1.5,
+      "components": [
+        "API documentation (OpenAPI/Swagger)",
+        "Code comments (JSDoc)",
+        "Migration notes"
+      ],
+      "dependencies": ["P6"],
+      "tasks": [
+        "Add JSDoc comments to all new methods (getUserProfileById, fetchAndUpdateParticipantProfile, etc.)",
+        "Document backfill worker in README or developer docs",
+        "Add Swagger annotations for any new API endpoints",
+        "Create deployment notes: explain backfill worker needs to be triggered once after deployment",
+        "Document Instagram API rate limiting strategy in code comments",
+        "Update CHANGELOG.md with bug fix details"
+      ],
+      "validationPoints": [
+        "All new code has JSDoc documentation",
+        "Swagger API docs are updated",
+        "Deployment process is documented",
+        "Team is aware of backfill worker requirement"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "New conversations created via webhooks display participant username instead of 'unknown'",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "E2E test: send Instagram DM → verify conversation shows sender's username"
+    },
+    {
+      "id": "AC-002",
+      "description": "Existing conversations with missing participant info are backfilled via background worker",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "Integration test: run backfill worker → verify NULL usernames are populated"
+    },
+    {
+      "id": "AC-003",
+      "description": "Message sender attribution correctly displays USER vs CUSTOMER messages",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "E2E test: verify MessageThread component renders messages on correct side based on senderType"
+    },
+    {
+      "id": "AC-004",
+      "description": "Instagram API calls are cached to avoid rate limiting (max 200 calls/hour)",
+      "type": "performance",
+      "testable": true,
+      "testStrategy": "Unit test: verify cache hit doesn't call API, cache miss calls API once and stores result"
+    },
+    {
+      "id": "AC-005",
+      "description": "Webhook message processing doesn't fail if Instagram API is unavailable",
+      "type": "reliability",
+      "testable": true,
+      "testStrategy": "Unit test: stub Instagram API to throw error → verify message is created with NULL username"
+    },
+    {
+      "id": "AC-006",
+      "description": "Frontend polling frequency reduced from 5-10s to 15-30s",
+      "type": "performance",
+      "testable": true,
+      "testStrategy": "Manual test: observe network tab → verify API calls occur every 15-30s instead of 5-10s"
+    },
+    {
+      "id": "AC-007",
+      "description": "Conversation list displays fallback UI when participant information is unavailable",
+      "type": "usability",
+      "testable": true,
+      "testStrategy": "Manual test: verify conversations with NULL username display graceful fallback"
+    },
+    {
+      "id": "AC-008",
+      "description": "Profile fetching completes within 500ms when cache hit occurs",
+      "type": "performance",
+      "testable": true,
+      "testStrategy": "Performance test: measure response time for cached profile lookups"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Instagram Graph API rate limiting (200 calls/hour) may prevent fetching all participant profiles in high-volume scenarios",
+      "severity": "high",
+      "impact": "Some conversations may still show 'unknown' during peak traffic",
+      "mitigation": "Implemented Redis caching with 24h TTL, queue-based backfill processing with rate limit respect, system user token fallback",
+      "owner": "Backend Team",
+      "status": "mitigated"
+    },
+    {
+      "description": "Backfill worker processing thousands of existing conversations may take hours",
+      "severity": "medium",
+      "impact": "Gradual improvement in user experience, not immediate fix",
+      "mitigation": "Batch processing with rate limiting, run during off-peak hours, prioritize recent conversations first",
+      "owner": "DevOps Team",
+      "status": "accepted"
+    },
+    {
+      "description": "Instagram API may be unavailable during webhook processing",
+      "severity": "medium",
+      "impact": "New conversations created without profile info",
+      "mitigation": "Non-blocking async profile fetch, message processing continues, backfill worker will catch missed profiles",
+      "owner": "Backend Team",
+      "status": "mitigated"
+    },
+    {
+      "description": "Redis cache failure may cause performance degradation",
+      "severity": "low",
+      "impact": "Increased API calls, potential rate limiting",
+      "mitigation": "Graceful fallback to direct API calls, cache errors logged but don't block functionality",
+      "owner": "Infrastructure Team",
+      "status": "mitigated"
+    },
+    {
+      "description": "Participant usernames may change on Instagram but won't auto-update in database",
+      "severity": "low",
+      "impact": "Stale usernames displayed occasionally",
+      "mitigation": "24h cache TTL provides eventual consistency, future enhancement: periodic profile refresh",
+      "owner": "Product Team",
+      "status": "accepted"
+    }
+  ],
+  "estimatedTotalHours": 16,
+  "technicalNotes": {
+    "databaseChanges": "No schema changes required - conversations table already has participant_username and participant_profile_pic columns",
+    "apiEndpoints": "No new public API endpoints - only internal service methods and optional admin backfill trigger",
+    "dependencies": {
+      "existing": [
+        "@nestjs/common",
+        "@nestjs/bullmq",
+        "axios",
+        "ioredis",
+        "jest",
+        "sinon"
+      ],
+      "new": []
+    },
+    "environmentVariables": "INSTAGRAM_SYSTEM_USER_TOKEN (already exists as fallback)",
+    "cacheStrategy": "Redis cache key format: instagram:profile:{participantPlatformId}, TTL: 86400s (24h)",
+    "rateLimitStrategy": "Use existing InstagramRateLimiter, respect 200 calls/hour per user, implement queue-based backoff",
+    "rollbackPlan": "Revert webhook handler changes, disable backfill worker, no data loss (only NULL participant_username values remain)"
+  },
+  "sequenceDiagram": {
+    "webhookFlow": [
+      "1. Instagram sends webhook message event",
+      "2. MessageWebhookHandler receives event",
+      "3. Check if conversation exists (findByPlatformId)",
+      "4. If new: create conversation with participantPlatformId",
+      "5. Call fetchAndUpdateParticipantProfile(conversation, senderId, pageId)",
+      "6. Check Redis cache for participant profile",
+      "7. If cache miss: call InstagramApiService.getUserProfileById(accountId, participantPlatformId)",
+      "8. Instagram Graph API returns profile (username, profile_picture_url)",
+      "9. Store profile in Redis cache (24h TTL)",
+      "10. Call conversation.updateParticipantProfile(username, profilePic)",
+      "11. Save conversation via conversationRepository.update(conversation)",
+      "12. Continue with message creation (existing flow)",
+      "13. Frontend polls /messaging/conversations and displays username"
+    ],
+    "backfillFlow": [
+      "1. Admin triggers backfill or scheduled job starts",
+      "2. BackfillParticipantProfilesQueue adds job to BullMQ",
+      "3. BackfillParticipantProfilesProcessor picks up job",
+      "4. Query conversations with participant_username IS NULL (batch of 10)",
+      "5. For each conversation: fetch profile from Instagram API (with cache check)",
+      "6. Update conversation with profile data",
+      "7. Wait for rate limit compliance (respecting 200 calls/hour)",
+      "8. Repeat until all conversations processed",
+      "9. Log completion statistics (success count, errors, duration)"
+    ]
+  }
+}

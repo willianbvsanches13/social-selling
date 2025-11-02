@@ -1,0 +1,24 @@
+{
+  "taskId": "TASK-013",
+  "phaseId": "P4",
+  "title": "Register backfill queue and processor in workers module",
+  "description": "Register BackfillParticipantProfilesQueue and BackfillParticipantProfilesProcessor in workers.module.ts providers and imports",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 0.25,
+  "dependencies": ["TASK-012"],
+  "files": [
+    "/root/social-selling/backend/src/workers/workers.module.ts"
+  ],
+  "dod": [
+    "Queue added to workers module providers",
+    "Processor added to workers module providers",
+    "BullModule.registerQueue configured for new queue",
+    "Module compiles without errors"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

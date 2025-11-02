@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { InstagramPublishingQueue } from './queues/instagram-publishing.queue';
 import { WebhookEventsQueue } from './queues/webhook-events.queue';
 import { EmailNotificationsQueue } from './queues/email-notifications.queue';
+import { BackfillParticipantProfilesQueue } from './queues/backfill-participant-profiles.queue';
 import { MediaDownloaderService } from './services/media-downloader.service';
 import { InstagramPublisherService } from './services/instagram-publisher.service';
 import { ImageAdjusterService } from './services/image-adjuster.service';
@@ -95,12 +96,17 @@ import { InstagramModule } from '../modules/instagram/instagram.module';
     BullModule.registerQueue({
       name: 'email-notifications',
     }),
+    // Register backfill-participant-profiles queue
+    BullModule.registerQueue({
+      name: 'backfill-participant-profiles',
+    }),
   ],
   providers: [
     // Queue services
     InstagramPublishingQueue,
     WebhookEventsQueue,
     EmailNotificationsQueue,
+    BackfillParticipantProfilesQueue,
     // Publishing worker services
     MediaDownloaderService,
     InstagramPublisherService,
@@ -142,6 +148,7 @@ import { InstagramModule } from '../modules/instagram/instagram.module';
     InstagramPublishingQueue,
     WebhookEventsQueue,
     EmailNotificationsQueue,
+    BackfillParticipantProfilesQueue,
     // Export publishing services for potential reuse
     MediaDownloaderService,
     InstagramPublisherService,

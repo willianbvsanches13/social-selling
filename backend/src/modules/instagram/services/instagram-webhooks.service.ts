@@ -59,7 +59,9 @@ export class InstagramWebhooksService {
       this.logger.warn('Missing X-Hub-Signature-256 header or app secret');
       this.logger.warn(`  - Signature present: ${!!signature}`);
       this.logger.warn(`  - App secret configured: ${!!this.appSecret}`);
-      this.logger.warn(`  - App secret preview: ${this.appSecret ? this.appSecret.substring(0, 8) + '...' : '(empty)'}`);
+      this.logger.warn(
+        `  - App secret preview: ${this.appSecret ? this.appSecret.substring(0, 8) + '...' : '(empty)'}`,
+      );
       return false;
     }
 
@@ -105,8 +107,12 @@ export class InstagramWebhooksService {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      this.logger.error(`Signature verification failed with error: ${errorMessage}`);
-      this.logger.error(`Error stack: ${error instanceof Error ? error.stack : '(no stack)'}`);
+      this.logger.error(
+        `Signature verification failed with error: ${errorMessage}`,
+      );
+      this.logger.error(
+        `Error stack: ${error instanceof Error ? error.stack : '(no stack)'}`,
+      );
       return false;
     }
   }
@@ -295,14 +301,18 @@ export class InstagramWebhooksService {
 
       this.logger.log(`Webhook event created: ${newEventId} (${eventType})`);
       this.logger.log(`🔍 CHECKPOINT 1: After event created log`);
-      this.logger.log(`🔍 CHECKPOINT 2: account=${JSON.stringify({ id: account?.id, hasQueue: !!this.webhookEventsQueue })}`);
+      this.logger.log(
+        `🔍 CHECKPOINT 2: account=${JSON.stringify({ id: account?.id, hasQueue: !!this.webhookEventsQueue })}`,
+      );
 
       // Queue event for asynchronous processing
       this.logger.log(`🔍 CHECKPOINT 3: About to check if account?.id`);
       if (account?.id) {
         this.logger.log(`🔍 CHECKPOINT 4: Inside if (account?.id) block`);
         try {
-          this.logger.log(`🔍 CHECKPOINT 5: About to call webhookEventsQueue.addEvent`);
+          this.logger.log(
+            `🔍 CHECKPOINT 5: About to call webhookEventsQueue.addEvent`,
+          );
           await this.webhookEventsQueue.addEvent({
             eventType: eventType as any, // Convert to WebhookEventType from workers
             eventId: newEventId,
@@ -316,7 +326,9 @@ export class InstagramWebhooksService {
           );
         } catch (queueError) {
           const queueErrorMessage =
-            queueError instanceof Error ? queueError.message : String(queueError);
+            queueError instanceof Error
+              ? queueError.message
+              : String(queueError);
           this.logger.error(
             `Failed to queue event for processing: ${queueErrorMessage}`,
           );

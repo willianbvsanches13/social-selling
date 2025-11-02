@@ -1,0 +1,341 @@
+{
+  "refinementId": "REF-TASK-017-20251102205700",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-017",
+  "iteration": 1,
+  "timestamp": "2025-11-02T20:57:00Z",
+  "source": {
+    "type": "test-failure",
+    "triggerId": "TEST-TASK-017-20251102204519",
+    "testFile": "e2e/backfill-participant-profiles.spec.ts"
+  },
+  "analysis": {
+    "rootCauses": [
+      "POST /api/messaging/conversations endpoint does not exist - MessagingController only has GET endpoints",
+      "POST /api/workers/backfill-participant-profiles endpoint does not exist - No WorkersController exists",
+      "MessagingController has @UseGuards(JwtAuthGuard) requiring authentication for all endpoints, but E2E tests have no authentication setup",
+      "DELETE /api/messaging/conversations/:id endpoint missing - needed for test cleanup",
+      "ConversationService does not have a create() method to create new conversations"
+    ],
+    "impactedAreas": [
+      "backend/src/modules/messaging/controllers/messaging.controller.ts",
+      "backend/src/modules/messaging/services/conversation.service.ts",
+      "backend/src/modules/messaging/dto/conversation.dto.ts",
+      "e2e/backfill-participant-profiles.spec.ts"
+    ],
+    "riskLevel": "critical",
+    "problemCategories": [
+      "missing-endpoints",
+      "missing-authentication",
+      "incomplete-service-methods",
+      "incomplete-controller"
+    ]
+  },
+  "actions": [
+    {
+      "actionId": "ACT-001",
+      "type": "fix-bug",
+      "priority": "critical",
+      "description": "Add create() method to ConversationService to support conversation creation",
+      "targetFiles": [
+        "backend/src/modules/messaging/services/conversation.service.ts"
+      ],
+      "specificChanges": [
+        "Add create(userId: string, data: CreateConversationDto): Promise<Conversation> method",
+        "Validate userId has access to clientAccountId before creating",
+        "Call conversationRepository.create() to persist conversation",
+        "Return created Conversation entity",
+        "Add proper error handling for duplicate conversations"
+      ],
+      "acceptanceCriteria": [
+        "Method successfully creates conversation with all required fields",
+        "Validates user has access to clientAccountId",
+        "Returns Conversation entity with generated ID",
+        "Handles duplicate platform_conversation_id gracefully"
+      ],
+      "estimatedMinutes": 30
+    },
+    {
+      "actionId": "ACT-002",
+      "type": "fix-bug",
+      "priority": "critical",
+      "description": "Create CreateConversationDto with validation",
+      "targetFiles": [
+        "backend/src/modules/messaging/dto/conversation.dto.ts"
+      ],
+      "specificChanges": [
+        "Create CreateConversationDto class extending existing DTO",
+        "Add @IsString() @IsNotEmpty() for clientAccountId",
+        "Add @IsString() @IsNotEmpty() for platformConversationId",
+        "Add @IsString() @IsNotEmpty() for participantPlatformId",
+        "Add @IsString() @IsOptional() for participantUsername (allows null)",
+        "Add @IsString() @IsOptional() for participantProfilePic (allows null)",
+        "Add @IsNumber() @IsOptional() for unreadCount",
+        "Add @IsEnum(ConversationStatus) @IsOptional() for status",
+        "Add @IsObject() @IsOptional() for metadata"
+      ],
+      "acceptanceCriteria": [
+        "DTO properly validates all required fields",
+        "Allows NULL for participantUsername and participantProfilePic",
+        "Validates clientAccountId is UUID",
+        "Validates platformConversationId is string"
+      ],
+      "estimatedMinutes": 20
+    },
+    {
+      "actionId": "ACT-003",
+      "type": "fix-bug",
+      "priority": "critical",
+      "description": "Add POST /api/messaging/conversations endpoint to MessagingController",
+      "targetFiles": [
+        "backend/src/modules/messaging/controllers/messaging.controller.ts"
+      ],
+      "specificChanges": [
+        "Import CreateConversationDto",
+        "Add @Post('conversations') method createConversation()",
+        "Add @Body() createConversationDto: CreateConversationDto parameter",
+        "Add @Request() req: any to get authenticated user",
+        "Call conversationService.create(req.user.id, createConversationDto)",
+        "Return created conversation as ConversationResponseDto",
+        "Add @ApiOperation with summary and description",
+        "Add @ApiResponse for 201 Created, 400 Bad Request, 403 Forbidden, 409 Conflict",
+        "Return HttpStatus.CREATED (201)"
+      ],
+      "acceptanceCriteria": [
+        "Endpoint POST /api/messaging/conversations exists",
+        "Returns 201 Created with conversation data",
+        "Validates CreateConversationDto",
+        "Requires JWT authentication",
+        "Returns 403 if user does not own clientAccountId"
+      ],
+      "estimatedMinutes": 25
+    },
+    {
+      "actionId": "ACT-004",
+      "type": "fix-bug",
+      "priority": "critical",
+      "description": "Add delete() method to ConversationService",
+      "targetFiles": [
+        "backend/src/modules/messaging/services/conversation.service.ts"
+      ],
+      "specificChanges": [
+        "Add delete(userId: string, conversationId: string): Promise<void> method",
+        "Call getConversation() to verify existence and access",
+        "Call conversationRepository.delete(conversationId)",
+        "Add logger.log for deletion tracking",
+        "Handle case where conversation doesn't exist gracefully"
+      ],
+      "acceptanceCriteria": [
+        "Method deletes conversation from database",
+        "Verifies user has access before deleting",
+        "Throws NotFoundException if conversation not found",
+        "Throws ForbiddenException if user lacks access"
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "actionId": "ACT-005",
+      "type": "fix-bug",
+      "priority": "critical",
+      "description": "Add DELETE /api/messaging/conversations/:id endpoint",
+      "targetFiles": [
+        "backend/src/modules/messaging/controllers/messaging.controller.ts"
+      ],
+      "specificChanges": [
+        "Add @Delete('conversations/:id') method deleteConversation()",
+        "Add @Request() req: any parameter",
+        "Add @Param('id') conversationId: string parameter",
+        "Call conversationService.delete(req.user.id, conversationId)",
+        "Return HttpStatus.NO_CONTENT (204)",
+        "Add @ApiOperation, @ApiParam, @ApiResponse decorators"
+      ],
+      "acceptanceCriteria": [
+        "Endpoint DELETE /api/messaging/conversations/:id exists",
+        "Returns 204 No Content on success",
+        "Returns 404 if conversation not found",
+        "Returns 403 if user lacks access",
+        "Requires JWT authentication"
+      ],
+      "estimatedMinutes": 15
+    },
+    {
+      "actionId": "ACT-006",
+      "type": "fix-bug",
+      "priority": "critical",
+      "description": "Create WorkersController with backfill endpoint",
+      "targetFiles": [
+        "backend/src/modules/workers/workers.controller.ts"
+      ],
+      "specificChanges": [
+        "Create new WorkersController class",
+        "Add @ApiTags('Workers') decorator",
+        "Add @Controller('workers') decorator",
+        "Add @Post('backfill-participant-profiles') method",
+        "Accept BackfillRequestDto with accountId and batchSize",
+        "Inject Queue<BackfillJobData> from BullMQ",
+        "Add job to 'backfill-participant-profiles' queue",
+        "Return 202 Accepted with jobId",
+        "Add proper error handling",
+        "Add @ApiOperation, @ApiResponse decorators"
+      ],
+      "acceptanceCriteria": [
+        "Endpoint POST /api/workers/backfill-participant-profiles exists",
+        "Accepts accountId and batchSize in request body",
+        "Enqueues backfill job to BullMQ queue",
+        "Returns 202 Accepted with job details",
+        "Returns 400 if validation fails"
+      ],
+      "estimatedMinutes": 35
+    },
+    {
+      "actionId": "ACT-007",
+      "type": "fix-bug",
+      "priority": "critical",
+      "description": "Create BackfillRequestDto for worker endpoint",
+      "targetFiles": [
+        "backend/src/modules/workers/dto/backfill-request.dto.ts"
+      ],
+      "specificChanges": [
+        "Create BackfillRequestDto class",
+        "Add @IsString() @IsNotEmpty() accountId: string",
+        "Add @IsNumber() @IsOptional() @Min(1) @Max(100) batchSize?: number",
+        "Set default batchSize = 50 in controller if not provided",
+        "Add JSDoc comments explaining fields"
+      ],
+      "acceptanceCriteria": [
+        "DTO validates accountId is required string",
+        "DTO validates batchSize is optional number between 1-100",
+        "Validation errors return 400 Bad Request"
+      ],
+      "estimatedMinutes": 10
+    },
+    {
+      "actionId": "ACT-008",
+      "type": "fix-bug",
+      "priority": "critical",
+      "description": "Register WorkersController in WorkersModule",
+      "targetFiles": [
+        "backend/src/modules/workers/workers.module.ts"
+      ],
+      "specificChanges": [
+        "Import WorkersController",
+        "Add WorkersController to controllers array in @Module decorator",
+        "Import BullModule.registerQueue({ name: 'backfill-participant-profiles' })",
+        "Ensure Queue is available for dependency injection"
+      ],
+      "acceptanceCriteria": [
+        "WorkersController is registered in module",
+        "BullMQ queue is properly configured",
+        "Controller endpoints are accessible via HTTP",
+        "Dependency injection works correctly"
+      ],
+      "estimatedMinutes": 10
+    },
+    {
+      "actionId": "ACT-009",
+      "type": "improve-security",
+      "priority": "high",
+      "description": "Add JWT authentication setup for E2E tests",
+      "targetFiles": [
+        "e2e/backfill-participant-profiles.spec.ts",
+        "e2e/helpers/auth.helper.ts"
+      ],
+      "specificChanges": [
+        "Create auth.helper.ts with generateTestToken() function",
+        "Add test.beforeAll() hook to generate JWT token",
+        "Store token in test context",
+        "Add 'Authorization: Bearer ${token}' header to all axios requests",
+        "Handle 401 Unauthorized responses gracefully",
+        "Create test user if needed via auth endpoint"
+      ],
+      "acceptanceCriteria": [
+        "E2E tests successfully authenticate before making API calls",
+        "All authenticated endpoints return 200/201 instead of 401",
+        "Tests handle missing authentication gracefully",
+        "Token is reused across all tests in suite"
+      ],
+      "estimatedMinutes": 40
+    },
+    {
+      "actionId": "ACT-010",
+      "type": "add-test",
+      "priority": "medium",
+      "description": "Add unit tests for ConversationService.create()",
+      "targetFiles": [
+        "backend/test/unit/modules/messaging/services/conversation.service.spec.ts"
+      ],
+      "specificChanges": [
+        "Create test suite for ConversationService",
+        "Test: 'should create conversation with valid data'",
+        "Test: 'should throw ForbiddenException if user lacks access'",
+        "Test: 'should throw NotFoundException if clientAccount not found'",
+        "Test: 'should handle NULL participantUsername and participantProfilePic'",
+        "Mock conversationRepository and clientAccountRepository",
+        "Use Arrange-Act-Assert pattern"
+      ],
+      "acceptanceCriteria": [
+        "4 unit tests for create() method",
+        "All tests passing",
+        "Code coverage >= 90% for create() method",
+        "Tests use proper mocks and stubs"
+      ],
+      "estimatedMinutes": 45
+    },
+    {
+      "actionId": "ACT-011",
+      "type": "add-test",
+      "priority": "medium",
+      "description": "Add unit tests for ConversationService.delete()",
+      "targetFiles": [
+        "backend/test/unit/modules/messaging/services/conversation.service.spec.ts"
+      ],
+      "specificChanges": [
+        "Test: 'should delete conversation successfully'",
+        "Test: 'should throw NotFoundException if conversation not found'",
+        "Test: 'should throw ForbiddenException if user lacks access'",
+        "Mock conversationRepository.delete()",
+        "Verify delete() is called with correct conversationId"
+      ],
+      "acceptanceCriteria": [
+        "3 unit tests for delete() method",
+        "All tests passing",
+        "Code coverage >= 90% for delete() method"
+      ],
+      "estimatedMinutes": 30
+    }
+  ],
+  "estimatedEffort": {
+    "hours": 4.5,
+    "complexity": "high",
+    "note": "Multiple critical endpoints need to be created including controller, service methods, DTOs, queue setup, and authentication"
+  },
+  "priority": "critical",
+  "implementationOrder": [
+    "ACT-002",
+    "ACT-001",
+    "ACT-003",
+    "ACT-004",
+    "ACT-005",
+    "ACT-007",
+    "ACT-006",
+    "ACT-008",
+    "ACT-009",
+    "ACT-010",
+    "ACT-011"
+  ],
+  "notes": [
+    "5 out of 6 E2E tests failed - implementation is severely incomplete",
+    "Missing fundamental CRUD operations for conversations",
+    "No HTTP endpoints for worker operations - only processor exists",
+    "Authentication completely blocks E2E tests - critical blocker",
+    "Must implement endpoints in dependency order: DTOs -> Service -> Controller -> Module registration",
+    "Authentication setup should be done after endpoints are created to avoid blocking further testing"
+  ],
+  "preventionMeasures": [
+    "Create E2E test specification BEFORE implementing features",
+    "Validate all required HTTP endpoints exist in controller before writing E2E tests",
+    "Set up authentication helpers at project start, not after implementation",
+    "Follow TDD: Write failing test -> Implement feature -> Pass test",
+    "Review controller methods against E2E test requirements during planning phase"
+  ]
+}

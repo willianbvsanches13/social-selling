@@ -1,7 +1,19 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, MinLength, MaxLength, IsInt, Min, Max, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  IsInt,
+  Min,
+  Max,
+  IsOptional,
+} from 'class-validator';
 import { Type } from 'class-transformer';
-import { MessageType, SenderType } from '../../../domain/entities/message.entity';
+import {
+  MessageType,
+  SenderType,
+} from '../../../domain/entities/message.entity';
 
 export class SendMessageDto {
   @ApiProperty({ minLength: 1, maxLength: 1000 })

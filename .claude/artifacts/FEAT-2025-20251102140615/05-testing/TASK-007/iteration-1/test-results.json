@@ -1,0 +1,125 @@
+{
+  "testResultsId": "TEST-2025-20251102175800",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-007",
+  "executionId": "EXEC-2025-20251102174700",
+  "iteration": 1,
+  "timestamp": "2025-11-02T17:58:00Z",
+  "summary": {
+    "totalTests": 6,
+    "passed": 1,
+    "failed": 5,
+    "skipped": 0,
+    "duration": 499
+  },
+  "e2eTests": {
+    "passed": 1,
+    "failed": 5,
+    "skipped": 0,
+    "testFiles": [
+      "e2e/instagram-api-profile.spec.ts"
+    ]
+  },
+  "failures": [
+    {
+      "testFile": "e2e/instagram-api-profile.spec.ts",
+      "testName": "Instagram API - Profile Fetching E2E - should successfully fetch profile from Instagram API",
+      "error": "Failed to fetch profile: undefined - Error",
+      "stackTrace": "at /root/social-selling/e2e/instagram-api-profile.spec.ts:43:15",
+      "severity": "critical",
+      "rootCause": "Endpoint GET /instagram/profile/:participantId not registered - 404 Not Found",
+      "suggestedFix": "Backend container rebuild did not activate new endpoint. Container exited with code 137 (killed). Need to verify controller registration and restart backend properly."
+    },
+    {
+      "testFile": "e2e/instagram-api-profile.spec.ts",
+      "testName": "Instagram API - Profile Fetching E2E - should return profile data with username and profile_picture_url",
+      "error": "Failed to fetch profile: undefined - Error",
+      "stackTrace": "at /root/social-selling/e2e/instagram-api-profile.spec.ts:75:15",
+      "severity": "critical",
+      "rootCause": "Endpoint GET /instagram/profile/:participantId not registered - 404 Not Found",
+      "suggestedFix": "Backend endpoint not available. Controller route not accessible."
+    },
+    {
+      "testFile": "e2e/instagram-api-profile.spec.ts",
+      "testName": "Instagram API - Profile Fetching E2E - should cache profile data after first fetch",
+      "error": "Failed during cache test: undefined - Error",
+      "stackTrace": "at /root/social-selling/e2e/instagram-api-profile.spec.ts:122:15",
+      "severity": "critical",
+      "rootCause": "Endpoint GET /instagram/profile/:participantId not registered - 404 Not Found",
+      "suggestedFix": "Backend endpoint not available. Cannot test caching functionality."
+    },
+    {
+      "testFile": "e2e/instagram-api-profile.spec.ts",
+      "testName": "Instagram API - Profile Fetching E2E - should return cached data without API call on second request",
+      "error": "Failed during cached data test: undefined - Error",
+      "stackTrace": "at /root/social-selling/e2e/instagram-api-profile.spec.ts:163:15",
+      "severity": "critical",
+      "rootCause": "Endpoint GET /instagram/profile/:participantId not registered - 404 Not Found",
+      "suggestedFix": "Backend endpoint not available. Cannot test cached data retrieval."
+    },
+    {
+      "testFile": "e2e/instagram-api-profile.spec.ts",
+      "testName": "Instagram API - Profile Fetching E2E - should use real Instagram test account",
+      "error": "Failed to use real test account: undefined - Error",
+      "stackTrace": "at /root/social-selling/e2e/instagram-api-profile.spec.ts:217:15",
+      "severity": "critical",
+      "rootCause": "Endpoint GET /instagram/profile/:participantId not registered - 404 Not Found",
+      "suggestedFix": "Backend endpoint not available. Cannot test Instagram API integration."
+    }
+  ],
+  "passes": [
+    {
+      "testFile": "e2e/instagram-api-profile.spec.ts",
+      "testName": "Instagram API - Profile Fetching E2E - should handle invalid participant ID gracefully",
+      "note": "Test passed because it expects 404 error, which matches current backend state"
+    }
+  ],
+  "coverage": {
+    "statements": 0,
+    "branches": 0,
+    "functions": 0,
+    "lines": 0,
+    "note": "Coverage not available - endpoint not accessible for testing"
+  },
+  "backendStatus": {
+    "status": "exited",
+    "exitCode": 137,
+    "issue": "Backend container was killed during rebuild",
+    "logs": [
+      "Cannot GET /instagram/profile/17841403506636395?accountId=system - 404 Not Found",
+      "NotFoundException: Cannot GET /instagram/profile/:participantId"
+    ],
+    "diagnosis": "Backend container rebuild attempt resulted in container being killed (exit 137). The new endpoint was not successfully registered or the container failed to restart properly."
+  },
+  "recommendation": "refine",
+  "reason": "5 out of 6 E2E tests failed with CRITICAL severity. Backend endpoint /instagram/profile/:participantId is not accessible (404 Not Found). Backend container exited with code 137 after rebuild attempt. Controller modifications were not successfully deployed.",
+  "refinementRequired": [
+    {
+      "priority": "critical",
+      "issue": "Backend container rebuild failed",
+      "action": "Investigate why backend container was killed (exit 137) and ensure clean rebuild/restart"
+    },
+    {
+      "priority": "critical",
+      "issue": "Endpoint not registered",
+      "action": "Verify InstagramController modifications are correct and properly registered in app.module.ts"
+    },
+    {
+      "priority": "high",
+      "issue": "Route not accessible",
+      "action": "Ensure GET /instagram/profile/:participantId route is properly defined and mounted"
+    }
+  ],
+  "testExecution": {
+    "framework": "Playwright",
+    "httpClient": "axios",
+    "backendUrl": "http://localhost:4000",
+    "connectionStatus": "refused",
+    "note": "Backend was not accessible at time of test execution - container had exited"
+  },
+  "artifacts": {
+    "junitReport": "/root/social-selling/test-results/junit.xml",
+    "playwrightReport": "/root/social-selling/playwright-report/index.html",
+    "lastRunStatus": "/root/social-selling/test-results/.last-run.json"
+  }
+}

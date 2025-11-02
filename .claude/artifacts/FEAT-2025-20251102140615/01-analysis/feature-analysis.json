@@ -1,0 +1,175 @@
+{
+  "featureId": "FEAT-2025-20251102140615",
+  "timestamp": "2025-11-02T14:06:15Z",
+  "feature": {
+    "title": "Fix Conversation Display Issues - Username and Message Sender Attribution",
+    "description": "Fix critical display issues in the conversation inbox where participant usernames appear as 'unknown' and messages are displayed as if coming from a single user. The root cause is that the webhook handler creates conversations without fetching participant profile information from Instagram API, and messages lack proper sender attribution logic in the frontend display.",
+    "category": "bug-fix",
+    "priority": "high",
+    "businessValue": "Critical user experience fix that enables proper communication flow. Without proper sender identification, users cannot effectively manage conversations or understand who is sending messages, severely impacting the core messaging functionality."
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Fetch participant username and profile picture from Instagram Graph API when creating new conversations via webhooks",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Update existing conversations with missing participant information by querying Instagram API based on participantPlatformId",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Fix MessageThread component to properly differentiate between user and customer messages based on senderType field",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "Display fallback UI when participant information is unavailable (handle null/undefined participantUsername gracefully)",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "Optimize polling intervals in frontend to reduce unnecessary API calls (currently 5-10 seconds)",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-006",
+        "description": "Create migration script or background job to backfill participant information for existing conversations",
+        "priority": "could-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "performance",
+        "description": "Instagram API calls for participant profile should be cached to avoid rate limiting (maximum 200 calls per hour per user)"
+      },
+      {
+        "id": "NFR-002",
+        "type": "reliability",
+        "description": "Webhook message processing must handle Instagram API failures gracefully without blocking message creation"
+      },
+      {
+        "id": "NFR-003",
+        "type": "usability",
+        "description": "Conversation list and message thread must display proper sender identification within 500ms of data loading"
+      },
+      {
+        "id": "NFR-004",
+        "type": "performance",
+        "description": "Reduce frontend polling frequency to minimize server load - implement websocket or SSE for real-time updates instead of aggressive polling"
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "backend/src/modules/instagram/handlers/message-webhook.handler.ts",
+      "backend/src/modules/instagram/services/instagram-api.service.ts",
+      "backend/src/infrastructure/database/repositories/conversation.repository.ts",
+      "backend/src/domain/entities/conversation.entity.ts",
+      "frontend/src/components/messages/MessageThread.tsx",
+      "frontend/src/components/messages/ConversationList.tsx",
+      "frontend/src/app/(dashboard)/inbox/page.tsx",
+      "frontend/src/lib/hooks/useMessaging.ts"
+    ],
+    "databases": [
+      "conversations table - participant_username and participant_profile_pic columns",
+      "messages table - senderType field usage"
+    ],
+    "externalServices": [
+      "Instagram Graph API - GET /{user-id} endpoint for profile information",
+      "Instagram Graph API - Rate limiting considerations (200 calls/hour)"
+    ],
+    "estimatedComplexity": "medium"
+  },
+  "dependencies": [
+    {
+      "type": "service",
+      "name": "InstagramApiService",
+      "action": "extend"
+    },
+    {
+      "type": "service",
+      "name": "MessageWebhookHandler",
+      "action": "extend"
+    },
+    {
+      "type": "library",
+      "name": "@tanstack/react-query",
+      "action": "required"
+    },
+    {
+      "type": "configuration",
+      "name": "Instagram API permissions (instagram_basic, pages_messaging)",
+      "action": "required"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Instagram Graph API rate limiting may prevent fetching all participant profiles in high-volume scenarios",
+      "severity": "high",
+      "mitigation": "Implement Redis-based caching for participant profiles with TTL of 24 hours, use system user token as fallback, implement queue-based profile fetching with retry logic"
+    },
+    {
+      "description": "Existing conversations in database already lack participant information and need backfilling",
+      "severity": "medium",
+      "mitigation": "Create background job or migration script to fetch missing participant data using participantPlatformId, implement graceful fallback UI for conversations that fail to fetch"
+    },
+    {
+      "description": "Webhook processing may fail if Instagram API is unavailable during conversation creation",
+      "severity": "medium",
+      "mitigation": "Make participant profile fetching asynchronous - save conversation first with placeholder, then enqueue job to fetch and update profile information"
+    },
+    {
+      "description": "Frontend aggressive polling (every 2-5 seconds) may cause performance issues and unnecessary server load",
+      "severity": "medium",
+      "mitigation": "Reduce polling interval to 30 seconds or implement WebSocket/SSE for real-time updates, use stale-while-revalidate strategy in React Query"
+    },
+    {
+      "description": "Participant usernames may change over time on Instagram but won't be automatically updated in database",
+      "severity": "low",
+      "mitigation": "Implement periodic profile refresh (daily) or refresh on user interaction, add 'last_profile_updated_at' field to track staleness"
+    }
+  ],
+  "technicalDetails": {
+    "rootCauseAnalysis": {
+      "issue1_unknownUsername": {
+        "problem": "Conversations display 'unknown' instead of participant username",
+        "rootCause": "MessageWebhookHandler creates conversations without fetching participant profile from Instagram API. Fields participantUsername and participantProfilePic are optional and remain null",
+        "location": "backend/src/modules/instagram/handlers/message-webhook.handler.ts:185-195",
+        "evidence": "Conversation.create() only sets participantPlatformId (sender ID) but doesn't populate participantUsername or participantProfilePic"
+      },
+      "issue2_messagesOneSide": {
+        "problem": "All messages appear to come from same user",
+        "rootCause": "MessageThread component determines message alignment based on senderType === 'user' but doesn't properly distinguish between USER and CUSTOMER sender types",
+        "location": "frontend/src/components/messages/MessageThread.tsx:49",
+        "evidence": "const isCurrentUser = message.senderType === 'user' - this comparison works but may have data inconsistency if senderType is not properly set"
+      },
+      "issue3_aggressivePolling": {
+        "problem": "API requests every 2-5 seconds causing unnecessary load",
+        "rootCause": "useConversations and useMessages hooks configured with very short refetchInterval (5000ms and 10000ms)",
+        "location": "frontend/src/app/(dashboard)/inbox/page.tsx:43,57",
+        "evidence": "refetchInterval: 10000 for conversations, refetchInterval: 5000 for messages"
+      }
+    },
+    "proposedSolution": {
+      "backend": [
+        "Add method to InstagramApiService to fetch user profile by platform ID: getUserProfileById(participantPlatformId)",
+        "Modify MessageWebhookHandler.processMessage() to call Instagram API and populate participant info when creating conversations",
+        "Implement caching layer (Redis) for participant profiles to avoid rate limiting",
+        "Add async job queue to backfill existing conversations with missing participant data",
+        "Make profile fetching non-blocking - save conversation immediately, fetch profile asynchronously"
+      ],
+      "frontend": [
+        "Verify MessageThread senderType logic is correctly handling 'user' vs 'customer' enum values",
+        "Add null checks and fallback rendering for missing participantUsername in ConversationList",
+        "Increase polling intervals: conversations to 30s, messages to 15s",
+        "Implement optimistic updates to reduce perceived latency",
+        "Consider WebSocket implementation for real-time message updates"
+      ]
+    }
+  }
+}

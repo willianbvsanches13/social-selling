@@ -1,0 +1,75 @@
+{
+  "testResultsId": "TEST-TASK-010-ITER2-20251102",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-010",
+  "iteration": 2,
+  "executionId": "EXEC-TASK-010-ITER2-20251102",
+  "timestamp": "2025-11-02T17:04:45Z",
+  "summary": {
+    "totalTests": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "duration": 120000
+  },
+  "e2eTests": {
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "testFiles": [
+      "test/app.e2e-spec.ts"
+    ]
+  },
+  "failures": [
+    {
+      "testFile": "test/app.e2e-spec.ts",
+      "testName": "E2E test execution",
+      "error": "Database connection timeout - getaddrinfo EAI_AGAIN postgres",
+      "stackTrace": "Database connection error: getaddrinfo EAI_AGAIN postgres\nConnection config: host=postgres, port=5432, db=social_selling\nRedis connection error: getaddrinfo EAI_AGAIN redis",
+      "severity": "critical",
+      "rootCause": "E2E tests are trying to connect to services using Docker network hostnames (postgres, redis) but tests are running outside Docker container context. The test environment cannot resolve Docker service names.",
+      "suggestedFix": "E2E tests must run inside Docker container OR use localhost with mapped ports OR mock external dependencies. Current setup attempts real connections to postgres/redis using Docker hostnames which are not accessible from host test execution."
+    }
+  ],
+  "coverage": {
+    "statements": 0,
+    "branches": 0,
+    "functions": 0,
+    "lines": 0
+  },
+  "environmentIssues": [
+    {
+      "issue": "Docker network isolation",
+      "description": "Tests running on host cannot access Docker network services by hostname",
+      "impact": "E2E tests fail to initialize application module due to database/redis connection failures",
+      "resolution": "Tests need to either: (1) Run inside Docker container with network access, (2) Use localhost:5432 and localhost:6379 for connections, (3) Mock database/redis connections for test environment"
+    },
+    {
+      "issue": "Test execution context",
+      "description": "E2E tests attempt to bootstrap full NestJS application with real dependencies",
+      "impact": "Application requires database and redis to initialize, causing test timeouts",
+      "resolution": "Configure test environment variables to use accessible connection strings or implement test doubles"
+    }
+  ],
+  "recommendation": "refine",
+  "recommendationReason": "CRITICAL: E2E tests cannot execute due to infrastructure configuration issues. Tests are attempting to connect to Docker services (postgres, redis) using container hostnames that are not resolvable from the host test execution context. This is an environment configuration problem, not a code quality issue from TASK-010.",
+  "taskSpecificAnalysis": {
+    "task010Scope": "TASK-010 focused on unit tests for message-webhook.handler - moving test files to correct location and fixing linting issues",
+    "task010Status": "Unit tests from TASK-010 iteration 2 passed successfully (7/7 tests)",
+    "e2eTestsScope": "E2E tests are separate infrastructure concern - they test full application bootstrap with real services",
+    "e2eTestsStatus": "Failed due to Docker network connectivity issues, unrelated to TASK-010 changes"
+  },
+  "additionalNotes": [
+    "TASK-010 unit tests executed successfully in iteration 2 (7 tests passed)",
+    "E2E test failure is infrastructure-level issue with test environment setup",
+    "Docker services (postgres, redis) are running and healthy according to docker-compose ps",
+    "Issue is that npm test:e2e runs on host machine but tries to connect to Docker network hostnames",
+    "This is NOT a regression from TASK-010 changes - it's pre-existing test infrastructure configuration"
+  ],
+  "nextSteps": [
+    "E2E tests require infrastructure fix: either run tests in Docker container OR configure test environment to use localhost ports OR implement test database/redis mocks",
+    "TASK-010 unit test changes are complete and passing",
+    "Recommend: APPROVE for TASK-010 scope (unit tests) but flag E2E infrastructure issue separately"
+  ],
+  "artifactPath": "/root/social-selling/.claude/artifacts/FEAT-2025-20251102140615/05-testing/TASK-010/iteration-2/test-results.json"
+}

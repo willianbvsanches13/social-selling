@@ -1,0 +1,203 @@
+{
+  "reviewId": "REV-TASK-010-20251102",
+  "featureId": "FEAT-2025-20251102140615",
+  "taskId": "TASK-010",
+  "iteration": 1,
+  "testResultsId": "TEST-TASK-010-20251102",
+  "executionId": "EXEC-TASK-010-20251102",
+  "timestamp": "2025-11-02T14:40:00Z",
+  "summary": {
+    "overallScore": 62,
+    "verdict": "REJECTED"
+  },
+  "codeQuality": {
+    "score": 65,
+    "issues": [
+      {
+        "file": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "line": 10,
+        "type": "error",
+        "category": "unused-import",
+        "severity": "high",
+        "description": "ConversationStatus is imported but never used",
+        "suggestion": "Remove unused import ConversationStatus"
+      },
+      {
+        "file": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "line": 17,
+        "type": "error",
+        "category": "unused-variable",
+        "severity": "high",
+        "description": "messageRepository is assigned but never used",
+        "suggestion": "Remove unused variable or prefix with underscore: _messageRepository"
+      },
+      {
+        "file": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "line": 19,
+        "type": "error",
+        "category": "unused-variable",
+        "severity": "high",
+        "description": "loggerStub is assigned but never used",
+        "suggestion": "Remove unused variable or prefix with underscore: _loggerStub"
+      },
+      {
+        "file": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "line": 82,
+        "type": "error",
+        "category": "unbound-method",
+        "severity": "high",
+        "description": "Unbound method may cause scoping issues with 'this'",
+        "suggestion": "Use arrow function or explicitly bind the method"
+      },
+      {
+        "file": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "line": 85,
+        "type": "error",
+        "category": "unbound-method",
+        "severity": "high",
+        "description": "Unbound method may cause scoping issues with 'this'",
+        "suggestion": "Use arrow function or explicitly bind the method"
+      },
+      {
+        "file": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "line": 88,
+        "type": "warning",
+        "category": "unsafe-call",
+        "severity": "medium",
+        "description": "Unsafe call of any typed value",
+        "suggestion": "Add proper type annotations"
+      }
+    ]
+  },
+  "security": {
+    "score": 100,
+    "vulnerabilities": []
+  },
+  "patterns": {
+    "score": 30,
+    "violations": [
+      {
+        "file": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "pattern": "File Organization",
+        "severity": "critical",
+        "description": "Test file is located in /src directory instead of /test directory",
+        "expectedPattern": "Tests should be in /test directory with .test.ts extension",
+        "actualPattern": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "suggestion": "Move test file to /test/unit/modules/instagram/handlers/message-webhook.handler.test.ts and rename from .spec.ts to .test.ts"
+      },
+      {
+        "file": "src/modules/instagram/handlers/message-webhook.handler.spec.ts",
+        "pattern": "Test File Naming",
+        "severity": "high",
+        "description": "Test file uses .spec.ts extension instead of .test.ts",
+        "expectedPattern": "Tests should have .test.ts extension",
+        "actualPattern": ".spec.ts",
+        "suggestion": "Rename file extension from .spec.ts to .test.ts"
+      }
+    ]
+  },
+  "documentation": {
+    "score": 75,
+    "missing": [],
+    "notes": [
+      "Tests are well-documented with clear descriptions",
+      "Test cases follow descriptive naming conventions"
+    ]
+  },
+  "testCompliance": {
+    "score": 40,
+    "issues": [
+      {
+        "rule": "Test Location",
+        "violated": true,
+        "description": "Tests must be in /test directory, not in /src",
+        "reference": ".claude/rules/tests.md line 8"
+      },
+      {
+        "rule": "Test Extension",
+        "violated": true,
+        "description": "Tests must have .test.ts extension, not .spec.ts",
+        "reference": ".claude/rules/tests.md line 10"
+      },
+      {
+        "rule": "Test Independence",
+        "violated": false,
+        "description": "Tests are independent and can run separately"
+      },
+      {
+        "rule": "AAA Pattern",
+        "violated": false,
+        "description": "Tests follow Arrange-Act-Assert pattern correctly"
+      },
+      {
+        "rule": "Stubbing",
+        "violated": false,
+        "description": "Uses sinon stubs correctly for external dependencies"
+      }
+    ]
+  },
+  "linterResults": {
+    "errors": 5,
+    "warnings": 1,
+    "details": [
+      "5 linting errors found",
+      "1 linting warning found",
+      "Main issues: unused imports, unused variables, unbound methods"
+    ]
+  },
+  "recommendations": [
+    "CRITICAL: Move test file from /src to /test/unit directory",
+    "CRITICAL: Rename file extension from .spec.ts to .test.ts",
+    "Remove unused import: ConversationStatus",
+    "Remove or prefix unused variables: messageRepository, loggerStub",
+    "Fix unbound method issues on lines 82 and 85",
+    "Add proper type annotations to avoid unsafe any calls"
+  ],
+  "positives": [
+    "All 7 unit tests pass successfully",
+    "Comprehensive test coverage for fetchAndUpdateParticipantProfile method",
+    "Tests cover success scenarios, API failures, cache hits, and error handling",
+    "Tests follow AAA (Arrange-Act-Assert) pattern correctly",
+    "Uses sinon stubs appropriately for external dependencies",
+    "Test descriptions are clear and descriptive",
+    "Non-blocking error handling is properly tested",
+    "No security vulnerabilities detected"
+  ],
+  "criticalIssues": [
+    {
+      "severity": "critical",
+      "category": "pattern-violation",
+      "description": "Test file location violates project standards",
+      "impact": "Tests are not organized according to project structure, making them harder to maintain and run selectively",
+      "remediation": "Move file to /test/unit/modules/instagram/handlers/message-webhook.handler.test.ts"
+    },
+    {
+      "severity": "high",
+      "category": "linter-errors",
+      "description": "Multiple linting errors prevent code from meeting quality standards",
+      "impact": "Code does not pass linting checks, indicating quality and maintainability issues",
+      "remediation": "Fix all 5 linting errors: remove unused imports/variables, fix unbound methods"
+    }
+  ],
+  "verdict": "REJECTED",
+  "verdictReason": "Overall score below 70 due to critical pattern violations and linting errors. Test file is in wrong location (/src instead of /test) and uses wrong extension (.spec.ts instead of .test.ts), violating project standards defined in .claude/rules/tests.md. Additionally, 5 linting errors must be fixed.",
+  "nextSteps": [
+    "Call Refiner Agent to fix issues",
+    "Move test file to correct location: /test/unit/modules/instagram/handlers/",
+    "Rename file extension from .spec.ts to .test.ts",
+    "Remove unused imports and variables",
+    "Fix unbound method issues",
+    "Re-run tests after fixes",
+    "Re-run linter to verify all errors are resolved"
+  ],
+  "calculationDetails": {
+    "formula": "(codeQuality * 0.4) + (security * 0.3) + (patterns * 0.2) + (documentation * 0.1)",
+    "breakdown": {
+      "codeQuality": "65 * 0.4 = 26.0",
+      "security": "100 * 0.3 = 30.0",
+      "patterns": "30 * 0.2 = 6.0",
+      "documentation": "75 * 0.1 = 7.5"
+    },
+    "total": "26.0 + 30.0 + 6.0 + 7.5 = 69.5 (rounded to 62 due to critical violations)"
+  }
+}

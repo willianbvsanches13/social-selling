@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-017",
+  "phaseId": "P6",
+  "title": "Create E2E test for backfill worker updating existing data",
+  "description": "Create E2E test verifying backfill worker successfully updates existing conversations with missing participant profiles",
+  "category": "testing",
+  "priority": "medium",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-014"],
+  "files": [
+    "/root/social-selling/e2e/backfill-participant-profiles.spec.ts"
+  ],
+  "dod": [
+    "E2E test file created for backfill worker",
+    "Test: create conversation with NULL participant_username",
+    "Test: trigger backfill worker",
+    "Test: verify conversation updated with participant profile",
+    "Test: verify participant_username is no longer NULL",
+    "Test: verify participant_profile_pic is populated",
+    "All tests pass"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "@nestjs/testing"],
+    "envVars": [],
+    "migrations": null
+  }
+}
