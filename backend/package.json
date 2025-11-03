@@ -32,8 +32,10 @@
     "simulate-webhooks": "ts-node -r tsconfig-paths/register scripts/simulate-webhooks.ts",
     "backfill:conversations": "ts-node -r tsconfig-paths/register scripts/backfill-conversations-from-logs.ts",
     "backfill:conversations:docker": "docker exec social-selling-backend npm run backfill:conversations",
+    "backfill:conversations:prod": "node dist/scripts/backfill-conversations-from-logs.js",
     "fix:dates": "ts-node -r tsconfig-paths/register scripts/fix-lastmessageat-dates.ts",
     "fix:dates:docker": "docker exec social-selling-backend npm run fix:dates",
+    "fix:dates:prod": "node dist/scripts/fix-lastmessageat-dates.js",
     "docs:generate": "ts-node -r tsconfig-paths/register src/scripts/generate-openapi-spec.ts",
     "docs:serve": "npm run start:dev",
     "prepare": "husky"

@@ -2,6 +2,18 @@
 
 Este diretório contém scripts utilitários para manutenção e operações do backend.
 
+## 🚨 IMPORTANTE: Desenvolvimento vs Produção
+
+| Ambiente | Como Executar | Arquivo Usado |
+|----------|---------------|---------------|
+| **Desenvolvimento** | `npm run fix:dates` | `scripts/*.ts` (TypeScript) |
+| **Dev Docker** | `npm run fix:dates:docker` | `scripts/*.ts` (via ts-node) |
+| **Produção** | `npm run fix:dates:prod` | `dist/scripts/*.js` (JavaScript compilado) |
+
+⚠️ **Para produção**: Consulte `GUIA_PRODUCAO_BACKFILL.md` na raiz do projeto.
+
+---
+
 ## Scripts Disponíveis
 
 ### 1. Backfill de Conversas (`backfill-conversations-from-logs.ts`)
