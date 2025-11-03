@@ -213,8 +213,11 @@ ls -la migrations/ | grep "039-add-message-reply"
 psql -U social_selling_user -d social_selling \
   -f migrations/039-add-message-reply-and-attachments.sql
 
-# OU se usar npm scripts:
-npm run migrate:up
+# OU se usar npm scripts (PRODUÇÃO):
+docker compose exec backend npm run migrate:up:prod
+
+# OU dentro do container:
+npm run migrate:up:prod
 ```
 
 ### 3.2 Verificar Migration Aplicada
