@@ -14,6 +14,7 @@ import {
 import { InstagramWebhookEvent } from '../../../domain/entities/instagram-webhook-event.entity';
 
 export interface MessageEventPayload {
+  entryId: string; // ID of the Instagram page/account (the owner)
   sender: { id: string };
   recipient: { id: string };
   timestamp: number;
@@ -78,20 +79,20 @@ export class WebhookMessageHandler {
       const pageId = clientAccount.platformAccountId;
 
       // Determine if message is from customer or from our page
-      // If sender is the page, it's a USER message (sent by us)
-      // If sender is NOT the page, it's a CUSTOMER message (received from external user)
-      const isFromCustomer = payload.sender.id !== payload.recipient.id;
-      const senderId = isFromCustomer
+      // entryId represents the Instagram page/account (the owner)
+      // If sender.id === entryId, message was SENT by the page owner (USER)
+      // If sender.id !== entryId, message was RECEIVED from an external participant (CUSTOMER)
+      const isFromCustomer = payload.sender.id !== payload.entryId;
+
+      // The participant is always the other party (not the entry/page owner)
+      const participantPlatformId = isFromCustomer
         ? payload.sender.id
         : payload.recipient.id;
-      const recipientId = isFromCustomer
-        ? payload.recipient.id
-        : payload.sender.id;
 
       // Find or create conversation
       const conversation = await this.findOrCreateConversation(
         clientAccountId,
-        customerPlatformId,
+        participantPlatformId,
         pageId,
       );
 
@@ -158,7 +159,11 @@ export class WebhookMessageHandler {
 
     if (!messaging.message) return null;
 
-    return messaging as MessageEventPayload;
+    // Extract entry.id which represents the Instagram page/account owner
+    return {
+      entryId: entry.id,
+      ...messaging,
+    } as MessageEventPayload;
   }
 
   private determineMessageType(message: any): MessageType {
