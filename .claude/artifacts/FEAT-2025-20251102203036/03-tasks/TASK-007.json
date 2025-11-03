@@ -1,0 +1,32 @@
+{
+  "taskId": "TASK-007",
+  "phaseId": "P5",
+  "title": "Integration Test - Full Message Flow Validation",
+  "description": "Create integration test that validates the complete flow: webhook receives message → message saved with correct sender_type → message retrieved via API → frontend receives correct alignment data",
+  "category": "testing",
+  "priority": "medium",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-002", "TASK-003", "TASK-005"],
+  "files": [
+    "backend/test/messaging/message-flow-integration.e2e-spec.ts"
+  ],
+  "dod": [
+    "Integration test covers webhook → database → API flow",
+    "Test verifies sender_type persists correctly through all layers",
+    "Test validates API response includes correct senderType field",
+    "Test simulates both USER and CUSTOMER message scenarios",
+    "All integration tests passing"
+  ],
+  "technicalDetails": {
+    "packages": ["supertest"],
+    "envVars": [],
+    "migrations": null,
+    "flowSteps": [
+      "1. POST webhook with Instagram message payload",
+      "2. Verify message created in DB with correct sender_type",
+      "3. GET messages via API endpoint",
+      "4. Validate response includes senderType field",
+      "5. Verify senderType matches expected value based on sender"
+    ]
+  }
+}

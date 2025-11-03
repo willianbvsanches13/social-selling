@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-004",
+  "phaseId": "P4",
+  "title": "Create Data Migration Script for Historical Messages",
+  "description": "Create a SQL migration script to fix sender_type for existing messages in the database. Identify messages based on sender_platform_id and conversation participant data to correctly set sender_type to 'user' or 'customer'",
+  "category": "database",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-001", "TASK-002"],
+  "files": [
+    "backend/migrations/fix-message-sender-types.sql"
+  ],
+  "dod": [
+    "SQL script created to identify and fix incorrect sender_type values",
+    "Script uses conversation participant data to determine correct sender",
+    "Script is idempotent (can be run multiple times safely)",
+    "Migration tested in local database",
+    "Backup strategy documented before running migration"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": "fix-message-sender-types.sql",
+    "sqlLogic": [
+      "JOIN messages with conversations to get participant_platform_id",
+      "If sender_platform_id = participant_platform_id then 'customer' else 'user'",
+      "Handle NULL sender_platform_id cases",
+      "Log number of rows affected"
+    ]
+  }
+}

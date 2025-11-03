@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-008",
+  "phaseId": "P4",
+  "title": "Run Data Migration and Validate Results",
+  "description": "Execute the data migration script created in TASK-004 to fix sender_type for existing messages. Validate the migration results by checking message counts and sample data before and after migration",
+  "category": "database",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-004"],
+  "files": [
+    "backend/migrations/fix-message-sender-types.sql"
+  ],
+  "dod": [
+    "Database backup created before migration",
+    "Migration script executed successfully",
+    "Number of affected rows logged and verified",
+    "Sample messages queried to verify sender_type corrections",
+    "No messages left with NULL or incorrect sender_type",
+    "Migration results documented"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": "fix-message-sender-types.sql",
+    "validationQueries": [
+      "SELECT COUNT(*) FROM messages WHERE sender_type IS NULL;",
+      "SELECT sender_type, COUNT(*) FROM messages GROUP BY sender_type;",
+      "SELECT id, sender_type, sender_platform_id FROM messages ORDER BY created_at DESC LIMIT 10;"
+    ]
+  }
+}

@@ -8,10 +8,9 @@ import type { Message } from '@/types/message';
 interface MessageThreadProps {
   messages: Message[];
   isLoading: boolean;
-  currentUserId: string;
 }
 
-export function MessageThread({ messages, isLoading, currentUserId }: MessageThreadProps) {
+export function MessageThread({ messages, isLoading }: MessageThreadProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

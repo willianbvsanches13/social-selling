@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Investigation - Analyze Database and Message Flow",
+  "description": "Investigate the current state of messages table, sample data, and trace the message creation flow from Instagram webhook to database to understand where sender_type is being incorrectly set or not set at all",
+  "category": "investigation",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": [],
+  "files": [
+    "backend/src/modules/instagram/handlers/webhook-message.handler.ts",
+    "backend/src/infrastructure/database/repositories/message.repository.ts",
+    "backend/src/domain/entities/message.entity.ts"
+  ],
+  "dod": [
+    "Database messages table schema verified for sender_type column",
+    "Sample messages queried to check current sender_type values",
+    "Instagram webhook handler analyzed for sender identification logic",
+    "Message entity toDomain mapping verified",
+    "Root cause identified and documented"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "sqlQueries": [
+      "SELECT id, conversation_id, sender_type, sender_platform_id, content, sent_at FROM messages LIMIT 20;",
+      "SELECT sender_type, COUNT(*) FROM messages GROUP BY sender_type;"
+    ]
+  }
+}

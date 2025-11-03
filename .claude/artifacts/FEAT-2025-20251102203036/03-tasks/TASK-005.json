@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-005",
+  "phaseId": "P5",
+  "title": "E2E Test - Webhook Message Creation with Correct Sender Type",
+  "description": "Create an E2E test that simulates an Instagram webhook message event and verifies that the message is created in the database with the correct sender_type based on whether the sender is the page or an external user",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/test/messaging/webhook-sender-type.e2e-spec.ts"
+  ],
+  "dod": [
+    "E2E test created for webhook message with USER sender",
+    "E2E test created for webhook message with CUSTOMER sender",
+    "Tests verify sender_type is correctly set in database",
+    "Tests verify message can be retrieved with correct sender_type",
+    "All tests passing"
+  ],
+  "technicalDetails": {
+    "packages": ["supertest"],
+    "envVars": [],
+    "migrations": null,
+    "testScenarios": [
+      "Message from external user → sender_type = 'customer'",
+      "Message from page/business → sender_type = 'user'"
+    ]
+  }
+}

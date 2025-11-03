@@ -1,0 +1,200 @@
+{
+  "planId": "PLAN-2025-20251102203140",
+  "featureId": "FEAT-2025-20251102203036",
+  "timestamp": "2025-11-02T20:31:40Z",
+  "architecture": {
+    "approach": "layered",
+    "patterns": [
+      "Repository Pattern",
+      "Service Pattern",
+      "DTO Pattern",
+      "Domain Entity Pattern"
+    ],
+    "components": [
+      {
+        "name": "Message Entity - senderType mapping",
+        "type": "backend-entity",
+        "action": "verify",
+        "technology": "NestJS/TypeScript",
+        "description": "Verify Message entity correctly maps sender_type from database"
+      },
+      {
+        "name": "MessageRepository - sender_type query",
+        "type": "backend-repository",
+        "action": "verify",
+        "technology": "PostgreSQL/TypeScript",
+        "description": "Ensure repository correctly retrieves sender_type from database"
+      },
+      {
+        "name": "ConversationService - message retrieval",
+        "type": "backend-service",
+        "action": "verify",
+        "technology": "NestJS",
+        "description": "Verify service returns messages with correct senderType"
+      },
+      {
+        "name": "Instagram Webhook Handler - sender identification",
+        "type": "backend-handler",
+        "action": "fix",
+        "technology": "NestJS",
+        "description": "Fix webhook handler to correctly identify sender (user vs customer) from Instagram payload"
+      },
+      {
+        "name": "MessageThread Component",
+        "type": "frontend-component",
+        "action": "fix",
+        "technology": "React/TypeScript",
+        "description": "Fix message alignment logic to use senderType instead of comparing with currentUserId"
+      },
+      {
+        "name": "Data Migration Script",
+        "type": "database-script",
+        "action": "create",
+        "technology": "SQL",
+        "description": "Optional: Fix existing messages with incorrect sender_type values"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Investigation & Root Cause Analysis",
+      "order": 1,
+      "estimatedHours": 1,
+      "components": [
+        "Message Entity verification",
+        "MessageRepository verification",
+        "Database schema verification",
+        "Instagram Webhook Handler analysis"
+      ],
+      "dependencies": [],
+      "tasks": [
+        "Verify database messages table has sender_type column",
+        "Check sample messages in DB to see current sender_type values",
+        "Analyze Instagram webhook payloads to understand sender identification",
+        "Review Message entity mapping from DB to domain",
+        "Identify root cause of incorrect sender_type"
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Backend Fixes - Webhook Handler",
+      "order": 2,
+      "estimatedHours": 2,
+      "components": [
+        "Instagram Webhook Handler",
+        "Message creation logic"
+      ],
+      "dependencies": ["P1"],
+      "tasks": [
+        "Fix webhook handler to correctly identify sender from Instagram payload",
+        "Ensure USER sender type when message is from page/business account",
+        "Ensure CUSTOMER sender type when message is from external user",
+        "Add validation and logging for sender identification",
+        "Test webhook handler with sample payloads"
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Frontend Fixes - Message Alignment",
+      "order": 3,
+      "estimatedHours": 1,
+      "components": [
+        "MessageThread Component",
+        "Message type definitions"
+      ],
+      "dependencies": ["P1"],
+      "tasks": [
+        "Remove currentUserId prop if not needed",
+        "Change alignment logic to use message.senderType directly",
+        "USER messages align right with primary color",
+        "CUSTOMER messages align left with gray color",
+        "Verify visual consistency across different message types"
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Data Migration (if needed)",
+      "order": 4,
+      "estimatedHours": 1,
+      "components": [
+        "SQL migration script",
+        "Data validation"
+      ],
+      "dependencies": ["P1", "P2"],
+      "tasks": [
+        "Analyze existing messages with incorrect sender_type",
+        "Create SQL script to fix historical message sender_type",
+        "Identify messages from webhook vs manual sends",
+        "Run migration in test environment",
+        "Verify message alignment after migration"
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Testing & Validation",
+      "order": 5,
+      "estimatedHours": 2,
+      "components": [
+        "E2E tests",
+        "Manual testing",
+        "Integration testing"
+      ],
+      "dependencies": ["P2", "P3", "P4"],
+      "tasks": [
+        "Test new webhook messages display correctly",
+        "Test existing messages display correctly after migration",
+        "Verify alignment for USER messages (right side)",
+        "Verify alignment for CUSTOMER messages (left side)",
+        "Test message thread with mixed senders",
+        "Cross-browser visual testing",
+        "Mobile responsive testing"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "New messages received via Instagram webhooks must have correct senderType (USER or CUSTOMER)",
+      "type": "functional",
+      "testable": true
+    },
+    {
+      "id": "AC-002",
+      "description": "Messages sent by the authenticated user (senderType=USER) must display on the right side with primary background color",
+      "type": "functional",
+      "testable": true
+    },
+    {
+      "id": "AC-003",
+      "description": "Messages sent by customers (senderType=CUSTOMER) must display on the left side with gray background color",
+      "type": "functional",
+      "testable": true
+    },
+    {
+      "id": "AC-004",
+      "description": "Message alignment must work correctly without relying on currentUserId comparison",
+      "type": "functional",
+      "testable": true
+    },
+    {
+      "id": "AC-005",
+      "description": "Existing messages in the database should have correct sender_type after migration",
+      "type": "data-quality",
+      "testable": true
+    },
+    {
+      "id": "AC-006",
+      "description": "Message thread UI must be visually clear and consistent across all conversations",
+      "type": "usability",
+      "testable": true
+    }
+  ],
+  "estimatedTotalHours": 7,
+  "technicalNotes": {
+    "databaseSchema": "Messages table already has sender_type column - need to verify population logic",
+    "frontendIssue": "MessageThread component uses 'isCurrentUser = message.senderType === 'user'' which is correct, but may not receive correct data from backend",
+    "backendIssue": "Instagram webhook handler may not be correctly setting sender_type when creating messages from webhook payloads",
+    "riskMitigation": "Phase 1 investigation will identify exact root cause before implementing fixes"
+  }
+}

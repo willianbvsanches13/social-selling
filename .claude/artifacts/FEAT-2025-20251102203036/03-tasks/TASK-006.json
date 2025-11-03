@@ -1,0 +1,33 @@
+{
+  "taskId": "TASK-006",
+  "phaseId": "P5",
+  "title": "Frontend Visual Test - Message Alignment",
+  "description": "Create manual test scenarios to verify message alignment in the inbox UI. Test USER messages align right with primary color and CUSTOMER messages align left with gray color across different browsers and screen sizes",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-003", "TASK-004"],
+  "files": [
+    "frontend/src/components/messages/MessageThread.tsx"
+  ],
+  "dod": [
+    "Test USER messages display on right side with primary color",
+    "Test CUSTOMER messages display on left side with gray color",
+    "Test conversation with mixed senders displays correctly",
+    "Test alignment on desktop browsers (Chrome, Firefox, Safari)",
+    "Test responsive design on mobile viewport",
+    "Visual consistency verified across all test cases"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "testCases": [
+      "Single user message thread",
+      "Single customer message thread",
+      "Mixed sender message thread",
+      "Long message content wrapping",
+      "Messages with media attachments"
+    ]
+  }
+}

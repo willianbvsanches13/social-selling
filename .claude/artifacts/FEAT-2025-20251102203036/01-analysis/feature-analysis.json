@@ -1,0 +1,119 @@
+{
+  "featureId": "FEAT-2025-20251102203036",
+  "timestamp": "2025-11-02T20:30:36Z",
+  "feature": {
+    "title": "Fix Message Alignment in Inbox (Left/Right Based on Sender)",
+    "description": "Messages in the inbox are displaying, but they are not being shown on the correct side (right/left) depending on who sent the message. This requires adjustments in both backend and frontend to properly identify the sender and align messages accordingly - user messages on the right, customer messages on the left.",
+    "category": "bug-fix",
+    "priority": "high",
+    "businessValue": "Critical UX issue affecting conversation readability and user experience in the messaging feature. Users cannot distinguish between sent and received messages, making the inbox unusable for proper conversations."
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Backend must correctly identify and return the senderType field for each message (USER vs CUSTOMER)",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Frontend must correctly interpret the senderType field to align messages - USER messages on the right, CUSTOMER messages on the left",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Messages sent by the authenticated user must be visually aligned to the right with primary background color",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "Messages sent by customers must be visually aligned to the left with gray background color",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "The message sender identification logic must work correctly for Instagram messages received via webhooks",
+        "priority": "must-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "usability",
+        "description": "Message alignment must be visually clear and consistent across all conversations"
+      },
+      {
+        "id": "NFR-002",
+        "type": "performance",
+        "description": "Sender type determination should not add significant overhead to message retrieval"
+      },
+      {
+        "id": "NFR-003",
+        "type": "security",
+        "description": "Sender identification must be validated to prevent spoofing or incorrect attribution"
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "frontend/src/components/messages/MessageThread.tsx",
+      "frontend/src/types/message.ts",
+      "backend/src/modules/messaging/dto/message-response.dto.ts",
+      "backend/src/modules/messaging/services/conversation.service.ts",
+      "backend/src/infrastructure/database/repositories/message.repository.ts",
+      "backend/src/modules/instagram/handlers/webhook-message.handler.ts"
+    ],
+    "databases": [
+      "messages table - may need to verify sender_type field population",
+      "conversations table - may need participant relationship verification"
+    ],
+    "externalServices": [
+      "Instagram Graph API - sender identification from webhook payloads"
+    ],
+    "estimatedComplexity": "medium"
+  },
+  "dependencies": [
+    {
+      "type": "service",
+      "name": "MessageRepository",
+      "action": "extend"
+    },
+    {
+      "type": "service",
+      "name": "ConversationService",
+      "action": "extend"
+    },
+    {
+      "type": "service",
+      "name": "Instagram Webhook Handler",
+      "action": "integrate"
+    },
+    {
+      "type": "feature",
+      "name": "Message Entity with senderType field",
+      "action": "required"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Database may have existing messages with incorrect or null senderType values",
+      "severity": "medium",
+      "mitigation": "Implement data migration or fix-up script to correct existing message sender types"
+    },
+    {
+      "description": "Instagram webhook payload may not consistently provide sender identification",
+      "severity": "medium",
+      "mitigation": "Review webhook handler logic to ensure proper extraction of sender information from Instagram API payloads"
+    },
+    {
+      "description": "Frontend currentUserId might not be properly passed to MessageThread component",
+      "severity": "low",
+      "mitigation": "Verify authentication context and user session availability in inbox page"
+    },
+    {
+      "description": "Messages created before the fix may display incorrectly",
+      "severity": "low",
+      "mitigation": "Document the limitation or implement retroactive correction for historical messages"
+    }
+  ]
+}

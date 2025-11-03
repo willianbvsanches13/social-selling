@@ -204,7 +204,6 @@ export default function InboxPage() {
                 <MessageThread
                   messages={messagesData?.messages || []}
                   isLoading={isLoadingMessages}
-                  currentUserId={selectedAccountId}
                 />
 
                 {/* Message Input */}

@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-003",
+  "phaseId": "P3",
+  "title": "Fix MessageThread Component - Message Alignment Logic",
+  "description": "Update the MessageThread component to properly align messages based on senderType field - USER messages on the right with primary color, CUSTOMER messages on the left with gray color. Remove dependency on currentUserId if not needed.",
+  "category": "frontend",
+  "priority": "critical",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "frontend/src/components/messages/MessageThread.tsx",
+    "frontend/src/app/(dashboard)/inbox/page.tsx"
+  ],
+  "dod": [
+    "MessageThread correctly uses message.senderType for alignment",
+    "USER messages display on right side with primary background",
+    "CUSTOMER messages display on left side with gray background",
+    "Visual styling is consistent and clear",
+    "Component no longer relies on currentUserId for alignment decision"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "uiChanges": [
+      "Change isCurrentUser logic from comparison to direct senderType check",
+      "Ensure SenderType.USER aligns right",
+      "Ensure SenderType.CUSTOMER aligns left"
+    ]
+  }
+}

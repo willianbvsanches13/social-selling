@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-002",
+  "phaseId": "P2",
+  "title": "Fix Instagram Webhook Handler - Sender Identification",
+  "description": "Fix the Instagram webhook message handler to correctly identify whether a message is from USER (page/business) or CUSTOMER (external user) by analyzing the Instagram API payload structure and setting the appropriate sender_type when creating messages",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "backend/src/modules/instagram/handlers/webhook-message.handler.ts",
+    "backend/src/modules/instagram/handlers/message-webhook.handler.ts"
+  ],
+  "dod": [
+    "Webhook handler correctly identifies sender from Instagram payload",
+    "Messages from page/business set sender_type to 'user'",
+    "Messages from external users set sender_type to 'customer'",
+    "Logging added for sender identification process",
+    "Edge cases handled (missing sender info, unknown sender types)"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "apiFields": [
+      "Instagram webhook payload: messaging.sender.id",
+      "Instagram webhook payload: messaging.recipient.id",
+      "Compare sender_id with page_id to determine sender type"
+    ]
+  }
+}

@@ -64,28 +64,54 @@ export class WebhookMessageHandler {
         return;
       }
 
-      const isFromCustomer = payload.sender.id !== payload.recipient.id;
-      const senderId = isFromCustomer ? payload.sender.id : payload.recipient.id;
-      const recipientId = isFromCustomer
-        ? payload.recipient.id
-        : payload.sender.id;
+      // Get client account to determine the page/business account ID
+      const clientAccount =
+        await this.clientAccountRepository.findById(clientAccountId);
+
+      if (!clientAccount) {
+        this.logger.error(
+          `Client account ${clientAccountId} not found for webhook event ${event.id}`,
+        );
+        return;
+      }
+
+      const pageId = clientAccount.platformAccountId;
+
+      // Determine if message is from customer or from our page
+      // If sender is the page, it's a USER message (sent by us)
+      // If sender is NOT the page, it's a CUSTOMER message (received from external user)
+      const isFromCustomer = payload.sender.id !== pageId;
+      const customerPlatformId = isFromCustomer
+        ? payload.sender.id
+        : payload.recipient.id;
+
+      this.logger.debug(
+        `Message ${payload.message.mid}: sender=${payload.sender.id}, recipient=${payload.recipient.id}, pageId=${pageId}, isFromCustomer=${isFromCustomer}`,
+      );
 
       // Find or create conversation
       const conversation = await this.findOrCreateConversation(
         clientAccountId,
-        senderId,
-        recipientId,
+        customerPlatformId,
+        pageId,
       );
 
       // Determine message type
       const messageType = this.determineMessageType(payload.message);
 
-      // Create message
+      // Create message with correct sender type
+      const senderType = isFromCustomer ? SenderType.CUSTOMER : SenderType.USER;
+      const senderPlatformId = payload.sender.id;
+
+      this.logger.log(
+        `Creating message ${payload.message.mid} with senderType=${senderType}, senderPlatformId=${senderPlatformId}`,
+      );
+
       const message = Message.create({
         conversationId: conversation.id,
         platformMessageId: payload.message.mid,
-        senderType: isFromCustomer ? SenderType.CUSTOMER : SenderType.USER,
-        senderPlatformId: senderId,
+        senderType,
+        senderPlatformId,
         messageType,
         content: payload.message.text,
         mediaUrl: this.extractMediaUrl(payload.message),
