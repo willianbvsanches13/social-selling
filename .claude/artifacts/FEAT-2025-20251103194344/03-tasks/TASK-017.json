@@ -1,0 +1,39 @@
+{
+  "taskId": "TASK-017",
+  "phaseId": "P5",
+  "title": "Create/update unit tests for InstagramApiService",
+  "description": "Create comprehensive unit tests for all InstagramApiService messaging methods including sendMessage fix and new methods. Use Jest and Sinon for mocking. Ensure 100% code coverage.",
+  "category": "testing",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-013"],
+  "files": [
+    "backend/test/unit/modules/instagram/services/instagram-api.service.test.ts"
+  ],
+  "dod": [
+    "Unit tests for sendMessage with corrected endpoint",
+    "Unit tests for sendImageMessage",
+    "Unit tests for sendMultipleImagesMessage",
+    "Unit tests for sendMediaMessage (audio and video)",
+    "Unit tests for sendStickerMessage",
+    "Unit tests for reactToMessage (react and unreact)",
+    "Unit tests for sendPostMessage",
+    "Tests verify correct endpoint format '/${platformAccountId}/messages'",
+    "Tests verify request body structure matches Instagram API spec",
+    "Tests mock axios responses",
+    "Tests cover error scenarios",
+    "All tests pass"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "sinon"],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Mock InstagramRateLimiter",
+      "Mock OAuthTokenRepository",
+      "Stub axios client responses",
+      "Test both success and error paths",
+      "Verify rate limiting is called"
+    ]
+  }
+}

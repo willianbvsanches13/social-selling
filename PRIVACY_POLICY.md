@@ -120,7 +120,7 @@ We may update this Privacy Policy. We will notify you of significant changes via
 ## 14. Contact Us
 
 For privacy-related questions or requests:
-- **Email:** privacy@app-socialselling.willianbvsanches.com
+- **Email:** contato@willianbvsanches.com
 - **Website:** https://app-socialselling.willianbvsanches.com
 - **Address:** [Your Business Address]
 

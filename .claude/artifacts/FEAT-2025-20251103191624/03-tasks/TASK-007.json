@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-007",
+  "phaseId": "P3",
+  "title": "Create unit tests for MetaSignedRequestUtil",
+  "description": "Create comprehensive unit tests for signature validation utility. Test valid signatures, invalid signatures, expired timestamps, malformed requests. Use test vectors from Meta documentation if available.",
+  "category": "testing",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-006"],
+  "files": [
+    "backend/test/unit/common/utils/meta-signed-request.util.spec.ts"
+  ],
+  "dod": [
+    "Test file created at backend/test/unit/common/utils/meta-signed-request.util.spec.ts",
+    "Tests for valid HMAC-SHA256 signatures",
+    "Tests for invalid signatures (wrong secret, tampered payload)",
+    "Tests for expired timestamps (>5 minutes old)",
+    "Tests for malformed signed request format",
+    "Tests for parseSignedRequest() with various payloads",
+    "Tests for isTimestampValid() edge cases",
+    "All tests pass with 100% coverage"
+  ],
+  "technicalDetails": {
+    "packages": ["jest"],
+    "envVars": [],
+    "migrations": null
+  }
+}

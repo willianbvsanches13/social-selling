@@ -1,0 +1,402 @@
+{
+  "featureId": "FEAT-2025-20251103191624",
+  "timestamp": "2025-11-03T19:16:24Z",
+  "feature": {
+    "title": "Complete User Settings & Data Deletion System",
+    "description": "Implement a comprehensive user settings page with complete data deletion capabilities to ensure full compliance with Meta/Instagram Platform Terms, GDPR, CCPA, and LGPD. This includes frontend settings UI, complete backend deletion logic, Meta data deletion callback endpoint, and proper audit logging.",
+    "category": "new-feature",
+    "priority": "critical",
+    "businessValue": "This feature is MANDATORY for Meta/Instagram compliance. Without proper data deletion mechanisms, the app cannot remain in the Instagram Platform ecosystem. It also provides critical user trust and legal compliance (GDPR Article 17, CCPA, LGPD)."
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Create comprehensive settings page at /settings with sections: Profile Settings, Password & Security, Instagram Accounts, Privacy & Data, and Danger Zone",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Implement profile update functionality allowing users to edit name, timezone, and language",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Implement password change functionality with current password verification, new password confirmation, and automatic session revocation",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "Implement account deletion flow with multi-step confirmation (checklist + text input confirmation) and warning messages",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "Complete backend deletion logic to remove all user-related data: conversations, messages, posts, media, analytics, templates, notifications, and Instagram account connections",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-006",
+        "description": "Revoke all Instagram access tokens and disconnect all connected accounts when user deletes account",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-007",
+        "description": "Create Meta data deletion callback endpoint (POST /meta/data-deletion-callback) to handle deletion requests from Meta platform",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-008",
+        "description": "Implement signed request validation for Meta callbacks using HMAC-SHA256 with app secret",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-009",
+        "description": "Create data deletion status endpoint (GET /meta/data-deletion-status/:confirmationId) to track deletion request status",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-010",
+        "description": "Implement data_deletion_requests table to track all deletion requests from multiple sources (user_app, meta_callback, email)",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-011",
+        "description": "Create audit logging system for all deletion requests with timestamps, source tracking, and completion status",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-012",
+        "description": "Update Privacy Policy and Data Deletion pages to reflect actual implemented functionality",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-013",
+        "description": "Export user data functionality (download all user data in JSON format)",
+        "priority": "could-have"
+      },
+      {
+        "id": "RF-014",
+        "description": "Scheduled job to perform hard delete after 30-day retention period",
+        "priority": "could-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "security",
+        "description": "All deletion endpoints must require authentication via JWT. Account deletion must require re-authentication (password confirmation) to prevent accidental or malicious deletions."
+      },
+      {
+        "id": "NFR-002",
+        "type": "security",
+        "description": "Meta signed requests must be validated using HMAC-SHA256 with the app secret. Reject requests with invalid signatures or expired timestamps (older than 5 minutes)."
+      },
+      {
+        "id": "NFR-003",
+        "type": "security",
+        "description": "Implement rate limiting on account deletion endpoint (max 3 attempts per hour per user) to prevent abuse."
+      },
+      {
+        "id": "NFR-004",
+        "type": "performance",
+        "description": "Complete data deletion process must complete within 30 seconds for users with up to 10,000 messages. For larger datasets, queue deletion jobs using BullMQ."
+      },
+      {
+        "id": "NFR-005",
+        "type": "scalability",
+        "description": "Deletion system must handle concurrent deletion requests from multiple sources (UI, Meta callback) without data corruption or race conditions."
+      },
+      {
+        "id": "NFR-006",
+        "type": "compliance",
+        "description": "System must comply with GDPR Article 17 (Right to Erasure), CCPA (Right to Deletion), LGPD (Lei Geral de Protecao de Dados), and Meta Platform Terms."
+      },
+      {
+        "id": "NFR-007",
+        "type": "usability",
+        "description": "Settings page must be responsive (mobile + desktop) and follow existing design system using Tailwind CSS and Radix UI components."
+      },
+      {
+        "id": "NFR-008",
+        "type": "observability",
+        "description": "All deletion operations must be logged with structured logging including userId, timestamp, source, status, and any errors. Logs must be retained for legal compliance period."
+      },
+      {
+        "id": "NFR-009",
+        "type": "reliability",
+        "description": "Deletion operations must be idempotent. Multiple deletion requests for the same user must not cause errors or data corruption."
+      },
+      {
+        "id": "NFR-010",
+        "type": "usability",
+        "description": "Provide clear visual feedback for all user actions (toast notifications for success/error, loading states during processing, confirmation modals with warning messages)."
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "user",
+      "auth",
+      "instagram",
+      "messaging",
+      "posts",
+      "analytics",
+      "notification",
+      "meta-callback (new)"
+    ],
+    "databases": [
+      "users table (soft delete with deletedAt)",
+      "client_accounts table (disconnect and soft delete)",
+      "oauth_tokens table (revoke all tokens)",
+      "conversations table (delete all user conversations)",
+      "messages table (delete all messages)",
+      "instagram_scheduled_posts table (delete all scheduled posts)",
+      "instagram_media_assets table (delete all media)",
+      "instagram_analytics_report table (delete analytics)",
+      "instagram_post_template table (delete templates)",
+      "notifications table (delete notifications)",
+      "data_deletion_requests table (new - track deletion requests)",
+      "sessions table (revoke all sessions)"
+    ],
+    "externalServices": [
+      "Meta/Instagram Graph API (revoke access tokens)",
+      "SendGrid/Email service (send deletion confirmation emails)",
+      "MinIO/S3 (delete uploaded media files)",
+      "Redis (invalidate user sessions and cache)",
+      "Sentry (log deletion audit trail)"
+    ],
+    "estimatedComplexity": "high"
+  },
+  "dependencies": [
+    {
+      "type": "feature",
+      "name": "Existing user authentication system (JWT)",
+      "action": "extend"
+    },
+    {
+      "type": "feature",
+      "name": "Existing user profile endpoints (GET/PATCH /users/me)",
+      "action": "extend"
+    },
+    {
+      "type": "feature",
+      "name": "Existing password change endpoint (POST /users/me/change-password)",
+      "action": "extend"
+    },
+    {
+      "type": "feature",
+      "name": "Existing delete account endpoint (DELETE /users/me)",
+      "action": "extend"
+    },
+    {
+      "type": "feature",
+      "name": "Instagram account connection system",
+      "action": "integrate"
+    },
+    {
+      "type": "service",
+      "name": "EmailService (notification module)",
+      "action": "required"
+    },
+    {
+      "type": "service",
+      "name": "UserRepository (domain layer)",
+      "action": "extend"
+    },
+    {
+      "type": "service",
+      "name": "InstagramAccountRepository",
+      "action": "integrate"
+    },
+    {
+      "type": "library",
+      "name": "@radix-ui/react-dialog (frontend)",
+      "action": "required"
+    },
+    {
+      "type": "library",
+      "name": "@radix-ui/react-toast (frontend)",
+      "action": "required"
+    },
+    {
+      "type": "library",
+      "name": "crypto (Node.js built-in)",
+      "action": "required"
+    },
+    {
+      "type": "library",
+      "name": "bcrypt (backend)",
+      "action": "required"
+    },
+    {
+      "type": "configuration",
+      "name": "META_APP_SECRET environment variable",
+      "action": "required"
+    },
+    {
+      "type": "configuration",
+      "name": "DATA_DELETION_RETENTION_DAYS environment variable",
+      "action": "optional"
+    },
+    {
+      "type": "configuration",
+      "name": "Meta App Dashboard webhook configuration",
+      "action": "required"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Data loss: Accidental account deletion could result in irreversible data loss for users. Without proper confirmation flow, users may delete their account unintentionally.",
+      "severity": "high",
+      "mitigation": "Implement multi-step confirmation with checklist (3 items) + text input confirmation ('DELETE' or email). Add prominent warning messages about irreversibility. Consider adding a 30-day retention period before hard delete (optional for v1)."
+    },
+    {
+      "description": "Incomplete deletion: Missing data deletion in any related table could violate compliance requirements and leave orphaned data.",
+      "severity": "critical",
+      "mitigation": "Create comprehensive test suite to verify all related data is deleted. Use database foreign key constraints with CASCADE where appropriate. Implement audit logging to track what was deleted. Manually verify all entity relationships and ensure deletion logic covers all tables."
+    },
+    {
+      "description": "Meta callback security: Invalid or malicious signed requests could trigger unauthorized data deletions.",
+      "severity": "critical",
+      "mitigation": "Implement strict HMAC-SHA256 signature validation using Meta app secret. Reject requests with invalid signatures, expired timestamps (>5 minutes old), or missing required fields. Add rate limiting on callback endpoint. Log all callback attempts for audit trail."
+    },
+    {
+      "description": "Performance degradation: Large-scale deletions (users with 10,000+ messages) could block the API and cause timeouts.",
+      "severity": "medium",
+      "mitigation": "For users with large datasets, queue deletion jobs using BullMQ instead of synchronous deletion. Set appropriate timeout limits. Implement batch deletion with transaction rollback on failure. Monitor deletion performance and set up alerts for slow operations."
+    },
+    {
+      "description": "Race conditions: Concurrent deletion requests from UI and Meta callback could cause data corruption or duplicate processing.",
+      "severity": "medium",
+      "mitigation": "Implement idempotent deletion logic using database transactions. Use unique confirmation codes to track deletion requests. Check if user is already deleted before processing. Use row-level locking or optimistic locking where needed."
+    },
+    {
+      "description": "Session invalidation: Users may remain logged in after account deletion, accessing deleted resources.",
+      "severity": "medium",
+      "mitigation": "Immediately revoke all refresh tokens and invalidate all sessions in Redis when account is deleted. Redirect user to logout page after deletion. Implement middleware to check deletedAt field on every authenticated request."
+    },
+    {
+      "description": "External service failures: Meta token revocation or email service failures could cause incomplete cleanup.",
+      "severity": "medium",
+      "mitigation": "Implement retry logic with exponential backoff for external service calls. Log failures and create manual cleanup jobs. Consider soft delete as primary mechanism with scheduled hard delete as secondary process. Don't block deletion on external service failures."
+    },
+    {
+      "description": "Compliance violations: Incomplete implementation or missing functionality could violate Meta Platform Terms, resulting in app suspension.",
+      "severity": "critical",
+      "mitigation": "Follow Meta's official documentation exactly. Test callback endpoint thoroughly before configuring in Meta App Dashboard. Update Privacy Policy and Data Deletion pages to accurately reflect implemented functionality. Conduct compliance audit before production deployment."
+    }
+  ],
+  "technicalContext": {
+    "stack": {
+      "backend": "NestJS (TypeScript), PostgreSQL, Redis, BullMQ",
+      "frontend": "Next.js 14 (React 18, TypeScript), Tailwind CSS, Radix UI",
+      "architecture": "Domain-Driven Design with repository pattern",
+      "authentication": "JWT with refresh tokens",
+      "testing": "Jest (backend), Playwright (E2E)"
+    },
+    "existingPatterns": {
+      "entityPattern": "Domain entities with create/reconstitute factory methods, soft delete support",
+      "repositoryPattern": "Interface-based repositories with dependency injection",
+      "controllerPattern": "NestJS controllers with guards, DTOs, and OpenAPI decorators",
+      "servicePattern": "Service layer with business logic, dependency injection",
+      "errorHandling": "Domain exceptions, HTTP exceptions with proper status codes",
+      "codeStandards": "English code, camelCase methods, PascalCase classes, kebab-case files, early returns, max 3 parameters, max 50 lines per method"
+    },
+    "affectedFiles": {
+      "newFiles": [
+        "frontend/src/app/(dashboard)/settings/page.tsx",
+        "frontend/src/components/settings/ProfileSettings.tsx",
+        "frontend/src/components/settings/PasswordSettings.tsx",
+        "frontend/src/components/settings/PrivacySettings.tsx",
+        "frontend/src/components/settings/DangerZone.tsx",
+        "frontend/src/lib/services/user.service.ts",
+        "backend/src/modules/meta/meta-callback.controller.ts",
+        "backend/src/modules/meta/meta-callback.service.ts",
+        "backend/src/modules/meta/meta-callback.module.ts",
+        "backend/src/modules/meta/dto/data-deletion-request.dto.ts",
+        "backend/src/domain/entities/data-deletion-request.entity.ts",
+        "backend/src/infrastructure/database/repositories/data-deletion.repository.ts",
+        "backend/src/common/utils/meta-signed-request.util.ts",
+        "backend/src/infrastructure/jobs/data-deletion.job.ts (optional)",
+        "backend/migrations/create-data-deletion-requests-table.sql"
+      ],
+      "modifiedFiles": [
+        "backend/src/modules/user/user.service.ts (extend deleteAccount method)",
+        "backend/src/modules/user/user.controller.ts (improve response)",
+        "frontend/src/lib/api/endpoints.ts (add USER_DELETE, USER_EXPORT_DATA)",
+        "frontend/src/app/data-deletion/page.tsx (update to reflect real functionality)",
+        "frontend/src/app/privacy-policy/page.tsx (update compliance info)",
+        "backend/src/app.module.ts (import MetaCallbackModule)"
+      ]
+    }
+  },
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "Settings page renders at /settings with all 5 sections visible and styled consistently"
+    },
+    {
+      "id": "AC-002",
+      "description": "Profile update form successfully updates name, timezone, and language with toast confirmation"
+    },
+    {
+      "id": "AC-003",
+      "description": "Password change validates current password, requires confirmation, and revokes all sessions"
+    },
+    {
+      "id": "AC-004",
+      "description": "Account deletion shows modal with 3-item checklist, text confirmation input, and warning messages"
+    },
+    {
+      "id": "AC-005",
+      "description": "Account deletion removes all user data: conversations, messages, posts, media, analytics, templates, notifications"
+    },
+    {
+      "id": "AC-006",
+      "description": "Account deletion disconnects all Instagram accounts and revokes OAuth tokens"
+    },
+    {
+      "id": "AC-007",
+      "description": "Meta callback endpoint validates signed requests and processes deletions correctly"
+    },
+    {
+      "id": "AC-008",
+      "description": "Data deletion status endpoint returns correct status (pending/in_progress/completed)"
+    },
+    {
+      "id": "AC-009",
+      "description": "All deletion operations are logged with audit trail including timestamp, source, and status"
+    },
+    {
+      "id": "AC-010",
+      "description": "Settings page is responsive on mobile and desktop devices"
+    },
+    {
+      "id": "AC-011",
+      "description": "All user actions show appropriate feedback (loading states, toast notifications, error messages)"
+    },
+    {
+      "id": "AC-012",
+      "description": "Unit tests cover user.service deleteAccount, meta-callback.service validation, and signed request utils"
+    },
+    {
+      "id": "AC-013",
+      "description": "E2E tests verify complete deletion flow from UI and Meta callback integration"
+    },
+    {
+      "id": "AC-014",
+      "description": "Privacy Policy and Data Deletion pages accurately reflect implemented functionality"
+    },
+    {
+      "id": "AC-015",
+      "description": "Meta App Dashboard can be configured with production URLs for privacy policy, data deletion, and callback"
+    }
+  ],
+  "estimatedEffort": {
+    "development": "2-3 days",
+    "testing": "1 day",
+    "documentation": "0.5 days",
+    "total": "3.5-4.5 days"
+  }
+}

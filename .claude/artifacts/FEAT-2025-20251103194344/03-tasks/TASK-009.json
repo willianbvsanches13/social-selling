@@ -1,0 +1,30 @@
+{
+  "taskId": "TASK-009",
+  "phaseId": "P3",
+  "title": "Implement sendMultipleImagesMessage method in InstagramApiService",
+  "description": "Create method to send multiple images (up to 10) in a single message using Instagram API attachments array format.",
+  "category": "backend",
+  "priority": "medium",
+  "estimatedHours": 0.75,
+  "dependencies": ["TASK-001", "TASK-005"],
+  "files": [
+    "backend/src/modules/instagram/services/instagram-api.service.ts"
+  ],
+  "dod": [
+    "sendMultipleImagesMessage method created",
+    "Accepts array of image URLs (1-10)",
+    "Uses '/${platformAccountId}/messages' endpoint",
+    "Request body with attachments array containing image objects",
+    "Rate limiting and error handling implemented",
+    "Returns message ID from API response"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Request structure: { recipient: { id }, message: { attachments: [{ type: 'image', payload: { url } }, ...] } }",
+      "Map array of URLs to attachment objects"
+    ]
+  }
+}

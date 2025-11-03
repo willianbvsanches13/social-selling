@@ -1,0 +1,30 @@
+{
+  "taskId": "TASK-009",
+  "phaseId": "P4",
+  "title": "Implement cascade deletion in UserService.deleteAccount",
+  "description": "Enhance deleteAccount method to perform complete cascade deletion: 1) Create data_deletion_request record, 2) Soft delete user, 3) Delete conversations & messages, 4) Delete scheduled posts & media assets, 5) Delete analytics & templates, 6) Delete notifications, 7) Disconnect & delete client_accounts, 8) Revoke oauth_tokens via Instagram API, 9) Invalidate sessions in Redis, 10) Update deletion request status. Use database transactions for atomicity.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 2.5,
+  "dependencies": ["TASK-008"],
+  "files": [
+    "backend/src/modules/user/services/user.service.ts"
+  ],
+  "dod": [
+    "UserService.deleteAccount() method enhanced with cascade deletion",
+    "Data deletion request created and tracked",
+    "User soft deleted (deletedAt timestamp set)",
+    "All related data deleted across all modules",
+    "Instagram access tokens revoked via Instagram Graph API",
+    "All sessions invalidated in Redis",
+    "Database transactions used for atomicity (all or nothing)",
+    "Proper error handling with rollback on failure",
+    "Deletion request status updated (in_progress -> completed or failed)",
+    "Method accepts source parameter (user_app, meta_callback, email)"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-028",
+  "phaseId": "P10",
+  "title": "Create E2E tests for settings page",
+  "description": "Create Playwright tests: 1) Navigate to settings page, 2) Update profile successfully, 3) Change password successfully, 4) Trigger account deletion with full flow. Use test user and cleanup after tests.",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-022", "TASK-023", "TASK-025"],
+  "files": [
+    "frontend/test/e2e/settings.spec.ts"
+  ],
+  "dod": [
+    "E2E test file created at frontend/test/e2e/settings.spec.ts",
+    "Test: Navigate to /settings page and verify all sections visible",
+    "Test: Update profile (name, timezone, language) and verify success",
+    "Test: Change password and verify logout",
+    "Test: Complete account deletion flow with modal, checklist, text confirmation",
+    "Test user created in setup, cleaned up after tests",
+    "All tests pass consistently",
+    "Tests use Playwright best practices"
+  ],
+  "technicalDetails": {
+    "packages": ["@playwright/test"],
+    "envVars": [],
+    "migrations": null
+  }
+}

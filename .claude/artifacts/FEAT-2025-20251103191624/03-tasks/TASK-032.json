@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-032",
+  "phaseId": "P11",
+  "title": "Create deployment checklist and Meta configuration guide",
+  "description": "Create deployment checklist with: 1) Run migration 041, 2) Add META_APP_SECRET to .env, 3) Configure Meta App Dashboard with webhook URLs, 4) Deploy backend and frontend, 5) Test Meta callback, 6) Monitor logs. Also create step-by-step Meta App Dashboard configuration guide with screenshots.",
+  "category": "documentation",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-030"],
+  "files": [
+    "backend/docs/deployment/feat-user-deletion.md",
+    "backend/docs/meta-app-configuration.md"
+  ],
+  "dod": [
+    "Deployment checklist created at backend/docs/deployment/feat-user-deletion.md",
+    "Checklist includes all deployment steps in order",
+    "Environment variables documented (META_APP_SECRET)",
+    "Migration steps documented",
+    "Deployment verification steps included",
+    "Rollback plan documented",
+    "Meta App Dashboard guide created at backend/docs/meta-app-configuration.md",
+    "Step-by-step instructions for Meta App Dashboard setup",
+    "Screenshots showing where to configure URLs",
+    "Testing steps with Meta's webhook testing tool"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": ["META_APP_SECRET"],
+    "migrations": "041-create-data-deletion-requests"
+  }
+}

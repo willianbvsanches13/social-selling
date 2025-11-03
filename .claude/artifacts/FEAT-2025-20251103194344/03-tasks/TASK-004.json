@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-004",
+  "phaseId": "P2",
+  "title": "Create SendImageMessageDto",
+  "description": "Create DTO for single image message validation with URL and type validation. Validate that URL is properly formatted and accessible.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 0.25,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/src/modules/messaging/dto/send-image-message.dto.ts"
+  ],
+  "dod": [
+    "SendImageMessageDto created with imageUrl field",
+    "URL validation using @IsUrl() decorator",
+    "Swagger/ApiProperty decorators added",
+    "Optional caption field for image description"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "URL should be publicly accessible",
+      "Support both http and https URLs"
+    ]
+  }
+}

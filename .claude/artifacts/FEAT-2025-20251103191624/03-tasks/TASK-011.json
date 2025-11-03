@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-011",
+  "phaseId": "P5",
+  "title": "Create MetaCallbackModule and register in AppModule",
+  "description": "Create modules/meta/meta-callback.module.ts. Import UserModule, register DataDeletionRequestRepository provider. Update app.module.ts to import MetaCallbackModule. Follow existing module patterns.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-005", "TASK-009"],
+  "files": [
+    "backend/src/modules/meta/meta-callback.module.ts",
+    "backend/src/app.module.ts"
+  ],
+  "dod": [
+    "Module file created at backend/src/modules/meta/meta-callback.module.ts",
+    "Module imports UserModule for UserService dependency",
+    "DataDeletionRequestRepository registered as provider",
+    "Module exports necessary services for other modules",
+    "AppModule updated to import MetaCallbackModule",
+    "Module follows NestJS module structure and conventions"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

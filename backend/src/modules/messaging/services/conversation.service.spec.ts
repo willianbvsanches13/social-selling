@@ -307,11 +307,9 @@ describe('ConversationService', () => {
       // Arrange
       const conversationWithValidationError = {
         ...mockConversation,
-        updateParticipantProfile: jest
-          .fn()
-          .mockImplementation(() => {
-            throw new Error('Username cannot be empty');
-          }),
+        updateParticipantProfile: jest.fn().mockImplementation(() => {
+          throw new Error('Username cannot be empty');
+        }),
       };
       conversationRepository.findById.mockResolvedValue(
         conversationWithValidationError as any,

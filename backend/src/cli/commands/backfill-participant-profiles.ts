@@ -80,7 +80,11 @@ async function main() {
     const options = parseArgs();
 
     // Show help if no account ID provided or if help flag is present
-    if (!options.accountId || process.argv.includes('--help') || process.argv.includes('-h')) {
+    if (
+      !options.accountId ||
+      process.argv.includes('--help') ||
+      process.argv.includes('-h')
+    ) {
       printHelp();
       process.exit(options.accountId ? 0 : 1);
     }
@@ -111,7 +115,9 @@ async function main() {
       console.log(`   Job ID: ${job.id}`);
       console.log(`   Queue: backfill-participant-profiles`);
       console.log(`\n💡 The job will be processed by the worker.`);
-      console.log(`   Monitor progress in the application logs or BullMQ dashboard.\n`);
+      console.log(
+        `   Monitor progress in the application logs or BullMQ dashboard.\n`,
+      );
 
       await app.close();
       process.exit(0);

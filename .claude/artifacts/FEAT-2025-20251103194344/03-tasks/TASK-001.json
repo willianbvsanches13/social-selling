@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Fix InstagramApiService sendMessage endpoint",
+  "description": "Update sendMessage method to use correct endpoint '/${platformAccountId}/messages' instead of '/me/messages'. Verify that platformAccountId is correctly passed and corresponds to Instagram Business Account ID. Add comprehensive logging for debugging.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 2,
+  "dependencies": [],
+  "files": [
+    "backend/src/modules/instagram/services/instagram-api.service.ts"
+  ],
+  "dod": [
+    "sendMessage method updated to use '/${platformAccountId}/messages' endpoint",
+    "Request structure matches Instagram API v24.0 specification",
+    "Logging added for endpoint URL and request parameters",
+    "Manual testing with real Instagram Business Account confirms message delivery",
+    "Error handling updated to provide clear API error details"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "platformAccountId should come from ClientAccount entity",
+      "Verify BASE_URL is correct (graph.facebook.com or graph.instagram.com)",
+      "Keep existing rate limiting and retry logic intact",
+      "Test with real Instagram account in development"
+    ]
+  }
+}

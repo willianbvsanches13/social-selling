@@ -1,0 +1,35 @@
+{
+  "taskId": "TASK-020",
+  "phaseId": "P6",
+  "title": "Update documentation and Swagger",
+  "description": "Update JSDoc comments in services and DTOs. Ensure Swagger/OpenAPI documentation is complete and accurate for all new endpoints.",
+  "category": "documentation",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-019"],
+  "files": [
+    "backend/src/modules/instagram/services/instagram-api.service.ts",
+    "backend/src/modules/messaging/services/messaging.service.ts",
+    "backend/src/modules/messaging/controllers/messaging.controller.ts",
+    "backend/src/modules/messaging/dto/*.dto.ts"
+  ],
+  "dod": [
+    "JSDoc comments added/updated for all new methods",
+    "Swagger decorators (@ApiOperation, @ApiResponse, @ApiProperty) complete",
+    "API documentation accessible at /api/docs",
+    "Request/response examples included in Swagger",
+    "Error responses documented",
+    "Instagram API endpoint change documented in comments"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Use @ApiOperation for endpoint descriptions",
+      "Use @ApiResponse for status codes",
+      "Use @ApiProperty for DTO fields with examples",
+      "Document breaking changes from old endpoint"
+    ]
+  }
+}

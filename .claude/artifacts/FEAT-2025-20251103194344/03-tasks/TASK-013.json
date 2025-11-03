@@ -1,0 +1,30 @@
+{
+  "taskId": "TASK-013",
+  "phaseId": "P3",
+  "title": "Implement sendPostMessage method in InstagramApiService",
+  "description": "Create method to send published Instagram posts using MEDIA_SHARE attachment type. Post must be owned by the app user.",
+  "category": "backend",
+  "priority": "low",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "backend/src/modules/instagram/services/instagram-api.service.ts"
+  ],
+  "dod": [
+    "sendPostMessage method created",
+    "Accepts postId (Instagram media ID)",
+    "Uses '/${platformAccountId}/messages' endpoint",
+    "Request body with attachment type 'MEDIA_SHARE' and payload.id",
+    "Rate limiting and error handling implemented",
+    "Returns message ID from API response"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Request structure: { recipient: { id }, message: { attachment: { type: 'MEDIA_SHARE', payload: { id: postId } } } }",
+      "Post must be owned by the authenticated user"
+    ]
+  }
+}

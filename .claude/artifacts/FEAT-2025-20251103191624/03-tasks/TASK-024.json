@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-024",
+  "phaseId": "P8",
+  "title": "Create PrivacySettings component",
+  "description": "Create frontend/src/components/settings/PrivacySettings.tsx with links to Privacy Policy, Data Deletion instructions. Simple informational section with external links.",
+  "category": "frontend",
+  "priority": "low",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-021"],
+  "files": [
+    "frontend/src/components/settings/PrivacySettings.tsx"
+  ],
+  "dod": [
+    "Component file created at frontend/src/components/settings/PrivacySettings.tsx",
+    "Section displays privacy information",
+    "Link to Privacy Policy page (/privacy-policy)",
+    "Link to Data Deletion page (/data-deletion)",
+    "Clear, user-friendly layout",
+    "Follows existing component styling"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

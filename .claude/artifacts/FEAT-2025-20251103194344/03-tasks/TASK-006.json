@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-006",
+  "phaseId": "P2",
+  "title": "Create SendMediaMessageDto for audio/video",
+  "description": "Create DTO for audio and video message validation with URL and media type (audio or video). Validate URL format and media type enum.",
+  "category": "backend",
+  "priority": "medium",
+  "estimatedHours": 0.25,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/src/modules/messaging/dto/send-media-message.dto.ts"
+  ],
+  "dod": [
+    "SendMediaMessageDto created with mediaUrl and mediaType fields",
+    "MediaType enum with 'audio' and 'video' values",
+    "URL validation for mediaUrl",
+    "Enum validation for mediaType",
+    "Swagger/ApiProperty decorators added"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Use @IsEnum() for mediaType validation",
+      "Media files must be hosted on publicly accessible URLs"
+    ]
+  }
+}

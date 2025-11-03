@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-005",
+  "phaseId": "P2",
+  "title": "Create SendMultipleImagesDto with array validation",
+  "description": "Create DTO for multiple images validation ensuring array has between 1-10 image URLs. Each URL must be validated individually.",
+  "category": "backend",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/src/modules/messaging/dto/send-multiple-images.dto.ts"
+  ],
+  "dod": [
+    "SendMultipleImagesDto created with imageUrls array field",
+    "Array size validation (min 1, max 10)",
+    "Each URL validated with @IsUrl()",
+    "Swagger/ApiProperty decorators with array specification",
+    "Clear error messages for invalid arrays"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Use @ArrayMinSize(1) and @ArrayMaxSize(10)",
+      "Use @IsUrl({ each: true }) for array validation"
+    ]
+  }
+}

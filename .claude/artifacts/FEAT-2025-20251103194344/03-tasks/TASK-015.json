@@ -1,0 +1,33 @@
+{
+  "taskId": "TASK-015",
+  "phaseId": "P4",
+  "title": "Update MessagingController with new endpoints",
+  "description": "Add new REST endpoints in MessagingController for sending different message types. Apply DTO validation to all endpoints.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-014", "TASK-003", "TASK-004", "TASK-005", "TASK-006", "TASK-007"],
+  "files": [
+    "backend/src/modules/messaging/controllers/messaging.controller.ts"
+  ],
+  "dod": [
+    "POST /conversations/:id/messages/image endpoint created",
+    "POST /conversations/:id/messages/images endpoint created (multiple)",
+    "POST /conversations/:id/messages/media endpoint created (audio/video)",
+    "POST /conversations/:id/messages/reactions endpoint created",
+    "All endpoints use appropriate DTOs with validation",
+    "All endpoints return consistent response format",
+    "Swagger/ApiOperation decorators added",
+    "Authentication guards applied"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Follow existing endpoint pattern from sendTextMessage",
+      "Use @Body() with DTO decorators for validation",
+      "Return Message entity or MessageResponseDto"
+    ]
+  }
+}

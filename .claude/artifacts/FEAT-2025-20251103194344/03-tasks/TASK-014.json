@@ -1,0 +1,33 @@
+{
+  "taskId": "TASK-014",
+  "phaseId": "P4",
+  "title": "Update MessagingService for new message types",
+  "description": "Add new methods in MessagingService to handle image, video, audio, and other message types. Update existing sendTextMessage to use corrected InstagramApiService method.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-008", "TASK-009", "TASK-010", "TASK-011", "TASK-012", "TASK-013"],
+  "files": [
+    "backend/src/modules/messaging/services/messaging.service.ts"
+  ],
+  "dod": [
+    "sendTextMessage updated to use corrected InstagramApiService.sendMessage",
+    "sendImageMessage method created",
+    "sendMultipleImagesMessage method created",
+    "sendMediaMessage method created (for audio/video)",
+    "reactToMessage method created",
+    "All methods validate 24-hour response window",
+    "All methods save sent messages to database with correct MessageType",
+    "Error handling with clear messages"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Follow existing pattern: validate conversation, check response window, call Instagram API, save message, update conversation",
+      "Use appropriate MessageType enum value for each message type",
+      "Store attachment URLs in message metadata or attachments field"
+    ]
+  }
+}

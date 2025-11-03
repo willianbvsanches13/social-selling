@@ -432,23 +432,38 @@ export class InstagramApiService {
 
   /**
    * Send message
+   * @param accountId Client account ID for authentication
+   * @param platformAccountId Instagram Business Account ID (IG_ID)
+   * @param recipientId Instagram-scoped ID of the recipient (IGSID)
+   * @param message Text message content (max 1000 bytes UTF-8)
+   * @returns Promise with message ID from Instagram API
    */
   async sendMessage(
     accountId: string,
+    platformAccountId: string,
     recipientId: string,
     message: string,
   ): Promise<{ id: string }> {
     const token = await this.getAccessToken(accountId);
+    const endpoint = `/${platformAccountId}/messages`;
+
+    this.logger.debug(
+      `Sending message to Instagram API - Endpoint: ${endpoint}, Recipient: ${recipientId}`,
+    );
 
     const response = await this.makeRequest<{ id: string }>(
       accountId,
       'POST',
-      '/me/messages',
+      endpoint,
       {
         recipient: { id: recipientId },
         message: { text: message },
         access_token: token,
       },
+    );
+
+    this.logger.log(
+      `Message sent successfully - Message ID: ${response.data.id}, Platform Account: ${platformAccountId}`,
     );
 
     return response.data;

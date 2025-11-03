@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-016",
+  "phaseId": "P6",
+  "title": "Create integration tests for Meta callback endpoints",
+  "description": "Test POST /meta/data-deletion-callback with valid/invalid signatures, expired timestamps, duplicate requests. Test GET /meta/data-deletion-status with various statuses. Use test database.",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-013", "TASK-014"],
+  "files": [
+    "backend/test/integration/modules/meta/meta-callback.controller.spec.ts"
+  ],
+  "dod": [
+    "Integration test file created at backend/test/integration/modules/meta/meta-callback.controller.spec.ts",
+    "Tests for POST /meta/data-deletion-callback with valid signature",
+    "Tests for invalid signature (401 Unauthorized)",
+    "Tests for expired timestamp",
+    "Tests for duplicate requests (idempotency)",
+    "Tests for GET /meta/data-deletion-status with existing confirmation code",
+    "Tests for GET /meta/data-deletion-status with non-existent code (404)",
+    "Tests verify database records are created/updated",
+    "All tests pass with test database"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "supertest"],
+    "envVars": ["META_APP_SECRET"],
+    "migrations": null
+  }
+}

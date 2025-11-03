@@ -1,0 +1,30 @@
+{
+  "taskId": "TASK-008",
+  "phaseId": "P3",
+  "title": "Implement sendImageMessage method in InstagramApiService",
+  "description": "Create new method to send single image messages using Instagram API attachment format. Use correct endpoint with platformAccountId and attachment payload structure.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 0.75,
+  "dependencies": ["TASK-001", "TASK-004"],
+  "files": [
+    "backend/src/modules/instagram/services/instagram-api.service.ts"
+  ],
+  "dod": [
+    "sendImageMessage method created",
+    "Uses '/${platformAccountId}/messages' endpoint",
+    "Request body with attachment type 'image' and payload.url",
+    "Rate limiting applied via InstagramRateLimiter",
+    "Error handling with InstagramGraphApiException",
+    "Returns message ID from API response"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Follow same pattern as existing sendMessage method",
+      "Request structure: { recipient: { id }, message: { attachment: { type: 'image', payload: { url } } } }"
+    ]
+  }
+}

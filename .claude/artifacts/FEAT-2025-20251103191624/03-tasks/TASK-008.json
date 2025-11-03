@@ -1,0 +1,25 @@
+{
+  "taskId": "TASK-008",
+  "phaseId": "P4",
+  "title": "Map all tables requiring cascade deletion",
+  "description": "Document all tables with user_id foreign key that need to be deleted during account deletion. Review all migrations to ensure completeness. Create documentation listing: conversations, messages, instagram_scheduled_posts, instagram_media_assets, instagram_post_templates, instagram_analytics_report, notifications, client_accounts, oauth_tokens, sessions, data_deletion_requests.",
+  "category": "documentation",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-005"],
+  "files": [
+    "backend/docs/cascade-deletion-mapping.md"
+  ],
+  "dod": [
+    "Document created at backend/docs/cascade-deletion-mapping.md",
+    "All tables with user_id foreign key listed",
+    "Tables grouped by module (messaging, instagram, auth, etc.)",
+    "Deletion order documented (considering foreign key dependencies)",
+    "Special considerations noted (e.g., Instagram API token revocation)",
+    "List verified against all existing migrations"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

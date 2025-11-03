@@ -1,0 +1,32 @@
+{
+  "taskId": "TASK-016",
+  "phaseId": "P4",
+  "title": "Add DTO validation and error handling",
+  "description": "Ensure all DTOs are properly validated at controller level with ValidationPipe. Enhance error handling to provide clear, user-friendly messages when validation fails or API calls fail.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-015"],
+  "files": [
+    "backend/src/modules/messaging/controllers/messaging.controller.ts",
+    "backend/src/modules/messaging/services/messaging.service.ts"
+  ],
+  "dod": [
+    "ValidationPipe configured globally or per-endpoint",
+    "DTO validation errors return 400 Bad Request with detailed messages",
+    "Instagram API errors are caught and transformed to user-friendly messages",
+    "Rate limit errors return 429 Too Many Requests",
+    "Authentication errors return 401 Unauthorized",
+    "Response window errors return 400 with clear message"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Use ValidationPipe with { whitelist: true, transform: true }",
+      "Map InstagramGraphApiException to appropriate HTTP status codes",
+      "Include error details in response body for debugging"
+    ]
+  }
+}

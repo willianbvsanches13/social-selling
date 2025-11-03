@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-005",
+  "phaseId": "P2",
+  "title": "Implement DataDeletionRequestRepository",
+  "description": "Create repository implementation in infrastructure/database/repositories/ using pg-promise. Follow existing repository patterns (e.g., user.repository.ts). Implement all interface methods with proper SQL queries, prepared statements, and entity reconstitution.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-004"],
+  "files": [
+    "backend/src/infrastructure/database/repositories/data-deletion-request.repository.ts"
+  ],
+  "dod": [
+    "Repository file created at backend/src/infrastructure/database/repositories/data-deletion-request.repository.ts",
+    "Extends BaseRepository following existing pattern",
+    "All interface methods implemented with SQL queries",
+    "Uses prepared statements for SQL injection prevention",
+    "Proper entity reconstitution using DataDeletionRequest.reconstitute()",
+    "Proper error handling for database operations",
+    "Repository exported in infrastructure/database/repositories/index.ts"
+  ],
+  "technicalDetails": {
+    "packages": ["pg-promise"],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -245,10 +245,12 @@ export class MessageRepository implements IMessageRepository {
     let attachments: Attachment[] | undefined;
     if (row.attachments) {
       try {
-        const parsed = typeof row.attachments === 'string'
-          ? JSON.parse(row.attachments)
-          : row.attachments;
-        attachments = Array.isArray(parsed) && parsed.length > 0 ? parsed : undefined;
+        const parsed =
+          typeof row.attachments === 'string'
+            ? JSON.parse(row.attachments)
+            : row.attachments;
+        attachments =
+          Array.isArray(parsed) && parsed.length > 0 ? parsed : undefined;
       } catch {
         attachments = undefined;
       }

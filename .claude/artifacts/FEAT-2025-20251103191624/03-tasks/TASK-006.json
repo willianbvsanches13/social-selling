@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-006",
+  "phaseId": "P3",
+  "title": "Create MetaSignedRequestUtil",
+  "description": "Create utility in common/utils/ with functions for HMAC-SHA256 signature validation: validateSignedRequest(signedRequest, appSecret), parseSignedRequest(signedRequest), isTimestampValid(timestamp, maxAgeSeconds). Use Node.js crypto module for HMAC-SHA256 following Meta's documentation.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": [],
+  "files": [
+    "backend/src/common/utils/meta-signed-request.util.ts"
+  ],
+  "dod": [
+    "Utility file created at backend/src/common/utils/meta-signed-request.util.ts",
+    "Function validateSignedRequest() validates HMAC-SHA256 signature",
+    "Function parseSignedRequest() extracts payload from signed request",
+    "Function isTimestampValid() checks if timestamp is within max age",
+    "Uses Node.js crypto module for HMAC-SHA256",
+    "Follows Meta's signed request format: base64url(signature).base64url(payload)",
+    "Proper error handling for malformed requests",
+    "TypeScript types defined for parsed request data"
+  ],
+  "technicalDetails": {
+    "packages": ["crypto (Node.js built-in)"],
+    "envVars": [],
+    "migrations": null
+  }
+}

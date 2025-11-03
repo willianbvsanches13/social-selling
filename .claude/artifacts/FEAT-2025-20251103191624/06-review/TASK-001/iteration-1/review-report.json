@@ -1,0 +1,254 @@
+{
+  "reviewId": "REV-2025-20251103194800",
+  "featureId": "FEAT-2025-20251103191624",
+  "taskId": "TASK-001",
+  "testResultsId": "TEST-2025-20251103193500",
+  "executionId": "EXEC-2025-20251103192916",
+  "iteration": 1,
+  "timestamp": "2025-11-03T19:48:00Z",
+  "summary": {
+    "overallScore": 88,
+    "verdict": "needs-changes",
+    "criticalIssues": 0,
+    "highIssues": 0,
+    "mediumIssues": 2,
+    "lowIssues": 1
+  },
+  "codeQuality": {
+    "score": 95,
+    "issues": [
+      {
+        "file": "backend/migrations/041-create-data-deletion-requests.sql",
+        "line": 0,
+        "type": "info",
+        "category": "documentation",
+        "severity": "low",
+        "description": "Excellent documentation with comprehensive comments on table and columns",
+        "suggestion": "Keep this standard for future migrations"
+      }
+    ],
+    "positives": [
+      "Clear and well-structured SQL code",
+      "Proper use of UPPERCASE for SQL keywords",
+      "Comprehensive table and column comments",
+      "Rollback instructions included",
+      "All naming conventions followed (snake_case, English)",
+      "Proper constraint naming",
+      "Good use of CHECK constraints for enums"
+    ]
+  },
+  "sqlCompliance": {
+    "score": 75,
+    "issues": [
+      {
+        "file": "backend/migrations/041-create-data-deletion-requests.sql",
+        "line": 11,
+        "type": "warning",
+        "category": "sql-standards",
+        "severity": "medium",
+        "description": "Column 'source' uses VARCHAR(50) instead of TEXT",
+        "suggestion": "Change 'source VARCHAR(50)' to 'source TEXT' according to .claude/rules/sql.md rule: 'Para os tipos string, sempre adote text, não utilize varchar'",
+        "rule": ".claude/rules/sql.md - Line 18",
+        "impact": "Violates project SQL standards"
+      },
+      {
+        "file": "backend/migrations/041-create-data-deletion-requests.sql",
+        "line": 12,
+        "type": "warning",
+        "category": "sql-standards",
+        "severity": "medium",
+        "description": "Column 'status' uses VARCHAR(50) instead of TEXT",
+        "suggestion": "Change 'status VARCHAR(50)' to 'status TEXT' according to .claude/rules/sql.md rule: 'Para os tipos string, sempre adote text, não utilize varchar'",
+        "rule": ".claude/rules/sql.md - Line 18",
+        "impact": "Violates project SQL standards"
+      }
+    ]
+  },
+  "consistency": {
+    "score": 85,
+    "issues": [
+      {
+        "file": "backend/migrations/041-create-data-deletion-requests.sql",
+        "line": 8,
+        "type": "info",
+        "category": "consistency",
+        "severity": "low",
+        "description": "Uses gen_random_uuid() while migration 037 uses uuid_generate_v4()",
+        "suggestion": "Verify which UUID generation function is the current project standard. Both work but consistency is preferred.",
+        "impact": "Minor inconsistency across migrations, but execution report indicates gen_random_uuid() was chosen for consistency with recent migrations"
+      }
+    ],
+    "notes": [
+      "According to execution report, gen_random_uuid() was intentionally chosen for consistency with recent migrations",
+      "Migration follows existing project patterns from migrations 001-040"
+    ]
+  },
+  "security": {
+    "score": 100,
+    "vulnerabilities": [],
+    "positives": [
+      "ON DELETE CASCADE properly configured for data integrity",
+      "Foreign key constraints properly defined",
+      "Check constraints prevent invalid enum values",
+      "Unique constraint on confirmation_code prevents duplicates",
+      "No SQL injection risks (migration file)",
+      "Proper use of NOT NULL constraints"
+    ]
+  },
+  "performance": {
+    "score": 95,
+    "issues": [],
+    "positives": [
+      "Indexes created on all commonly queried columns (user_id, status, requested_at)",
+      "Unique index on confirmation_code for fast lookups",
+      "GIN index on JSONB metadata column for efficient JSON queries",
+      "DESC ordering on requested_at index for typical time-based queries",
+      "updated_at trigger using existing function (minimal overhead)"
+    ],
+    "metrics": {
+      "indexesCreated": 5,
+      "ginIndexes": 1,
+      "triggers": 1,
+      "expectedQueryPerformance": "excellent"
+    }
+  },
+  "patterns": {
+    "score": 90,
+    "violations": [],
+    "positives": [
+      "Follows migration naming pattern: NNN-description.sql",
+      "Proper table structure with all required columns",
+      "Consistent with existing project migrations",
+      "Good separation of concerns (constraints, indexes, triggers, comments)",
+      "Proper use of IF NOT EXISTS for idempotency"
+    ]
+  },
+  "testing": {
+    "score": 100,
+    "coverage": {
+      "tableStructure": "100%",
+      "indexes": "100%",
+      "constraints": "100%",
+      "triggers": "100%",
+      "dataValidation": "100%",
+      "overall": "100%"
+    },
+    "testResults": {
+      "totalTests": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0
+    },
+    "positives": [
+      "All 12 E2E tests passed successfully",
+      "Comprehensive test coverage across all categories",
+      "Tests verify table structure, indexes, constraints, triggers, and data validation",
+      "Performance metrics validated",
+      "Database integrity confirmed"
+    ]
+  },
+  "documentation": {
+    "score": 95,
+    "missing": [],
+    "positives": [
+      "Table comment describes purpose clearly",
+      "All key columns have descriptive comments",
+      "Rollback instructions included in migration",
+      "Dependencies documented in header",
+      "Migration metadata complete (date, author, description)"
+    ]
+  },
+  "dodVerification": {
+    "score": 100,
+    "allItemsPassed": true,
+    "items": [
+      {
+        "requirement": "Migration file created following existing naming pattern",
+        "status": "PASS"
+      },
+      {
+        "requirement": "Table created with all required columns and correct data types",
+        "status": "PASS"
+      },
+      {
+        "requirement": "Foreign key constraint with ON DELETE CASCADE",
+        "status": "PASS"
+      },
+      {
+        "requirement": "Indexes on user_id, confirmation_code, status, requested_at",
+        "status": "PASS"
+      },
+      {
+        "requirement": "Unique constraint on confirmation_code",
+        "status": "PASS"
+      },
+      {
+        "requirement": "Check constraints for source and status enums",
+        "status": "PASS"
+      },
+      {
+        "requirement": "Migration runs successfully without errors",
+        "status": "PASS"
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "priority": "medium",
+      "category": "sql-standards",
+      "description": "Change VARCHAR(50) to TEXT for 'source' and 'status' columns",
+      "reason": "Violates project SQL standards defined in .claude/rules/sql.md",
+      "actionRequired": true,
+      "estimatedEffort": "5 minutes"
+    },
+    {
+      "priority": "low",
+      "category": "consistency",
+      "description": "Document UUID generation function standard in project guidelines",
+      "reason": "Prevent future inconsistencies between gen_random_uuid() and uuid_generate_v4()",
+      "actionRequired": false,
+      "estimatedEffort": "10 minutes"
+    }
+  ],
+  "overallAssessment": {
+    "strengths": [
+      "Excellent test coverage (100% across all categories)",
+      "Comprehensive documentation and comments",
+      "Strong security implementation with proper constraints",
+      "Optimized performance with appropriate indexes",
+      "Clean and well-structured SQL code",
+      "Follows migration patterns consistently",
+      "All DoD criteria met"
+    ],
+    "weaknesses": [
+      "Two violations of SQL standards (VARCHAR instead of TEXT)",
+      "Minor inconsistency in UUID generation approach (though intentional per execution report)"
+    ],
+    "verdict": "needs-changes",
+    "verdictReason": "Overall score of 88/100 indicates high quality work, but two medium-severity issues violate project SQL standards. While all tests pass and functionality is correct, code standards compliance requires using TEXT instead of VARCHAR for string columns.",
+    "detailedExplanation": "The migration is functionally excellent with perfect test results, comprehensive documentation, and strong security/performance characteristics. However, it violates the explicit SQL standard defined in .claude/rules/sql.md by using VARCHAR instead of TEXT for string columns. This is a straightforward fix that should be addressed before approval to maintain consistency with project standards."
+  },
+  "scoreCalculation": {
+    "formula": "(sqlCompliance * 0.35) + (security * 0.25) + (performance * 0.20) + (patterns * 0.10) + (documentation * 0.10)",
+    "breakdown": {
+      "sqlCompliance": "75 * 0.35 = 26.25",
+      "security": "100 * 0.25 = 25.00",
+      "performance": "95 * 0.20 = 19.00",
+      "patterns": "90 * 0.10 = 9.00",
+      "documentation": "95 * 0.10 = 9.50"
+    },
+    "total": 88.75,
+    "rounded": 88
+  },
+  "nextSteps": {
+    "action": "refine",
+    "agentToCall": "07-refiner",
+    "reason": "Medium-severity SQL standards violations need to be fixed",
+    "expectedChanges": [
+      "Change VARCHAR(50) to TEXT for source column (line 11)",
+      "Change VARCHAR(50) to TEXT for status column (line 12)",
+      "Re-run tests to verify changes don't break functionality"
+    ],
+    "estimatedTime": "10 minutes"
+  }
+}

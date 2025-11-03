@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-017",
+  "phaseId": "P6",
+  "title": "Verify OpenAPI documentation completeness",
+  "description": "Ensure all Meta callback endpoints have proper @ApiOperation, @ApiResponse decorations. Generate Swagger JSON and verify it matches Meta requirements for webhook URLs.",
+  "category": "documentation",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-013"],
+  "files": [
+    "backend/src/modules/meta/controllers/meta-callback.controller.ts"
+  ],
+  "dod": [
+    "All endpoints have @ApiOperation decorator with description",
+    "@ApiResponse decorators for all status codes (200, 400, 401, 404)",
+    "@ApiTags decorator added for 'Meta Callbacks' tag",
+    "Request/Response DTOs have proper @ApiProperty decorators",
+    "Swagger JSON generated successfully (npm run start:dev and check /api)",
+    "Documentation clearly explains signed_request format",
+    "Documentation includes example requests/responses"
+  ],
+  "technicalDetails": {
+    "packages": ["@nestjs/swagger"],
+    "envVars": [],
+    "migrations": null
+  }
+}

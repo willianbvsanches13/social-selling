@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-014",
+  "phaseId": "P5",
+  "title": "Implement MetaCallbackService",
+  "description": "Create service with methods: handleDeletionCallback(signedRequest), validateAndParseRequest(signedRequest), processDeletionRequest(userId), getRequestStatus(confirmationCode). Coordinate with UserService and DataDeletionRequestRepository. Implement idempotency checks.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-006", "TASK-009"],
+  "files": [
+    "backend/src/modules/meta/services/meta-callback.service.ts"
+  ],
+  "dod": [
+    "Service file created at backend/src/modules/meta/services/meta-callback.service.ts",
+    "Method handleDeletionCallback() orchestrates full deletion flow",
+    "Method validateAndParseRequest() uses MetaSignedRequestUtil",
+    "Rejects invalid/expired signatures with UnauthorizedException",
+    "Method processDeletionRequest() calls UserService.deleteAccount",
+    "Idempotency checks implemented (check if request already processed)",
+    "Method getRequestStatus() returns status by confirmation code",
+    "Proper error handling and logging",
+    "Service injectable via DI"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": ["META_APP_SECRET"],
+    "migrations": null
+  }
+}

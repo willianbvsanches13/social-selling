@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-004",
+  "phaseId": "P2",
+  "title": "Create IDataDeletionRepository interface",
+  "description": "Define repository interface in domain/repositories/ with methods: create, findById, findByConfirmationCode, findByUserId, updateStatus, findPendingRequests. Follow existing repository interface patterns.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/src/domain/repositories/data-deletion-request.repository.interface.ts"
+  ],
+  "dod": [
+    "Interface file created at backend/src/domain/repositories/data-deletion-request.repository.interface.ts",
+    "Method signatures defined for all CRUD operations",
+    "Method findByConfirmationCode for status lookup",
+    "Method findByUserId to check existing requests",
+    "Method updateStatus for status transitions",
+    "Method findPendingRequests for cleanup jobs",
+    "Interface exported and added to domain/repositories/index.ts"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

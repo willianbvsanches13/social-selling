@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-002",
+  "phaseId": "P2",
+  "title": "Extend MessageType enum with new message types",
+  "description": "Add new message types to MessageType enum in Message entity: IMAGE, VIDEO, AUDIO, STICKER, REACTION, MEDIA_SHARE. These types will be used to categorize different message formats supported by Instagram API.",
+  "category": "domain",
+  "priority": "high",
+  "estimatedHours": 0.25,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "backend/src/domain/entities/message.entity.ts"
+  ],
+  "dod": [
+    "MessageType enum extended with new types: IMAGE, VIDEO, AUDIO, STICKER, REACTION, MEDIA_SHARE",
+    "Existing code using MessageType still compiles without errors",
+    "Entity exports updated if needed"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Keep existing TEXT message type",
+      "Ensure backward compatibility with existing messages"
+    ]
+  }
+}

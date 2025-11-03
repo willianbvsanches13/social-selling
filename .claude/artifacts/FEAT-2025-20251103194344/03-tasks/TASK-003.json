@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-003",
+  "phaseId": "P2",
+  "title": "Create SendMessageDto with UTF-8 and size validation",
+  "description": "Create DTO for text message validation ensuring UTF-8 encoding and maximum 1000 bytes length. Use class-validator decorators for validation and Swagger decorators for API documentation.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/src/modules/messaging/dto/send-message.dto.ts"
+  ],
+  "dod": [
+    "SendMessageDto created with text field",
+    "Validation for required text field",
+    "Custom validator for 1000 bytes UTF-8 limit",
+    "Swagger/ApiProperty decorators added",
+    "Error messages are clear and user-friendly"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Use Buffer.byteLength(text, 'utf8') to check size",
+      "Validation should return clear error when limit exceeded"
+    ]
+  }
+}

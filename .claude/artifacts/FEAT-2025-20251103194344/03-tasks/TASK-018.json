@@ -1,0 +1,38 @@
+{
+  "taskId": "TASK-018",
+  "phaseId": "P5",
+  "title": "Create/update unit tests for MessagingService",
+  "description": "Create/update unit tests for MessagingService covering all message sending methods. Mock InstagramApiService, repositories, and verify business logic execution.",
+  "category": "testing",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-014"],
+  "files": [
+    "backend/test/unit/modules/messaging/services/messaging.service.test.ts"
+  ],
+  "dod": [
+    "Unit tests for updated sendTextMessage",
+    "Unit tests for sendImageMessage",
+    "Unit tests for sendMultipleImagesMessage",
+    "Unit tests for sendMediaMessage",
+    "Unit tests for reactToMessage",
+    "Tests verify 24-hour response window validation",
+    "Tests verify message is saved to database with correct MessageType",
+    "Tests verify conversation lastMessageAt is updated",
+    "Tests mock InstagramApiService methods",
+    "Tests cover error scenarios (conversation not found, expired window, API errors)",
+    "All tests pass"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "sinon"],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Mock ConversationRepository",
+      "Mock MessageRepository",
+      "Mock ClientAccountRepository",
+      "Mock InstagramApiService",
+      "Test response window expiration scenarios"
+    ]
+  }
+}

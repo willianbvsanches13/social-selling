@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-007",
+  "phaseId": "P2",
+  "title": "Create ReactToMessageDto",
+  "description": "Create DTO for message reaction with messageId and action (react or unreact). Optionally include reaction type ('love').",
+  "category": "backend",
+  "priority": "low",
+  "estimatedHours": 0.25,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/src/modules/messaging/dto/react-to-message.dto.ts"
+  ],
+  "dod": [
+    "ReactToMessageDto created with messageId and action fields",
+    "Optional reactionType field for reaction emoji",
+    "Validation for required fields",
+    "Action enum with 'react' and 'unreact' values",
+    "Swagger/ApiProperty decorators added"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "reactionType should be optional and only used when action is 'react'",
+      "Currently Instagram only supports 'love' reaction type"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-018",
+  "phaseId": "P7",
+  "title": "Create frontend user service",
+  "description": "Create frontend/src/lib/services/user.service.ts with methods: getProfile(), updateProfile(data), changePassword(data), deleteAccount(). Use axios with JWT auth headers. Follow existing services pattern (e.g., instagram.service.ts).",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": [],
+  "files": [
+    "frontend/src/lib/services/user.service.ts"
+  ],
+  "dod": [
+    "Service file created at frontend/src/lib/services/user.service.ts",
+    "Method getProfile() fetches user profile data",
+    "Method updateProfile(data) updates name, timezone, language",
+    "Method changePassword(data) updates password with current password verification",
+    "Method deleteAccount() triggers account deletion",
+    "All methods use axios with JWT auth headers",
+    "Proper TypeScript types for request/response data",
+    "Service follows existing patterns in codebase"
+  ],
+  "technicalDetails": {
+    "packages": ["axios"],
+    "envVars": [],
+    "migrations": null
+  }
+}

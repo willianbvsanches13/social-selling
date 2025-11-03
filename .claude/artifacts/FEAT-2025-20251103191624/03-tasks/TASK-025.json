@@ -1,0 +1,30 @@
+{
+  "taskId": "TASK-025",
+  "phaseId": "P8",
+  "title": "Create DangerZone component with deletion modal",
+  "description": "Create frontend/src/components/settings/DangerZone.tsx with 'Delete Account' button. Create modal using Radix Dialog with: 1) Warning message about irreversibility, 2) Checklist with 3 items (understand data loss, understand irreversible, understand Instagram disconnect), 3) Text input to type 'DELETE' for confirmation, 4) Final confirmation button (disabled until checklist complete and text matches). Integrate with user.service.deleteAccount(). Redirect to logout page on success.",
+  "category": "frontend",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-020", "TASK-021"],
+  "files": [
+    "frontend/src/components/settings/DangerZone.tsx"
+  ],
+  "dod": [
+    "Component file created at frontend/src/components/settings/DangerZone.tsx",
+    "Section with 'Delete Account' button in red/danger styling",
+    "Modal opens with Radix Dialog when button clicked",
+    "Modal displays prominent warning about irreversibility",
+    "Checklist with 3 checkbox items that must be checked",
+    "Text input requiring user to type 'DELETE' (case-insensitive)",
+    "Confirmation button disabled until all checkboxes checked and text matches",
+    "Loading state during deletion API call",
+    "Success toast and redirect to logout/login on success",
+    "Error toast on failure"
+  ],
+  "technicalDetails": {
+    "packages": ["@radix-ui/react-dialog", "@radix-ui/react-checkbox"],
+    "envVars": [],
+    "migrations": null
+  }
+}

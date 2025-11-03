@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-027",
+  "phaseId": "P9",
+  "title": "Update Data Deletion page",
+  "description": "Update frontend/src/app/data-deletion/page.tsx to provide clear instructions: 1) How to delete account via app settings, 2) How to request deletion via Meta platform, 3) What data is deleted, 4) Timeline for deletion completion, 5) Link to settings page.",
+  "category": "frontend",
+  "priority": "medium",
+  "estimatedHours": 0.75,
+  "dependencies": ["TASK-025"],
+  "files": [
+    "frontend/src/app/data-deletion/page.tsx"
+  ],
+  "dod": [
+    "Data Deletion page updated with accurate instructions",
+    "Step-by-step guide for deleting account via app settings",
+    "Instructions for requesting deletion via Meta platform",
+    "Clear explanation of what data is deleted",
+    "Timeline information (immediate vs. delayed deletion)",
+    "Direct link to /settings page",
+    "Warning about irreversibility",
+    "Page is accessible and mobile-responsive"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

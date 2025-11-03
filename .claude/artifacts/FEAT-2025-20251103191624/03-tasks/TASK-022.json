@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-022",
+  "phaseId": "P8",
+  "title": "Create ProfileSettings component",
+  "description": "Create frontend/src/components/settings/ProfileSettings.tsx with form for name, timezone, language. Use Radix UI form components or existing form system. Add validation. Integrate with user.service.updateProfile(). Show loading state and toast on success/error.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-020", "TASK-021"],
+  "files": [
+    "frontend/src/components/settings/ProfileSettings.tsx"
+  ],
+  "dod": [
+    "Component file created at frontend/src/components/settings/ProfileSettings.tsx",
+    "Form with fields: name, timezone (select), language (select)",
+    "Form loads current user data on mount",
+    "Client-side validation for required fields",
+    "Loading state shown during API call",
+    "Success toast on successful update",
+    "Error toast on failure",
+    "Form follows existing component patterns",
+    "Uses Radix UI or existing form components"
+  ],
+  "technicalDetails": {
+    "packages": ["@radix-ui/react-select"],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -119,7 +119,9 @@ export class MigrationRunner {
     if (migrationName) {
       // Mark a specific migration
       if (!pendingMigrations.includes(migrationName)) {
-        console.log(`❌ Migration "${migrationName}" is already marked as completed or doesn't exist`);
+        console.log(
+          `❌ Migration "${migrationName}" is already marked as completed or doesn't exist`,
+        );
         return;
       }
       migrationsToMark = [migrationName];
@@ -128,13 +130,15 @@ export class MigrationRunner {
       migrationsToMark = pendingMigrations;
     }
 
-    console.log(`\n📝 Marking ${migrationsToMark.length} migration(s) as completed...\n`);
+    console.log(
+      `\n📝 Marking ${migrationsToMark.length} migration(s) as completed...\n`,
+    );
 
     for (const migration of migrationsToMark) {
-      await this.db.none('INSERT INTO migrations (name, file) VALUES ($1, $2)', [
-        migration,
-        migration,
-      ]);
+      await this.db.none(
+        'INSERT INTO migrations (name, file) VALUES ($1, $2)',
+        [migration, migration],
+      );
       console.log(`  ✓ Marked: ${migration}`);
     }
 

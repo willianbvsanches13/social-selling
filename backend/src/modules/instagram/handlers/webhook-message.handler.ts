@@ -58,10 +58,12 @@ export class WebhookMessageHandler {
     clientAccountId: string,
   ): Promise<void> {
     try {
-       const payload = this.extractMessagePayload(event);
+      const payload = this.extractMessagePayload(event);
 
       if (!payload) {
-        this.logger.warn(`Unable to extract message payload from event ${event.id}`);
+        this.logger.warn(
+          `Unable to extract message payload from event ${event.id}`,
+        );
         return;
       }
 
@@ -97,7 +99,10 @@ export class WebhookMessageHandler {
       );
 
       // Enrich participant profile if missing
-      if (!conversation.participantUsername || !conversation.participantProfilePic) {
+      if (
+        !conversation.participantUsername ||
+        !conversation.participantProfilePic
+      ) {
         this.logger.log(
           `Attempting to enrich participant profile for conversation ${conversation.id}`,
         );
@@ -140,10 +145,9 @@ export class WebhookMessageHandler {
       let repliedToMessageId: string | undefined;
       if (payload.message.reply_to?.mid) {
         try {
-          const repliedMessage =
-            await this.messageRepository.findByPlatformId(
-              payload.message.reply_to.mid,
-            );
+          const repliedMessage = await this.messageRepository.findByPlatformId(
+            payload.message.reply_to.mid,
+          );
           if (repliedMessage) {
             repliedToMessageId = repliedMessage.id;
             this.logger.log(
@@ -338,7 +342,8 @@ export class WebhookMessageHandler {
       },
     });
 
-    const createdConversation = await this.conversationRepository.create(conversation);
+    const createdConversation =
+      await this.conversationRepository.create(conversation);
 
     // Try to enrich participant profile immediately after creation
     try {
@@ -346,10 +351,10 @@ export class WebhookMessageHandler {
         `Fetching participant profile data for conversation ${createdConversation.id}`,
       );
 
-      const conversationsResponse = await this.instagramApiService.getConversations(
-        clientAccountId,
-        { limit: 100 },
-      );
+      const conversationsResponse =
+        await this.instagramApiService.getConversations(clientAccountId, {
+          limit: 100,
+        });
 
       // Find the specific conversation in the response
       const instagramConv = conversationsResponse.data?.find((conv) =>

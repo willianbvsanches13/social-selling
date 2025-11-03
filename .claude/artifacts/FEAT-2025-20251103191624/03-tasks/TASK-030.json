@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-030",
+  "phaseId": "P10",
+  "title": "Manual QA testing",
+  "description": "Perform manual testing: 1) All settings forms on mobile/desktop, 2) Account deletion flow with various scenarios, 3) Meta callback with valid/invalid signatures, 4) Verify all data is deleted in database, 5) Verify Instagram tokens are revoked, 6) Verify sessions are invalidated. Document any bugs found.",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-028", "TASK-029"],
+  "files": [
+    "backend/docs/qa-testing-results.md"
+  ],
+  "dod": [
+    "Manual QA performed on all settings page forms",
+    "Tested on mobile and desktop viewports",
+    "Account deletion tested with complete dataset",
+    "Database verified after deletion (all related records gone)",
+    "Instagram token revocation verified (API logs checked)",
+    "Session invalidation verified (cannot access after deletion)",
+    "Meta callback tested with Meta's webhook testing tool",
+    "QA results documented with any bugs found",
+    "Critical bugs fixed before completion"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

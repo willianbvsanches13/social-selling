@@ -136,7 +136,10 @@ export class ConversationService {
       }
 
       // Check if already enriched
-      if (conversation.participantUsername && conversation.participantProfilePic) {
+      if (
+        conversation.participantUsername &&
+        conversation.participantProfilePic
+      ) {
         this.logger.debug(
           `Conversation ${conversationId} already has participant profile data`,
         );
@@ -212,14 +215,17 @@ export class ConversationService {
 
     // Fetch all conversations from Instagram API once
     try {
-      const conversationsResponse = await this.instagramApiService.getConversations(
-        clientAccountId,
-        { limit: 100 },
-      );
+      const conversationsResponse =
+        await this.instagramApiService.getConversations(clientAccountId, {
+          limit: 100,
+        });
 
       for (const conversation of conversations) {
         // Skip if already enriched
-        if (conversation.participantUsername && conversation.participantProfilePic) {
+        if (
+          conversation.participantUsername &&
+          conversation.participantProfilePic
+        ) {
           skipped++;
           continue;
         }
@@ -237,7 +243,11 @@ export class ConversationService {
               (p) => p.id === conversation.participantPlatformId,
             );
 
-            if (participant && participant.username && participant.profile_pic) {
+            if (
+              participant &&
+              participant.username &&
+              participant.profile_pic
+            ) {
               conversation.updateParticipantProfile(
                 participant.username,
                 participant.profile_pic,
@@ -291,9 +301,7 @@ export class ConversationService {
       skipped,
     };
 
-    this.logger.log(
-      `Batch enrichment completed: ${JSON.stringify(result)}`,
-    );
+    this.logger.log(`Batch enrichment completed: ${JSON.stringify(result)}`);
 
     return result;
   }

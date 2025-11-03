@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-019",
+  "phaseId": "P7",
+  "title": "Update API endpoints configuration",
+  "description": "Add USER_PROFILE, USER_UPDATE_PROFILE, USER_CHANGE_PASSWORD, USER_DELETE endpoints to frontend/src/lib/api/endpoints.ts. Follow existing endpoint naming conventions.",
+  "category": "frontend",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-018"],
+  "files": [
+    "frontend/src/lib/api/endpoints.ts"
+  ],
+  "dod": [
+    "Endpoint constants added to frontend/src/lib/api/endpoints.ts",
+    "USER_PROFILE: GET /users/me",
+    "USER_UPDATE_PROFILE: PATCH /users/me",
+    "USER_CHANGE_PASSWORD: POST /users/me/change-password",
+    "USER_DELETE: DELETE /users/me",
+    "Constants exported and used in user.service.ts",
+    "Follows existing endpoint configuration pattern"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

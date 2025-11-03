@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-003",
+  "phaseId": "P1",
+  "title": "Create unit tests for DataDeletionRequest entity",
+  "description": "Create comprehensive unit tests for DataDeletionRequest entity covering creation, reconstitution, status transitions, validation rules, and edge cases. Follow existing entity test patterns.",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/test/unit/domain/entities/data-deletion-request.entity.spec.ts"
+  ],
+  "dod": [
+    "Test file created at backend/test/unit/domain/entities/data-deletion-request.entity.spec.ts",
+    "Tests for create() factory method with valid data",
+    "Tests for reconstitute() factory method",
+    "Tests for status transitions (pending -> in_progress -> completed)",
+    "Tests for invalid status transitions",
+    "Tests for fail() method with error message",
+    "Tests for validation rules",
+    "All tests pass with 100% code coverage for entity"
+  ],
+  "technicalDetails": {
+    "packages": ["jest"],
+    "envVars": [],
+    "migrations": null
+  }
+}

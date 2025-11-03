@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-020",
+  "phaseId": "P7",
+  "title": "Add error handling and toast notifications",
+  "description": "Implement proper error handling with user-friendly messages in user service. Add success/error toast notifications using existing toast system. Follow existing error handling patterns.",
+  "category": "frontend",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-018"],
+  "files": [
+    "frontend/src/lib/services/user.service.ts"
+  ],
+  "dod": [
+    "All service methods have try-catch error handling",
+    "API errors transformed to user-friendly messages",
+    "Success toast shown on profile update",
+    "Success toast shown on password change",
+    "Success toast shown on account deletion (before redirect)",
+    "Error toast shown on API failures",
+    "Uses existing toast system in codebase",
+    "Error messages are clear and actionable"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

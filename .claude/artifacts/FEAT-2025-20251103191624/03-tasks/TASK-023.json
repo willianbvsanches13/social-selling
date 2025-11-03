@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-023",
+  "phaseId": "P8",
+  "title": "Create PasswordSettings component",
+  "description": "Create frontend/src/components/settings/PasswordSettings.tsx with current password, new password, confirm password fields. Add password strength indicator. Validate confirmation matches. Integrate with user.service.changePassword(). Show success toast and logout on success.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-020", "TASK-021"],
+  "files": [
+    "frontend/src/components/settings/PasswordSettings.tsx"
+  ],
+  "dod": [
+    "Component file created at frontend/src/components/settings/PasswordSettings.tsx",
+    "Form with fields: current password, new password, confirm new password",
+    "Password strength indicator (weak/medium/strong)",
+    "Validation: confirm password matches new password",
+    "Validation: new password meets minimum requirements",
+    "Loading state shown during API call",
+    "Success toast on successful change",
+    "Automatic logout after password change",
+    "Error toast on failure (e.g., wrong current password)"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

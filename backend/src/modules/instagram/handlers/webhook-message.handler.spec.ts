@@ -117,22 +117,15 @@ describe('WebhookMessageHandler - Integration Tests', () => {
         mockClientAccount as any,
       );
       conversationRepository.findByPlatformId.mockResolvedValue(null);
-      conversationRepository.create.mockResolvedValue(
-        mockConversation as any,
-      );
-      conversationRepository.update.mockResolvedValue(
-        mockConversation as any,
-      );
+      conversationRepository.create.mockResolvedValue(mockConversation as any);
+      conversationRepository.update.mockResolvedValue(mockConversation as any);
       messageRepository.create.mockResolvedValue({} as any);
       conversationService.enrichParticipantProfile.mockResolvedValue({
         enriched: true,
       });
 
       // Act
-      await handler.processMessageEvent(
-        mockWebhookEvent,
-        mockClientAccount.id,
-      );
+      await handler.processMessageEvent(mockWebhookEvent, mockClientAccount.id);
 
       // Give enrichment promise time to resolve (since it's fire-and-forget)
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -164,19 +157,14 @@ describe('WebhookMessageHandler - Integration Tests', () => {
       conversationRepository.findByPlatformId.mockResolvedValue(
         mockConversation as any,
       );
-      conversationRepository.update.mockResolvedValue(
-        mockConversation as any,
-      );
+      conversationRepository.update.mockResolvedValue(mockConversation as any);
       messageRepository.create.mockResolvedValue({} as any);
       conversationService.enrichParticipantProfile.mockResolvedValue({
         enriched: true,
       });
 
       // Act
-      await handler.processMessageEvent(
-        mockWebhookEvent,
-        mockClientAccount.id,
-      );
+      await handler.processMessageEvent(mockWebhookEvent, mockClientAccount.id);
 
       // Give enrichment promise time to resolve
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -207,10 +195,7 @@ describe('WebhookMessageHandler - Integration Tests', () => {
       messageRepository.create.mockResolvedValue({} as any);
 
       // Act
-      await handler.processMessageEvent(
-        mockWebhookEvent,
-        mockClientAccount.id,
-      );
+      await handler.processMessageEvent(mockWebhookEvent, mockClientAccount.id);
 
       // Give time for any async operations
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -229,9 +214,7 @@ describe('WebhookMessageHandler - Integration Tests', () => {
       conversationRepository.findByPlatformId.mockResolvedValue(
         mockConversation as any,
       );
-      conversationRepository.update.mockResolvedValue(
-        mockConversation as any,
-      );
+      conversationRepository.update.mockResolvedValue(mockConversation as any);
       messageRepository.create.mockResolvedValue({} as any);
       conversationService.enrichParticipantProfile.mockResolvedValue({
         enriched: false,
@@ -239,10 +222,7 @@ describe('WebhookMessageHandler - Integration Tests', () => {
       });
 
       // Act
-      await handler.processMessageEvent(
-        mockWebhookEvent,
-        mockClientAccount.id,
-      );
+      await handler.processMessageEvent(mockWebhookEvent, mockClientAccount.id);
 
       // Give enrichment promise time to resolve
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -261,9 +241,7 @@ describe('WebhookMessageHandler - Integration Tests', () => {
       conversationRepository.findByPlatformId.mockResolvedValue(
         mockConversation as any,
       );
-      conversationRepository.update.mockResolvedValue(
-        mockConversation as any,
-      );
+      conversationRepository.update.mockResolvedValue(mockConversation as any);
       messageRepository.create.mockResolvedValue({} as any);
       conversationService.enrichParticipantProfile.mockRejectedValue(
         new Error('Unexpected error in enrichment'),
@@ -311,9 +289,7 @@ describe('WebhookMessageHandler - Integration Tests', () => {
       conversationRepository.findByPlatformId.mockResolvedValue(
         mockConversation as any,
       );
-      conversationRepository.update.mockResolvedValue(
-        mockConversation as any,
-      );
+      conversationRepository.update.mockResolvedValue(mockConversation as any);
       messageRepository.create.mockResolvedValue({} as any);
 
       // Act
@@ -351,22 +327,15 @@ describe('WebhookMessageHandler - Integration Tests', () => {
         mockClientAccount as any,
       );
       conversationRepository.findByPlatformId.mockResolvedValue(null);
-      conversationRepository.create.mockResolvedValue(
-        mockConversation as any,
-      );
-      conversationRepository.update.mockResolvedValue(
-        mockConversation as any,
-      );
+      conversationRepository.create.mockResolvedValue(mockConversation as any);
+      conversationRepository.update.mockResolvedValue(mockConversation as any);
       messageRepository.create.mockResolvedValue({} as any);
       conversationService.enrichParticipantProfile.mockResolvedValue({
         enriched: true,
       });
 
       // Act
-      await handler.processMessageEvent(
-        mockWebhookEvent,
-        mockClientAccount.id,
-      );
+      await handler.processMessageEvent(mockWebhookEvent, mockClientAccount.id);
 
       // Assert - Verify conversation was created with correct participant platform ID
       expect(conversationRepository.findByPlatformId).toHaveBeenCalledWith(

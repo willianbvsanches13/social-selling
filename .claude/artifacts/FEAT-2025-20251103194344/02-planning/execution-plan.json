@@ -1,0 +1,378 @@
+{
+  "planId": "PLAN-2025-20251103194500",
+  "featureId": "FEAT-2025-20251103194344",
+  "timestamp": "2025-11-03T19:45:00Z",
+  "architecture": {
+    "approach": "layered",
+    "patterns": [
+      "Service Pattern",
+      "Repository Pattern",
+      "DTO Pattern",
+      "Dependency Injection",
+      "Error Handling Pattern"
+    ],
+    "components": [
+      {
+        "name": "InstagramApiService.sendMessage",
+        "type": "backend-service",
+        "action": "update",
+        "technology": "NestJS",
+        "description": "Fix endpoint from '/me/messages' to '/<IG_ID>/messages' and update request structure"
+      },
+      {
+        "name": "InstagramApiService.sendImageMessage",
+        "type": "backend-service",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "New method to send single image messages with attachment"
+      },
+      {
+        "name": "InstagramApiService.sendMultipleImagesMessage",
+        "type": "backend-service",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "New method to send multiple images (up to 10) in a single message"
+      },
+      {
+        "name": "InstagramApiService.sendMediaMessage",
+        "type": "backend-service",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "New method to send audio/video messages with attachment"
+      },
+      {
+        "name": "InstagramApiService.sendStickerMessage",
+        "type": "backend-service",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "New method to send like_heart sticker messages"
+      },
+      {
+        "name": "InstagramApiService.reactToMessage",
+        "type": "backend-service",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "New method to react or unreact to messages"
+      },
+      {
+        "name": "InstagramApiService.sendPostMessage",
+        "type": "backend-service",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "New method to send published Instagram posts (MEDIA_SHARE)"
+      },
+      {
+        "name": "SendMessageDto",
+        "type": "dto",
+        "action": "create",
+        "technology": "class-validator",
+        "description": "DTO for text message validation with UTF-8 and 1000 bytes limit"
+      },
+      {
+        "name": "SendImageMessageDto",
+        "type": "dto",
+        "action": "create",
+        "technology": "class-validator",
+        "description": "DTO for image message validation with URL and type"
+      },
+      {
+        "name": "SendMultipleImagesDto",
+        "type": "dto",
+        "action": "create",
+        "technology": "class-validator",
+        "description": "DTO for multiple images validation (max 10 images)"
+      },
+      {
+        "name": "SendMediaMessageDto",
+        "type": "dto",
+        "action": "create",
+        "technology": "class-validator",
+        "description": "DTO for audio/video message validation"
+      },
+      {
+        "name": "ReactToMessageDto",
+        "type": "dto",
+        "action": "create",
+        "technology": "class-validator",
+        "description": "DTO for message reaction validation"
+      },
+      {
+        "name": "MessagingService",
+        "type": "backend-service",
+        "action": "update",
+        "technology": "NestJS",
+        "description": "Update to use corrected sendMessage and add methods for new message types"
+      },
+      {
+        "name": "MessagingController",
+        "type": "controller",
+        "action": "update",
+        "technology": "NestJS",
+        "description": "Add new endpoints for different message types"
+      },
+      {
+        "name": "Message.entity MessageType enum",
+        "type": "domain-entity",
+        "action": "extend",
+        "technology": "TypeScript",
+        "description": "Extend MessageType enum to include IMAGE, VIDEO, AUDIO, STICKER, REACTION, MEDIA_SHARE"
+      },
+      {
+        "name": "Unit tests for InstagramApiService",
+        "type": "test",
+        "action": "create",
+        "technology": "Jest + Sinon",
+        "description": "Unit tests for all message sending methods"
+      },
+      {
+        "name": "Unit tests for MessagingService",
+        "type": "test",
+        "action": "update",
+        "technology": "Jest + Sinon",
+        "description": "Update existing tests and add tests for new message types"
+      },
+      {
+        "name": "E2E tests for message sending",
+        "type": "test",
+        "action": "create",
+        "technology": "Jest + Supertest",
+        "description": "E2E tests for messaging endpoints covering all message types"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Critical Endpoint Fix",
+      "order": 1,
+      "estimatedHours": 2,
+      "components": [
+        "InstagramApiService.sendMessage"
+      ],
+      "dependencies": [],
+      "tasks": [
+        "Update sendMessage endpoint from '/me/messages' to '/${platformAccountId}/messages'",
+        "Verify request body structure matches Instagram API specification",
+        "Add logging for debugging endpoint calls",
+        "Test with real Instagram Business Account ID"
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Domain & DTOs",
+      "order": 2,
+      "estimatedHours": 2,
+      "components": [
+        "Message.entity MessageType enum",
+        "SendMessageDto",
+        "SendImageMessageDto",
+        "SendMultipleImagesDto",
+        "SendMediaMessageDto",
+        "ReactToMessageDto"
+      ],
+      "dependencies": ["P1"],
+      "tasks": [
+        "Extend MessageType enum with new types",
+        "Create SendMessageDto with UTF-8 and 1000 bytes validation",
+        "Create SendImageMessageDto with URL validation",
+        "Create SendMultipleImagesDto with array validation (max 10)",
+        "Create SendMediaMessageDto for audio/video",
+        "Create ReactToMessageDto for message reactions"
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "InstagramApiService - New Message Types",
+      "order": 3,
+      "estimatedHours": 4,
+      "components": [
+        "InstagramApiService.sendImageMessage",
+        "InstagramApiService.sendMultipleImagesMessage",
+        "InstagramApiService.sendMediaMessage",
+        "InstagramApiService.sendStickerMessage",
+        "InstagramApiService.reactToMessage",
+        "InstagramApiService.sendPostMessage"
+      ],
+      "dependencies": ["P2"],
+      "tasks": [
+        "Implement sendImageMessage for single image attachments",
+        "Implement sendMultipleImagesMessage for image collections",
+        "Implement sendMediaMessage for audio/video with type parameter",
+        "Implement sendStickerMessage for like_heart sticker",
+        "Implement reactToMessage with react/unreact sender_action",
+        "Implement sendPostMessage for MEDIA_SHARE type",
+        "Ensure all methods use correct endpoint format '/${platformAccountId}/messages'",
+        "Add comprehensive error handling and logging"
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "MessagingService & Controller Updates",
+      "order": 4,
+      "estimatedHours": 3,
+      "components": [
+        "MessagingService",
+        "MessagingController"
+      ],
+      "dependencies": ["P3"],
+      "tasks": [
+        "Update MessagingService.sendTextMessage to use corrected endpoint",
+        "Add MessagingService.sendImageMessage method",
+        "Add MessagingService.sendMultipleImagesMessage method",
+        "Add MessagingService.sendMediaMessage method",
+        "Add MessagingService.reactToMessage method",
+        "Update MessagingController with new endpoints",
+        "Apply DTOs validation to all endpoints",
+        "Update error handling to provide clear API error messages"
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Unit Tests",
+      "order": 5,
+      "estimatedHours": 3,
+      "components": [
+        "Unit tests for InstagramApiService",
+        "Unit tests for MessagingService"
+      ],
+      "dependencies": ["P4"],
+      "tasks": [
+        "Create unit tests for InstagramApiService.sendMessage (corrected endpoint)",
+        "Create unit tests for all new InstagramApiService message methods",
+        "Update existing MessagingService tests",
+        "Create unit tests for new MessagingService methods",
+        "Mock InstagramApiService in MessagingService tests",
+        "Test error scenarios and edge cases",
+        "Ensure 100% code coverage for changed components"
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "E2E Tests & Documentation",
+      "order": 6,
+      "estimatedHours": 2,
+      "components": [
+        "E2E tests for message sending"
+      ],
+      "dependencies": ["P5"],
+      "tasks": [
+        "Create E2E test for text message sending",
+        "Create E2E test for image message sending",
+        "Create E2E test for video/audio message sending",
+        "Create E2E test for message reactions",
+        "Test response window validation",
+        "Test error scenarios (invalid recipient, expired token, etc)",
+        "Update JSDoc comments in services",
+        "Update API documentation (Swagger)"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "Text messages are sent successfully using correct endpoint '/<IG_ID>/messages'",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "E2E test verifies successful message delivery to Instagram"
+    },
+    {
+      "id": "AC-002",
+      "description": "Message text validation rejects messages exceeding 1000 bytes UTF-8",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Unit test verifies DTO validation returns 400 Bad Request"
+    },
+    {
+      "id": "AC-003",
+      "description": "Image messages can be sent with valid URL attachments",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "E2E test verifies image message delivery"
+    },
+    {
+      "id": "AC-004",
+      "description": "Multiple images (up to 10) can be sent in a single message",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Unit test verifies array validation and E2E test confirms delivery"
+    },
+    {
+      "id": "AC-005",
+      "description": "Audio and video messages can be sent with valid URLs",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Unit tests verify correct request structure for both types"
+    },
+    {
+      "id": "AC-006",
+      "description": "Like heart sticker can be sent to conversations",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Unit test verifies correct attachment type 'like_heart'"
+    },
+    {
+      "id": "AC-007",
+      "description": "Users can react and unreact to messages",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Unit tests verify sender_action 'react' and 'unreact'"
+    },
+    {
+      "id": "AC-008",
+      "description": "Published Instagram posts can be shared via MEDIA_SHARE",
+      "type": "functional",
+      "testable": true,
+      "testMethod": "Unit test verifies correct attachment type and post ID"
+    },
+    {
+      "id": "AC-009",
+      "description": "Message sending completes within 5 seconds",
+      "type": "performance",
+      "testable": true,
+      "testMethod": "E2E test measures response time"
+    },
+    {
+      "id": "AC-010",
+      "description": "Clear error messages are provided when API calls fail",
+      "type": "usability",
+      "testable": true,
+      "testMethod": "Unit tests verify error handling returns descriptive messages"
+    },
+    {
+      "id": "AC-011",
+      "description": "Rate limiting is respected for all message sending operations",
+      "type": "scalability",
+      "testable": true,
+      "testMethod": "Unit tests verify InstagramRateLimiter is called before each request"
+    },
+    {
+      "id": "AC-012",
+      "description": "All code follows project coding standards and passes linting",
+      "type": "maintainability",
+      "testable": true,
+      "testMethod": "Run eslint and prettier to verify code quality"
+    }
+  ],
+  "estimatedTotalHours": 16,
+  "technicalNotes": {
+    "criticalDecisions": [
+      "Keep existing endpoint as fallback during transition to prevent breaking changes",
+      "Use platformAccountId from ClientAccount entity as Instagram Business Account ID (IG_ID)",
+      "Implement separate methods for each message type instead of single polymorphic method for better type safety",
+      "Validate message size at DTO level before making API calls to prevent unnecessary requests"
+    ],
+    "integrationPoints": [
+      "InstagramApiService must continue using existing InstagramRateLimiter",
+      "MessagingService must continue validating 24-hour response window",
+      "All new methods must respect existing error handling patterns",
+      "DTOs must use class-validator decorators consistent with project standards"
+    ],
+    "testingStrategy": [
+      "Unit tests in /test/unit/modules/instagram/services/ for InstagramApiService",
+      "Unit tests in /test/unit/modules/messaging/services/ for MessagingService",
+      "E2E tests in /test/e2e/ for messaging endpoints",
+      "Mock axios responses in unit tests using sinon stubs",
+      "Use real Instagram API in E2E tests with test account"
+    ]
+  }
+}

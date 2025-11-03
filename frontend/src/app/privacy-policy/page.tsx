@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy - Social Selling',
-  description: 'Privacy Policy for Social Selling platform',
+  description: 'Privacy Policy for Social Selling platform - Instagram/Meta Platform Compliant',
 };
 
 export default function PrivacyPolicyPage() {
@@ -10,7 +10,7 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl bg-white rounded-lg shadow-lg p-8 md:p-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
-        <p className="text-sm text-gray-600 mb-8">Last Updated: October 27, 2025</p>
+        <p className="text-sm text-gray-600 mb-8">Last Updated: November 3, 2025</p>
 
         <div className="prose prose-gray max-w-none">
           <section className="mb-8">
@@ -76,12 +76,52 @@ export default function PrivacyPolicyPage() {
                 <li>Sell your Instagram data to third parties</li>
                 <li>Use your data for advertising purposes</li>
                 <li>Share your data without your consent (except as required by law)</li>
+                <li>Make eligibility determinations based on platform data (e.g., housing, employment, or education)</li>
+                <li>Facilitate surveillance through the use of platform data</li>
+                <li>Sell, license, or purchase platform data</li>
               </ul>
             </div>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Data Sharing</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. Meta Platform Terms Compliance</h2>
+            <p className="text-gray-700 mb-4">
+              Social Selling uses the Instagram Graph API and complies with all Meta Platform Terms and Policies.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">5.1 Data Processing</h3>
+            <p className="text-gray-700 mb-4">
+              We process Instagram platform data exactly as described in this privacy policy and in accordance with all applicable laws, regulations, and Meta Terms. This privacy policy does not supersede, modify, or contradict Meta&apos;s Terms.
+            </p>
+
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">5.2 Data Deletion Obligations</h3>
+            <p className="text-gray-700 mb-2">We are required to delete Instagram platform data:</p>
+            <ul className="list-disc pl-6 mb-4 text-gray-700">
+              <li>When it is no longer needed for the purposes described in this policy</li>
+              <li>When you request deletion of your data</li>
+              <li>When Meta requests deletion on your behalf</li>
+              <li>As required by applicable data protection laws</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">5.3 Policy Transparency</h3>
+            <p className="text-gray-700 mb-4">
+              This privacy policy is publicly accessible at a non-geoblocked URL that Meta can crawl. We retain all versions of this policy and will provide them to Meta upon request.
+            </p>
+
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+              <p className="text-gray-800 font-semibold">Data Deletion Request</p>
+              <p className="text-gray-700 mt-2">
+                To request deletion of your Instagram data, please visit our{' '}
+                <a href="/data-deletion" className="text-blue-600 hover:underline font-semibold">
+                  Data Deletion Instructions
+                </a>{' '}
+                page.
+              </p>
+            </div>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Data Sharing</h2>
             <p className="text-gray-700 mb-2">We may share your information:</p>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
               <li>With service providers (hosting, analytics) under strict confidentiality</li>
@@ -92,7 +132,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Data Security</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Data Security</h2>
             <p className="text-gray-700 mb-2">We implement industry-standard security measures:</p>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
               <li>Encrypted data transmission (HTTPS/TLS)</li>
@@ -103,7 +143,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. Data Retention</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Data Retention</h2>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
               <li>Account data: Retained while your account is active</li>
               <li>Instagram tokens: Retained until you disconnect your account</li>
@@ -113,7 +153,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. Your Rights</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Your Rights</h2>
             <p className="text-gray-700 mb-2">You have the right to:</p>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
               <li>Access your personal data</li>
@@ -126,7 +166,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. Instagram Account Disconnection</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Instagram Account Disconnection</h2>
             <p className="text-gray-700 mb-2">You can disconnect your Instagram account at any time:</p>
             <ol className="list-decimal pl-6 mb-4 text-gray-700">
               <li>Go to Settings → Instagram Accounts</li>
@@ -139,7 +179,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. Third-Party Services</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Third-Party Services</h2>
             <p className="text-gray-700 mb-2">We use:</p>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
               <li><strong>Facebook/Instagram Graph API:</strong> For Instagram integration</li>
@@ -150,14 +190,14 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Children&apos;s Privacy</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">12. Children&apos;s Privacy</h2>
             <p className="text-gray-700">
               Our service is not intended for users under 18. We do not knowingly collect data from children.
             </p>
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">12. Changes to This Policy</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">13. Changes to This Policy</h2>
             <p className="text-gray-700 mb-2">We may update this Privacy Policy. We will notify you of significant changes via:</p>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
               <li>Email notification</li>
@@ -167,7 +207,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">13. Contact Us</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">14. Contact Us</h2>
             <p className="text-gray-700 mb-2">For privacy-related questions or requests:</p>
             <ul className="list-none pl-0 mb-4 text-gray-700">
               <li><strong>Email:</strong> privacy@app-socialselling.willianbvsanches.com</li>
@@ -176,7 +216,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">14. Cookie Policy</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">15. Cookie Policy</h2>
             <p className="text-gray-700 mb-2">We use cookies for:</p>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
               <li>Authentication and session management</li>
@@ -187,7 +227,7 @@ export default function PrivacyPolicyPage() {
           </section>
 
           <section className="mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">15. Data Breach Notification</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">16. Data Breach Notification</h2>
             <p className="text-gray-700 mb-2">In case of a data breach, we will:</p>
             <ul className="list-disc pl-6 mb-4 text-gray-700">
               <li>Notify affected users within 72 hours</li>
@@ -198,7 +238,7 @@ export default function PrivacyPolicyPage() {
 
           <div className="border-t border-gray-300 pt-6 mt-8">
             <p className="text-sm text-gray-600">
-              <strong>Effective Date:</strong> October 27, 2025
+              <strong>Effective Date:</strong> November 3, 2025
             </p>
             <p className="text-sm text-gray-600 mt-2">
               By using Social Selling, you acknowledge that you have read and understood this Privacy Policy.

@@ -1,0 +1,30 @@
+{
+  "taskId": "TASK-010",
+  "phaseId": "P3",
+  "title": "Implement sendMediaMessage method in InstagramApiService",
+  "description": "Create method to send audio or video messages with type parameter. Use attachment format with type 'audio' or 'video' and payload URL.",
+  "category": "backend",
+  "priority": "medium",
+  "estimatedHours": 0.75,
+  "dependencies": ["TASK-001", "TASK-006"],
+  "files": [
+    "backend/src/modules/instagram/services/instagram-api.service.ts"
+  ],
+  "dod": [
+    "sendMediaMessage method created with mediaType parameter",
+    "Supports both 'audio' and 'video' types",
+    "Uses '/${platformAccountId}/messages' endpoint",
+    "Request body with attachment type set to mediaType and payload.url",
+    "Rate limiting and error handling implemented",
+    "Returns message ID from API response"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Request structure: { recipient: { id }, message: { attachment: { type: 'audio'|'video', payload: { url } } } }",
+      "Type parameter determines attachment type"
+    ]
+  }
+}

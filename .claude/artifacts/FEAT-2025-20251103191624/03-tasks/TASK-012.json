@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-012",
+  "phaseId": "P5",
+  "title": "Create DTOs for Meta callbacks",
+  "description": "Create modules/meta/dto/data-deletion-request.dto.ts with validation for signed_request field. Create data-deletion-status.dto.ts for response. Use class-validator decorators following existing DTO patterns.",
+  "category": "backend",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-011"],
+  "files": [
+    "backend/src/modules/meta/dto/data-deletion-request.dto.ts",
+    "backend/src/modules/meta/dto/data-deletion-status.dto.ts"
+  ],
+  "dod": [
+    "DTO file created at backend/src/modules/meta/dto/data-deletion-request.dto.ts",
+    "Field signed_request validated as required string using @IsNotEmpty, @IsString",
+    "DTO file created at backend/src/modules/meta/dto/data-deletion-status.dto.ts",
+    "Response DTO includes confirmationCode, status, requestedAt, completedAt fields",
+    "Swagger/OpenAPI decorators added (@ApiProperty)",
+    "DTOs follow existing patterns in codebase"
+  ],
+  "technicalDetails": {
+    "packages": ["class-validator", "class-transformer"],
+    "envVars": [],
+    "migrations": null
+  }
+}

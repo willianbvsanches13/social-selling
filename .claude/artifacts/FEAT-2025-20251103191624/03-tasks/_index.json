@@ -1,0 +1,56 @@
+{
+  "taskSetId": "TASKS-2025-20251103192800",
+  "featureId": "FEAT-2025-20251103191624",
+  "planId": "PLAN-2025-20251103192500",
+  "timestamp": "2025-11-03T19:28:00Z",
+  "summary": {
+    "totalTasks": 32,
+    "byCategory": {
+      "database": 3,
+      "backend": 16,
+      "frontend": 8,
+      "testing": 5,
+      "documentation": 2
+    },
+    "byPriority": {
+      "critical": 8,
+      "high": 14,
+      "medium": 8,
+      "low": 2
+    }
+  },
+  "executionOrder": [
+    "TASK-001",
+    "TASK-002",
+    "TASK-003",
+    "TASK-004",
+    "TASK-005",
+    "TASK-006",
+    "TASK-007",
+    "TASK-008",
+    "TASK-009",
+    "TASK-010",
+    "TASK-011",
+    "TASK-012",
+    "TASK-013",
+    "TASK-014",
+    "TASK-015",
+    "TASK-016",
+    "TASK-017",
+    "TASK-018",
+    "TASK-019",
+    "TASK-020",
+    "TASK-021",
+    "TASK-022",
+    "TASK-023",
+    "TASK-024",
+    "TASK-025",
+    "TASK-026",
+    "TASK-027",
+    "TASK-028",
+    "TASK-029",
+    "TASK-030",
+    "TASK-031",
+    "TASK-032"
+  ]
+}

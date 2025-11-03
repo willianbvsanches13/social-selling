@@ -66,7 +66,7 @@ export default function DataDeletionPage() {
             </p>
             <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
               <p className="text-gray-800">
-                <strong>Email:</strong> <a href="mailto:privacy@app-socialselling.willianbvsanches.com" className="text-blue-600 hover:underline">privacy@app-socialselling.willianbvsanches.com</a>
+                <strong>Email:</strong> <a href="mailto:contato@willianbvsanches.com" className="text-blue-600 hover:underline">contato@willianbvsanches.com</a>
               </p>
               <p className="text-gray-800 mt-2">
                 <strong>Subject:</strong> Data Deletion Request
@@ -146,7 +146,7 @@ export default function DataDeletionPage() {
               If you have questions about data deletion or encounter any issues:
             </p>
             <ul className="list-none pl-0 mb-4 text-gray-700">
-              <li><strong>Email:</strong> <a href="mailto:privacy@app-socialselling.willianbvsanches.com" className="text-blue-600 hover:underline">privacy@app-socialselling.willianbvsanches.com</a></li>
+              <li><strong>Email:</strong> <a href="mailto:contato@willianbvsanches.com" className="text-blue-600 hover:underline">contato@willianbvsanches.com</a></li>
               <li><strong>Response Time:</strong> Within 48 hours</li>
             </ul>
           </section>
@@ -167,10 +167,14 @@ export default function DataDeletionPage() {
 
           <div className="border-t border-gray-300 pt-6 mt-8">
             <p className="text-sm text-gray-600">
-              This data deletion policy is compliant with GDPR, CCPA, and other privacy regulations.
+              This data deletion policy is compliant with GDPR, CCPA, LGPD, and other privacy regulations.
             </p>
             <p className="text-sm text-gray-600 mt-2">
-              <strong>Last Updated:</strong> October 27, 2025
+              <strong>Last Updated:</strong> November 3, 2025
+            </p>
+            <p className="text-sm text-gray-600 mt-2">
+              For more information about how we handle your data, please read our{' '}
+              <a href="/privacy-policy" className="text-blue-600 hover:underline">Privacy Policy</a>.
             </p>
           </div>
         </div>

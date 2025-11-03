@@ -1,0 +1,38 @@
+{
+  "taskId": "TASK-019",
+  "phaseId": "P6",
+  "title": "Create E2E tests for message sending endpoints",
+  "description": "Create end-to-end tests for all message sending endpoints. Test complete flow from HTTP request to message delivery. Verify status codes, response format, and database persistence.",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-016"],
+  "files": [
+    "backend/test/e2e/messaging-send-messages.e2e-spec.ts"
+  ],
+  "dod": [
+    "E2E test for POST /conversations/:id/messages (text)",
+    "E2E test for POST /conversations/:id/messages/image",
+    "E2E test for POST /conversations/:id/messages/images (multiple)",
+    "E2E test for POST /conversations/:id/messages/media (audio and video)",
+    "E2E test for POST /conversations/:id/messages/reactions",
+    "Tests verify 201 Created status",
+    "Tests verify message saved to database",
+    "Tests verify response contains message ID and details",
+    "Tests verify DTO validation errors return 400",
+    "Tests verify authentication required (401)",
+    "Tests verify response window validation",
+    "All tests pass"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "supertest"],
+    "envVars": ["Instagram API credentials for test account"],
+    "migrations": null,
+    "notes": [
+      "Use test database or mock Instagram API",
+      "Create test conversations and messages in beforeEach",
+      "Clean up test data in afterEach",
+      "May need to mock Instagram API to avoid rate limits"
+    ]
+  }
+}

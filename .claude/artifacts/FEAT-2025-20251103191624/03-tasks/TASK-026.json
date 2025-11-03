@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-026",
+  "phaseId": "P9",
+  "title": "Update Privacy Policy page",
+  "description": "Update frontend/src/app/privacy-policy/page.tsx to accurately describe: 1) Data collection practices, 2) Instagram data handling, 3) User rights (GDPR Article 17, CCPA, LGPD), 4) Data retention periods, 5) How to exercise deletion rights. Ensure legal compliance language.",
+  "category": "frontend",
+  "priority": "medium",
+  "estimatedHours": 0.75,
+  "dependencies": ["TASK-025"],
+  "files": [
+    "frontend/src/app/privacy-policy/page.tsx"
+  ],
+  "dod": [
+    "Privacy Policy page updated with accurate information",
+    "Section on data collection practices",
+    "Section on Instagram data handling and permissions",
+    "Section on user rights under GDPR, CCPA, LGPD",
+    "Section on data retention periods",
+    "Clear instructions on how to delete data via settings page",
+    "Legal compliance language verified",
+    "Page is accessible and mobile-responsive"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

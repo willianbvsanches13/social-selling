@@ -68,6 +68,7 @@ export class MessagingService {
     try {
       const response = await this.instagramApiService.sendMessage(
         conversation.clientAccountId,
+        clientAccount.platformAccountId,
         conversation.participantPlatformId,
         text,
       );
@@ -145,7 +146,8 @@ export class MessagingService {
         );
 
         if (repliedMessage) {
-          baseDto.repliedToMessage = this.mapToRepliedMessageDto(repliedMessage);
+          baseDto.repliedToMessage =
+            this.mapToRepliedMessageDto(repliedMessage);
         } else {
           this.logger.warn(
             `Replied message ${message.repliedToMessageId} not found for message ${message.id}`,
@@ -213,9 +215,7 @@ export class MessagingService {
    * Backfill repliedToMessageId for existing messages that have reply_to in metadata
    * This is useful for fixing messages created before the repliedToMessageId field was added
    */
-  async backfillRepliedToMessageIds(
-    conversationId?: string,
-  ): Promise<{
+  async backfillRepliedToMessageIds(conversationId?: string): Promise<{
     total: number;
     updated: number;
     failed: number;

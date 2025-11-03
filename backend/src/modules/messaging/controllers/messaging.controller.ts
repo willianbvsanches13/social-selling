@@ -302,7 +302,10 @@ export class MessagingController {
   }> {
     // Verify user has access if conversationId is provided
     if (conversationId) {
-      await this.conversationService.getConversation(req.user.id, conversationId);
+      await this.conversationService.getConversation(
+        req.user.id,
+        conversationId,
+      );
     }
 
     const result =

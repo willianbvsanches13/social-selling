@@ -1,0 +1,129 @@
+{
+  "refinementId": "REF-2025-20251103195200",
+  "featureId": "FEAT-2025-20251103191624",
+  "taskId": "TASK-001",
+  "iteration": 1,
+  "timestamp": "2025-11-03T19:52:00Z",
+  "source": {
+    "type": "code-review",
+    "triggerId": "REV-2025-20251103194800",
+    "verdict": "needs-changes"
+  },
+  "analysis": {
+    "rootCauses": [
+      "Migration uses VARCHAR(50) for 'source' column (line 11) instead of TEXT",
+      "Migration uses VARCHAR(50) for 'status' column (line 12) instead of TEXT",
+      "Violation of explicit SQL standard: '.claude/rules/sql.md - Line 18: Para os tipos string, sempre adote text, não utilize varchar'"
+    ],
+    "impactedAreas": [
+      "backend/migrations/041-create-data-deletion-requests.sql"
+    ],
+    "riskLevel": "low",
+    "notes": [
+      "These are standard violations, not functional issues",
+      "All 12 E2E tests passed successfully",
+      "Change is purely for standards compliance",
+      "Check constraints and indexes remain valid after change"
+    ]
+  },
+  "actions": [
+    {
+      "actionId": "ACT-001",
+      "type": "fix-standards-violation",
+      "priority": "medium",
+      "description": "Change VARCHAR(50) to TEXT for 'source' column to comply with SQL standards",
+      "targetFiles": [
+        "backend/migrations/041-create-data-deletion-requests.sql"
+      ],
+      "specificChanges": [
+        "Line 11: Change 'source VARCHAR(50) NOT NULL' to 'source TEXT NOT NULL'",
+        "Keep all other attributes: NOT NULL constraint",
+        "Keep check constraint: chk_data_deletion_source (lines 27-29)",
+        "Verify comment on line 56 remains accurate"
+      ],
+      "acceptanceCriteria": [
+        "Line 11 uses TEXT instead of VARCHAR(50)",
+        "NOT NULL constraint preserved",
+        "Check constraint still validates enum values",
+        "No syntax errors in migration file"
+      ],
+      "estimatedMinutes": 2
+    },
+    {
+      "actionId": "ACT-002",
+      "type": "fix-standards-violation",
+      "priority": "medium",
+      "description": "Change VARCHAR(50) to TEXT for 'status' column to comply with SQL standards",
+      "targetFiles": [
+        "backend/migrations/041-create-data-deletion-requests.sql"
+      ],
+      "specificChanges": [
+        "Line 12: Change 'status VARCHAR(50) NOT NULL DEFAULT 'pending'' to 'status TEXT NOT NULL DEFAULT 'pending''",
+        "Keep all other attributes: NOT NULL, DEFAULT 'pending'",
+        "Keep check constraint: chk_data_deletion_status (lines 32-34)",
+        "Keep index: idx_data_deletion_requests_status (line 40)",
+        "Verify comment on line 57 remains accurate"
+      ],
+      "acceptanceCriteria": [
+        "Line 12 uses TEXT instead of VARCHAR(50)",
+        "NOT NULL constraint preserved",
+        "DEFAULT 'pending' preserved",
+        "Check constraint still validates enum values",
+        "Index on status column remains functional",
+        "No syntax errors in migration file"
+      ],
+      "estimatedMinutes": 2
+    },
+    {
+      "actionId": "ACT-003",
+      "type": "verify-tests",
+      "priority": "medium",
+      "description": "Re-run E2E tests to verify changes don't break functionality",
+      "targetFiles": [
+        "backend/migrations/041-create-data-deletion-requests.sql"
+      ],
+      "specificChanges": [
+        "Run migration in test database",
+        "Execute all 12 E2E tests from TEST-2025-20251103193500",
+        "Verify all tests still pass",
+        "Confirm no performance degradation",
+        "Validate check constraints still work correctly"
+      ],
+      "acceptanceCriteria": [
+        "All 12 E2E tests pass (100% success rate)",
+        "Table structure verification passes",
+        "Index verification passes",
+        "Constraint verification passes",
+        "Trigger verification passes",
+        "Data validation passes"
+      ],
+      "estimatedMinutes": 6
+    }
+  ],
+  "estimatedEffort": {
+    "minutes": 10,
+    "hours": 0.17,
+    "complexity": "low"
+  },
+  "priority": "medium",
+  "expectedOutcome": {
+    "sqlComplianceScore": 100,
+    "overallScore": 95,
+    "verdict": "approved",
+    "reasoning": "Changing VARCHAR to TEXT aligns with project standards without affecting functionality. All tests should continue to pass as TEXT is a superset of VARCHAR capabilities."
+  },
+  "technicalDetails": {
+    "sqlStandard": "TEXT type is PostgreSQL best practice for variable-length strings without arbitrary length limits",
+    "compatibility": "TEXT and VARCHAR are functionally equivalent in PostgreSQL, TEXT has no performance penalty",
+    "checkConstraints": "Check constraints limit valid values to defined enums, making TEXT length unrestricted but values restricted",
+    "indexing": "Indexes on TEXT columns perform identically to VARCHAR indexes in PostgreSQL"
+  },
+  "rollbackPlan": {
+    "description": "If refinement fails, original migration file is intact and can be restored",
+    "steps": [
+      "Revert changes to migration file",
+      "Re-run E2E tests to confirm original state",
+      "Investigate unexpected failures"
+    ]
+  }
+}

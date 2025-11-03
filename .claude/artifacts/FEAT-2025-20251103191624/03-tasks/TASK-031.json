@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-031",
+  "phaseId": "P11",
+  "title": "Create technical documentation",
+  "description": "Document: 1) Architecture overview, 2) API endpoints specifications, 3) Database schema changes, 4) Meta webhook integration setup, 5) Troubleshooting guide, 6) Rollback procedures. Create comprehensive technical documentation for this feature.",
+  "category": "documentation",
+  "priority": "medium",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-030"],
+  "files": [
+    "backend/docs/features/user-settings-deletion.md"
+  ],
+  "dod": [
+    "Documentation file created at backend/docs/features/user-settings-deletion.md",
+    "Architecture overview section with diagrams",
+    "Complete API endpoints documentation with request/response examples",
+    "Database schema changes documented (data_deletion_requests table)",
+    "Meta webhook integration setup guide",
+    "Troubleshooting guide for common issues",
+    "Rollback procedures for emergency situations",
+    "Code examples and usage patterns included"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-021",
+  "phaseId": "P8",
+  "title": "Create main Settings page layout",
+  "description": "Create frontend/src/app/(dashboard)/settings/page.tsx with 5 sections layout (Profile, Password, Instagram, Privacy, Danger Zone). Use Tailwind CSS grid/flexbox. Add navigation sidebar for mobile/desktop. Follow existing dashboard layout patterns.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-018"],
+  "files": [
+    "frontend/src/app/(dashboard)/settings/page.tsx"
+  ],
+  "dod": [
+    "Page file created at frontend/src/app/(dashboard)/settings/page.tsx",
+    "Page accessible at /settings route",
+    "Layout with 5 sections: Profile, Password, Instagram, Privacy, Danger Zone",
+    "Responsive layout using Tailwind CSS",
+    "Navigation sidebar for section jumping (desktop)",
+    "Stacked sections on mobile",
+    "Follows existing dashboard page patterns",
+    "Proper page title and metadata"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

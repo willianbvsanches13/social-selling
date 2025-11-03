@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-011",
+  "phaseId": "P3",
+  "title": "Implement sendStickerMessage method in InstagramApiService",
+  "description": "Create method to send like_heart sticker message. Use attachment format with type 'like_heart'.",
+  "category": "backend",
+  "priority": "low",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "backend/src/modules/instagram/services/instagram-api.service.ts"
+  ],
+  "dod": [
+    "sendStickerMessage method created",
+    "Uses '/${platformAccountId}/messages' endpoint",
+    "Request body with attachment type 'like_heart'",
+    "Rate limiting and error handling implemented",
+    "Returns message ID from API response"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null,
+    "notes": [
+      "Request structure: { recipient: { id }, message: { attachment: { type: 'like_heart' } } }",
+      "No payload URL needed for sticker"
+    ]
+  }
+}

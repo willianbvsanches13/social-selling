@@ -1,0 +1,197 @@
+{
+  "featureId": "FEAT-2025-20251103194344",
+  "timestamp": "2025-11-03T19:43:44Z",
+  "feature": {
+    "title": "Fix Instagram Message Sending API Implementation",
+    "description": "Correct the Instagram message sending functionality to align with the official Instagram Messaging API documentation. Current implementation uses incorrect endpoint '/me/messages' and needs to be updated to use the proper '/<IG_ID>/messages' endpoint. Additionally, implement support for different message types (images, videos, audio, stickers, reactions, and published posts) as per Instagram API specifications.",
+    "category": "bug-fix",
+    "priority": "high",
+    "businessValue": "Critical fix to ensure Instagram messaging functionality works correctly. Without this fix, messages sent from the platform may fail or not be delivered properly to Instagram users, directly impacting core business functionality and user experience."
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Update sendMessage endpoint from '/me/messages' to '/<IG_ID>/messages' where IG_ID is the Instagram Business Account ID (platformAccountId)",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Implement message text validation to ensure UTF-8 encoding and maximum 1000 bytes length",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Add support for sending single image messages with attachment type and payload URL",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "Add support for sending multiple images (up to 10) in a single message as a collection",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "Add support for sending audio messages with attachment type and payload URL",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-006",
+        "description": "Add support for sending video messages with attachment type and payload URL",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-007",
+        "description": "Add support for sending like_heart sticker messages",
+        "priority": "could-have"
+      },
+      {
+        "id": "RF-008",
+        "description": "Add support for reacting and unreacting to messages with sender_action and message_id",
+        "priority": "could-have"
+      },
+      {
+        "id": "RF-009",
+        "description": "Add support for sending published Instagram posts (MEDIA_SHARE) owned by the app user",
+        "priority": "could-have"
+      },
+      {
+        "id": "RF-010",
+        "description": "Update MessagingService to use the corrected sendMessage method and handle different message types",
+        "priority": "must-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "performance",
+        "description": "Message sending must complete within 5 seconds under normal conditions"
+      },
+      {
+        "id": "NFR-002",
+        "type": "security",
+        "description": "Ensure access tokens are properly validated and encrypted when making API calls"
+      },
+      {
+        "id": "NFR-003",
+        "type": "scalability",
+        "description": "Implementation must respect Instagram API rate limits through existing InstagramRateLimiter"
+      },
+      {
+        "id": "NFR-004",
+        "type": "usability",
+        "description": "Provide clear error messages when message sending fails, including specific API error details"
+      },
+      {
+        "id": "NFR-005",
+        "type": "maintainability",
+        "description": "Code must follow project coding standards with proper error handling and logging"
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "backend/src/modules/instagram/services/instagram-api.service.ts",
+      "backend/src/modules/messaging/services/messaging.service.ts",
+      "backend/src/modules/messaging/controllers/messaging.controller.ts",
+      "backend/src/modules/messaging/dto",
+      "backend/src/domain/entities/message.entity.ts"
+    ],
+    "databases": [
+      "messages table (existing, may need metadata updates for new message types)",
+      "conversations table (existing, for tracking updated messages)"
+    ],
+    "externalServices": [
+      "Instagram Graph API (v24.0) - Messaging endpoints",
+      "Instagram Business Account authentication tokens"
+    ],
+    "estimatedComplexity": "medium"
+  },
+  "dependencies": [
+    {
+      "type": "library",
+      "name": "axios",
+      "action": "required",
+      "details": "Already installed (v1.12.2) - used for HTTP requests to Instagram API"
+    },
+    {
+      "type": "service",
+      "name": "InstagramRateLimiter",
+      "action": "integrate",
+      "details": "Must continue to use existing rate limiting service for API calls"
+    },
+    {
+      "type": "service",
+      "name": "OAuthTokenRepository",
+      "action": "required",
+      "details": "Required for retrieving Instagram access tokens"
+    },
+    {
+      "type": "configuration",
+      "name": "Instagram API Base URL",
+      "action": "extend",
+      "details": "Currently using graph.facebook.com - need to verify if graph.instagram.com should be used or if current URL is correct for Instagram Business API"
+    },
+    {
+      "type": "feature",
+      "name": "Message Entity Types",
+      "action": "extend",
+      "details": "May need to extend MessageType enum to support new message types (IMAGE_COLLECTION, AUDIO, VIDEO, STICKER, REACTION, MEDIA_SHARE)"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Changing the API endpoint may break existing message sending functionality if not tested properly",
+      "severity": "high",
+      "mitigation": "Implement comprehensive unit and E2E tests before deploying. Test with real Instagram accounts in development environment. Keep existing functionality as fallback during transition period."
+    },
+    {
+      "description": "Instagram API v24.0 may have rate limits that could affect message delivery at scale",
+      "severity": "medium",
+      "mitigation": "Leverage existing InstagramRateLimiter service and implement proper retry logic with exponential backoff. Monitor rate limit headers in API responses."
+    },
+    {
+      "description": "platformAccountId may not be correctly mapped to Instagram Business Account ID (IG_ID) required by the API",
+      "severity": "high",
+      "mitigation": "Verify that platformAccountId stored in ClientAccount entity matches the Instagram Business Account ID format expected by the API. Add validation and logging to confirm correct ID format."
+    },
+    {
+      "description": "Supporting multiple message types increases code complexity and testing surface area",
+      "severity": "medium",
+      "mitigation": "Implement modular design with separate methods for each message type. Use DTOs to validate input. Create comprehensive test suites for each message type."
+    },
+    {
+      "description": "Message size validation (1000 bytes UTF-8) may truncate messages without proper user feedback",
+      "severity": "low",
+      "mitigation": "Implement validation at controller level with clear error messages. Return 400 Bad Request with specific error details when message exceeds size limit."
+    }
+  ],
+  "researchFindings": {
+    "instagramApiDocumentation": {
+      "correctEndpoint": "POST https://graph.instagram.com/v24.0/<IG_ID>/messages (or graph.facebook.com with same path)",
+      "requiredParameters": {
+        "recipient": "Object containing Instagram-scoped ID (IGSID)",
+        "message": "Object containing message content (text, attachments, etc.)",
+        "access_token": "Instagram User Access Token"
+      },
+      "supportedMessageTypes": [
+        "text (with optional links, max 1000 bytes UTF-8)",
+        "image (single attachment with URL)",
+        "images (collection of up to 10 attachments)",
+        "audio (attachment with URL)",
+        "video (attachment with URL)",
+        "like_heart (sticker)",
+        "reaction (sender_action with message_id and reaction type)",
+        "MEDIA_SHARE (published Instagram post by app user)"
+      ]
+    },
+    "currentImplementationIssues": [
+      "Endpoint uses '/me/messages' instead of '/<IG_ID>/messages'",
+      "Only supports text messages",
+      "No message size validation",
+      "No support for attachments (images, videos, audio)",
+      "No support for reactions or stickers",
+      "Request body structure may not match API specification exactly"
+    ]
+  }
+}

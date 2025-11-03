@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-015",
+  "phaseId": "P5",
+  "title": "Create unit tests for MetaCallbackService",
+  "description": "Test signature validation, idempotency, status tracking, error handling. Mock UserService and DataDeletionRequestRepository. Follow existing service test patterns.",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-014"],
+  "files": [
+    "backend/test/unit/modules/meta/meta-callback.service.spec.ts"
+  ],
+  "dod": [
+    "Test file created at backend/test/unit/modules/meta/meta-callback.service.spec.ts",
+    "Tests for handleDeletionCallback with valid signature",
+    "Tests for handleDeletionCallback with invalid signature",
+    "Tests for idempotency (duplicate requests)",
+    "Tests for getRequestStatus with various statuses",
+    "UserService and DataDeletionRequestRepository properly mocked",
+    "Tests verify UserService.deleteAccount is called",
+    "All tests pass with good coverage"
+  ],
+  "technicalDetails": {
+    "packages": ["jest"],
+    "envVars": [],
+    "migrations": null
+  }
+}

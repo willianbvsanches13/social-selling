@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-002",
+  "phaseId": "P1",
+  "title": "Create DataDeletionRequest domain entity",
+  "description": "Implement domain entity for DataDeletionRequest with factory methods (create, reconstitute), status transition methods (start, complete, fail), validation, and toJSON serialization. Follow existing User entity pattern with proper encapsulation.",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "backend/src/domain/entities/data-deletion-request.entity.ts"
+  ],
+  "dod": [
+    "Entity file created at backend/src/domain/entities/data-deletion-request.entity.ts",
+    "Factory method create() generates new deletion request with confirmation code",
+    "Factory method reconstitute() rebuilds entity from database data",
+    "Status transition methods: start(), complete(), fail(errorMessage)",
+    "Business rules enforced (cannot complete a failed request, etc.)",
+    "toJSON() method for serialization",
+    "All properties properly encapsulated with getters"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

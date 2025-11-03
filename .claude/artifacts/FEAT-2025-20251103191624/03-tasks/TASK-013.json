@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-013",
+  "phaseId": "P5",
+  "title": "Implement MetaCallbackController",
+  "description": "Create controller with endpoints: POST /meta/data-deletion-callback (no auth, validates signature instead), GET /meta/data-deletion-status/:confirmationCode (public). Add OpenAPI decorations. Follow existing controller patterns.",
+  "category": "backend",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-012"],
+  "files": [
+    "backend/src/modules/meta/controllers/meta-callback.controller.ts"
+  ],
+  "dod": [
+    "Controller file created at backend/src/modules/meta/controllers/meta-callback.controller.ts",
+    "POST /meta/data-deletion-callback endpoint implemented",
+    "Endpoint accepts DataDeletionRequestDto",
+    "No authentication guard (validates signature manually instead)",
+    "GET /meta/data-deletion-status/:confirmationCode endpoint implemented",
+    "Returns DataDeletionStatusDto",
+    "OpenAPI decorations added (@ApiOperation, @ApiResponse, @ApiTags)",
+    "Proper HTTP status codes (200, 400, 401, 404)",
+    "Controller follows existing patterns in codebase"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

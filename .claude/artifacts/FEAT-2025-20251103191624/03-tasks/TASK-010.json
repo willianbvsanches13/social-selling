@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-010",
+  "phaseId": "P4",
+  "title": "Create integration tests for UserService.deleteAccount",
+  "description": "Create integration tests for complete deletion flow with test database. Verify all related records are deleted, test transaction rollback on failure, test Instagram API token revocation, test Redis session invalidation.",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-009"],
+  "files": [
+    "backend/test/integration/modules/user/user.service.spec.ts"
+  ],
+  "dod": [
+    "Integration test file created at backend/test/integration/modules/user/user.service.spec.ts",
+    "Test setup creates user with complete dataset (conversations, messages, posts, etc.)",
+    "Test verifies user is soft deleted (deletedAt set)",
+    "Test verifies all related records are deleted from database",
+    "Test verifies Instagram tokens are revoked (mock Instagram API)",
+    "Test verifies sessions are invalidated in Redis (mock Redis)",
+    "Test verifies transaction rollback on failure",
+    "Test verifies deletion request status tracking",
+    "All tests pass with test database"
+  ],
+  "technicalDetails": {
+    "packages": ["jest"],
+    "envVars": [],
+    "migrations": null
+  }
+}

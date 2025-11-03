@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Create migration for data_deletion_requests table",
+  "description": "Create SQL migration 041-create-data-deletion-requests.sql with table structure: id (uuid), user_id (uuid FK), confirmation_code (text unique), source (enum: user_app, meta_callback, email), status (enum: pending, in_progress, completed, failed), requested_at (timestamptz), completed_at (timestamptz), error_message (text), metadata (jsonb), created_at, updated_at. Add indexes on user_id, confirmation_code, status, requested_at.",
+  "category": "database",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": [],
+  "files": [
+    "backend/migrations/041-create-data-deletion-requests.sql"
+  ],
+  "dod": [
+    "Migration file created following existing naming pattern (041-create-data-deletion-requests.sql)",
+    "Table data_deletion_requests created with all required columns and correct data types",
+    "Foreign key constraint to users table configured with ON DELETE CASCADE",
+    "Indexes created on user_id, confirmation_code, status, and requested_at",
+    "Unique constraint on confirmation_code",
+    "Check constraint for valid source and status enums",
+    "Migration can be run successfully without errors"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": "041-create-data-deletion-requests"
+  }
+}

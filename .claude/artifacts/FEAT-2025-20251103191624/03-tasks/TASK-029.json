@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-029",
+  "phaseId": "P10",
+  "title": "Create E2E tests for Meta callback integration",
+  "description": "Create test script to simulate Meta webhook call with valid signature. Verify deletion is triggered and status endpoint returns correct status. Can be backend integration test or E2E test.",
+  "category": "testing",
+  "priority": "medium",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-016"],
+  "files": [
+    "backend/test/e2e/meta-callback.spec.ts"
+  ],
+  "dod": [
+    "E2E test file created at backend/test/e2e/meta-callback.spec.ts",
+    "Test: Generate valid signed request with test data",
+    "Test: POST to /meta/data-deletion-callback and verify 200 response",
+    "Test: Verify user is marked as deleted in database",
+    "Test: GET /meta/data-deletion-status/:code and verify status",
+    "Test: Verify invalid signature is rejected",
+    "Test cleanup removes test data",
+    "All tests pass consistently"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "supertest"],
+    "envVars": ["META_APP_SECRET"],
+    "migrations": null
+  }
+}
