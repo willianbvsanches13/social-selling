@@ -1,0 +1,346 @@
+{
+  "planId": "PLAN-2025-20251103171956",
+  "featureId": "FEAT-2025-20251103171956",
+  "timestamp": "2025-11-03T17:30:00Z",
+  "planner": {
+    "agentVersion": "1.0.0",
+    "planningDate": "2025-11-03"
+  },
+  "problemSummary": {
+    "totalProblems": 6,
+    "critical": 4,
+    "high": 1,
+    "medium": 1,
+    "rootCauses": [
+      "Conversation data structure mismatch between backend DTO and frontend types",
+      "MessageInput component handleSend function calls onSend but no API POST is triggered",
+      "QuotedMessage component exists but repliedToMessage is always undefined/null",
+      "Attachments render but may lack proper click handlers for expansion"
+    ]
+  },
+  "architecture": {
+    "approach": "targeted-bug-fixes",
+    "patterns": ["api-dto-alignment", "proper-data-mapping", "event-handler-fix"],
+    "affectedComponents": [
+      {
+        "name": "ConversationList.tsx",
+        "type": "frontend-component",
+        "location": "frontend/src/components/messages/ConversationList.tsx",
+        "issue": "Reads participantUsername and participantProfilePic but API returns null/undefined",
+        "action": "verify API response format and fix data mapping"
+      },
+      {
+        "name": "MessageThread.tsx",
+        "type": "frontend-component",
+        "location": "frontend/src/components/messages/MessageThread.tsx",
+        "issue": "Header shows 'Unknown User' - needs participant data",
+        "action": "pass conversation data as prop to show correct username/photo"
+      },
+      {
+        "name": "MessageInput.tsx",
+        "type": "frontend-component",
+        "location": "frontend/src/components/messages/MessageInput.tsx",
+        "issue": "handleSend calls onSend(text) but sendMessage mutation never triggers POST",
+        "action": "verify mutation hook configuration and error handling"
+      },
+      {
+        "name": "useMessaging hooks",
+        "type": "frontend-hook",
+        "location": "frontend/src/lib/hooks/useMessaging",
+        "issue": "useSendMessage mutation may not be properly configured",
+        "action": "investigate mutation implementation"
+      },
+      {
+        "name": "ConversationService",
+        "type": "backend-service",
+        "location": "backend/src/modules/messaging/services/conversation.service.ts",
+        "issue": "May not be returning participantUsername/participantProfilePic correctly",
+        "action": "verify data transformation from Instagram API to DTO"
+      },
+      {
+        "name": "MessagingController",
+        "type": "backend-controller",
+        "location": "backend/src/modules/messaging/controllers/messaging.controller.ts",
+        "issue": "Need to verify POST /messages endpoint exists and is accessible",
+        "action": "check route configuration"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Code Investigation & Root Cause Analysis",
+      "order": 1,
+      "estimatedHours": 2,
+      "description": "Deep dive into code to confirm root causes of all 6 problems",
+      "tasks": [
+        "Read ConversationService to see how participant data is fetched",
+        "Read useMessaging hooks to see mutation configuration",
+        "Read MessagingController to verify sendMessage endpoint",
+        "Read messages service (frontend) to verify API call structure",
+        "Trace data flow from backend → API → frontend for conversations",
+        "Trace data flow from frontend → API → backend for message sending"
+      ],
+      "dependencies": []
+    },
+    {
+      "phaseId": "P2",
+      "name": "Fix Critical Problems (Blocking Issues)",
+      "order": 2,
+      "estimatedHours": 6,
+      "description": "Fix the 4 critical issues that completely break functionality",
+      "tasks": [
+        "CRITICAL-1: Fix conversation list showing no usernames",
+        "CRITICAL-2: Fix conversation header showing 'Unknown User'",
+        "CRITICAL-3: Fix profile pictures not loading",
+        "CRITICAL-4: Fix message sending not working (BLOCKER)"
+      ],
+      "dependencies": ["P1"]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Fix High Priority Problems",
+      "order": 3,
+      "estimatedHours": 3,
+      "description": "Fix reply system and attachment display improvements",
+      "tasks": [
+        "HIGH-1: Implement reply message visual indicator",
+        "MEDIUM-1: Verify/improve attachment click handlers for modal view"
+      ],
+      "dependencies": ["P2"]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Testing & Validation",
+      "order": 4,
+      "estimatedHours": 3,
+      "description": "Comprehensive testing of all fixes",
+      "tasks": [
+        "E2E test: Load inbox and verify usernames/photos show",
+        "E2E test: Click conversation and verify header shows correct user",
+        "E2E test: Send message and verify it appears in thread",
+        "E2E test: Verify reply messages show quoted message",
+        "E2E test: Verify attachments are clickable and open modal",
+        "Manual test: Verify no regressions in other inbox functionality"
+      ],
+      "dependencies": ["P3"]
+    }
+  ],
+  "detailedProblems": [
+    {
+      "problemId": "PROB-001",
+      "title": "Conversation list shows empty usernames (@)",
+      "severity": "critical",
+      "affectedComponent": "ConversationList.tsx lines 77-82",
+      "rootCause": "Frontend expects participantUsername but API returns null/undefined. Backend ConversationResponseDto has participantUsername as optional/nullable.",
+      "evidenceCode": {
+        "frontend": "conversation.participantUsername (line 78, 81)",
+        "backend": "participantUsername?: string | null (conversation-response.dto.ts:21)",
+        "apiResponse": "GET /api/messaging/conversations returns 200 but participant fields are null"
+      },
+      "solution": {
+        "primary": "Fix ConversationService to populate participantUsername from Instagram API data",
+        "alternative": "If Instagram API doesn't provide username, use participantPlatformId as fallback"
+      },
+      "impactedFiles": [
+        "backend/src/modules/messaging/services/conversation.service.ts",
+        "backend/src/modules/messaging/dto/conversation-response.dto.ts"
+      ]
+    },
+    {
+      "problemId": "PROB-002",
+      "title": "Conversation header shows 'Unknown User'",
+      "severity": "critical",
+      "affectedComponent": "inbox/page.tsx → MessageThread.tsx",
+      "rootCause": "MessageThread component doesn't receive conversation participant data. The selectedConversation is used for API calls but participant info not passed to UI.",
+      "evidenceCode": {
+        "frontend": "MessageThread doesn't have conversation prop, only messages prop",
+        "issue": "No way to display participant username in thread header"
+      },
+      "solution": {
+        "primary": "Pass selectedConversation as prop to MessageThread OR create separate ConversationHeader component",
+        "steps": [
+          "Modify MessageThread to accept conversation prop",
+          "Extract header rendering to use conversation.participantUsername",
+          "Display conversation.participantProfilePic in header"
+        ]
+      },
+      "impactedFiles": [
+        "frontend/src/app/(dashboard)/inbox/page.tsx",
+        "frontend/src/components/messages/MessageThread.tsx"
+      ]
+    },
+    {
+      "problemId": "PROB-003",
+      "title": "Profile pictures show placeholder icon",
+      "severity": "high",
+      "affectedComponent": "ConversationList.tsx line 62-66",
+      "rootCause": "Same as PROB-001 - participantProfilePic is null/undefined from API",
+      "evidenceCode": {
+        "frontend": "conversation.participantProfilePic (line 63)",
+        "backend": "participantProfilePic?: string | null (conversation-response.dto.ts:29)"
+      },
+      "solution": {
+        "primary": "Fix ConversationService to populate participantProfilePic from Instagram API",
+        "fallback": "Render default avatar if null, but fix should make this rare"
+      },
+      "impactedFiles": [
+        "backend/src/modules/messaging/services/conversation.service.ts"
+      ]
+    },
+    {
+      "problemId": "PROB-004",
+      "title": "Message sending doesn't work - no POST request",
+      "severity": "critical-blocker",
+      "affectedComponent": "MessageInput.tsx + useMessaging hook",
+      "rootCause": "MessageInput calls onSend(text) correctly, inbox/page.tsx handleSendMessage calls sendMessageMutation.mutate() BUT no POST request is sent. Possible issues: mutation not configured, endpoint doesn't exist, or silent error.",
+      "evidenceCode": {
+        "messageInput": "onSend(text.trim()) called (line 26)",
+        "inboxPage": "sendMessageMutation.mutate({ conversationId, data: { text } }) (page.tsx:92-95)",
+        "observation": "No POST /api/messaging/... in network logs after clicking send"
+      },
+      "investigationNeeded": [
+        "Check useSendMessage hook implementation in lib/hooks/useMessaging",
+        "Check messages.service.ts for sendMessage function",
+        "Verify POST endpoint exists in backend MessagingController",
+        "Check for silent errors in mutation onError handler"
+      ],
+      "solution": {
+        "step1": "Read useMessaging hooks file to see useSendMessage implementation",
+        "step2": "Read messages.service.ts to see if sendMessage API call is correct",
+        "step3": "Verify backend endpoint POST /api/messaging/conversations/:id/messages exists",
+        "step4": "Fix whichever layer is broken (most likely mutation or API service)"
+      },
+      "impactedFiles": [
+        "frontend/src/lib/hooks/useMessaging.ts",
+        "frontend/src/lib/services/messages.service.ts",
+        "backend/src/modules/messaging/controllers/messaging.controller.ts"
+      ]
+    },
+    {
+      "problemId": "PROB-005",
+      "title": "Reply messages don't show quoted original message",
+      "severity": "high",
+      "affectedComponent": "MessageThread.tsx line 102-106",
+      "rootCause": "QuotedMessage component exists and is rendered conditionally, BUT message.repliedToMessage is always undefined/null. Backend may not be returning this data.",
+      "evidenceCode": {
+        "frontend": "message.repliedToMessage && <QuotedMessage .../> (line 102-105)",
+        "type": "repliedToMessage?: RepliedMessage (message.ts:75)"
+      },
+      "investigationNeeded": [
+        "Check backend Message entity/DTO for replied_to_message field",
+        "Verify Instagram API provides reply context",
+        "Check if backend populates repliedToMessage in response"
+      ],
+      "solution": {
+        "primary": "Ensure backend MessagingService fetches and returns repliedToMessage data",
+        "alternative": "If Instagram API doesn't provide it easily, may need to fetch separately or store in metadata"
+      },
+      "impactedFiles": [
+        "backend/src/modules/messaging/services/messaging.service.ts",
+        "backend/src/modules/messaging/dto/message-response.dto.ts"
+      ]
+    },
+    {
+      "problemId": "PROB-006",
+      "title": "Attachments may not be properly interactive",
+      "severity": "medium",
+      "affectedComponent": "MessageThread.tsx line 112-122",
+      "rootCause": "Attachments render via MediaAttachment component with onClick handler, BUT unclear if modal actually works. Network logs show assets loading successfully.",
+      "evidenceCode": {
+        "frontend": "onClick={() => handleOpenModal(message.attachments!, index)} (line 118)",
+        "observation": "Attachments load from lookaside.fbsbx.com [206], rendered as nested img elements"
+      },
+      "investigationNeeded": [
+        "Verify AttachmentModal component renders correctly",
+        "Verify MediaAttachment has proper click handlers",
+        "Test if clicking attachment opens modal"
+      ],
+      "solution": {
+        "lowPriority": "Test manually after fixing critical issues. May already work fine."
+      },
+      "impactedFiles": [
+        "frontend/src/components/messages/MediaAttachment.tsx",
+        "frontend/src/components/messages/AttachmentModal.tsx"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "All conversations in list show correct Instagram username (not empty)",
+      "type": "functional",
+      "testable": true,
+      "priority": "critical"
+    },
+    {
+      "id": "AC-002",
+      "description": "All conversations in list show profile picture (not placeholder icon)",
+      "type": "functional",
+      "testable": true,
+      "priority": "critical"
+    },
+    {
+      "id": "AC-003",
+      "description": "Conversation header shows participant username (not 'Unknown User')",
+      "type": "functional",
+      "testable": true,
+      "priority": "critical"
+    },
+    {
+      "id": "AC-004",
+      "description": "User can type and send a message successfully",
+      "type": "functional",
+      "testable": true,
+      "priority": "critical"
+    },
+    {
+      "id": "AC-005",
+      "description": "Sent message appears in thread within 2 seconds",
+      "type": "functional",
+      "testable": true,
+      "priority": "critical"
+    },
+    {
+      "id": "AC-006",
+      "description": "Messages that are replies show quoted original message",
+      "type": "functional",
+      "testable": true,
+      "priority": "high"
+    },
+    {
+      "id": "AC-007",
+      "description": "Clicking attachment opens modal with full-size view",
+      "type": "functional",
+      "testable": true,
+      "priority": "medium"
+    },
+    {
+      "id": "AC-008",
+      "description": "All existing inbox functionality still works (no regressions)",
+      "type": "functional",
+      "testable": true,
+      "priority": "high"
+    }
+  ],
+  "technicalDecisions": [
+    {
+      "decision": "Fix backend ConversationService to populate participant data",
+      "rationale": "Root cause is backend not returning data. Fixing at source is cleaner than frontend workarounds."
+    },
+    {
+      "decision": "Pass conversation object to MessageThread component",
+      "rationale": "Thread header needs participant info. Cleanest solution is to pass full conversation object as prop."
+    },
+    {
+      "decision": "Investigate mutation hooks before assuming backend issue for message sending",
+      "rationale": "Backend endpoint may exist but frontend mutation not configured correctly. Check frontend first."
+    },
+    {
+      "decision": "Reply feature requires backend changes to return repliedToMessage data",
+      "rationale": "Frontend component already exists and works if data is provided. Backend must populate this field."
+    }
+  ],
+  "estimatedTotalHours": 14,
+  "nextAgent": "task-creator"
+}

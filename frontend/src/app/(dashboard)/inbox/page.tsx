@@ -60,11 +60,32 @@ export default function InboxPage() {
 
   // Send message mutation
   const sendMessageMutation = useSendMessage({
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log('✅ Message sent successfully:', {
+        messageId: data.id,
+        conversationId: variables.conversationId,
+        text: variables.data.text,
+      });
       success('Message sent successfully');
     },
-    onError: (error: any) => {
-      showError(error.message || 'Failed to send message');
+    onError: (error: any, variables) => {
+      console.error('❌ Failed to send message:', {
+        error,
+        errorMessage: error.message,
+        errorStatus: error.status,
+        conversationId: variables.conversationId,
+        messageText: variables.data.text,
+        fullError: error,
+      });
+
+      // Check for 24-hour window error
+      if (error.message?.includes('24-hour') || error.message?.includes('response window')) {
+        showError('Cannot send message: 24-hour response window has expired. Wait for customer to message you first.');
+      } else if (error.status === 401 || error.status === 403) {
+        showError('Authentication error. Please reconnect your Instagram account.');
+      } else {
+        showError(error.message || 'Failed to send message. Check console for details.');
+      }
     },
   });
 
@@ -87,7 +108,17 @@ export default function InboxPage() {
 
   // Handle send message
   const handleSendMessage = async (text: string) => {
-    if (!selectedConversation) return;
+    if (!selectedConversation) {
+      console.warn('⚠️ Cannot send message: No conversation selected');
+      return;
+    }
+
+    console.log('📤 Attempting to send message:', {
+      conversationId: selectedConversation.id,
+      participantUsername: selectedConversation.participantUsername,
+      text: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+      textLength: text.length,
+    });
 
     sendMessageMutation.mutate({
       conversationId: selectedConversation.id,
@@ -204,6 +235,7 @@ export default function InboxPage() {
                 <MessageThread
                   messages={messagesData?.messages || []}
                   isLoading={isLoadingMessages}
+                  conversation={selectedConversation}
                 />
 
                 {/* Message Input */}

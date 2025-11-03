@@ -208,4 +208,101 @@ export class MessagingService {
       );
     }
   }
+
+  /**
+   * Backfill repliedToMessageId for existing messages that have reply_to in metadata
+   * This is useful for fixing messages created before the repliedToMessageId field was added
+   */
+  async backfillRepliedToMessageIds(
+    conversationId?: string,
+  ): Promise<{
+    total: number;
+    updated: number;
+    failed: number;
+    skipped: number;
+  }> {
+    this.logger.log('Starting backfill of repliedToMessageId fields');
+
+    let total = 0;
+    let updated = 0;
+    let failed = 0;
+    let skipped = 0;
+
+    try {
+      // Get all messages, optionally filtered by conversation
+      const messages = await this.messageRepository.findByConversation(
+        conversationId || '',
+        { limit: 10000, offset: 0 },
+      );
+
+      total = messages.length;
+
+      for (const message of messages) {
+        try {
+          // Skip if already has repliedToMessageId
+          if (message.toJSON().repliedToMessageId) {
+            skipped++;
+            continue;
+          }
+
+          // Check if metadata has replyTo field
+          const metadata = message.toJSON().metadata as any;
+          const replyToPlatformId = metadata?.replyTo;
+
+          if (!replyToPlatformId) {
+            skipped++;
+            continue;
+          }
+
+          // Find the replied message by platformMessageId
+          const repliedMessage =
+            await this.messageRepository.findByPlatformId(replyToPlatformId);
+
+          if (!repliedMessage) {
+            this.logger.warn(
+              `Could not find replied message with platformMessageId ${replyToPlatformId} for message ${message.id}`,
+            );
+            failed++;
+            continue;
+          }
+
+          // Update the message with repliedToMessageId
+          // We need to use the entity's internal method or recreate it
+          const updatedMessage = Message.reconstitute({
+            ...message.toJSON(),
+            repliedToMessageId: repliedMessage.id,
+          });
+
+          await this.messageRepository.update(updatedMessage);
+
+          this.logger.log(
+            `Backfilled repliedToMessageId for message ${message.id} -> ${repliedMessage.id}`,
+          );
+
+          updated++;
+        } catch (error) {
+          this.logger.error(
+            `Failed to backfill message ${message.id}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          );
+          failed++;
+        }
+
+        // Rate limiting - small delay between updates
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+
+      const result = { total, updated, failed, skipped };
+      this.logger.log(`Backfill complete: ${JSON.stringify(result)}`);
+
+      return result;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Backfill failed: ${errorMessage}`);
+      throw new HttpException(
+        `Failed to backfill replied message IDs: ${errorMessage}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

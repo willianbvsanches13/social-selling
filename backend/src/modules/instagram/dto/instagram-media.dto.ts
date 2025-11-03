@@ -47,6 +47,7 @@ export interface InstagramConversationDto {
       id: string;
       username?: string;
       name?: string;
+      profile_pic?: string;
     }>;
   };
   updated_time: string;

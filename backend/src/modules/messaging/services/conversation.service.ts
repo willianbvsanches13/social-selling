@@ -191,6 +191,113 @@ export class ConversationService {
     }
   }
 
+  async enrichAllConversations(clientAccountId: string): Promise<{
+    total: number;
+    enriched: number;
+    failed: number;
+    skipped: number;
+  }> {
+    this.logger.log(
+      `Starting batch enrichment for client account ${clientAccountId}`,
+    );
+
+    const conversations = await this.conversationRepository.findByClientAccount(
+      clientAccountId,
+      { limit: 1000, offset: 0 },
+    );
+
+    let enriched = 0;
+    let failed = 0;
+    let skipped = 0;
+
+    // Fetch all conversations from Instagram API once
+    try {
+      const conversationsResponse = await this.instagramApiService.getConversations(
+        clientAccountId,
+        { limit: 100 },
+      );
+
+      for (const conversation of conversations) {
+        // Skip if already enriched
+        if (conversation.participantUsername && conversation.participantProfilePic) {
+          skipped++;
+          continue;
+        }
+
+        try {
+          // Find the conversation in Instagram API response
+          const instagramConv = conversationsResponse.data?.find((conv) =>
+            conv.participants?.data?.some(
+              (p) => p.id === conversation.participantPlatformId,
+            ),
+          );
+
+          if (instagramConv) {
+            const participant = instagramConv.participants?.data?.find(
+              (p) => p.id === conversation.participantPlatformId,
+            );
+
+            if (participant && participant.username && participant.profile_pic) {
+              conversation.updateParticipantProfile(
+                participant.username,
+                participant.profile_pic,
+              );
+
+              await this.conversationRepository.update(conversation);
+              enriched++;
+
+              this.logger.log(
+                `Enriched conversation ${conversation.id} with participant ${participant.username}`,
+              );
+            } else {
+              this.logger.warn(
+                `Participant data incomplete for conversation ${conversation.id}`,
+              );
+              failed++;
+            }
+          } else {
+            this.logger.warn(
+              `Conversation not found in Instagram API for ${conversation.id}`,
+            );
+            failed++;
+          }
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : String(error);
+          this.logger.error(
+            `Failed to enrich conversation ${conversation.id}: ${errorMessage}`,
+          );
+          failed++;
+        }
+
+        // Rate limiting: wait 100ms between updates
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      this.logger.error(
+        `Failed to fetch conversations from Instagram API: ${errorMessage}`,
+      );
+      throw new BadRequestException(
+        `Failed to enrich conversations: ${errorMessage}`,
+      );
+    }
+
+    const result = {
+      total: conversations.length,
+      enriched,
+      failed,
+      skipped,
+    };
+
+    this.logger.log(
+      `Batch enrichment completed: ${JSON.stringify(result)}`,
+    );
+
+    return result;
+  }
+
   private async verifyAccountAccess(
     userId: string,
     clientAccountId: string,

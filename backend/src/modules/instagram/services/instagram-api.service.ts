@@ -384,7 +384,7 @@ export class InstagramApiService {
     const token = await this.getAccessToken(accountId);
 
     const params: Record<string, any> = {
-      fields: 'id,participants,updated_time',
+      fields: 'id,participants{id,username,profile_pic},updated_time',
       platform: 'instagram',
       limit: options.limit || 25,
       access_token: token,
@@ -524,10 +524,14 @@ export class InstagramApiService {
           params,
         });
       } else {
+        // For POST requests, extract access_token and send it as a query param
+        const { access_token, ...bodyData } = params || {};
+
         response = await this.client.request<T>({
           method,
           url: endpoint,
-          data: params,
+          params: access_token ? { access_token } : undefined,
+          data: bodyData,
         });
       }
 

@@ -15,6 +15,7 @@ import {
 } from '../../../domain/entities/message.entity';
 import { InstagramWebhookEvent } from '../../../domain/entities/instagram-webhook-event.entity';
 import { ConversationService } from '../../messaging/services/conversation.service';
+import { InstagramApiService } from '../services/instagram-api.service';
 
 export interface MessageEventPayload {
   entryId: string; // ID of the Instagram page/account (the owner)
@@ -49,6 +50,7 @@ export class WebhookMessageHandler {
     @Inject('IClientAccountRepository')
     private readonly clientAccountRepository: IClientAccountRepository,
     private readonly conversationService: ConversationService,
+    private readonly instagramApiService: InstagramApiService,
   ) {}
 
   async processMessageEvent(
@@ -134,6 +136,31 @@ export class WebhookMessageHandler {
         `Creating message ${payload.message.mid} with senderType=${senderType}, senderPlatformId=${senderPlatformId}`,
       );
 
+      // Find replied-to message if this is a reply
+      let repliedToMessageId: string | undefined;
+      if (payload.message.reply_to?.mid) {
+        try {
+          const repliedMessage =
+            await this.messageRepository.findByPlatformId(
+              payload.message.reply_to.mid,
+            );
+          if (repliedMessage) {
+            repliedToMessageId = repliedMessage.id;
+            this.logger.log(
+              `Message ${payload.message.mid} is a reply to ${repliedMessage.id}`,
+            );
+          } else {
+            this.logger.warn(
+              `Replied message with platformMessageId ${payload.message.reply_to.mid} not found`,
+            );
+          }
+        } catch (error) {
+          this.logger.warn(
+            `Error finding replied message: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          );
+        }
+      }
+
       const message = Message.create({
         conversationId: conversation.id,
         platformMessageId: payload.message.mid,
@@ -145,6 +172,7 @@ export class WebhookMessageHandler {
         mediaType: this.extractMediaType(payload.message),
         attachments: this.extractAttachments(payload.message),
         sentAt: new Date(payload.timestamp),
+        repliedToMessageId,
         metadata: {
           replyTo: payload.message.reply_to?.mid,
           rawPayload: payload,
@@ -310,6 +338,64 @@ export class WebhookMessageHandler {
       },
     });
 
-    return await this.conversationRepository.create(conversation);
+    const createdConversation = await this.conversationRepository.create(conversation);
+
+    // Try to enrich participant profile immediately after creation
+    try {
+      this.logger.log(
+        `Fetching participant profile data for conversation ${createdConversation.id}`,
+      );
+
+      const conversationsResponse = await this.instagramApiService.getConversations(
+        clientAccountId,
+        { limit: 100 },
+      );
+
+      // Find the specific conversation in the response
+      const instagramConv = conversationsResponse.data?.find((conv) =>
+        conv.participants?.data?.some((p) => p.id === participantPlatformId),
+      );
+
+      if (instagramConv) {
+        // Find the participant in the conversation
+        const participant = instagramConv.participants?.data?.find(
+          (p) => p.id === participantPlatformId,
+        );
+
+        if (participant && participant.username && participant.profile_pic) {
+          this.logger.log(
+            `Enriching conversation ${createdConversation.id} with participant data: ${participant.username}`,
+          );
+
+          createdConversation.updateParticipantProfile(
+            participant.username,
+            participant.profile_pic,
+          );
+
+          await this.conversationRepository.update(createdConversation);
+
+          this.logger.log(
+            `Successfully enriched conversation ${createdConversation.id}`,
+          );
+        } else {
+          this.logger.warn(
+            `Participant ${participantPlatformId} found but missing username or profile_pic`,
+          );
+        }
+      } else {
+        this.logger.warn(
+          `Conversation with participant ${participantPlatformId} not found in API response`,
+        );
+      }
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      this.logger.warn(
+        `Failed to enrich participant profile for conversation ${createdConversation.id}: ${errorMessage}. Will retry via background enrichment.`,
+      );
+      // Don't throw - allow conversation creation to succeed even if enrichment fails
+    }
+
+    return createdConversation;
   }
 }

@@ -70,11 +70,31 @@ export const messagingApi = {
     conversationId: string,
     data: SendMessageRequest
   ): Promise<Message> {
-    const response = await apiClient.post<Message>(
-      API_ENDPOINTS.CONVERSATION_SEND_MESSAGE(conversationId),
-      data
-    );
-    return response.data!;
+    console.log('🌐 API: Sending message request', {
+      conversationId,
+      endpoint: API_ENDPOINTS.CONVERSATION_SEND_MESSAGE(conversationId),
+      data,
+    });
+
+    try {
+      const response = await apiClient.post<Message>(
+        API_ENDPOINTS.CONVERSATION_SEND_MESSAGE(conversationId),
+        data
+      );
+
+      console.log('🌐 API: Message sent successfully', {
+        conversationId,
+        messageId: response.data?.id,
+      });
+
+      return response.data!;
+    } catch (error) {
+      console.error('🌐 API: Failed to send message', {
+        conversationId,
+        error,
+      });
+      throw error;
+    }
   },
 
   /**

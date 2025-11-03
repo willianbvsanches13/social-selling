@@ -234,4 +234,84 @@ export class MessagingController {
 
     return conversation.toJSON() as ConversationResponseDto;
   }
+
+  @Post('conversations/enrich')
+  @ApiOperation({
+    summary: 'Enrich conversations with participant data',
+    description:
+      'Batch enriches all conversations for a client account with participant username and profile pictures from Instagram API',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Enrichment completed',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Failed to enrich conversations',
+  })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Unauthorized' })
+  async enrichConversations(
+    @Request() req: any,
+    @Query('clientAccountId') clientAccountId: string,
+  ): Promise<{
+    total: number;
+    enriched: number;
+    failed: number;
+    skipped: number;
+  }> {
+    // Verify user has access to this client account
+    await this.conversationService.listConversations(
+      req.user.id,
+      clientAccountId,
+      { limit: 1, offset: 0 },
+    );
+
+    const result =
+      await this.conversationService.enrichAllConversations(clientAccountId);
+
+    this.logger.log(
+      `Enrichment completed for client account ${clientAccountId}: ${JSON.stringify(result)}`,
+    );
+
+    return result;
+  }
+
+  @Post('messages/backfill-replies')
+  @ApiOperation({
+    summary: 'Backfill repliedToMessageId for existing messages',
+    description:
+      'Updates existing messages that have reply_to in metadata but missing repliedToMessageId field. Useful for data migration.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Backfill completed',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Failed to backfill messages',
+  })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Unauthorized' })
+  async backfillRepliedToMessageIds(
+    @Request() req: any,
+    @Query('conversationId') conversationId?: string,
+  ): Promise<{
+    total: number;
+    updated: number;
+    failed: number;
+    skipped: number;
+  }> {
+    // Verify user has access if conversationId is provided
+    if (conversationId) {
+      await this.conversationService.getConversation(req.user.id, conversationId);
+    }
+
+    const result =
+      await this.messagingService.backfillRepliedToMessageIds(conversationId);
+
+    this.logger.log(
+      `Backfill completed for ${conversationId || 'all conversations'}: ${JSON.stringify(result)}`,
+    );
+
+    return result;
+  }
 }

@@ -59,11 +59,17 @@ export function ConversationList({
         >
           <div className="flex items-start gap-3">
             <div className="relative">
-              <img
-                src={conversation.participantProfilePic}
-                alt={conversation.participantUsername}
-                className="h-12 w-12 rounded-full object-cover"
-              />
+              {conversation.participantProfilePic ? (
+                <img
+                  src={conversation.participantProfilePic}
+                  alt={conversation.participantUsername || 'User'}
+                  className="h-12 w-12 rounded-full object-cover"
+                />
+              ) : (
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">
+                  <MessageSquare className="h-6 w-6 text-gray-600" />
+                </div>
+              )}
               {conversation.unreadCount > 0 && (
                 <div className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
                   {conversation.unreadCount}
@@ -75,10 +81,10 @@ export function ConversationList({
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-900">
-                    {conversation.participantUsername}
+                    {conversation.participantUsername || 'Loading...'}
                   </h4>
                   <p className="text-xs text-gray-600">
-                    @{conversation.participantUsername}
+                    @{conversation.participantUsername || 'loading'}
                   </p>
                 </div>
                 <span className="text-xs text-gray-500">

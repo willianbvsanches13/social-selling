@@ -2386,6 +2386,78 @@
         ]
       }
     },
+    "/api/messaging/conversations/enrich": {
+      "post": {
+        "description": "Batch enriches all conversations for a client account with participant username and profile pictures from Instagram API",
+        "operationId": "MessagingController_enrichConversations",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Enrichment completed"
+          },
+          "400": {
+            "description": "Failed to enrich conversations"
+          },
+          "403": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Enrich conversations with participant data",
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
+    "/api/messaging/messages/backfill-replies": {
+      "post": {
+        "description": "Updates existing messages that have reply_to in metadata but missing repliedToMessageId field. Useful for data migration.",
+        "operationId": "MessagingController_backfillRepliedToMessageIds",
+        "parameters": [
+          {
+            "name": "conversationId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Backfill completed"
+          },
+          "400": {
+            "description": "Failed to backfill messages"
+          },
+          "403": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Backfill repliedToMessageId for existing messages",
+        "tags": [
+          "Messaging"
+        ]
+      }
+    },
     "/api/posts/upload": {
       "post": {
         "operationId": "PostsController_uploadMedia",

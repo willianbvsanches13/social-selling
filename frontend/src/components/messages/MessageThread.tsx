@@ -11,9 +11,10 @@ import AttachmentModal from './AttachmentModal';
 interface MessageThreadProps {
   messages: Message[];
   isLoading: boolean;
+  conversation?: Conversation;
 }
 
-export function MessageThread({ messages, isLoading }: MessageThreadProps) {
+export function MessageThread({ messages, isLoading, conversation }: MessageThreadProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isFirstLoad = useRef(true);
   const [modalOpen, setModalOpen] = useState(false);

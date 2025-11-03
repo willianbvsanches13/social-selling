@@ -1,0 +1,614 @@
+{
+  "featureId": "FEAT-2025-20251103171956",
+  "timestamp": "2025-11-03T18:00:00Z",
+  "taskCreator": {
+    "agentVersion": "1.0.0",
+    "creationDate": "2025-11-03"
+  },
+  "summary": {
+    "totalTasks": 18,
+    "criticalTasks": 6,
+    "highPriorityTasks": 4,
+    "mediumPriorityTasks": 8,
+    "estimatedHours": 14
+  },
+  "executionOrder": {
+    "phase1": {
+      "name": "Critical Backend Fixes",
+      "parallel": false,
+      "tasks": ["TASK-001", "TASK-002", "TASK-003"]
+    },
+    "phase2": {
+      "name": "Critical Frontend Fixes",
+      "parallel": false,
+      "tasks": ["TASK-004", "TASK-005"]
+    },
+    "phase3": {
+      "name": "Message Sending Debug & Fix",
+      "parallel": false,
+      "tasks": ["TASK-006", "TASK-007", "TASK-008"]
+    },
+    "phase4": {
+      "name": "Reply System Fix",
+      "parallel": false,
+      "tasks": ["TASK-009", "TASK-010", "TASK-011"]
+    },
+    "phase5": {
+      "name": "Testing & Validation",
+      "parallel": false,
+      "tasks": ["TASK-012", "TASK-013", "TASK-014", "TASK-015", "TASK-016"]
+    },
+    "phase6": {
+      "name": "Documentation & Delivery",
+      "parallel": false,
+      "tasks": ["TASK-017", "TASK-018"]
+    }
+  },
+  "tasks": [
+    {
+      "taskId": "TASK-001",
+      "title": "Fix Instagram API getConversations to request participant fields",
+      "priority": "critical",
+      "estimatedHours": 1,
+      "phase": "phase1",
+      "description": "Update getConversations method to request participant username and profile_pic from Instagram API",
+      "acceptanceCriteria": [
+        "getConversations requests fields: 'id,participants{id,username,profile_pic},updated_time'",
+        "API returns participant data in response",
+        "Code compiles without errors"
+      ],
+      "files": [
+        "backend/src/modules/instagram/services/instagram-api.service.ts"
+      ],
+      "specificChanges": [
+        {
+          "file": "backend/src/modules/instagram/services/instagram-api.service.ts",
+          "location": "line 387",
+          "change": "Update fields parameter from 'id,participants,updated_time' to 'id,participants{id,username,profile_pic},updated_time'",
+          "type": "modify"
+        }
+      ],
+      "dependencies": [],
+      "testing": {
+        "unit": false,
+        "integration": true,
+        "manual": true,
+        "testDescription": "Make API call and verify response includes participant.username and participant.profile_pic"
+      },
+      "problemsAddressed": ["PROB-001", "PROB-003"],
+      "rollbackPlan": "Revert fields parameter to original value"
+    },
+    {
+      "taskId": "TASK-002",
+      "title": "Update Instagram sync to save participant data to database",
+      "priority": "critical",
+      "estimatedHours": 2,
+      "phase": "phase1",
+      "description": "Modify conversation sync/creation logic to extract and save participant username and profile_pic from Instagram API response",
+      "acceptanceCriteria": [
+        "Webhook handler extracts username and profile_pic from API response",
+        "Conversation entity is updated with participant data during creation",
+        "Database saves participantUsername and participantProfilePic correctly"
+      ],
+      "files": [
+        "backend/src/modules/instagram/handlers/webhook-message.handler.ts",
+        "backend/src/modules/instagram/processors/instagram-webhooks.processor.ts"
+      ],
+      "specificChanges": [
+        {
+          "file": "backend/src/modules/instagram/handlers/webhook-message.handler.ts",
+          "location": "findOrCreateConversation method (line 280-314)",
+          "change": "After creating conversation, call getConversations API to fetch participant data and update conversation",
+          "type": "modify"
+        }
+      ],
+      "dependencies": ["TASK-001"],
+      "testing": {
+        "unit": true,
+        "integration": true,
+        "manual": true,
+        "testDescription": "Trigger webhook with new message, verify conversation has participantUsername and participantProfilePic in database"
+      },
+      "problemsAddressed": ["PROB-001", "PROB-003"],
+      "rollbackPlan": "Keep conversation creation as-is, enrichment can be added later"
+    },
+    {
+      "taskId": "TASK-003",
+      "title": "Add migration to enrich existing conversations",
+      "priority": "critical",
+      "estimatedHours": 1.5,
+      "phase": "phase1",
+      "description": "Create migration script or endpoint to enrich all existing conversations that lack participant data",
+      "acceptanceCriteria": [
+        "Script/endpoint fetches all conversations with null participantUsername",
+        "Calls Instagram API to get participant data for each",
+        "Updates conversations in database",
+        "Handles API rate limits and errors gracefully"
+      ],
+      "files": [
+        "backend/src/modules/messaging/services/conversation.service.ts",
+        "backend/src/database/migrations/[timestamp]-enrich-conversations.ts"
+      ],
+      "specificChanges": [
+        {
+          "file": "backend/src/modules/messaging/services/conversation.service.ts",
+          "location": "new method",
+          "change": "Add enrichAllConversations method that processes conversations in batches",
+          "type": "add"
+        }
+      ],
+      "dependencies": ["TASK-001", "TASK-002"],
+      "testing": {
+        "unit": false,
+        "integration": true,
+        "manual": true,
+        "testDescription": "Run migration, verify all conversations now have participant data"
+      },
+      "problemsAddressed": ["PROB-001", "PROB-003"],
+      "rollbackPlan": "No rollback needed - enrichment doesn't break existing data"
+    },
+    {
+      "taskId": "TASK-004",
+      "title": "Pass conversation prop to MessageThread component",
+      "priority": "critical",
+      "estimatedHours": 0.5,
+      "phase": "phase2",
+      "description": "Update MessageThread to accept conversation prop and display participant info in header",
+      "acceptanceCriteria": [
+        "MessageThreadProps includes conversation?: Conversation",
+        "inbox/page.tsx passes selectedConversation to MessageThread",
+        "Header displays conversation.participantUsername instead of 'Unknown User'",
+        "Header displays conversation.participantProfilePic instead of placeholder"
+      ],
+      "files": [
+        "frontend/src/components/messages/MessageThread.tsx",
+        "frontend/src/app/(dashboard)/inbox/page.tsx"
+      ],
+      "specificChanges": [
+        {
+          "file": "frontend/src/components/messages/MessageThread.tsx",
+          "location": "interface MessageThreadProps (line 11)",
+          "change": "Add conversation?: Conversation to props",
+          "type": "modify"
+        },
+        {
+          "file": "frontend/src/components/messages/MessageThread.tsx",
+          "location": "component header section",
+          "change": "Replace 'Unknown User' with conversation?.participantUsername || 'Unknown User'",
+          "type": "modify"
+        },
+        {
+          "file": "frontend/src/app/(dashboard)/inbox/page.tsx",
+          "location": "MessageThread component usage (line ~70)",
+          "change": "Add conversation={selectedConversation} prop",
+          "type": "modify"
+        }
+      ],
+      "dependencies": [],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Open conversation, verify header shows correct username and profile picture"
+      },
+      "problemsAddressed": ["PROB-002"],
+      "rollbackPlan": "Remove conversation prop, revert to 'Unknown User' fallback"
+    },
+    {
+      "taskId": "TASK-005",
+      "title": "Verify ConversationList renders participant data correctly",
+      "priority": "critical",
+      "estimatedHours": 0.5,
+      "phase": "phase2",
+      "description": "Ensure ConversationList component properly displays username and profile pic once backend provides data",
+      "acceptanceCriteria": [
+        "ConversationList shows participantUsername (not empty @)",
+        "ConversationList shows participantProfilePic (not placeholder)",
+        "No console errors related to missing data"
+      ],
+      "files": [
+        "frontend/src/components/messages/ConversationList.tsx"
+      ],
+      "specificChanges": [
+        {
+          "file": "frontend/src/components/messages/ConversationList.tsx",
+          "location": "lines 62-82",
+          "change": "Add fallback for missing data: participantUsername || 'Loading...' and placeholder avatar",
+          "type": "modify"
+        }
+      ],
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Load inbox, verify all conversations show usernames and profile pictures"
+      },
+      "problemsAddressed": ["PROB-001", "PROB-003"],
+      "rollbackPlan": "Component already handles missing data with fallbacks"
+    },
+    {
+      "taskId": "TASK-006",
+      "title": "Add error handling and logging to useSendMessage mutation",
+      "priority": "critical",
+      "estimatedHours": 1,
+      "phase": "phase3",
+      "description": "Add onError handler to useSendMessage to capture and display errors when message sending fails",
+      "acceptanceCriteria": [
+        "useSendMessage has onError handler configured",
+        "Errors are logged to console with full details",
+        "User sees toast/notification with error message",
+        "24-hour window errors are handled with specific message"
+      ],
+      "files": [
+        "frontend/src/lib/hooks/useMessaging.ts",
+        "frontend/src/app/(dashboard)/inbox/page.tsx"
+      ],
+      "specificChanges": [
+        {
+          "file": "frontend/src/app/(dashboard)/inbox/page.tsx",
+          "location": "useSendMessage call (line ~85)",
+          "change": "Add onError handler to log and display error via toast",
+          "type": "modify"
+        }
+      ],
+      "dependencies": [],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Trigger various error scenarios (24h window, network error) and verify errors are displayed"
+      },
+      "problemsAddressed": ["PROB-004"],
+      "rollbackPlan": "Remove onError handler if it causes issues"
+    },
+    {
+      "taskId": "TASK-007",
+      "title": "Debug message sending flow with browser DevTools",
+      "priority": "critical",
+      "estimatedHours": 1,
+      "phase": "phase3",
+      "description": "Use browser to test message sending and identify exact failure point (mutation, API call, backend)",
+      "acceptanceCriteria": [
+        "Identify if POST request is made to backend",
+        "Identify response code and error message if any",
+        "Determine if issue is 24-hour window, permissions, or other",
+        "Document exact error in investigation findings"
+      ],
+      "files": [],
+      "specificChanges": [],
+      "dependencies": ["TASK-006"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Open inbox in browser, open DevTools Network tab, try to send message, capture request/response"
+      },
+      "problemsAddressed": ["PROB-004"],
+      "rollbackPlan": "N/A - debugging task"
+    },
+    {
+      "taskId": "TASK-008",
+      "title": "Fix identified message sending issue",
+      "priority": "critical",
+      "estimatedHours": 2,
+      "phase": "phase3",
+      "description": "Based on TASK-007 findings, implement fix for message sending (24h window handling, error display, or other)",
+      "acceptanceCriteria": [
+        "Root cause identified in TASK-007 is fixed",
+        "Messages send successfully when within 24h window",
+        "Clear error shown when outside 24h window",
+        "Sent messages appear in thread immediately"
+      ],
+      "files": [
+        "backend/src/modules/messaging/services/messaging.service.ts",
+        "frontend/src/app/(dashboard)/inbox/page.tsx"
+      ],
+      "specificChanges": [
+        {
+          "file": "To be determined based on TASK-007 findings",
+          "location": "TBD",
+          "change": "TBD",
+          "type": "modify"
+        }
+      ],
+      "dependencies": ["TASK-007"],
+      "testing": {
+        "unit": false,
+        "integration": true,
+        "manual": true,
+        "testDescription": "Send message in conversation within 24h window, verify it appears in thread"
+      },
+      "problemsAddressed": ["PROB-004"],
+      "rollbackPlan": "Revert changes made in this task"
+    },
+    {
+      "taskId": "TASK-009",
+      "title": "Update webhook handler to capture repliedToMessageId from Instagram",
+      "priority": "high",
+      "estimatedHours": 1.5,
+      "phase": "phase4",
+      "description": "Modify webhook message handler to extract reply_to.mid from Instagram payload and map to repliedToMessageId",
+      "acceptanceCriteria": [
+        "Handler extracts reply_to.mid from message payload",
+        "Looks up original message in database by platformMessageId",
+        "Sets repliedToMessageId on new Message entity",
+        "Handles case where original message doesn't exist yet"
+      ],
+      "files": [
+        "backend/src/modules/instagram/handlers/webhook-message.handler.ts"
+      ],
+      "specificChanges": [
+        {
+          "file": "backend/src/modules/instagram/handlers/webhook-message.handler.ts",
+          "location": "processMessageEvent method (line 137-152)",
+          "change": "Before creating Message, if payload.message.reply_to exists, find original message and set repliedToMessageId",
+          "type": "modify"
+        }
+      ],
+      "dependencies": [],
+      "testing": {
+        "unit": true,
+        "integration": true,
+        "manual": true,
+        "testDescription": "Send reply message via Instagram, trigger webhook, verify repliedToMessageId is set in database"
+      },
+      "problemsAddressed": ["PROB-005"],
+      "rollbackPlan": "Remove repliedToMessageId mapping logic"
+    },
+    {
+      "taskId": "TASK-010",
+      "title": "Add method to backfill repliedToMessageId for existing messages",
+      "priority": "high",
+      "estimatedHours": 1,
+      "phase": "phase4",
+      "description": "Create utility to parse metadata.replyTo and populate repliedToMessageId for historical messages",
+      "acceptanceCriteria": [
+        "Method reads all messages with metadata.replyTo but null repliedToMessageId",
+        "Looks up original message by platformMessageId from metadata.replyTo",
+        "Updates message with correct repliedToMessageId",
+        "Handles messages where original doesn't exist"
+      ],
+      "files": [
+        "backend/src/modules/messaging/services/messaging.service.ts"
+      ],
+      "specificChanges": [
+        {
+          "file": "backend/src/modules/messaging/services/messaging.service.ts",
+          "location": "new method",
+          "change": "Add backfillReplyReferences method",
+          "type": "add"
+        }
+      ],
+      "dependencies": ["TASK-009"],
+      "testing": {
+        "unit": false,
+        "integration": true,
+        "manual": true,
+        "testDescription": "Run backfill, verify existing reply messages now have repliedToMessageId populated"
+      },
+      "problemsAddressed": ["PROB-005"],
+      "rollbackPlan": "No rollback needed - doesn't break existing data"
+    },
+    {
+      "taskId": "TASK-011",
+      "title": "Verify QuotedMessage component displays correctly",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "phase": "phase4",
+      "description": "Test that QuotedMessage component properly renders when repliedToMessage data exists",
+      "acceptanceCriteria": [
+        "Reply messages show QuotedMessage component",
+        "Original message text is visible in quote",
+        "Quote styling is distinct from main message",
+        "No console errors"
+      ],
+      "files": [
+        "frontend/src/components/messages/QuotedMessage.tsx"
+      ],
+      "specificChanges": [],
+      "dependencies": ["TASK-009", "TASK-010"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Load conversation with reply messages, verify quoted messages appear correctly"
+      },
+      "problemsAddressed": ["PROB-005"],
+      "rollbackPlan": "N/A - testing task"
+    },
+    {
+      "taskId": "TASK-012",
+      "title": "E2E Test: Verify conversation list shows usernames and photos",
+      "priority": "high",
+      "estimatedHours": 1,
+      "phase": "phase5",
+      "description": "End-to-end test via browser automation to verify all critical fixes work in production",
+      "acceptanceCriteria": [
+        "All conversations in list show username (not empty @)",
+        "All conversations show profile picture (not placeholder)",
+        "Data loads within 2 seconds"
+      ],
+      "files": [],
+      "specificChanges": [],
+      "dependencies": ["TASK-001", "TASK-002", "TASK-003", "TASK-005"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Use browser automation to load inbox and verify all conversation data"
+      },
+      "problemsAddressed": ["PROB-001", "PROB-003"],
+      "rollbackPlan": "N/A - testing task"
+    },
+    {
+      "taskId": "TASK-013",
+      "title": "E2E Test: Verify conversation header shows correct user",
+      "priority": "high",
+      "estimatedHours": 0.5,
+      "phase": "phase5",
+      "description": "Test that opening a conversation shows correct participant info in header",
+      "acceptanceCriteria": [
+        "Header shows participantUsername (not 'Unknown User')",
+        "Header shows profile picture",
+        "Info matches conversation list"
+      ],
+      "files": [],
+      "specificChanges": [],
+      "dependencies": ["TASK-004"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Click conversation, verify header shows correct data"
+      },
+      "problemsAddressed": ["PROB-002"],
+      "rollbackPlan": "N/A - testing task"
+    },
+    {
+      "taskId": "TASK-014",
+      "title": "E2E Test: Verify message sending works",
+      "priority": "critical",
+      "estimatedHours": 1,
+      "phase": "phase5",
+      "description": "Test that sending a message works and message appears in thread",
+      "acceptanceCriteria": [
+        "Can type message in input",
+        "Send button is enabled",
+        "Clicking send triggers POST request",
+        "Message appears in thread within 2 seconds",
+        "Input is cleared after send"
+      ],
+      "files": [],
+      "specificChanges": [],
+      "dependencies": ["TASK-006", "TASK-007", "TASK-008"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Send test message, verify it appears in thread"
+      },
+      "problemsAddressed": ["PROB-004"],
+      "rollbackPlan": "N/A - testing task"
+    },
+    {
+      "taskId": "TASK-015",
+      "title": "E2E Test: Verify reply messages show quoted context",
+      "priority": "medium",
+      "estimatedHours": 0.5,
+      "phase": "phase5",
+      "description": "Test that reply messages display QuotedMessage component with original message",
+      "acceptanceCriteria": [
+        "Messages that are replies show quoted original message",
+        "Quote is visually distinct",
+        "Quote shows correct content from original"
+      ],
+      "files": [],
+      "specificChanges": [],
+      "dependencies": ["TASK-009", "TASK-010", "TASK-011"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Load conversation with replies, verify quoted messages appear"
+      },
+      "problemsAddressed": ["PROB-005"],
+      "rollbackPlan": "N/A - testing task"
+    },
+    {
+      "taskId": "TASK-016",
+      "title": "E2E Test: Verify attachments are clickable and open modal",
+      "priority": "medium",
+      "estimatedHours": 0.5,
+      "phase": "phase5",
+      "description": "Test that clicking attachment opens modal with full-size view",
+      "acceptanceCriteria": [
+        "Attachments render in messages",
+        "Clicking attachment opens modal",
+        "Modal shows full-size media",
+        "Modal can be closed"
+      ],
+      "files": [],
+      "specificChanges": [],
+      "dependencies": [],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": true,
+        "testDescription": "Click attachment in message, verify modal opens"
+      },
+      "problemsAddressed": ["PROB-006"],
+      "rollbackPlan": "N/A - testing task"
+    },
+    {
+      "taskId": "TASK-017",
+      "title": "Update documentation with fixes and architecture decisions",
+      "priority": "medium",
+      "estimatedHours": 1,
+      "phase": "phase6",
+      "description": "Document all fixes, API changes, and architectural decisions made during this feature",
+      "acceptanceCriteria": [
+        "README updated with Instagram API field requirements",
+        "Migration notes for enriching existing conversations",
+        "Known limitations documented (24h window, etc)",
+        "Architecture decisions recorded"
+      ],
+      "files": [
+        "backend/README.md",
+        "frontend/README.md",
+        ".claude/artifacts/FEAT-2025-20251103171956/04-delivery/implementation-summary.md"
+      ],
+      "specificChanges": [
+        {
+          "file": ".claude/artifacts/FEAT-2025-20251103171956/04-delivery/implementation-summary.md",
+          "location": "new file",
+          "change": "Create comprehensive implementation summary",
+          "type": "add"
+        }
+      ],
+      "dependencies": ["TASK-012", "TASK-013", "TASK-014", "TASK-015", "TASK-016"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": false,
+        "testDescription": "N/A"
+      },
+      "problemsAddressed": ["ALL"],
+      "rollbackPlan": "N/A - documentation task"
+    },
+    {
+      "taskId": "TASK-018",
+      "title": "Create deployment checklist and post-deployment verification",
+      "priority": "medium",
+      "estimatedHours": 0.5,
+      "phase": "phase6",
+      "description": "Prepare deployment checklist and verification steps for production",
+      "acceptanceCriteria": [
+        "Pre-deployment checklist created",
+        "Database migration steps documented",
+        "Post-deployment verification steps defined",
+        "Rollback plan documented"
+      ],
+      "files": [
+        ".claude/artifacts/FEAT-2025-20251103171956/04-delivery/deployment-checklist.md"
+      ],
+      "specificChanges": [
+        {
+          "file": ".claude/artifacts/FEAT-2025-20251103171956/04-delivery/deployment-checklist.md",
+          "location": "new file",
+          "change": "Create deployment checklist",
+          "type": "add"
+        }
+      ],
+      "dependencies": ["TASK-017"],
+      "testing": {
+        "unit": false,
+        "integration": false,
+        "manual": false,
+        "testDescription": "N/A"
+      },
+      "problemsAddressed": ["ALL"],
+      "rollbackPlan": "N/A - documentation task"
+    }
+  ]
+}
