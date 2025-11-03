@@ -104,11 +104,11 @@ async function bootstrap() {
               timestamp: log.created_at,
             } as any;
 
-            // Find client account ID from the entry.id or recipient.id
+            // Find client account ID from the entry.id
             // We need to find which client account this webhook belongs to
             const clientAccounts = await database.query(
               `SELECT id FROM client_accounts
-               WHERE platform_account_id = $1 OR instagram_account_id = $1
+               WHERE platform_account_id = $1
                LIMIT 1`,
               [entry.id],
             );
