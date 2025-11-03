@@ -5,6 +5,8 @@ import {
   Message,
   MessageType,
   SenderType,
+  Attachment,
+  AttachmentType,
 } from '../../../domain/entities/message.entity';
 
 @Injectable()
@@ -101,8 +103,8 @@ export class MessageRepository implements IMessageRepository {
         id, conversation_id, platform_message_id, sender_type,
         sender_platform_id, message_type, content, media_url,
         media_type, is_read, sent_at, delivered_at, read_at,
-        metadata, created_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        metadata, created_at, replied_to_message_id, attachments
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
       RETURNING *`,
       [
         data.id,
@@ -120,6 +122,8 @@ export class MessageRepository implements IMessageRepository {
         data.readAt,
         JSON.stringify(data.metadata),
         data.createdAt,
+        data.repliedToMessageId,
+        JSON.stringify(data.attachments),
       ],
     );
 
@@ -237,6 +241,19 @@ export class MessageRepository implements IMessageRepository {
    * Convert database row to domain entity
    */
   private toDomain(row: any): Message {
+    // Parse attachments from JSONB
+    let attachments: Attachment[] | undefined;
+    if (row.attachments) {
+      try {
+        const parsed = typeof row.attachments === 'string'
+          ? JSON.parse(row.attachments)
+          : row.attachments;
+        attachments = Array.isArray(parsed) && parsed.length > 0 ? parsed : undefined;
+      } catch {
+        attachments = undefined;
+      }
+    }
+
     return Message.reconstitute({
       id: row.id,
       conversationId: row.conversation_id,
@@ -253,6 +270,8 @@ export class MessageRepository implements IMessageRepository {
       readAt: row.read_at,
       metadata: row.metadata || {},
       createdAt: row.created_at,
+      repliedToMessageId: row.replied_to_message_id,
+      attachments,
     });
   }
 }

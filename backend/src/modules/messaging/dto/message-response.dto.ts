@@ -1,4 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { AttachmentDto } from './attachment.dto';
+import { RepliedMessageDto } from './replied-message.dto';
 
 export enum MessageSenderType {
   USER = 'user',
@@ -42,4 +44,17 @@ export class MessageResponseDto {
     example: false,
   })
   isRead!: boolean;
+
+  @ApiPropertyOptional({
+    description: 'The message being replied to (if this is a reply)',
+    type: () => RepliedMessageDto,
+  })
+  repliedToMessage?: RepliedMessageDto;
+
+  @ApiPropertyOptional({
+    description: 'Array of attachments associated with this message',
+    type: () => [AttachmentDto],
+    example: [],
+  })
+  attachments?: AttachmentDto[];
 }

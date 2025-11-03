@@ -1,0 +1,19 @@
+{
+  "taskId": "TASK-002",
+  "phaseId": "P2",
+  "title": "Create ConversationService.enrichParticipantProfile method",
+  "description": "Add method to enrich conversation with participant profile data from Instagram with graceful fallback",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 3,
+  "dependencies": ["TASK-001"],
+  "files": ["backend/src/modules/messaging/services/conversation.service.ts"],
+  "dod": [
+    "Method enrichParticipantProfile(conversationId, accountId) created",
+    "Fetches profile via InstagramApiService",
+    "Updates conversation via repository",
+    "Returns status object {enriched: boolean, error?: string}",
+    "No exception thrown on API failure",
+    "Unit tests with mocks"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "taskId": "TASK-023",
+  "phaseId": "P9",
+  "title": "Write frontend component tests",
+  "description": "Write component tests for QuotedMessage, MediaAttachment, and AttachmentModal. Test rendering with various props, error states, keyboard navigation, and accessibility. Write integration tests for MessageThread with new components.",
+  "category": "testing",
+  "priority": "medium",
+  "estimatedHours": 2.5,
+  "dependencies": ["TASK-021"],
+  "files": [
+    "frontend/src/components/messages/__tests__/QuotedMessage.test.tsx",
+    "frontend/src/components/messages/__tests__/MediaAttachment.test.tsx",
+    "frontend/src/components/messages/__tests__/AttachmentModal.test.tsx",
+    "frontend/src/components/messages/__tests__/MessageThread.test.tsx"
+  ],
+  "dod": [
+    "QuotedMessage test: renders replied message data correctly",
+    "QuotedMessage test: truncates long content to 100 chars",
+    "QuotedMessage test: shows placeholder for deleted message",
+    "MediaAttachment test: renders image thumbnail",
+    "MediaAttachment test: renders video thumbnail",
+    "MediaAttachment test: shows fallback UI on error",
+    "MediaAttachment test: calls onClick when clicked",
+    "AttachmentModal test: opens and closes correctly",
+    "AttachmentModal test: navigates between attachments",
+    "AttachmentModal test: keyboard navigation (arrows, ESC)",
+    "AttachmentModal test: disables navigation for single attachment",
+    "MessageThread test: renders QuotedMessage when repliedToMessage exists",
+    "MessageThread test: renders MediaAttachment components",
+    "MessageThread test: opens modal when thumbnail clicked",
+    "All tests passing with proper coverage"
+  ],
+  "technicalDetails": {
+    "packages": ["@testing-library/react", "@testing-library/jest-dom", "@testing-library/user-event"],
+    "envVars": [],
+    "migrations": null
+  }
+}

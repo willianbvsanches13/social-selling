@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Create database migration for message reply and attachments",
+  "description": "Create SQL migration file to add replied_to_message_id column (UUID, nullable, foreign key to messages.id with ON DELETE SET NULL) and attachments column (JSONB, nullable, default '[]'::jsonb) to messages table. Include index on replied_to_message_id for performance.",
+  "category": "database",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": [],
+  "files": [
+    "backend/migrations/039-add-message-reply-and-attachments.sql"
+  ],
+  "dod": [
+    "Migration file created with proper numbering (039)",
+    "Column replied_to_message_id added as UUID, nullable, with foreign key constraint to messages(id) ON DELETE SET NULL",
+    "Column attachments added as JSONB, nullable, default '[]'::jsonb",
+    "Index created on replied_to_message_id for query performance",
+    "Migration is idempotent with IF NOT EXISTS checks",
+    "Migration includes proper comments explaining the changes"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": "039-add-message-reply-and-attachments"
+  }
+}

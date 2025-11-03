@@ -15,8 +15,18 @@ export class ConversationResponseDto {
   @ApiProperty({
     description: 'Instagram username of the conversation participant',
     example: 'john_doe_official',
+    required: false,
+    nullable: true,
   })
-  participantUsername!: string;
+  participantUsername?: string | null;
+
+  @ApiProperty({
+    description: 'Profile picture URL of the conversation participant',
+    example: 'https://instagram.com/profile/john_doe_official.jpg',
+    required: false,
+    nullable: true,
+  })
+  participantProfilePic?: string | null;
 
   @ApiProperty({
     description: 'Timestamp of the last message in the conversation',

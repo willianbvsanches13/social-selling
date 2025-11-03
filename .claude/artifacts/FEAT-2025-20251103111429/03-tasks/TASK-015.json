@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-015",
+  "phaseId": "P7",
+  "title": "Create AttachmentModal component with Radix Dialog",
+  "description": "Create AttachmentModal.tsx using Radix Dialog primitive. Set up modal structure with open/close state management, dark backdrop overlay, and close button with X icon.",
+  "category": "frontend-components",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-009"],
+  "files": [
+    "frontend/src/components/messages/AttachmentModal.tsx"
+  ],
+  "dod": [
+    "AttachmentModal.tsx created using @radix-ui/react-dialog",
+    "Component accepts open, onClose, attachments, and currentIndex props",
+    "Dialog.Root with open prop controlled externally",
+    "Dialog.Overlay with dark backdrop (bg-black/80)",
+    "Dialog.Content as full-screen container",
+    "Dialog.Close button with X icon (X from lucide-react) in top-right",
+    "Close button has proper ARIA label ('Close modal')",
+    "Component properly typed with TypeScript",
+    "State management for currentIndex if not passed as prop"
+  ],
+  "technicalDetails": {
+    "packages": ["@radix-ui/react-dialog", "lucide-react"],
+    "envVars": [],
+    "migrations": null
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-002",
+  "phaseId": "P1",
+  "title": "Extend Message entity with reply and attachments fields",
+  "description": "Update Message domain entity to include repliedToMessageId (optional string) and attachments (optional Attachment array) in MessageProps interface. Add Attachment interface definition with url, type, and metadata. Update create(), reconstitute(), and toJSON() methods to handle new fields. Add validation logic for attachments (ensure valid URLs and supported types).",
+  "category": "backend-domain",
+  "priority": "critical",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-001"],
+  "files": [
+    "backend/src/domain/entities/message.entity.ts"
+  ],
+  "dod": [
+    "Attachment interface defined with url (string), type (string), and metadata (Record<string, unknown>)",
+    "MessageProps interface includes repliedToMessageId?: string",
+    "MessageProps interface includes attachments?: Attachment[]",
+    "Message.create() method handles repliedToMessageId and attachments with default empty array",
+    "Message.reconstitute() method properly restores new fields",
+    "Message.toJSON() includes repliedToMessageId and attachments in output",
+    "Validation logic added for attachment URLs (basic URL format check)",
+    "Validation logic verifies attachment types (image, video, audio)"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

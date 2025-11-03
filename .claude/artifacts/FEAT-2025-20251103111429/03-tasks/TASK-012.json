@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-012",
+  "phaseId": "P6",
+  "title": "Create MediaAttachment component structure",
+  "description": "Create MediaAttachment.tsx component accepting attachment and onClick props. Set up component structure with TypeScript types, state management for loading/error/loaded states.",
+  "category": "frontend-components",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-009"],
+  "files": [
+    "frontend/src/components/messages/MediaAttachment.tsx"
+  ],
+  "dod": [
+    "MediaAttachment.tsx file created in messages directory",
+    "Component accepts attachment prop of type Attachment",
+    "Component accepts onClick handler prop (onClick?: () => void)",
+    "useState hooks for loading, error, and loaded states",
+    "Component properly typed with TypeScript",
+    "Component exports default",
+    "Basic JSX structure in place"
+  ],
+  "technicalDetails": {
+    "packages": ["react"],
+    "envVars": [],
+    "migrations": null
+  }
+}

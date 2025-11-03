@@ -17,6 +17,9 @@ import {
   MessageType,
   SenderType,
 } from '../../../domain/entities/message.entity';
+import { MessageResponseDto } from '../dto/message-response.dto';
+import { RepliedMessageDto } from '../dto/replied-message.dto';
+import { AttachmentDto } from '../dto/attachment.dto';
 
 @Injectable()
 export class MessagingService {
@@ -105,6 +108,80 @@ export class MessagingService {
     );
 
     return savedMessage;
+  }
+
+  async listMessages(
+    conversationId: string,
+    filters: { limit: number; offset: number },
+  ): Promise<any[]> {
+    const messages = await this.messageRepository.findByConversation(
+      conversationId,
+      filters,
+    );
+
+    // Map messages to DTOs with populated replied messages and attachments
+    const messageDtos = await Promise.all(
+      messages.map(async (message) => {
+        return this.mapMessageToDto(message);
+      }),
+    );
+
+    return messageDtos;
+  }
+
+  private async mapMessageToDto(message: Message): Promise<any> {
+    const messageJson = message.toJSON();
+    const baseDto: any = {
+      ...messageJson,
+      repliedToMessage: undefined,
+      attachments: [],
+    };
+
+    // Populate replied message if exists
+    if (message.repliedToMessageId) {
+      try {
+        const repliedMessage = await this.messageRepository.findById(
+          message.repliedToMessageId,
+        );
+
+        if (repliedMessage) {
+          baseDto.repliedToMessage = this.mapToRepliedMessageDto(repliedMessage);
+        } else {
+          this.logger.warn(
+            `Replied message ${message.repliedToMessageId} not found for message ${message.id}`,
+          );
+          baseDto.repliedToMessage = undefined;
+        }
+      } catch (error) {
+        this.logger.warn(
+          `Error fetching replied message ${message.repliedToMessageId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        );
+        baseDto.repliedToMessage = undefined;
+      }
+    }
+
+    // Map attachments
+    if (message.hasAttachments) {
+      baseDto.attachments = message.attachments.map(
+        (attachment): AttachmentDto => ({
+          url: attachment.url,
+          type: attachment.type,
+          metadata: attachment.metadata,
+        }),
+      );
+    }
+
+    return baseDto;
+  }
+
+  private mapToRepliedMessageDto(message: Message): RepliedMessageDto {
+    return {
+      id: message.id,
+      content: message.content,
+      senderType: message.senderType,
+      mediaUrl: message.toJSON().mediaUrl,
+      sentAt: message.sentAt,
+    };
   }
 
   private async validateResponseWindow(conversationId: string): Promise<void> {

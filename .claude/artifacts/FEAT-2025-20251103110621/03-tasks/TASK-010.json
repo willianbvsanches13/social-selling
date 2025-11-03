@@ -1,0 +1,12 @@
+{
+  "taskId": "TASK-010",
+  "phaseId": "P8",
+  "title": "Update documentation and add monitoring logs",
+  "description": "Document feature and add observability",
+  "category": "documentation",
+  "priority": "low",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-007", "TASK-008"],
+  "files": ["README.md", "backend/src/modules/instagram/services/instagram-api.service.ts"],
+  "dod": ["README updated", "Swagger docs complete", "Structured logs added"]
+}

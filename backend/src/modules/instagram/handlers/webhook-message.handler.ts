@@ -12,6 +12,7 @@ import {
   SenderType,
 } from '../../../domain/entities/message.entity';
 import { InstagramWebhookEvent } from '../../../domain/entities/instagram-webhook-event.entity';
+import { ConversationService } from '../../messaging/services/conversation.service';
 
 export interface MessageEventPayload {
   entryId: string; // ID of the Instagram page/account (the owner)
@@ -45,6 +46,7 @@ export class WebhookMessageHandler {
     private readonly messageRepository: IMessageRepository,
     @Inject('IClientAccountRepository')
     private readonly clientAccountRepository: IClientAccountRepository,
+    private readonly conversationService: ConversationService,
   ) {}
 
   async processMessageEvent(
@@ -89,6 +91,35 @@ export class WebhookMessageHandler {
         participantPlatformId,
         pageId,
       );
+
+      // Enrich participant profile if missing
+      if (!conversation.participantUsername || !conversation.participantProfilePic) {
+        this.logger.log(
+          `Attempting to enrich participant profile for conversation ${conversation.id}`,
+        );
+
+        // Call enrichment in background - don't await to avoid blocking message processing
+        this.conversationService
+          .enrichParticipantProfile(conversation.id, clientAccountId)
+          .then((result) => {
+            if (result.enriched) {
+              this.logger.log(
+                `Successfully enriched participant profile for conversation ${conversation.id}`,
+              );
+            } else {
+              this.logger.debug(
+                `Participant profile enrichment skipped or failed for conversation ${conversation.id}: ${result.error}`,
+              );
+            }
+          })
+          .catch((error) => {
+            const errorMessage =
+              error instanceof Error ? error.message : String(error);
+            this.logger.warn(
+              `Unexpected error during participant profile enrichment for conversation ${conversation.id}: ${errorMessage}`,
+            );
+          });
+      }
 
       // Determine message type
       const messageType = this.determineMessageType(payload.message);

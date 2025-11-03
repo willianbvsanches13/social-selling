@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-021",
+  "phaseId": "P8",
+  "title": "Integrate MediaAttachment and AttachmentModal into MessageThread",
+  "description": "Update MessageThread to render MediaAttachment components for message attachments. Implement onClick handler to open modal with attachment viewer. Integrate AttachmentModal component with proper state management. Ensure proper spacing and layout for attachments below message content.",
+  "category": "frontend-components",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-020"],
+  "files": [
+    "frontend/src/components/messages/MessageThread.tsx"
+  ],
+  "dod": [
+    "Message mapping checks for message.attachments array",
+    "MediaAttachment components rendered for each attachment",
+    "Attachments displayed below message content",
+    "Multiple attachments shown in grid or flex layout (gap-2)",
+    "onClick handler opens modal with attachments array and clicked index",
+    "AttachmentModal rendered at component root level",
+    "Modal receives open, onClose, attachments, and currentIndex props",
+    "Message bubble max-width adjusted to accommodate thumbnails",
+    "Proper spacing between content and attachments (mt-2 or mt-3)",
+    "No layout shift when modal opens",
+    "Scroll behavior remains stable with modal open"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

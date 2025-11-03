@@ -1,0 +1,12 @@
+{
+  "taskId": "TASK-008",
+  "phaseId": "P7",
+  "title": "Integration tests for webhook enrichment flow",
+  "description": "Test complete webhook → enrichment → DB flow",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-003"],
+  "files": ["backend/src/modules/instagram/handlers/webhook-message.handler.spec.ts"],
+  "dod": ["Tests webhook processing", "Tests enrichment trigger", "Tests DB updates"]
+}

@@ -1,0 +1,38 @@
+{
+  "taskSetId": "TASKS-2025-20251103111006",
+  "featureId": "FEAT-2025-20251103110621",
+  "planId": "PLAN-2025-20251103110818",
+  "timestamp": "2025-11-03T11:10:06Z",
+  "creator": {
+    "agentVersion": "1.0.0",
+    "creationDate": "2025-11-03"
+  },
+  "summary": {
+    "totalTasks": 10,
+    "byCategory": {
+      "backend": 5,
+      "infrastructure": 2,
+      "testing": 2,
+      "documentation": 1
+    },
+    "byPriority": {
+      "critical": 3,
+      "high": 4,
+      "medium": 2,
+      "low": 1
+    }
+  },
+  "executionOrder": [
+    "TASK-001",
+    "TASK-002",
+    "TASK-003",
+    "TASK-004",
+    "TASK-005",
+    "TASK-006",
+    "TASK-007",
+    "TASK-008",
+    "TASK-009",
+    "TASK-010"
+  ],
+  "estimatedTotalHours": 16
+}

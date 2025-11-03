@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-005",
+  "phaseId": "P2",
+  "title": "Update MessageRepository mappers for new fields",
+  "description": "Update toDomain mapper to parse replied_to_message_id and attachments from database records. Update toPersistence mapper to serialize attachments array to JSONB format. Ensure proper null/undefined handling for optional fields.",
+  "category": "backend-repository",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-004"],
+  "files": [
+    "backend/src/infrastructure/database/repositories/message.repository.ts"
+  ],
+  "dod": [
+    "toDomain mapper extracts replied_to_message_id from database row",
+    "toDomain mapper parses attachments JSONB column to Attachment array",
+    "toDomain mapper handles null/undefined for both new fields correctly",
+    "toPersistence mapper includes repliedToMessageId in persistence object",
+    "toPersistence mapper serializes attachments array to JSONB format",
+    "All existing mapper functionality remains intact",
+    "Null safety checks in place for optional fields"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

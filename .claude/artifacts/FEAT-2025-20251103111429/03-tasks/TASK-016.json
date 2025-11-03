@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-016",
+  "phaseId": "P7",
+  "title": "Implement AttachmentModal media rendering",
+  "description": "Implement image and video rendering inside modal with proper sizing constraints. Add loading state with spinner for large media files. Implement progressive image loading with blur placeholder.",
+  "category": "frontend-components",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-015"],
+  "files": [
+    "frontend/src/components/messages/AttachmentModal.tsx"
+  ],
+  "dod": [
+    "Image rendering: img element with max-width: 90vw, max-height: 90vh",
+    "Video rendering: video element with native controls, same max dimensions",
+    "Object-fit: contain to preserve aspect ratio",
+    "Loading state: Loader2 icon with spin animation from lucide-react",
+    "Loading state shown while media loading (useState for isLoading)",
+    "onLoad handler sets isLoading to false",
+    "Progressive loading: blur placeholder or skeleton while loading",
+    "Media centered in modal (flex items-center justify-center)",
+    "Handle attachment type check (image vs video) properly"
+  ],
+  "technicalDetails": {
+    "packages": ["lucide-react"],
+    "envVars": [],
+    "migrations": null
+  }
+}

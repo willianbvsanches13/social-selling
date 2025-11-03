@@ -1,0 +1,12 @@
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Add Redis cache to InstagramApiService.getUserProfileById",
+  "description": "Implement cache-aside pattern with 24h TTL",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 2,
+  "dependencies": [],
+  "files": ["backend/src/modules/instagram/services/instagram-api.service.ts"],
+  "dod": ["Cache checks before API", "24h TTL", "Logs hits/misses", "Unit tests"]
+}

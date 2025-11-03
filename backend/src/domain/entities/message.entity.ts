@@ -14,6 +14,19 @@ export enum SenderType {
   CUSTOMER = 'customer',
 }
 
+export enum AttachmentType {
+  IMAGE = 'image',
+  VIDEO = 'video',
+  AUDIO = 'audio',
+  DOCUMENT = 'document',
+}
+
+export interface Attachment {
+  url: string;
+  type: AttachmentType;
+  metadata: Record<string, unknown>;
+}
+
 export interface MessageProps {
   id: string;
   conversationId: string;
@@ -30,6 +43,8 @@ export interface MessageProps {
   readAt?: Date;
   metadata: Record<string, unknown>;
   createdAt: Date;
+  repliedToMessageId?: string;
+  attachments?: Attachment[];
 }
 
 export class Message {
@@ -48,6 +63,7 @@ export class Message {
       id: crypto.randomUUID(),
       isRead: false,
       metadata: props.metadata || {},
+      attachments: props.attachments || [],
       createdAt: new Date(),
     });
   }
@@ -68,6 +84,40 @@ export class Message {
       throw new DomainException(
         `${this.props.messageType} messages must have media URL`,
       );
+    }
+
+    // Validate attachments if present
+    if (this.props.attachments && this.props.attachments.length > 0) {
+      for (const attachment of this.props.attachments) {
+        this.validateAttachment(attachment);
+      }
+    }
+  }
+
+  private validateAttachment(attachment: Attachment): void {
+    // Validate URL format
+    if (!attachment.url || attachment.url.trim().length === 0) {
+      throw new DomainException('Attachment URL cannot be empty');
+    }
+
+    // Basic URL format validation
+    try {
+      new URL(attachment.url);
+    } catch {
+      throw new DomainException('Attachment URL must be a valid URL');
+    }
+
+    // Validate attachment type
+    const validTypes = Object.values(AttachmentType);
+    if (!validTypes.includes(attachment.type)) {
+      throw new DomainException(
+        `Invalid attachment type. Must be one of: ${validTypes.join(', ')}`,
+      );
+    }
+
+    // Validate metadata
+    if (!attachment.metadata || typeof attachment.metadata !== 'object') {
+      throw new DomainException('Attachment metadata must be an object');
     }
   }
 
@@ -97,6 +147,22 @@ export class Message {
 
   get content(): string | undefined {
     return this.props.content;
+  }
+
+  get repliedToMessageId(): string | undefined {
+    return this.props.repliedToMessageId;
+  }
+
+  get attachments(): Attachment[] {
+    return this.props.attachments || [];
+  }
+
+  get hasAttachments(): boolean {
+    return (this.props.attachments?.length || 0) > 0;
+  }
+
+  get isReply(): boolean {
+    return !!this.props.repliedToMessageId;
   }
 
   markAsRead(): void {
@@ -146,6 +212,8 @@ export class Message {
       readAt: this.props.readAt,
       metadata: this.props.metadata,
       createdAt: this.props.createdAt,
+      repliedToMessageId: this.props.repliedToMessageId,
+      attachments: this.props.attachments || [],
     };
   }
 }

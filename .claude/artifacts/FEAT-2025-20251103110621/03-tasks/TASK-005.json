@@ -1,0 +1,12 @@
+{
+  "taskId": "TASK-005",
+  "phaseId": "P5",
+  "title": "Create CLI command for backfill",
+  "description": "Create backfill-participant-profiles.ts CLI script",
+  "category": "infrastructure",
+  "priority": "high",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-004"],
+  "files": ["backend/src/cli/commands/backfill-participant-profiles.ts", "backend/package.json"],
+  "dod": ["CLI accepts --account-id --batch-size", "Adds job to queue", "npm script added"]
+}

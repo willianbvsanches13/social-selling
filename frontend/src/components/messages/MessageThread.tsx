@@ -1,9 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Check, CheckCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatRelativeTime } from '@/lib/utils/formatters';
 import { cn } from '@/lib/utils/cn';
-import type { Message } from '@/types/message';
+import type { Message, Attachment } from '@/types/message';
+import QuotedMessage from './QuotedMessage';
+import MediaAttachment from './MediaAttachment';
+import AttachmentModal from './AttachmentModal';
 
 interface MessageThreadProps {
   messages: Message[];
@@ -13,6 +16,21 @@ interface MessageThreadProps {
 export function MessageThread({ messages, isLoading }: MessageThreadProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isFirstLoad = useRef(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAttachments, setSelectedAttachments] = useState<Attachment[] | null>(null);
+  const [currentAttachmentIndex, setCurrentAttachmentIndex] = useState(0);
+
+  const handleOpenModal = (attachments: Attachment[], index: number) => {
+    setSelectedAttachments(attachments);
+    setCurrentAttachmentIndex(index);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedAttachments(null);
+    setCurrentAttachmentIndex(0);
+  };
 
   useEffect(() => {
     scrollToBottom();
@@ -74,12 +92,20 @@ export function MessageThread({ messages, isLoading }: MessageThreadProps) {
               <div className={cn('flex', isCurrentUser ? 'justify-end' : 'justify-start')}>
                 <div
                   className={cn(
-                    'max-w-md rounded-lg px-4 py-2',
+                    'max-w-lg rounded-lg px-4 py-2',
                     isCurrentUser
                       ? 'bg-primary text-white'
                       : 'bg-gray-100 text-gray-900'
                   )}
                 >
+                  {/* Render QuotedMessage if this is a reply */}
+                  {message.repliedToMessage && (
+                    <div className="mb-3">
+                      <QuotedMessage repliedMessage={message.repliedToMessage} />
+                    </div>
+                  )}
+
+                  {/* Legacy media URL support */}
                   {message.mediaUrl && (
                     <img
                       src={message.mediaUrl}
@@ -88,7 +114,22 @@ export function MessageThread({ messages, isLoading }: MessageThreadProps) {
                       loading="lazy"
                     />
                   )}
+
+                  {/* Message content */}
                   {message.content && <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>}
+
+                  {/* Render attachments */}
+                  {message.attachments && message.attachments.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {message.attachments.map((attachment, index) => (
+                        <MediaAttachment
+                          key={index}
+                          attachment={attachment}
+                          onClick={() => handleOpenModal(message.attachments!, index)}
+                        />
+                      ))}
+                    </div>
+                  )}
 
                   <div
                     className={cn(
@@ -119,6 +160,16 @@ export function MessageThread({ messages, isLoading }: MessageThreadProps) {
         })}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* AttachmentModal */}
+      {selectedAttachments && (
+        <AttachmentModal
+          open={modalOpen}
+          onClose={handleCloseModal}
+          attachments={selectedAttachments}
+          currentIndex={currentAttachmentIndex}
+        />
+      )}
     </div>
   );
 }

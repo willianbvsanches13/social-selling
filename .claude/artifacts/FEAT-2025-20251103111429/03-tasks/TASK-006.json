@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-006",
+  "phaseId": "P3",
+  "title": "Create DTOs for replied message and attachments",
+  "description": "Define RepliedMessageDto with id, content, senderType, and mediaUrl fields. Define AttachmentDto with url, type, and metadata properties. These DTOs will be used in the API response.",
+  "category": "backend-service",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-005"],
+  "files": [
+    "backend/src/modules/messaging/dto/replied-message.dto.ts",
+    "backend/src/modules/messaging/dto/attachment.dto.ts"
+  ],
+  "dod": [
+    "RepliedMessageDto created with id, content, senderType, mediaUrl, sentAt fields",
+    "AttachmentDto created with url, type, metadata fields",
+    "Both DTOs use proper TypeScript types",
+    "DTOs are exported for use in other modules",
+    "JSDoc comments added to describe DTO purpose"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

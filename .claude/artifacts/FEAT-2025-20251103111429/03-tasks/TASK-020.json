@@ -1,0 +1,27 @@
+{
+  "taskId": "TASK-020",
+  "phaseId": "P8",
+  "title": "Integrate QuotedMessage into MessageThread rendering",
+  "description": "Update MessageThread message rendering to conditionally render QuotedMessage component when message has repliedToMessage data. Position QuotedMessage above message content with proper spacing.",
+  "category": "frontend-components",
+  "priority": "high",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-019"],
+  "files": [
+    "frontend/src/components/messages/MessageThread.tsx"
+  ],
+  "dod": [
+    "Message mapping checks for message.repliedToMessage",
+    "QuotedMessage rendered when repliedToMessage exists",
+    "QuotedMessage positioned above message content in message bubble",
+    "Proper spacing between QuotedMessage and content (mb-2 or mb-3)",
+    "QuotedMessage receives repliedMessage prop",
+    "No visual regression for messages without replies",
+    "Layout maintains message bubble structure"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

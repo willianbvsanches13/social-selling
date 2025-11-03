@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-013",
+  "phaseId": "P6",
+  "title": "Implement MediaAttachment thumbnail rendering",
+  "description": "Implement thumbnail rendering with lazy loading, onError handler for broken media, loading skeleton while media loads. Support both image and video thumbnails. Apply proper CSS for sizing (150-200px), aspect ratio, and clickable hover effects.",
+  "category": "frontend-components",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-012"],
+  "files": [
+    "frontend/src/components/messages/MediaAttachment.tsx"
+  ],
+  "dod": [
+    "Renders img element for image attachments with loading='lazy'",
+    "Renders video element for video attachments with preload='metadata'",
+    "onError handler sets error state when media fails to load",
+    "Loading skeleton shown while isLoading is true (shimmer effect)",
+    "Thumbnail size: 150-200px width/height with max-w-[200px]",
+    "Aspect ratio maintained with aspect-video or aspect-square",
+    "Object-fit: cover applied to prevent distortion",
+    "Border and rounded corners (rounded-md border border-gray-300)",
+    "Hover effect: cursor-pointer, scale transition (hover:scale-105)",
+    "onClick handler triggers when thumbnail clicked",
+    "Error state: proper type checking for video vs image"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

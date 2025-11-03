@@ -1,0 +1,25 @@
+{
+  "taskId": "TASK-007",
+  "phaseId": "P3",
+  "title": "Update MessageResponseDto with new fields",
+  "description": "Extend MessageResponseDto to include repliedToMessage (optional RepliedMessageDto) and attachments (optional AttachmentDto array). Ensure backward compatibility with existing API consumers.",
+  "category": "backend-service",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-006"],
+  "files": [
+    "backend/src/modules/messaging/dto/message-response.dto.ts"
+  ],
+  "dod": [
+    "MessageResponseDto imports RepliedMessageDto and AttachmentDto",
+    "repliedToMessage?: RepliedMessageDto field added",
+    "attachments?: AttachmentDto[] field added",
+    "All existing fields remain unchanged (backward compatible)",
+    "JSDoc comments updated to document new fields"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

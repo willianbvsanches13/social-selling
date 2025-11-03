@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-019",
+  "phaseId": "P8",
+  "title": "Import components and add modal state to MessageThread",
+  "description": "Import QuotedMessage, MediaAttachment, and AttachmentModal components into MessageThread. Add state management for modal (open/close, selected attachment, current index) using useState hooks.",
+  "category": "frontend-components",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-011", "TASK-014", "TASK-018"],
+  "files": [
+    "frontend/src/components/messages/MessageThread.tsx"
+  ],
+  "dod": [
+    "QuotedMessage component imported",
+    "MediaAttachment component imported",
+    "AttachmentModal component imported",
+    "useState hook for modalOpen (boolean)",
+    "useState hook for selectedAttachments (Attachment[] | null)",
+    "useState hook for currentAttachmentIndex (number)",
+    "Handler function to open modal with attachment data",
+    "Handler function to close modal and reset state",
+    "All imports use correct relative paths"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

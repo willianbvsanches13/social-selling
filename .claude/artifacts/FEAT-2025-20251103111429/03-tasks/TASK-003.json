@@ -1,0 +1,24 @@
+{
+  "taskId": "TASK-003",
+  "phaseId": "P2",
+  "title": "Add findById method to IMessageRepository interface",
+  "description": "Extend IMessageRepository interface with findById(id: string): Promise<Message | null> method signature for fetching individual messages by ID. This will be used to retrieve replied messages.",
+  "category": "backend-repository",
+  "priority": "high",
+  "estimatedHours": 0.25,
+  "dependencies": ["TASK-002"],
+  "files": [
+    "backend/src/domain/repositories/message.repository.interface.ts"
+  ],
+  "dod": [
+    "findById method signature added to IMessageRepository",
+    "Method accepts id parameter as string",
+    "Return type is Promise<Message | null>",
+    "JSDoc comment added explaining method purpose and parameters"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

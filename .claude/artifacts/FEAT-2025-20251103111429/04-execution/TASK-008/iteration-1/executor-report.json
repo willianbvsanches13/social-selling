@@ -1,0 +1,46 @@
+{
+  "taskId": "TASK-008",
+  "iteration": 1,
+  "phase": "executor",
+  "status": "success",
+  "timestamp": "2025-11-03T11:30:00Z",
+  "changes": [
+    {
+      "file": "backend/src/modules/messaging/services/messaging.service.ts",
+      "action": "updated",
+      "description": "Added listMessages method that fetches messages and populates replied messages and attachments. Added mapMessageToDto and mapToRepliedMessageDto helper methods."
+    },
+    {
+      "file": "backend/src/modules/messaging/controllers/messaging.controller.ts",
+      "action": "updated",
+      "description": "Updated listMessages endpoint to use the new MessagingService.listMessages method instead of directly accessing the repository."
+    },
+    {
+      "file": "backend/src/modules/messaging/dto/attachment.dto.ts",
+      "action": "updated",
+      "description": "Added definite assignment assertions (!) to properties to fix TypeScript compilation."
+    },
+    {
+      "file": "backend/src/modules/messaging/dto/replied-message.dto.ts",
+      "action": "updated",
+      "description": "Added definite assignment assertions (!) to required properties to fix TypeScript compilation."
+    },
+    {
+      "file": "backend/src/domain/entities/conversation.entity.ts",
+      "action": "updated",
+      "description": "Added participantUsername and participantProfilePic getters to fix unrelated compilation errors."
+    }
+  ],
+  "dodCompleted": [
+    "listMessages iterates through each message to check repliedToMessageId",
+    "When repliedToMessageId exists, calls repository.findById",
+    "Maps replied message to RepliedMessageDto with only essential fields (id, content, senderType, mediaUrl, sentAt)",
+    "Handles missing replied messages gracefully with warning log (no error thrown)",
+    "Sets repliedToMessage to null if original message deleted",
+    "Maps attachments from domain entity to AttachmentDto array",
+    "Response structure includes both new fields",
+    "Performance consideration: batch fetch could be added later if needed"
+  ],
+  "buildStatus": "passed",
+  "notes": "Successfully implemented replied message population. The service now fetches replied messages asynchronously for each message that has a repliedToMessageId. Attachments are mapped from the domain entity to DTOs. Fixed additional TypeScript errors in DTOs and Conversation entity."
+}

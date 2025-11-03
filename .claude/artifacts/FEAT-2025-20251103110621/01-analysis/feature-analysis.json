@@ -1,0 +1,187 @@
+{
+  "featureId": "FEAT-2025-20251103110621",
+  "timestamp": "2025-11-03T11:06:21Z",
+  "analyzer": {
+    "agentVersion": "1.0.0",
+    "analysisDate": "2025-11-03"
+  },
+  "feature": {
+    "title": "Enriquecimento Automático de Perfis de Usuários em Mensagens do Instagram",
+    "description": "Buscar automaticamente informações de perfil dos usuários (nome e foto) quando uma nova mensagem chega via webhook do Instagram e as informações do usuário ainda não existem na conversa. Implementar também um backfill para preencher dados históricos de conversas antigas sem essas informações.",
+    "category": "enhancement",
+    "priority": "high",
+    "businessValue": "Melhorar UX da listagem de mensagens exibindo nome e foto do usuário que enviou cada mensagem, proporcionando contexto visual e identificação rápida dos participantes"
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Quando uma nova mensagem chegar via webhook do Instagram, verificar se a conversa possui informações do participante (participantUsername e participantProfilePic)",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Se as informações do participante estiverem ausentes, buscar dados do perfil do Instagram via API Graph (username e profile_picture_url)",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Atualizar a entidade Conversation com os dados do perfil obtidos (participantUsername e participantProfilePic)",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "Implementar um comando CLI/script de backfill para processar conversas antigas que não possuem dados de perfil dos participantes",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "Na listagem de mensagens, retornar informações de perfil do usuário (nome e foto) junto com os dados da mensagem",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-006",
+        "description": "Implementar cache das informações de perfil do usuário para evitar chamadas desnecessárias à API do Instagram",
+        "priority": "should-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "performance",
+        "description": "Busca de perfil do usuário não deve adicionar mais de 500ms ao processamento do webhook de mensagem"
+      },
+      {
+        "id": "NFR-002",
+        "type": "scalability",
+        "description": "Backfill deve processar lotes de conversas (batch processing) para evitar sobrecarga de memória e API rate limiting"
+      },
+      {
+        "id": "NFR-003",
+        "type": "reliability",
+        "description": "Falhas na busca de perfil não devem impedir o processamento da mensagem (graceful degradation)"
+      },
+      {
+        "id": "NFR-004",
+        "type": "performance",
+        "description": "Sistema de cache com TTL de 24h para informações de perfil, reduzindo chamadas à API do Instagram"
+      },
+      {
+        "id": "NFR-005",
+        "type": "observability",
+        "description": "Logs detalhados de sucesso/falha na busca de perfis e métricas de cache hits/misses"
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "instagram (webhook-message.handler.ts)",
+      "instagram (instagram-api.service.ts)",
+      "messaging (conversation.service.ts)",
+      "messaging (messaging.controller.ts)",
+      "domain/entities (conversation.entity.ts)",
+      "infrastructure/database (conversation.repository.ts)",
+      "workers (backfill-participant-profiles.processor.ts - JÁ EXISTE)",
+      "cli (scripts/backfill-conversations.ts)"
+    ],
+    "databases": [
+      "postgres-conversations (já tem colunas participant_username e participant_profile_pic)"
+    ],
+    "externalServices": [
+      "Instagram Graph API (para buscar perfil do usuário)",
+      "Redis (para cache de perfis)"
+    ],
+    "estimatedComplexity": "medium"
+  },
+  "technicalContext": {
+    "existingImplementation": {
+      "conversationEntity": "Já possui método updateParticipantProfile(username, profilePic) e campos participantUsername/participantProfilePic",
+      "instagramApiService": "Já possui método getUserProfileById para buscar perfil de usuário do Instagram",
+      "backfillProcessor": "Já existe BackfillParticipantProfilesProcessor com lógica completa de busca em lote e retry",
+      "cacheService": "RedisService já está disponível e configurado",
+      "webhookHandler": "WebhookMessageHandler processa mensagens mas não busca perfil ainda"
+    },
+    "integrationPoints": [
+      "webhook-message.handler.ts:processMessageEvent() - adicionar lógica de busca de perfil após criar/encontrar conversa",
+      "conversation.service.ts - adicionar método para buscar/enriquecer perfil do participante",
+      "messaging.controller.ts - garantir que endpoints retornem dados de perfil na resposta",
+      "CLI script - criar comando para triggerar backfill job"
+    ]
+  },
+  "dependencies": [
+    {
+      "type": "feature",
+      "name": "Conversation entity with participant profile fields",
+      "action": "extend",
+      "status": "already-implemented"
+    },
+    {
+      "type": "service",
+      "name": "InstagramApiService.getUserProfileById()",
+      "action": "integrate",
+      "status": "already-implemented"
+    },
+    {
+      "type": "processor",
+      "name": "BackfillParticipantProfilesProcessor",
+      "action": "integrate",
+      "status": "already-implemented"
+    },
+    {
+      "type": "library",
+      "name": "RedisService for caching",
+      "action": "integrate",
+      "status": "available"
+    },
+    {
+      "type": "configuration",
+      "name": "BullMQ queue for backfill jobs",
+      "action": "configure"
+    }
+  },
+  "risks": [
+    {
+      "description": "Rate limiting da API do Instagram pode causar falhas na busca de perfis em larga escala durante backfill",
+      "severity": "medium",
+      "mitigation": "Implementar rate limiter com backoff exponencial (já existe InstagramRateLimiter), processar em lotes pequenos com delays"
+    },
+    {
+      "description": "Usuários com perfis privados ou deletados podem retornar null ou erro da API",
+      "severity": "low",
+      "mitigation": "Tratamento de erro gracioso (não bloquear mensagem), logar casos de perfil não encontrado, permitir reprocessamento futuro"
+    },
+    {
+      "description": "Cache desatualizado pode mostrar foto/nome antigo do usuário",
+      "severity": "low",
+      "mitigation": "TTL de 24h no cache, permitir invalidação manual se necessário"
+    },
+    {
+      "description": "Aumento de latência no webhook de mensagem devido à chamada extra de API",
+      "severity": "medium",
+      "mitigation": "Implementar busca assíncrona opcional (processar mensagem primeiro, enriquecer depois) ou verificar cache antes de chamar API"
+    }
+  ],
+  "technicalDecisions": [
+    {
+      "decision": "Usar BackfillParticipantProfilesProcessor existente ao invés de criar novo worker",
+      "rationale": "Código já implementado, testado e segue padrões do projeto. Evita duplicação."
+    },
+    {
+      "decision": "Buscar perfil de forma síncrona durante processamento do webhook, com fallback gracioso",
+      "rationale": "Melhor UX imediata. Se falhar, mensagem é processada normalmente e backfill pode preencher depois."
+    },
+    {
+      "decision": "Implementar cache em Redis com TTL de 24h para perfis",
+      "rationale": "Reduz drasticamente chamadas à API do Instagram, melhora performance, respeita rate limits."
+    },
+    {
+      "decision": "Backfill processará apenas conversas com participant_username NULL",
+      "rationale": "Evita reprocessamento desnecessário, otimiza uso de recursos e API calls."
+    },
+    {
+      "decision": "Criar comando CLI npm run backfill:participant-profiles que dispara job do BullMQ",
+      "rationale": "Permite execução manual ou agendada via cron, usa infraestrutura de workers já existente."
+    }
+  ],
+  "nextAgent": "planner"
+}

@@ -1,0 +1,412 @@
+{
+  "planId": "PLAN-2025-20251103110818",
+  "featureId": "FEAT-2025-20251103110621",
+  "timestamp": "2025-11-03T11:08:18Z",
+  "planner": {
+    "agentVersion": "1.0.0",
+    "planningDate": "2025-11-03"
+  },
+  "architecture": {
+    "approach": "layered-architecture",
+    "description": "Integração de enriquecimento de perfil no fluxo webhook-handler → service → repository, com worker BullMQ para backfill, seguindo padrão NestJS Domain-Driven com inversão de dependências",
+    "patterns": [
+      "Repository Pattern",
+      "Service Pattern",
+      "DTO Pattern",
+      "Dependency Injection",
+      "Worker Queue Pattern",
+      "Cache-Aside Pattern",
+      "Graceful Degradation"
+    ],
+    "components": [
+      {
+        "name": "ConversationService.enrichParticipantProfile()",
+        "type": "backend-service-method",
+        "action": "create",
+        "technology": "NestJS",
+        "description": "Método para buscar e atualizar perfil do participante com cache e fallback gracioso",
+        "location": "backend/src/modules/messaging/services/conversation.service.ts"
+      },
+      {
+        "name": "WebhookMessageHandler.processMessageEvent() - integration",
+        "type": "handler-method-enhancement",
+        "action": "modify",
+        "technology": "NestJS",
+        "description": "Adicionar chamada para enriquecer perfil após findOrCreateConversation se dados faltando",
+        "location": "backend/src/modules/instagram/handlers/webhook-message.handler.ts"
+      },
+      {
+        "name": "InstagramApiService - cache layer",
+        "type": "service-enhancement",
+        "action": "modify",
+        "technology": "NestJS + Redis",
+        "description": "Adicionar cache em getUserProfileById com TTL 24h via RedisService",
+        "location": "backend/src/modules/instagram/services/instagram-api.service.ts"
+      },
+      {
+        "name": "BackfillParticipantProfilesProcessor - integration",
+        "type": "worker-integration",
+        "action": "integrate",
+        "technology": "BullMQ",
+        "description": "Worker já implementado, apenas registrar no app.module e configurar queue",
+        "location": "backend/src/workers/processors/backfill-participant-profiles.processor.ts"
+      },
+      {
+        "name": "backfill-participant-profiles CLI command",
+        "type": "cli-script",
+        "action": "create",
+        "technology": "TypeScript + Commander.js",
+        "description": "Script CLI para triggerar job do BullMQ de backfill manualmente",
+        "location": "backend/src/cli/commands/backfill-participant-profiles.ts"
+      },
+      {
+        "name": "ConversationResponseDto - validation",
+        "type": "dto-validation",
+        "action": "verify",
+        "technology": "class-validator",
+        "description": "Validar que DTO já retorna participantUsername e participantProfilePic corretamente",
+        "location": "backend/src/modules/messaging/dto/conversation-response.dto.ts"
+      },
+      {
+        "name": "package.json npm script",
+        "type": "npm-script",
+        "action": "add",
+        "technology": "npm",
+        "description": "Adicionar script 'backfill:participant-profiles' para execução do comando CLI",
+        "location": "backend/package.json"
+      },
+      {
+        "name": "Unit tests - ConversationService",
+        "type": "unit-tests",
+        "action": "create",
+        "technology": "Jest",
+        "description": "Testes unitários para enrichParticipantProfile com mocks",
+        "location": "backend/src/modules/messaging/services/conversation.service.spec.ts"
+      },
+      {
+        "name": "Integration tests - Webhook flow",
+        "type": "integration-tests",
+        "action": "create",
+        "technology": "Jest",
+        "description": "Testes de integração do fluxo webhook → enriquecimento → persistência",
+        "location": "backend/src/modules/instagram/handlers/webhook-message.handler.spec.ts"
+      },
+      {
+        "name": "E2E tests - Backfill CLI",
+        "type": "e2e-tests",
+        "action": "create",
+        "technology": "Jest",
+        "description": "Testes E2E para comando CLI de backfill",
+        "location": "backend/test/e2e/backfill-participant-profiles.e2e-spec.ts"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Cache Layer & API Enhancement",
+      "order": 1,
+      "estimatedHours": 2,
+      "description": "Adicionar cache em Redis para getUserProfileById, reduzindo chamadas à API do Instagram",
+      "components": [
+        "InstagramApiService - cache layer"
+      ],
+      "dependencies": [],
+      "deliverables": [
+        "InstagramApiService.getUserProfileById com cache Redis (TTL 24h)",
+        "Logs de cache hits/misses",
+        "Testes unitários do cache"
+      ],
+      "risks": [
+        {
+          "description": "Cache key collision se não usar accountId como parte da chave",
+          "mitigation": "Usar padrão de chave: instagram:profile:{accountId}:{participantPlatformId}"
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Service Layer - Profile Enrichment",
+      "order": 2,
+      "estimatedHours": 3,
+      "description": "Criar método no ConversationService para enriquecer perfil do participante com fallback gracioso",
+      "components": [
+        "ConversationService.enrichParticipantProfile()"
+      ],
+      "dependencies": ["P1"],
+      "deliverables": [
+        "Método enrichParticipantProfile(conversationId, accountId)",
+        "Tratamento de erros com graceful degradation",
+        "Logs detalhados de sucesso/falha",
+        "Unit tests com mocks do InstagramApiService"
+      ],
+      "acceptanceCriteria": [
+        "Método não lança exception se API falhar (apenas loga warning)",
+        "Atualiza conversation apenas se profile encontrado",
+        "Retorna objeto com status { enriched: boolean, error?: string }"
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Webhook Handler Integration",
+      "order": 3,
+      "estimatedHours": 2,
+      "description": "Integrar enriquecimento de perfil no processamento de mensagem webhook",
+      "components": [
+        "WebhookMessageHandler.processMessageEvent() - integration"
+      ],
+      "dependencies": ["P2"],
+      "deliverables": [
+        "Chamada para enrichParticipantProfile após findOrCreateConversation",
+        "Verificação de campos NULL antes de chamar enriquecimento",
+        "Logs de quando enriquecimento é triggado",
+        "Integration tests do fluxo completo"
+      ],
+      "implementationDetails": [
+        "Após linha 91 (conversation = await this.findOrCreateConversation), verificar se participantUsername é null",
+        "Se null, chamar conversationService.enrichParticipantProfile(conversation.id, clientAccountId)",
+        "Não bloquear processamento da mensagem se enriquecimento falhar"
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Worker Queue Integration",
+      "order": 4,
+      "estimatedHours": 1.5,
+      "description": "Registrar BackfillParticipantProfilesProcessor existente no app.module e configurar queue",
+      "components": [
+        "BackfillParticipantProfilesProcessor - integration"
+      ],
+      "dependencies": [],
+      "deliverables": [
+        "BullModule.registerQueue para 'backfill-participant-profiles'",
+        "Provider do processor no app.module",
+        "Configuração de concurrency=1 preservada",
+        "Verificar que IConversationRepository.findConversationsWithMissingProfiles já implementado"
+      ],
+      "implementationDetails": [
+        "Adicionar em app.module imports: BullModule.registerQueue({ name: 'backfill-participant-profiles' })",
+        "Adicionar processor em providers do app.module"
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "CLI Command for Backfill",
+      "order": 5,
+      "estimatedHours": 2,
+      "description": "Criar comando CLI para triggerar job de backfill manualmente",
+      "components": [
+        "backfill-participant-profiles CLI command",
+        "package.json npm script"
+      ],
+      "dependencies": ["P4"],
+      "deliverables": [
+        "Script CLI em src/cli/commands/backfill-participant-profiles.ts",
+        "Aceita parâmetros: --account-id, --batch-size (default 10)",
+        "Adiciona job na fila BullMQ",
+        "npm script 'backfill:participant-profiles' no package.json",
+        "Logs de confirmação e progresso"
+      ],
+      "implementationDetails": [
+        "Usar Commander.js para parsing de argumentos",
+        "Conectar ao BullMQ via InjectQueue",
+        "Adicionar job: await queue.add('backfill', { accountId, batchSize })",
+        "Retornar job ID e status"
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "DTO Validation & Response Enhancement",
+      "order": 6,
+      "estimatedHours": 0.5,
+      "description": "Garantir que DTOs retornam participantUsername e participantProfilePic corretamente na API",
+      "components": [
+        "ConversationResponseDto - validation"
+      ],
+      "dependencies": ["P2", "P3"],
+      "deliverables": [
+        "Validação que ConversationResponseDto.participantUsername é opcional",
+        "Validação que ConversationResponseDto.participantProfilePic é opcional",
+        "Swagger documentation atualizada",
+        "Verificar controllers retornando dados corretos"
+      ],
+      "implementationDetails": [
+        "Revisar MessagingController.getConversations() e getConversation()",
+        "Confirmar que .toJSON() da entity mapeia corretamente para DTO"
+      ]
+    },
+    {
+      "phaseId": "P7",
+      "name": "Testing Suite",
+      "order": 7,
+      "estimatedHours": 4,
+      "description": "Criar suíte completa de testes unitários, integração e E2E",
+      "components": [
+        "Unit tests - ConversationService",
+        "Integration tests - Webhook flow",
+        "E2E tests - Backfill CLI"
+      ],
+      "dependencies": ["P2", "P3", "P5"],
+      "deliverables": [
+        "Testes unitários enrichParticipantProfile (100% coverage)",
+        "Testes de integração webhook → enriquecimento → DB",
+        "Testes E2E CLI backfill command",
+        "Testes de cache hits/misses",
+        "Testes de graceful degradation (API failure scenarios)"
+      ],
+      "testScenarios": [
+        "Webhook recebe mensagem → conversa sem perfil → enriquece com sucesso",
+        "Webhook recebe mensagem → conversa já tem perfil → não busca API",
+        "Webhook recebe mensagem → API falha → mensagem processa normalmente",
+        "CLI backfill → processa lote de 10 conversas → atualiza correto",
+        "CLI backfill → rate limit → respeita backoff e retry",
+        "Cache hit → não chama API do Instagram",
+        "Cache miss → chama API → armazena em cache"
+      ]
+    },
+    {
+      "phaseId": "P8",
+      "name": "Documentation & Monitoring",
+      "order": 8,
+      "estimatedHours": 1,
+      "description": "Documentar feature e adicionar logs/métricas para observabilidade",
+      "components": [],
+      "dependencies": ["P7"],
+      "deliverables": [
+        "README atualizado com instruções de backfill",
+        "Swagger docs com exemplos de response incluindo perfil",
+        "Logs estruturados com contexto (conversationId, accountId)",
+        "Métricas de cache hit rate",
+        "Documentação de troubleshooting"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "Quando webhook de mensagem chega e conversa não tem participantUsername, busca perfil do Instagram e atualiza conversa",
+      "type": "functional",
+      "testable": true,
+      "priority": "must-have"
+    },
+    {
+      "id": "AC-002",
+      "description": "Busca de perfil não adiciona mais de 500ms ao tempo de processamento do webhook (com cache)",
+      "type": "performance",
+      "testable": true,
+      "priority": "must-have"
+    },
+    {
+      "id": "AC-003",
+      "description": "Se busca de perfil falhar, mensagem é processada normalmente (graceful degradation)",
+      "type": "reliability",
+      "testable": true,
+      "priority": "must-have"
+    },
+    {
+      "id": "AC-004",
+      "description": "API de listagem de conversas retorna participantUsername e participantProfilePic quando disponível",
+      "type": "functional",
+      "testable": true,
+      "priority": "must-have"
+    },
+    {
+      "id": "AC-005",
+      "description": "Comando CLI 'npm run backfill:participant-profiles -- --account-id=X' processa conversas antigas sem perfil",
+      "type": "functional",
+      "testable": true,
+      "priority": "must-have"
+    },
+    {
+      "id": "AC-006",
+      "description": "Cache de perfis reduz chamadas à API do Instagram em pelo menos 80% após primeiras execuções",
+      "type": "performance",
+      "testable": true,
+      "priority": "should-have"
+    },
+    {
+      "id": "AC-007",
+      "description": "Backfill respeita rate limits do Instagram com backoff exponencial e retry (máx 3 tentativas)",
+      "type": "reliability",
+      "testable": true,
+      "priority": "must-have"
+    },
+    {
+      "id": "AC-008",
+      "description": "Logs estruturados permitem rastrear sucesso/falha de enriquecimento por conversa",
+      "type": "observability",
+      "testable": true,
+      "priority": "should-have"
+    }
+  ],
+  "technicalDecisions": [
+    {
+      "decision": "Usar ConversationService como camada intermediária entre handler e API",
+      "rationale": "Segue padrão de arquitetura em camadas do projeto, facilita testes e reuso do código de enriquecimento",
+      "alternatives": [
+        "Chamar InstagramApiService diretamente do handler (acoplamento alto)",
+        "Criar serviço separado ProfileEnrichmentService (over-engineering para escopo atual)"
+      ]
+    },
+    {
+      "decision": "Implementar cache em InstagramApiService ao invés de criar cache service separado",
+      "rationale": "Reduz complexidade, centraliza lógica de API, facilita manutenção. Cache é específico para perfis do Instagram.",
+      "alternatives": [
+        "ProfileCacheService separado (maior complexidade sem ganho real)"
+      ]
+    },
+    {
+      "decision": "Enriquecimento síncrono durante webhook com fallback gracioso",
+      "rationale": "Melhor UX imediata. Usuário vê nome/foto logo na primeira mensagem. Se falhar, backfill preenche depois.",
+      "alternatives": [
+        "Enriquecimento 100% assíncrono via worker (delay na UX, maior complexidade)"
+      ]
+    },
+    {
+      "decision": "Reusar BackfillParticipantProfilesProcessor existente",
+      "rationale": "Código já implementado, testado, e segue padrões do projeto. Evita duplicação e reduz esforço.",
+      "alternatives": [
+        "Criar novo processor do zero (desperdício de esforço)"
+      ]
+    },
+    {
+      "decision": "CLI command usando Commander.js ao invés de NestJS CLI",
+      "rationale": "Simplicidade, facilita execução manual e via cron, alinhado com migrate.ts existente",
+      "alternatives": [
+        "Criar endpoint REST para triggerar backfill (requer autenticação, mais complexo)"
+      ]
+    },
+    {
+      "decision": "Cache key pattern: instagram:profile:{accountId}:{participantPlatformId}",
+      "rationale": "Evita colisão entre diferentes accounts, permite invalidação granular, segue padrões Redis",
+      "alternatives": [
+        "Usar apenas participantPlatformId (risco de colisão cross-account)"
+      ]
+    }
+  ],
+  "estimatedTotalHours": 16,
+  "riskMitigation": [
+    {
+      "risk": "Aumento de latência no webhook",
+      "mitigation": "Cache Redis reduz latência para <50ms, timeout de 2s na chamada API com fallback",
+      "priority": "high"
+    },
+    {
+      "risk": "Rate limiting Instagram API durante backfill",
+      "mitigation": "Concurrency=1, backoff exponencial, lotes de 10, InstagramRateLimiter já implementado",
+      "priority": "medium"
+    },
+    {
+      "risk": "Perfis privados/deletados retornam null",
+      "mitigation": "Graceful degradation, logs de warning, permitir reprocessamento futuro",
+      "priority": "low"
+    }
+  ],
+  "nextSteps": [
+    "Executar Agent 3 (Task Creator) para decompor em tarefas atômicas",
+    "Implementar fases sequencialmente: P1 → P2 → P3 → P4 → P5 → P6 → P7 → P8",
+    "Executar testes após cada fase",
+    "Deploy incremental: webhook enrichment primeiro, depois CLI backfill"
+  ],
+  "nextAgent": "task-creator"
+}

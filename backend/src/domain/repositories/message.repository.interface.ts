@@ -11,7 +11,13 @@ export interface FindMessagesOptions {
 }
 
 export interface IMessageRepository {
+  /**
+   * Finds a message by its unique identifier
+   * @param id - The unique message ID
+   * @returns Promise resolving to the Message entity or null if not found
+   */
   findById(id: string): Promise<Message | null>;
+
   findByConversation(
     conversationId: string,
     options?: FindMessagesOptions,

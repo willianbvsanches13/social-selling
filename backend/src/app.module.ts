@@ -19,6 +19,7 @@ import { MessagingModule } from './modules/messaging/messaging.module';
 import { HttpLoggerMiddleware } from './common/middleware/http-logger.middleware';
 import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
 import { HttpLoggingInterceptor } from './common/interceptors/http-logging.interceptor';
+import { BackfillParticipantProfilesProcessor } from './workers/processors/backfill-participant-profiles.processor';
 import configuration from './config/configuration';
 
 @Module({
@@ -53,6 +54,10 @@ import configuration from './config/configuration';
       },
       inject: [ConfigService],
     }),
+    // Register BullMQ queues
+    BullModule.registerQueue({
+      name: 'backfill-participant-profiles',
+    }),
     DatabaseModule,
     CacheModule,
     StorageModule,
@@ -76,6 +81,7 @@ import configuration from './config/configuration';
       provide: APP_INTERCEPTOR,
       useClass: HttpLoggingInterceptor,
     },
+    BackfillParticipantProfilesProcessor,
   ],
 })
 export class AppModule implements NestModule {

@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-018",
+  "phaseId": "P7",
+  "title": "Implement keyboard navigation and accessibility",
+  "description": "Add keyboard support (ESC to close, arrow keys for navigation). Implement focus trap within modal. Add proper ARIA labels for accessibility. Ensure smooth CSS transitions for modal open/close. Make responsive for mobile and tablet.",
+  "category": "frontend-components",
+  "priority": "medium",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-017"],
+  "files": [
+    "frontend/src/components/messages/AttachmentModal.tsx"
+  ],
+  "dod": [
+    "useEffect hook with keydown event listener for keyboard events",
+    "ESC key closes modal (handled by Radix Dialog automatically)",
+    "ArrowLeft navigates to previous attachment",
+    "ArrowRight navigates to next attachment",
+    "Focus trap implemented (Radix Dialog handles this)",
+    "ARIA label on Dialog.Content ('Attachment viewer')",
+    "ARIA label on navigation buttons",
+    "Transition classes on Dialog.Overlay (fade in/out)",
+    "Transition classes on Dialog.Content (scale/fade)",
+    "Responsive: full-screen on mobile, centered on desktop",
+    "Touch-friendly button sizes on mobile (min 44x44px)"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

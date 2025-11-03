@@ -20,6 +20,27 @@ export enum SenderType {
   CUSTOMER = 'customer',
 }
 
+export enum AttachmentType {
+  IMAGE = 'image',
+  VIDEO = 'video',
+  AUDIO = 'audio',
+  DOCUMENT = 'document',
+}
+
+export interface Attachment {
+  url: string;
+  type: AttachmentType;
+  metadata: Record<string, unknown>;
+}
+
+export interface RepliedMessage {
+  id: string;
+  content?: string;
+  senderType: SenderType;
+  mediaUrl?: string;
+  sentAt: string;
+}
+
 export interface Conversation {
   id: string;
   clientAccountId: string;
@@ -51,6 +72,8 @@ export interface Message {
   readAt?: string;
   metadata: Record<string, unknown>;
   createdAt: string;
+  repliedToMessage?: RepliedMessage;
+  attachments?: Attachment[];
 }
 
 export interface MessageTemplate {

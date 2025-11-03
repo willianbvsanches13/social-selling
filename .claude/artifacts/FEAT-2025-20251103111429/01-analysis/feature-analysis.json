@@ -1,0 +1,156 @@
+{
+  "featureId": "FEAT-2025-20251103111429",
+  "timestamp": "2025-11-03T11:14:29Z",
+  "feature": {
+    "title": "Enhanced Message UI with Reply Context, Graceful Media Fallback, and Attachment Modal Preview",
+    "description": "Implement comprehensive messaging UX improvements including: (1) Display quoted/replied messages with visual context, (2) Replace broken image/video HTML errors with user-friendly fallback messages, (3) Show attachments as thumbnails with click-to-expand modal for full-size preview.",
+    "category": "enhancement",
+    "priority": "high",
+    "businessValue": "Significantly improves user experience in messaging interface by providing clear message context, preventing UI breaks from failed media loads, and enabling better media viewing without cluttering the message thread"
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Display visual indicator when a message is replying to another message, showing quoted message content and sender",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Show graceful fallback UI with 'Content unavailable' message when media (image/video) fails to load instead of browser error",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Display message attachments as small thumbnails (150-200px) in the message thread",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "Open full-size attachment modal when user clicks on thumbnail, supporting both images and videos",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "Modal must include close button, navigation controls (if multiple attachments), and proper media rendering",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-006",
+        "description": "Handle keyboard navigation (ESC to close modal, arrow keys for navigation)",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-007",
+        "description": "Backend must support repliedToMessageId field in Message entity and return quoted message data",
+        "priority": "must-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "usability",
+        "description": "Attachment thumbnails must maintain aspect ratio and load smoothly with lazy loading"
+      },
+      {
+        "id": "NFR-002",
+        "type": "performance",
+        "description": "Modal open/close animations should be smooth (<100ms) and not cause layout shifts"
+      },
+      {
+        "id": "NFR-003",
+        "type": "usability",
+        "description": "Fallback state for unavailable media must be visually distinct and informative"
+      },
+      {
+        "id": "NFR-004",
+        "type": "accessibility",
+        "description": "Modal must be keyboard-accessible and screen-reader friendly with proper ARIA labels"
+      },
+      {
+        "id": "NFR-005",
+        "type": "performance",
+        "description": "Large images/videos in modal should load progressively with loading indicator"
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "frontend/src/components/messages/MessageThread.tsx",
+      "frontend/src/components/messages/MediaAttachment.tsx (new)",
+      "frontend/src/components/messages/AttachmentModal.tsx (new)",
+      "frontend/src/components/messages/QuotedMessage.tsx (new)",
+      "frontend/src/types/message.ts",
+      "backend/src/messages/entities/message.entity.ts",
+      "backend/src/messages/services/messages.service.ts",
+      "backend/src/messages/controllers/messages.controller.ts"
+    ],
+    "databases": [
+      "PostgreSQL - messages table (add repliedToMessageId column, add attachments JSON column)"
+    ],
+    "externalServices": [],
+    "estimatedComplexity": "medium"
+  },
+  "dependencies": [
+    {
+      "type": "library",
+      "name": "@radix-ui/react-dialog",
+      "action": "required",
+      "note": "Already installed - will be used for attachment modal"
+    },
+    {
+      "type": "library",
+      "name": "lucide-react",
+      "action": "required",
+      "note": "Already installed - will be used for icons (reply, close, navigation)"
+    },
+    {
+      "type": "feature",
+      "name": "Message entity structure",
+      "action": "extend",
+      "note": "Need to add repliedToMessageId and attachments fields"
+    },
+    {
+      "type": "feature",
+      "name": "Messages API",
+      "action": "extend",
+      "note": "Need to return quoted message data when repliedToMessageId exists"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Large media files in modal could cause performance issues on slower devices",
+      "severity": "medium",
+      "mitigation": "Implement progressive loading with blur placeholder and image optimization"
+    },
+    {
+      "description": "Nested reply chains (reply to reply) could create complex UI rendering",
+      "severity": "low",
+      "mitigation": "Limit reply context to show only immediate parent message (1 level deep)"
+    },
+    {
+      "description": "Modal accessibility might not work properly on all screen sizes",
+      "severity": "low",
+      "mitigation": "Use Radix UI Dialog which handles accessibility and responsive behavior"
+    },
+    {
+      "description": "Database migration for existing messages without attachments field",
+      "severity": "low",
+      "mitigation": "Use nullable column with default empty array, existing messages remain compatible"
+    }
+  ],
+  "technicalContext": {
+    "stack": {
+      "frontend": "Next.js 14.2.0, React 18, TypeScript, TailwindCSS, Radix UI",
+      "backend": "NestJS 11, TypeScript, PostgreSQL",
+      "state": "Zustand (already in use)",
+      "queries": "@tanstack/react-query (already in use)"
+    },
+    "existingPatterns": {
+      "components": "Functional components with TypeScript interfaces",
+      "styling": "TailwindCSS with cn() utility for conditional classes",
+      "modals": "Radix UI Dialog components",
+      "media": "Native img/video tags with lazy loading"
+    }
+  }
+}

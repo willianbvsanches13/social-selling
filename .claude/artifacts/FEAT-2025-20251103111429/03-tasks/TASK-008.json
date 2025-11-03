@@ -1,0 +1,28 @@
+{
+  "taskId": "TASK-008",
+  "phaseId": "P3",
+  "title": "Update MessagingService to populate replied messages",
+  "description": "Update MessagingService.listMessages method to check for repliedToMessageId in each message. When present, fetch the replied message using repository.findById and map to RepliedMessageDto. Handle cases where replied message is deleted (soft fail with warning log). Update response mapping to include attachments array.",
+  "category": "backend-service",
+  "priority": "high",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-007"],
+  "files": [
+    "backend/src/modules/messaging/services/message.service.ts"
+  ],
+  "dod": [
+    "listMessages iterates through each message to check repliedToMessageId",
+    "When repliedToMessageId exists, calls repository.findById",
+    "Maps replied message to RepliedMessageDto with only essential fields (id, content, senderType, mediaUrl, sentAt)",
+    "Handles missing replied messages gracefully with warning log (no error thrown)",
+    "Sets repliedToMessage to null if original message deleted",
+    "Maps attachments from domain entity to AttachmentDto array",
+    "Response structure includes both new fields",
+    "Performance consideration: batch fetch could be added later if needed"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

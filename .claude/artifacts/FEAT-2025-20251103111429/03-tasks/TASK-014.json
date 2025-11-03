@@ -1,0 +1,29 @@
+{
+  "taskId": "TASK-014",
+  "phaseId": "P6",
+  "title": "Create MediaAttachment fallback UI",
+  "description": "Create fallback UI component for broken or unavailable media. Display 'Content unavailable' message with appropriate icon. Style to match thumbnail dimensions for consistent layout.",
+  "category": "frontend-components",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-013"],
+  "files": [
+    "frontend/src/components/messages/MediaAttachment.tsx"
+  ],
+  "dod": [
+    "Fallback UI renders when error state is true",
+    "Display icon (AlertCircle from lucide-react) centered",
+    "Text 'Content unavailable' shown below icon",
+    "Fallback container matches thumbnail dimensions (150-200px)",
+    "Background: light gray (bg-gray-100)",
+    "Border matches thumbnail style (rounded-md border)",
+    "Centered content with flexbox (flex flex-col items-center justify-center)",
+    "Text color: muted gray (text-gray-500)",
+    "No clickable interaction on fallback (onClick not triggered)"
+  ],
+  "technicalDetails": {
+    "packages": ["lucide-react"],
+    "envVars": [],
+    "migrations": null
+  }
+}

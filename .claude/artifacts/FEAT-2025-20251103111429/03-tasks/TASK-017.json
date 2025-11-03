@@ -1,0 +1,30 @@
+{
+  "taskId": "TASK-017",
+  "phaseId": "P7",
+  "title": "Add navigation to AttachmentModal",
+  "description": "Implement navigation arrows (prev/next) for multiple attachments. Disable buttons when only single attachment. Handle edge cases (first/last attachment). Style navigation buttons with proper positioning.",
+  "category": "frontend-components",
+  "priority": "medium",
+  "estimatedHours": 1,
+  "dependencies": ["TASK-016"],
+  "files": [
+    "frontend/src/components/messages/AttachmentModal.tsx"
+  ],
+  "dod": [
+    "Previous button with ChevronLeft icon positioned on left side",
+    "Next button with ChevronRight icon positioned on right side",
+    "Buttons disabled when attachments.length === 1",
+    "Previous disabled when currentIndex === 0",
+    "Next disabled when currentIndex === attachments.length - 1",
+    "onClick handlers update currentIndex state",
+    "Buttons positioned absolute on sides (left-4, right-4) at center (top-1/2)",
+    "Buttons styled with bg-white/20 backdrop-blur for visibility over media",
+    "Hover effect: bg-white/30",
+    "Buttons have proper ARIA labels ('Previous attachment', 'Next attachment')"
+  ],
+  "technicalDetails": {
+    "packages": ["lucide-react"],
+    "envVars": [],
+    "migrations": null
+  }
+}

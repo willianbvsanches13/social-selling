@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-004",
+  "phaseId": "P2",
+  "title": "Implement findById in MessageRepository",
+  "description": "Implement findById method in MessageRepository class. Create SQL query to fetch message by ID. Return null if message not found, otherwise map database record to Message domain entity using toDomain mapper.",
+  "category": "backend-repository",
+  "priority": "high",
+  "estimatedHours": 0.75,
+  "dependencies": ["TASK-003"],
+  "files": [
+    "backend/src/infrastructure/database/repositories/message.repository.ts"
+  ],
+  "dod": [
+    "findById method implemented with proper SQL query",
+    "Query uses parameterized statement to prevent SQL injection",
+    "Returns null when message ID not found",
+    "Uses toDomain mapper to convert database record to Message entity",
+    "Proper error handling with try-catch block",
+    "Method includes JSDoc comments"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

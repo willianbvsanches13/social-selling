@@ -61,6 +61,14 @@ export class Conversation {
     return this.props.participantPlatformId;
   }
 
+  get participantUsername(): string | undefined {
+    return this.props.participantUsername;
+  }
+
+  get participantProfilePic(): string | undefined {
+    return this.props.participantProfilePic;
+  }
+
   get unreadCount(): number {
     return this.props.unreadCount;
   }

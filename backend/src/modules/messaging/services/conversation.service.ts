@@ -13,6 +13,7 @@ import {
   Conversation,
   ConversationStatus,
 } from '../../../domain/entities/conversation.entity';
+import { InstagramApiService } from '../../instagram/services/instagram-api.service';
 
 export interface ConversationFilters {
   status?: ConversationStatus;
@@ -29,6 +30,11 @@ export interface ConversationListResult {
   offset: number;
 }
 
+export interface EnrichmentStatus {
+  enriched: boolean;
+  error?: string;
+}
+
 @Injectable()
 export class ConversationService {
   private readonly logger = new Logger(ConversationService.name);
@@ -40,6 +46,7 @@ export class ConversationService {
     private readonly messageRepository: IMessageRepository,
     @Inject('IClientAccountRepository')
     private readonly clientAccountRepository: IClientAccountRepository,
+    private readonly instagramApiService: InstagramApiService,
   ) {}
 
   async listConversations(
@@ -99,6 +106,89 @@ export class ConversationService {
     await this.conversationRepository.update(conversation);
 
     return conversation;
+  }
+
+  async enrichParticipantProfile(
+    conversationId: string,
+    accountId: string,
+  ): Promise<EnrichmentStatus> {
+    try {
+      // Find the conversation
+      const conversation =
+        await this.conversationRepository.findById(conversationId);
+
+      if (!conversation) {
+        this.logger.warn(
+          `Conversation ${conversationId} not found for enrichment`,
+        );
+        return { enriched: false, error: 'Conversation not found' };
+      }
+
+      // Check if we have participantPlatformId
+      if (!conversation.participantPlatformId) {
+        this.logger.warn(
+          `Conversation ${conversationId} has no participantPlatformId`,
+        );
+        return {
+          enriched: false,
+          error: 'Missing participant platform ID',
+        };
+      }
+
+      // Check if already enriched
+      if (conversation.participantUsername && conversation.participantProfilePic) {
+        this.logger.debug(
+          `Conversation ${conversationId} already has participant profile data`,
+        );
+        return { enriched: false, error: 'Already enriched' };
+      }
+
+      // Fetch profile from Instagram API
+      const profile = await this.instagramApiService.getUserProfileById(
+        accountId,
+        conversation.participantPlatformId,
+      );
+
+      if (!profile) {
+        this.logger.warn(
+          `Failed to fetch profile for participant ${conversation.participantPlatformId}`,
+        );
+        return { enriched: false, error: 'Profile not found in Instagram API' };
+      }
+
+      // Check if we have the required fields
+      if (!profile.username || !profile.profile_picture_url) {
+        this.logger.warn(
+          `Incomplete profile data for participant ${conversation.participantPlatformId}`,
+        );
+        return {
+          enriched: false,
+          error: 'Incomplete profile data from Instagram API',
+        };
+      }
+
+      // Update the conversation with profile data
+      conversation.updateParticipantProfile(
+        profile.username,
+        profile.profile_picture_url,
+      );
+
+      await this.conversationRepository.update(conversation);
+
+      this.logger.log(
+        `Successfully enriched conversation ${conversationId} with participant profile data`,
+      );
+
+      return { enriched: true };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(
+        `Error enriching conversation ${conversationId}: ${errorMessage}`,
+        error instanceof Error ? error.stack : undefined,
+      );
+      return { enriched: false, error: errorMessage };
+    }
   }
 
   private async verifyAccountAccess(

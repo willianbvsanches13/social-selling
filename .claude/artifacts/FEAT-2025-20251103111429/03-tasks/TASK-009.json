@@ -1,0 +1,26 @@
+{
+  "taskId": "TASK-009",
+  "phaseId": "P4",
+  "title": "Extend frontend Message types",
+  "description": "Define Attachment and RepliedMessage interfaces in frontend types. Update Message interface to include repliedToMessage and attachments fields. Ensure type compatibility with backend DTOs.",
+  "category": "frontend-types",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-008"],
+  "files": [
+    "frontend/src/types/message.ts"
+  ],
+  "dod": [
+    "Attachment interface defined with url, type, metadata fields",
+    "RepliedMessage interface defined with id, content, senderType, mediaUrl, sentAt fields",
+    "Message interface includes repliedToMessage?: RepliedMessage",
+    "Message interface includes attachments?: Attachment[]",
+    "Types match backend DTO structure exactly",
+    "All existing Message fields remain unchanged"
+  ],
+  "technicalDetails": {
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  }
+}

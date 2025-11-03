@@ -1,0 +1,12 @@
+{
+  "taskId": "TASK-004",
+  "phaseId": "P4",
+  "title": "Register BackfillParticipantProfilesProcessor in app.module",
+  "description": "Add BullMQ queue registration and processor provider",
+  "category": "infrastructure",
+  "priority": "high",
+  "estimatedHours": 1.5,
+  "dependencies": [],
+  "files": ["backend/src/app.module.ts"],
+  "dod": ["BullModule.registerQueue added", "Processor in providers", "Queue name correct"]
+}

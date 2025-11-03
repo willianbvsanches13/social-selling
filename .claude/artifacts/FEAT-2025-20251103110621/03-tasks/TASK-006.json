@@ -1,0 +1,12 @@
+{
+  "taskId": "TASK-006",
+  "phaseId": "P6",
+  "title": "Verify DTO returns participant profile fields",
+  "description": "Check ConversationResponseDto and controllers",
+  "category": "backend",
+  "priority": "medium",
+  "estimatedHours": 0.5,
+  "dependencies": ["TASK-002"],
+  "files": ["backend/src/modules/messaging/dto/conversation-response.dto.ts"],
+  "dod": ["DTO has optional fields", "Swagger docs updated", "Controllers return data"]
+}

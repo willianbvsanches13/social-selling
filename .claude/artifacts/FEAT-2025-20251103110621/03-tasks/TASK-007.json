@@ -1,0 +1,12 @@
+{
+  "taskId": "TASK-007",
+  "phaseId": "P7",
+  "title": "Unit tests for ConversationService.enrichParticipantProfile",
+  "description": "Test enrichment method with mocks",
+  "category": "testing",
+  "priority": "high",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-002"],
+  "files": ["backend/src/modules/messaging/services/conversation.service.spec.ts"],
+  "dod": ["100% coverage", "Tests API success/failure", "Tests graceful degradation"]
+}

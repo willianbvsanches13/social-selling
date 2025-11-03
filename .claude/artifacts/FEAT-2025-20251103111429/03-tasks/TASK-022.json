@@ -1,0 +1,34 @@
+{
+  "taskId": "TASK-022",
+  "phaseId": "P9",
+  "title": "Write backend tests for message reply feature",
+  "description": "Write unit tests for Message entity with new fields (repliedToMessageId, attachments). Write unit tests for MessageRepository findById method. Write integration tests for MessagingService with replied messages. Test API endpoint response structure.",
+  "category": "testing",
+  "priority": "medium",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-008"],
+  "files": [
+    "backend/src/domain/entities/__tests__/message.entity.spec.ts",
+    "backend/src/infrastructure/database/repositories/__tests__/message.repository.spec.ts",
+    "backend/src/modules/messaging/services/__tests__/message.service.spec.ts"
+  ],
+  "dod": [
+    "Message entity test: create message with repliedToMessageId",
+    "Message entity test: create message with attachments array",
+    "Message entity test: validate attachment URLs",
+    "Message entity test: toJSON includes new fields",
+    "Repository test: findById returns message when exists",
+    "Repository test: findById returns null when not found",
+    "Repository test: toDomain parses replied_to_message_id correctly",
+    "Repository test: toDomain parses attachments JSONB correctly",
+    "Service test: listMessages populates repliedToMessage data",
+    "Service test: handles missing replied message gracefully",
+    "Service test: maps attachments to DTOs correctly",
+    "All tests passing with proper assertions"
+  ],
+  "technicalDetails": {
+    "packages": ["jest", "@nestjs/testing"],
+    "envVars": [],
+    "migrations": null
+  }
+}

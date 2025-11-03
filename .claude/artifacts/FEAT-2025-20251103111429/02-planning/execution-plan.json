@@ -1,0 +1,526 @@
+{
+  "planId": "PLAN-2025-20251103111429",
+  "featureId": "FEAT-2025-20251103111429",
+  "timestamp": "2025-11-03T11:14:29Z",
+  "architecture": {
+    "approach": "layered-architecture",
+    "description": "Following the existing Domain-Driven Design pattern with clear separation between domain entities, infrastructure (repositories), and application services. Frontend follows component-based architecture with shared UI components and type-safe interfaces.",
+    "patterns": [
+      "Domain-Driven Design",
+      "Repository Pattern",
+      "Service Pattern",
+      "DTO Pattern",
+      "Mapper Pattern",
+      "Component Composition Pattern"
+    ],
+    "components": [
+      {
+        "name": "Message Entity Extension",
+        "type": "backend-domain",
+        "action": "modify",
+        "technology": "TypeScript Domain Entity",
+        "path": "backend/src/domain/entities/message.entity.ts",
+        "description": "Add repliedToMessageId and attachments fields to Message domain entity with validation logic"
+      },
+      {
+        "name": "Message Repository Interface Extension",
+        "type": "backend-repository-interface",
+        "action": "modify",
+        "technology": "TypeScript Interface",
+        "path": "backend/src/domain/repositories/message.repository.interface.ts",
+        "description": "Add method to fetch message by ID for reply context retrieval"
+      },
+      {
+        "name": "Message Repository Implementation",
+        "type": "backend-repository",
+        "action": "modify",
+        "technology": "pg-promise Repository",
+        "path": "backend/src/infrastructure/database/repositories/message.repository.ts",
+        "description": "Implement findById method and update toDomain/toPersistence mappers for new fields"
+      },
+      {
+        "name": "Database Migration - Messages Table",
+        "type": "database-migration",
+        "action": "create",
+        "technology": "PostgreSQL SQL",
+        "path": "backend/src/infrastructure/database/migrations/YYYYMMDDHHMMSS-add-message-reply-and-attachments.sql",
+        "description": "Add replied_to_message_id foreign key column and attachments JSONB column to messages table"
+      },
+      {
+        "name": "Message Response DTO Extension",
+        "type": "backend-dto",
+        "action": "modify",
+        "technology": "NestJS DTO",
+        "path": "backend/src/modules/messaging/dto/message-response.dto.ts",
+        "description": "Add repliedToMessage nested object and attachments array to response DTO"
+      },
+      {
+        "name": "Message Service Extension",
+        "type": "backend-service",
+        "action": "modify",
+        "technology": "NestJS Service",
+        "path": "backend/src/modules/messaging/services/message.service.ts",
+        "description": "Update list messages logic to fetch and populate replied message data when repliedToMessageId exists"
+      },
+      {
+        "name": "Frontend Message Type Extension",
+        "type": "frontend-types",
+        "action": "modify",
+        "technology": "TypeScript Interface",
+        "path": "frontend/src/types/message.ts",
+        "description": "Add repliedToMessage nested object and attachments array to Message interface"
+      },
+      {
+        "name": "QuotedMessage Component",
+        "type": "frontend-component",
+        "action": "create",
+        "technology": "React Component",
+        "path": "frontend/src/components/messages/QuotedMessage.tsx",
+        "description": "Display quoted/replied message with visual context (sender name, truncated content, reply icon)"
+      },
+      {
+        "name": "MediaAttachment Component",
+        "type": "frontend-component",
+        "action": "create",
+        "technology": "React Component",
+        "path": "frontend/src/components/messages/MediaAttachment.tsx",
+        "description": "Render media thumbnail with error handling, fallback UI for broken media, and click handler"
+      },
+      {
+        "name": "AttachmentModal Component",
+        "type": "frontend-component",
+        "action": "create",
+        "technology": "React Component with Radix Dialog",
+        "path": "frontend/src/components/messages/AttachmentModal.tsx",
+        "description": "Full-screen modal using Radix Dialog for viewing attachments with navigation and keyboard support"
+      },
+      {
+        "name": "MessageThread Component Enhancement",
+        "type": "frontend-component",
+        "action": "modify",
+        "technology": "React Component",
+        "path": "frontend/src/components/messages/MessageThread.tsx",
+        "description": "Integrate QuotedMessage, MediaAttachment components and modal state management"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Database Schema & Domain Entities",
+      "order": 1,
+      "estimatedHours": 2,
+      "components": [
+        "Database Migration - Messages Table",
+        "Message Entity Extension"
+      ],
+      "dependencies": [],
+      "tasks": [
+        "Create migration file to add replied_to_message_id column (foreign key to messages.id, nullable, with index)",
+        "Create migration file to add attachments column (JSONB, nullable, default '[]')",
+        "Update Message entity MessageProps interface to include repliedToMessageId?: string and attachments?: Attachment[]",
+        "Add Attachment interface definition with url, type, and metadata",
+        "Update Message.create() and Message.reconstitute() to handle new fields",
+        "Update Message.toJSON() to include new fields",
+        "Add validation logic for attachments (ensure valid URLs, supported types)"
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Backend Repository & Infrastructure",
+      "order": 2,
+      "estimatedHours": 3,
+      "components": [
+        "Message Repository Interface Extension",
+        "Message Repository Implementation"
+      ],
+      "dependencies": ["P1"],
+      "tasks": [
+        "Add findById(id: string) method signature to IMessageRepository interface",
+        "Implement findById in MessageRepository with SQL query",
+        "Update toDomain mapper to parse replied_to_message_id and attachments JSON",
+        "Update toPersistence mapper to serialize attachments to JSONB",
+        "Add database indexes for performance (replied_to_message_id)",
+        "Test repository methods with sample data"
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Backend Service & API Layer",
+      "order": 3,
+      "estimatedHours": 3.5,
+      "components": [
+        "Message Response DTO Extension",
+        "Message Service Extension"
+      ],
+      "dependencies": ["P2"],
+      "tasks": [
+        "Define RepliedMessageDto nested DTO with id, content, senderType, mediaUrl",
+        "Define AttachmentDto with url, type, metadata properties",
+        "Update MessageResponseDto to include repliedToMessage?: RepliedMessageDto",
+        "Update MessageResponseDto to include attachments?: AttachmentDto[]",
+        "Update MessagingService.listMessages to check for repliedToMessageId in each message",
+        "When repliedToMessageId exists, fetch the replied message using repository.findById",
+        "Map replied message to RepliedMessageDto (only essential fields, avoid deep nesting)",
+        "Add error handling for missing replied messages (soft fail, log warning)",
+        "Update response mapping to include attachments array"
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Frontend Types & Utilities",
+      "order": 4,
+      "estimatedHours": 1,
+      "components": [
+        "Frontend Message Type Extension"
+      ],
+      "dependencies": ["P3"],
+      "tasks": [
+        "Define Attachment interface in types/message.ts with url, type, metadata",
+        "Define RepliedMessage interface with id, content, senderType, mediaUrl, sentAt",
+        "Update Message interface to include repliedToMessage?: RepliedMessage",
+        "Update Message interface to include attachments?: Attachment[]",
+        "Ensure type compatibility with backend DTOs"
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Frontend Components - QuotedMessage",
+      "order": 5,
+      "estimatedHours": 2.5,
+      "components": [
+        "QuotedMessage Component"
+      ],
+      "dependencies": ["P4"],
+      "tasks": [
+        "Create QuotedMessage.tsx component accepting repliedMessage prop",
+        "Design visual layout with reply icon from lucide-react",
+        "Display sender type indicator (you/customer)",
+        "Show truncated message content (max 100 chars with ellipsis)",
+        "If replied message has media, show small thumbnail or media icon",
+        "Apply TailwindCSS styling with subtle background and border",
+        "Add hover effect for better UX",
+        "Handle edge cases (deleted messages, empty content)",
+        "Make component responsive for mobile screens"
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "Frontend Components - MediaAttachment & Error Handling",
+      "order": 6,
+      "estimatedHours": 3,
+      "components": [
+        "MediaAttachment Component"
+      ],
+      "dependencies": ["P4"],
+      "tasks": [
+        "Create MediaAttachment.tsx component accepting attachment and onClick props",
+        "Implement thumbnail rendering with lazy loading",
+        "Add onError handler for img/video elements",
+        "Create fallback UI component with 'Content unavailable' message and icon",
+        "Use state to track loading/error/loaded states",
+        "Apply CSS for thumbnail sizing (150-200px) with object-cover",
+        "Maintain aspect ratio with proper CSS (aspect-video or aspect-square)",
+        "Add subtle border and hover effect for clickable thumbnails",
+        "Support both image and video thumbnail rendering",
+        "Add loading skeleton while media loads",
+        "Implement proper TypeScript types for attachment object"
+      ]
+    },
+    {
+      "phaseId": "P7",
+      "name": "Frontend Components - AttachmentModal",
+      "order": 7,
+      "estimatedHours": 4,
+      "components": [
+        "AttachmentModal Component"
+      ],
+      "dependencies": ["P4"],
+      "tasks": [
+        "Create AttachmentModal.tsx using Radix Dialog primitive",
+        "Set up modal state management (open/close, current index)",
+        "Implement full-screen overlay with dark backdrop",
+        "Create close button with X icon from lucide-react",
+        "Implement image rendering with max-width/height constraints",
+        "Implement video rendering with native controls",
+        "Add navigation arrows (prev/next) for multiple attachments",
+        "Disable navigation buttons when single attachment",
+        "Implement keyboard support (ESC to close, arrow keys for navigation)",
+        "Add ARIA labels for accessibility (aria-label, role)",
+        "Implement focus trap within modal",
+        "Add loading state with spinner for large media",
+        "Implement progressive image loading with blur placeholder",
+        "Add smooth CSS transitions for modal open/close",
+        "Handle edge cases (invalid URLs, unsupported formats)",
+        "Make modal responsive for mobile and tablet"
+      ]
+    },
+    {
+      "phaseId": "P8",
+      "name": "Frontend Integration - MessageThread Enhancement",
+      "order": 8,
+      "estimatedHours": 3,
+      "components": [
+        "MessageThread Component Enhancement"
+      ],
+      "dependencies": ["P5", "P6", "P7"],
+      "tasks": [
+        "Import QuotedMessage, MediaAttachment, AttachmentModal components",
+        "Add modal state management (useState for open, selectedAttachment, attachmentIndex)",
+        "Update message rendering to conditionally render QuotedMessage when repliedToMessage exists",
+        "Position QuotedMessage above message content",
+        "Update message rendering to map and render attachments array",
+        "Render MediaAttachment components below message content",
+        "Implement onClick handler to open modal with selected attachment",
+        "Pass attachment list and current index to modal",
+        "Update message bubble max-width to accommodate thumbnails",
+        "Ensure proper spacing between quoted message, content, and attachments",
+        "Test with various message combinations (text only, media only, reply + media)",
+        "Verify scroll behavior with modal open",
+        "Test keyboard navigation and accessibility"
+      ]
+    },
+    {
+      "phaseId": "P9",
+      "name": "Testing & Quality Assurance",
+      "order": 9,
+      "estimatedHours": 4,
+      "components": [
+        "All components"
+      ],
+      "dependencies": ["P8"],
+      "tasks": [
+        "Write unit tests for Message entity with new fields",
+        "Write unit tests for MessageRepository findById method",
+        "Write integration tests for MessagingService with replied messages",
+        "Test API endpoint response with nested replied message data",
+        "Write component tests for QuotedMessage rendering",
+        "Write component tests for MediaAttachment with error states",
+        "Write component tests for AttachmentModal with keyboard navigation",
+        "Test MessageThread integration with all new components",
+        "Perform manual E2E testing of complete flow",
+        "Test edge cases (missing replied message, broken media URLs, invalid attachments)",
+        "Test responsive behavior on mobile, tablet, desktop",
+        "Test accessibility with screen reader and keyboard-only navigation",
+        "Performance test with many attachments (10+ per message)",
+        "Test database migration rollback scenario",
+        "Verify no console errors or warnings in browser"
+      ]
+    },
+    {
+      "phaseId": "P10",
+      "name": "Documentation & Refinement",
+      "order": 10,
+      "estimatedHours": 1.5,
+      "components": [
+        "All components"
+      ],
+      "dependencies": ["P9"],
+      "tasks": [
+        "Add JSDoc comments to new/modified backend methods",
+        "Add JSDoc comments to new React components",
+        "Update API documentation (Swagger) for message endpoints",
+        "Document database schema changes in migration comments",
+        "Add inline code comments for complex logic (error handling, modal navigation)",
+        "Verify code follows project coding standards (camelCase, early returns, etc.)",
+        "Final code review for consistency and quality",
+        "Verify all acceptance criteria are met"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "When a message has repliedToMessageId, the UI displays a QuotedMessage component above the message content showing the original message sender and truncated content",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "Manual test: Send a reply message, verify quoted message appears. Automated: Component test with mock repliedToMessage data."
+    },
+    {
+      "id": "AC-002",
+      "description": "When an image or video fails to load, the UI displays a graceful fallback message ('Content unavailable') instead of browser error",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "Manual test: Use invalid media URL, verify fallback appears. Automated: Component test with onError simulation."
+    },
+    {
+      "id": "AC-003",
+      "description": "Message attachments are displayed as small thumbnails (150-200px) maintaining aspect ratio in the message thread",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "Manual test: View messages with attachments. Automated: Visual regression test for thumbnail sizing."
+    },
+    {
+      "id": "AC-004",
+      "description": "Clicking a thumbnail opens a full-size modal with the attachment rendered properly (image or video)",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "Manual test: Click thumbnail, verify modal opens with full media. Automated: Component test for modal trigger."
+    },
+    {
+      "id": "AC-005",
+      "description": "Modal includes close button (X icon) and clicking it or pressing ESC closes the modal",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "Manual test: Click close button and press ESC key. Automated: Component test for close handlers."
+    },
+    {
+      "id": "AC-006",
+      "description": "When message has multiple attachments, modal shows navigation arrows and arrow keys navigate between attachments",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "Manual test: Navigate with mouse and keyboard. Automated: Component test for navigation logic."
+    },
+    {
+      "id": "AC-007",
+      "description": "Backend API returns repliedToMessage data (id, content, senderType) when message has repliedToMessageId",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "API integration test: Fetch messages with replies, verify response structure includes nested repliedToMessage."
+    },
+    {
+      "id": "AC-008",
+      "description": "Database migration successfully adds replied_to_message_id and attachments columns without breaking existing data",
+      "type": "functional",
+      "testable": true,
+      "testStrategy": "Manual test: Run migration on test database with existing messages, verify no errors and data integrity."
+    },
+    {
+      "id": "AC-009",
+      "description": "Attachment thumbnails load lazily without blocking initial page render",
+      "type": "performance",
+      "testable": true,
+      "testStrategy": "Manual test: Observe network tab for lazy loading. Automated: Performance test measuring initial render time."
+    },
+    {
+      "id": "AC-010",
+      "description": "Modal open and close animations are smooth (<100ms) with no layout shift",
+      "type": "performance",
+      "testable": true,
+      "testStrategy": "Manual test: Visual observation. Automated: Performance test measuring animation duration with Chrome DevTools."
+    },
+    {
+      "id": "AC-011",
+      "description": "Modal is fully keyboard-accessible with proper focus management and ARIA labels for screen readers",
+      "type": "accessibility",
+      "testable": true,
+      "testStrategy": "Manual test: Navigate with keyboard only and screen reader. Automated: Axe accessibility audit."
+    },
+    {
+      "id": "AC-012",
+      "description": "Large images/videos in modal show progressive loading with loading indicator",
+      "type": "performance",
+      "testable": true,
+      "testStrategy": "Manual test: Load large media file, verify loading indicator appears. Automated: Component test with delayed image load."
+    }
+  ],
+  "technicalDecisions": {
+    "repliedMessageHandling": {
+      "decision": "Fetch replied message on-demand during list messages operation",
+      "rationale": "Avoids deep nesting and recursive queries. Simple to implement and maintain. Performance impact minimal as most messages won't have replies.",
+      "alternative": "Store replied message content denormalized in metadata",
+      "tradeoff": "Additional database query per message with reply, but cleaner data model and always up-to-date information"
+    },
+    "attachmentsStorage": {
+      "decision": "Store attachments as JSONB array in messages table",
+      "rationale": "Flexible schema, easy to query and update. No need for separate attachments table given simple structure.",
+      "alternative": "Create separate attachments table with foreign key",
+      "tradeoff": "Less normalized but simpler for this use case. JSONB supports indexing if needed later."
+    },
+    "modalLibrary": {
+      "decision": "Use Radix UI Dialog component",
+      "rationale": "Already in project dependencies, handles accessibility automatically, production-ready, headless so we can style with Tailwind.",
+      "alternative": "Build custom modal from scratch",
+      "tradeoff": "Additional dependency but saves development time and ensures accessibility compliance"
+    },
+    "errorHandling": {
+      "decision": "Client-side error handling for media with onError handler",
+      "rationale": "Fast feedback, no server round-trip needed. Graceful degradation for broken URLs.",
+      "alternative": "Validate media URLs on backend before storing",
+      "tradeoff": "Can't prevent broken URLs from being stored, but provides better UX with fallback UI"
+    },
+    "replyDepth": {
+      "decision": "Limit reply context to 1 level (no nested replies)",
+      "rationale": "Keeps UI simple and avoids complex rendering logic. Most chat apps follow this pattern.",
+      "alternative": "Support unlimited nested replies with recursive rendering",
+      "tradeoff": "Less flexible but much simpler to implement and better UX"
+    }
+  },
+  "estimatedTotalHours": 27.5,
+  "riskMitigation": [
+    {
+      "risk": "Large media files in modal could cause performance issues on slower devices",
+      "mitigation": "Implement progressive loading with blur placeholder, use loading='lazy' attribute, consider adding image optimization service in future",
+      "severity": "medium"
+    },
+    {
+      "risk": "Nested reply chains (reply to reply) could create complex UI rendering",
+      "mitigation": "Explicitly limit reply context to 1 level deep, document this limitation, show only immediate parent message",
+      "severity": "low"
+    },
+    {
+      "risk": "Modal accessibility might not work properly on all screen sizes",
+      "mitigation": "Use Radix UI Dialog which handles responsive behavior automatically, test on multiple devices and browsers",
+      "severity": "low"
+    },
+    {
+      "risk": "Database migration for existing messages without attachments field",
+      "mitigation": "Use nullable column with default empty array '[]', test migration on copy of production data first, existing messages remain fully compatible",
+      "severity": "low"
+    },
+    {
+      "risk": "Replied messages might be deleted causing broken references",
+      "mitigation": "Soft fail in service layer - log warning but don't throw error, show fallback UI component indicating 'Original message unavailable'",
+      "severity": "medium"
+    }
+  ],
+  "dependencies": {
+    "existing": [
+      "@radix-ui/react-dialog - Already installed, will use for AttachmentModal",
+      "lucide-react - Already installed, will use for icons (reply, close, navigation arrows)",
+      "TailwindCSS - Already configured, will use for all component styling",
+      "pg-promise - Already in use, will use for database queries"
+    ],
+    "none": "No new dependencies required"
+  },
+  "databaseChanges": {
+    "tables": {
+      "messages": {
+        "newColumns": [
+          {
+            "name": "replied_to_message_id",
+            "type": "UUID",
+            "nullable": true,
+            "foreignKey": "messages(id) ON DELETE SET NULL",
+            "index": true,
+            "description": "Reference to the message being replied to"
+          },
+          {
+            "name": "attachments",
+            "type": "JSONB",
+            "nullable": true,
+            "default": "'[]'::jsonb",
+            "description": "Array of attachment objects with url, type, and metadata"
+          }
+        ]
+      }
+    },
+    "indexes": [
+      {
+        "table": "messages",
+        "column": "replied_to_message_id",
+        "type": "btree",
+        "rationale": "Speed up lookups for replied messages"
+      }
+    ]
+  },
+  "apiChanges": {
+    "endpoints": {
+      "GET /api/messaging/conversations/:conversationId/messages": {
+        "changes": "Response now includes repliedToMessage nested object and attachments array in MessageResponseDto",
+        "breaking": false,
+        "migration": "None required - new fields are additive"
+      }
+    }
+  }
+}

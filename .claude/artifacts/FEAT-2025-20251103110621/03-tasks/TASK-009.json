@@ -1,0 +1,12 @@
+{
+  "taskId": "TASK-009",
+  "phaseId": "P7",
+  "title": "E2E tests for CLI backfill command",
+  "description": "Test backfill CLI end-to-end",
+  "category": "testing",
+  "priority": "medium",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-005"],
+  "files": ["backend/test/e2e/backfill-participant-profiles.e2e-spec.ts"],
+  "dod": ["CLI execution tests", "Job processing tests", "Error handling tests"]
+}

@@ -1,0 +1,31 @@
+{
+  "taskId": "TASK-011",
+  "phaseId": "P5",
+  "title": "Implement QuotedMessage component UI",
+  "description": "Design and implement visual layout for QuotedMessage component with reply icon from lucide-react, sender type indicator (you/customer), truncated message content (max 100 chars), optional media thumbnail. Apply TailwindCSS styling with subtle background, border, and hover effect. Handle edge cases (deleted messages, empty content). Make responsive for mobile.",
+  "category": "frontend-components",
+  "priority": "medium",
+  "estimatedHours": 1.5,
+  "dependencies": ["TASK-010"],
+  "files": [
+    "frontend/src/components/messages/QuotedMessage.tsx"
+  ],
+  "dod": [
+    "Reply icon (CornerUpLeft from lucide-react) displayed on left",
+    "Sender type shown as 'You' or 'Customer' based on senderType",
+    "Content truncated to 100 characters with ellipsis if longer",
+    "If mediaUrl exists, show small media icon or thumbnail (24x24px)",
+    "Background color: subtle gray (bg-gray-50 or bg-gray-100)",
+    "Border: left border with accent color (border-l-2 border-gray-400)",
+    "Hover effect: slight background darkening (hover:bg-gray-200)",
+    "Padding: consistent spacing (p-2 or p-3)",
+    "Deleted message shows 'Original message unavailable' placeholder",
+    "Empty content shows 'Media message' if mediaUrl exists",
+    "Responsive design works on mobile (text-sm on small screens)"
+  ],
+  "technicalDetails": {
+    "packages": ["lucide-react"],
+    "envVars": [],
+    "migrations": null
+  }
+}

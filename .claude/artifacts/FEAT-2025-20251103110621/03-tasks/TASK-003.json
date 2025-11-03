@@ -1,0 +1,18 @@
+{
+  "taskId": "TASK-003",
+  "phaseId": "P3",
+  "title": "Integrate enrichment in WebhookMessageHandler",
+  "description": "Add profile enrichment call in webhook message processing after findOrCreateConversation",
+  "category": "backend",
+  "priority": "critical",
+  "estimatedHours": 2,
+  "dependencies": ["TASK-002"],
+  "files": ["backend/src/modules/instagram/handlers/webhook-message.handler.ts"],
+  "dod": [
+    "Check participantUsername after findOrCreateConversation",
+    "Call enrichParticipantProfile if NULL",
+    "Message processing continues on enrichment failure",
+    "Logs enrichment attempts",
+    "Integration tests"
+  ]
+}

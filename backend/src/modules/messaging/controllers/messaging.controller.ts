@@ -142,15 +142,16 @@ export class MessagingController {
 
     const { limit = 100, offset = 0 } = filters;
 
-    const messages = await this.messagingService[
-      'messageRepository'
-    ].findByConversation(conversationId, { limit, offset });
+    const messages = await this.messagingService.listMessages(conversationId, {
+      limit,
+      offset,
+    });
 
     // Get total count (in production, you'd want a dedicated count method)
     const total = messages.length;
 
     return {
-      messages: messages.map((msg) => msg.toJSON()),
+      messages,
       total,
       limit,
       offset,
