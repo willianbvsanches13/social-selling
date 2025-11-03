@@ -44,7 +44,7 @@ async function bootstrap() {
 
     // Step 2: Fetch webhook logs
     console.log('📦 Step 2: Fetching webhook logs from http_request_logs...');
-    const logs = await database.query<HttpRequestLog>(
+    const logs: HttpRequestLog[] = await database.query(
       `SELECT id, request_body, created_at
        FROM http_request_logs
        WHERE path = '/api/instagram/webhooks'
