@@ -23,11 +23,13 @@ import { EmailWebhookHandlerService } from './services/email-webhook-handler.ser
 import { InstagramPublishingProcessor } from './processors/instagram-publishing.processor';
 import { WebhookEventsProcessor } from './processors/webhook-events.processor';
 import { EmailNotificationsProcessor } from './processors/email-notifications.processor';
+import { BackfillParticipantProfilesProcessor } from './processors/backfill-participant-profiles.processor';
 import { StorageModule } from '../infrastructure/storage/storage.module';
 import { CacheModule } from '../infrastructure/cache/cache.module';
 import { ClientAccountRepository } from '../infrastructure/database/repositories/client-account.repository';
 import { InstagramScheduledPostRepository } from '../infrastructure/database/repositories/instagram-scheduled-post.repository';
 import { OAuthTokenRepository } from '../infrastructure/database/repositories/oauth-token.repository';
+import { ConversationRepository } from '../infrastructure/database/repositories/conversation.repository';
 import { DatabaseModule } from '../infrastructure/database/database.module';
 import { InstagramModule } from '../modules/instagram/instagram.module';
 
@@ -129,6 +131,7 @@ import { InstagramModule } from '../modules/instagram/instagram.module';
     InstagramPublishingProcessor,
     WebhookEventsProcessor,
     EmailNotificationsProcessor,
+    BackfillParticipantProfilesProcessor,
     // Repository providers
     {
       provide: 'IClientAccountRepository',
@@ -141,6 +144,10 @@ import { InstagramModule } from '../modules/instagram/instagram.module';
     {
       provide: 'IOAuthTokenRepository',
       useClass: OAuthTokenRepository,
+    },
+    {
+      provide: 'IConversationRepository',
+      useClass: ConversationRepository,
     },
   ],
   exports: [

@@ -36,6 +36,7 @@ import { MessageRepository } from '../../infrastructure/database/repositories/me
 import { MessageWebhookHandler } from './handlers/message-webhook.handler';
 import { WebhookMessageHandler } from './handlers/webhook-message.handler';
 import { WorkersModule } from '../../workers/workers.module';
+import { MessagingModule } from '../messaging/messaging.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { WorkersModule } from '../../workers/workers.module';
     CacheModule,
     StorageModule,
     forwardRef(() => WorkersModule),
+    forwardRef(() => MessagingModule),
     BullModule.registerQueue({
       name: 'instagram-post-publishing',
     }),
@@ -140,6 +142,7 @@ import { WorkersModule } from '../../workers/workers.module';
     InstagramAnalyticsService,
     InstagramSchedulingService,
     InstagramMediaUploadService,
+    InstagramRateLimiter,
     WebhookMessageHandler,
     ConversationRepository,
     MessageRepository,

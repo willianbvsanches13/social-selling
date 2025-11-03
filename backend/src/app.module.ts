@@ -19,7 +19,6 @@ import { MessagingModule } from './modules/messaging/messaging.module';
 import { HttpLoggerMiddleware } from './common/middleware/http-logger.middleware';
 import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
 import { HttpLoggingInterceptor } from './common/interceptors/http-logging.interceptor';
-import { BackfillParticipantProfilesProcessor } from './workers/processors/backfill-participant-profiles.processor';
 import configuration from './config/configuration';
 
 @Module({
@@ -34,29 +33,6 @@ import configuration from './config/configuration';
       defaultMetrics: {
         enabled: true,
       },
-    }),
-    // Configure BullMQ with Redis connection
-    BullModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => {
-        const redisConfig = configService.get('redis');
-        return {
-          connection: {
-            host: redisConfig.host,
-            port: redisConfig.port,
-            password: redisConfig.password,
-            db: redisConfig.db || 0,
-            maxRetriesPerRequest: null, // Required by BullMQ
-            enableReadyCheck: true,
-            connectTimeout: 10000,
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
-    // Register BullMQ queues
-    BullModule.registerQueue({
-      name: 'backfill-participant-profiles',
     }),
     DatabaseModule,
     CacheModule,
@@ -81,7 +57,6 @@ import configuration from './config/configuration';
       provide: APP_INTERCEPTOR,
       useClass: HttpLoggingInterceptor,
     },
-    BackfillParticipantProfilesProcessor,
   ],
 })
 export class AppModule implements NestModule {

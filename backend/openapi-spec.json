@@ -2092,105 +2092,6 @@
         ]
       }
     },
-    "/api/posts/upload": {
-      "post": {
-        "operationId": "PostsController_uploadMedia",
-        "parameters": [
-          {
-            "name": "clientAccountId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Media uploaded successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MediaUploadResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid file"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Upload media file for post",
-        "tags": [
-          "Posts"
-        ]
-      }
-    },
-    "/api/posts/calendar": {
-      "get": {
-        "operationId": "PostsController_getCalendarPosts",
-        "parameters": [
-          {
-            "name": "startDate",
-            "required": true,
-            "in": "query",
-            "description": "Start date in ISO format (e.g., 2025-10-01)",
-            "schema": {
-              "example": "2025-10-01",
-              "type": "string"
-            }
-          },
-          {
-            "name": "endDate",
-            "required": true,
-            "in": "query",
-            "description": "End date in ISO format (e.g., 2025-11-30)",
-            "schema": {
-              "example": "2025-11-30",
-              "type": "string"
-            }
-          },
-          {
-            "name": "clientAccountId",
-            "required": false,
-            "in": "query",
-            "description": "Filter by client account ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Calendar posts retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ScheduledPostResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Get posts for calendar view",
-        "tags": [
-          "Posts"
-        ]
-      }
-    },
     "/api/messaging/conversations": {
       "get": {
         "description": "Retrieves a paginated list of conversations for a client account with optional filters",
@@ -2482,6 +2383,105 @@
         "summary": "Mark conversation as read",
         "tags": [
           "Messaging"
+        ]
+      }
+    },
+    "/api/posts/upload": {
+      "post": {
+        "operationId": "PostsController_uploadMedia",
+        "parameters": [
+          {
+            "name": "clientAccountId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Media uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid file"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload media file for post",
+        "tags": [
+          "Posts"
+        ]
+      }
+    },
+    "/api/posts/calendar": {
+      "get": {
+        "operationId": "PostsController_getCalendarPosts",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "description": "Start date in ISO format (e.g., 2025-10-01)",
+            "schema": {
+              "example": "2025-10-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "description": "End date in ISO format (e.g., 2025-11-30)",
+            "schema": {
+              "example": "2025-11-30",
+              "type": "string"
+            }
+          },
+          {
+            "name": "clientAccountId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by client account ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calendar posts retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ScheduledPostResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get posts for calendar view",
+        "tags": [
+          "Posts"
         ]
       }
     },

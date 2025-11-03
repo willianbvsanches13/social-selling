@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MessagingController } from './controllers/messaging.controller';
 import { ConversationService } from './services/conversation.service';
 import { MessagingService } from './services/messaging.service';
@@ -9,7 +9,7 @@ import { MessageRepository } from '../../infrastructure/database/repositories/me
 import { ClientAccountRepository } from '../../infrastructure/database/repositories/client-account.repository';
 
 @Module({
-  imports: [DatabaseModule, InstagramModule],
+  imports: [DatabaseModule, forwardRef(() => InstagramModule)],
   controllers: [MessagingController],
   providers: [
     ConversationService,
