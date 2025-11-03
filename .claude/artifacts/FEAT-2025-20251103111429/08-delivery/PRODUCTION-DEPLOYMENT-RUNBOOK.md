@@ -276,8 +276,11 @@ WHERE media_url IS NOT NULL AND media_url != '';
 ### 4.2 DRY RUN (Preview - NÃO faz mudanças)
 
 ```bash
-# Testar ANTES de executar de verdade
-npm run backfill:attachments -- --dry-run
+# Testar ANTES de executar de verdade (PRODUÇÃO)
+docker compose exec backend npm run backfill:attachments:prod -- --dry-run
+
+# OU dentro do container:
+npm run backfill:attachments:prod -- --dry-run
 
 # ✓ Revisar output
 # ✓ Verificar números fazem sentido
