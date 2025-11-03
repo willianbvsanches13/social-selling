@@ -30,6 +30,10 @@
     "db:seed": "docker exec -i social-selling-postgres psql -U social_selling_user -d social_selling < migrations/seed-dev-data.sql",
     "db:seed:messages": "docker exec -i social-selling-postgres psql -U social_selling_user -d social_selling < migrations/seed-instagram-messages.sql",
     "simulate-webhooks": "ts-node -r tsconfig-paths/register scripts/simulate-webhooks.ts",
+    "backfill:conversations": "ts-node -r tsconfig-paths/register scripts/backfill-conversations-from-logs.ts",
+    "backfill:conversations:docker": "docker exec social-selling-backend npm run backfill:conversations",
+    "fix:dates": "ts-node -r tsconfig-paths/register scripts/fix-lastmessageat-dates.ts",
+    "fix:dates:docker": "docker exec social-selling-backend npm run fix:dates",
     "docs:generate": "ts-node -r tsconfig-paths/register src/scripts/generate-openapi-spec.ts",
     "docs:serve": "npm run start:dev",
     "prepare": "husky"
