@@ -59,12 +59,6 @@ export class WebhookMessageHandler {
         return;
       }
 
-      // Skip echo messages (sent by us)
-      if (payload.message.is_echo) {
-        this.logger.debug(`Skipping echo message: ${payload.message.mid}`);
-        return;
-      }
-
       // Get client account to determine the page/business account ID
       const clientAccount =
         await this.clientAccountRepository.findById(clientAccountId);
