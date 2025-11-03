@@ -63,12 +63,14 @@ export class InstagramOAuthService {
       this.configService.get<string>('INSTAGRAM_REDIRECT_URI') || '';
 
     if (!this.clientId || !this.clientSecret || !this.redirectUri) {
-      this.logger.error('Facebook OAuth credentials not configured');
-      throw new Error('Facebook OAuth credentials are required for Instagram login');
+      this.logger.warn('Facebook OAuth credentials not configured - Instagram OAuth will not be available');
     }
   }
 
   async getAuthorizationUrl(userId: string): Promise<string> {
+    if (!this.clientId || !this.clientSecret || !this.redirectUri) {
+      throw new Error('Facebook OAuth credentials not configured');
+    }
     const state = this.generateState();
 
     await this.redisService.set(
@@ -92,6 +94,9 @@ export class InstagramOAuthService {
     code: string,
     state: string,
   ): Promise<{ accountId: string; username: string }> {
+    if (!this.clientId || !this.clientSecret || !this.redirectUri) {
+      throw new Error('Facebook OAuth credentials not configured');
+    }
     const stateData = await this.redisService.get(
       `oauth:instagram:state:${state}`,
     );
