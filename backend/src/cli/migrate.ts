@@ -38,6 +38,10 @@ async function main() {
         await migrationRunner.status();
         break;
 
+      case 'mark-completed':
+        await migrationRunner.markAsCompleted(arg);
+        break;
+
       default:
         console.log(`
 ╔═══════════════════════════════════════════════╗
@@ -48,15 +52,19 @@ Usage:
   npm run migrate <command> [options]
 
 Commands:
-  up              Run all pending migrations
-  down [steps]    Rollback migrations (default: 1 step)
-  status          Show migration status
+  up                    Run all pending migrations
+  down [steps]          Rollback migrations (default: 1 step)
+  status                Show migration status
+  mark-completed [name] Mark migrations as completed without running them
+                        (useful for existing databases)
 
 Examples:
-  npm run migrate up           # Run all pending migrations
-  npm run migrate down         # Rollback last migration
-  npm run migrate down 3       # Rollback last 3 migrations
-  npm run migrate status       # Show current status
+  npm run migrate up                    # Run all pending migrations
+  npm run migrate down                  # Rollback last migration
+  npm run migrate down 3                # Rollback last 3 migrations
+  npm run migrate status                # Show current status
+  npm run migrate mark-completed        # Mark all pending as completed
+  npm run migrate mark-completed 001-initial-schema.sql  # Mark specific migration
         `);
         process.exit(command ? 1 : 0);
     }

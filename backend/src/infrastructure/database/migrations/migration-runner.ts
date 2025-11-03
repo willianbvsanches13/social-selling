@@ -104,6 +104,43 @@ export class MigrationRunner {
     );
   }
 
+  async markAsCompleted(migrationName?: string): Promise<void> {
+    await this.initialize();
+
+    const pendingMigrations = await this.getPendingMigrations();
+
+    if (pendingMigrations.length === 0) {
+      console.log('✓ No pending migrations to mark as completed');
+      return;
+    }
+
+    let migrationsToMark: string[];
+
+    if (migrationName) {
+      // Mark a specific migration
+      if (!pendingMigrations.includes(migrationName)) {
+        console.log(`❌ Migration "${migrationName}" is already marked as completed or doesn't exist`);
+        return;
+      }
+      migrationsToMark = [migrationName];
+    } else {
+      // Mark all pending migrations
+      migrationsToMark = pendingMigrations;
+    }
+
+    console.log(`\n📝 Marking ${migrationsToMark.length} migration(s) as completed...\n`);
+
+    for (const migration of migrationsToMark) {
+      await this.db.none('INSERT INTO migrations (name, file) VALUES ($1, $2)', [
+        migration,
+        migration,
+      ]);
+      console.log(`  ✓ Marked: ${migration}`);
+    }
+
+    console.log('\n✅ All migrations marked as completed\n');
+  }
+
   private getAllMigrationFiles(): string[] {
     if (!fs.existsSync(this.migrationsDir)) {
       return [];

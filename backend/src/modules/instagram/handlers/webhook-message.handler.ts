@@ -10,6 +10,8 @@ import {
   Message,
   MessageType,
   SenderType,
+  Attachment,
+  AttachmentType,
 } from '../../../domain/entities/message.entity';
 import { InstagramWebhookEvent } from '../../../domain/entities/instagram-webhook-event.entity';
 import { ConversationService } from '../../messaging/services/conversation.service';
@@ -141,6 +143,7 @@ export class WebhookMessageHandler {
         content: payload.message.text,
         mediaUrl: this.extractMediaUrl(payload.message),
         mediaType: this.extractMediaType(payload.message),
+        attachments: this.extractAttachments(payload.message),
         sentAt: new Date(payload.timestamp),
         metadata: {
           replyTo: payload.message.reply_to?.mid,
@@ -235,6 +238,43 @@ export class WebhookMessageHandler {
     }
 
     return message.attachments[0].type;
+  }
+
+  /**
+   * Extracts and converts Instagram attachments to our Attachment[] format
+   */
+  private extractAttachments(message: any): Attachment[] {
+    if (!message.attachments || message.attachments.length === 0) {
+      return [];
+    }
+
+    return message.attachments.map((attachment: any) => {
+      let attachmentType: AttachmentType;
+
+      switch (attachment.type) {
+        case 'image':
+          attachmentType = AttachmentType.IMAGE;
+          break;
+        case 'video':
+          attachmentType = AttachmentType.VIDEO;
+          break;
+        case 'audio':
+          attachmentType = AttachmentType.AUDIO;
+          break;
+        default:
+          attachmentType = AttachmentType.DOCUMENT;
+          break;
+      }
+
+      return {
+        url: attachment.payload?.url || '',
+        type: attachmentType,
+        metadata: {
+          originalType: attachment.type,
+          ...(attachment.payload || {}),
+        },
+      };
+    });
   }
 
   private async findOrCreateConversation(

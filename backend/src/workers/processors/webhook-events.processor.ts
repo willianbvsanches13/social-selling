@@ -200,8 +200,8 @@ export class WebhookEventsProcessor extends WorkerHost {
           break;
 
         case WebhookEventType.MESSAGE:
-          // Use new WebhookMessageHandler for message processing
-          await this.storeMessage(accountId, event);
+          // Use WebhookMessageHandler for message processing
+          await this.processMessageWithHandler(accountId, event);
           break;
 
         case WebhookEventType.STORY_INSIGHT:
@@ -300,57 +300,73 @@ export class WebhookEventsProcessor extends WorkerHost {
   }
 
   /**
-   * Store Instagram direct message in database
+   * Process Instagram message using WebhookMessageHandler
    */
-  private async storeMessage(accountId: string, message: any): Promise<void> {
-    // Check if conversation exists, create if not
-    await this.database.none(
-      `INSERT INTO conversations (
-        id, client_account_id, platform_conversation_id,
-        participant_platform_id, participant_username,
-        unread_count, status, metadata
-      )
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-       ON CONFLICT (client_account_id, platform_conversation_id) DO NOTHING`,
-      [
-        crypto.randomUUID(),
-        accountId,
-        message.conversationId,
-        message.from.id,
-        message.from.username || 'unknown',
-        0,
-        'open',
-        JSON.stringify({}),
-      ],
-    );
+  private async processMessageWithHandler(
+    accountId: string,
+    event: any,
+  ): Promise<void> {
+    try {
+      // Get the webhook event from database to pass to handler
+      const webhookEvent = await this.database.oneOrNone<any>(
+        `SELECT id, event_type, payload FROM instagram_webhook_events
+         WHERE instagram_account_id = $1
+         AND object_id = $2
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [accountId, event.id],
+      );
 
-    // Store message
-    await this.database.none(
-      `INSERT INTO messages
-       (id, conversation_id, platform_message_id, sender_type, sender_platform_id,
-        message_type, content, sent_at, is_read, metadata)
-       VALUES ($1, (
-         SELECT id FROM conversations
-         WHERE client_account_id = $2 AND platform_conversation_id = $3
-         LIMIT 1
-       ), $4, $5, $6, $7, $8, $9, $10, $11)
-       ON CONFLICT (platform_message_id) DO NOTHING`,
-      [
-        crypto.randomUUID(),
+      if (!webhookEvent) {
+        this.logger.warn(
+          `Webhook event not found for message ${event.id}, using fallback`,
+        );
+        // Fallback: create a temporary event object
+        const tempEvent = {
+          id: crypto.randomUUID(),
+          payload: {
+            entry: [
+              {
+                id: event.entryId || event.pageId,
+                messaging: [
+                  {
+                    sender: event.from,
+                    recipient: event.recipient || event.to,
+                    timestamp: new Date(event.timestamp).getTime(),
+                    message: {
+                      mid: event.id,
+                      text: event.text,
+                      attachments: event.attachments,
+                      is_echo: event.isEcho,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        };
+
+        await this.webhookMessageHandler.processMessageEvent(
+          tempEvent as any,
+          accountId,
+        );
+        return;
+      }
+
+      // Use the handler with the actual webhook event
+      await this.webhookMessageHandler.processMessageEvent(
+        {
+          id: webhookEvent.id,
+          payload: webhookEvent.payload,
+        } as any,
         accountId,
-        message.conversationId,
-        message.id,
-        message.isEcho ? 'user' : 'customer',
-        message.from.id,
-        message.attachments && message.attachments.length > 0
-          ? 'image'
-          : 'text',
-        message.text || '',
-        message.timestamp,
-        false,
-        JSON.stringify(message),
-      ],
-    );
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error processing message with handler: ${error instanceof Error ? error.message : String(error)}`,
+      );
+      throw error;
+    }
   }
 
   /**

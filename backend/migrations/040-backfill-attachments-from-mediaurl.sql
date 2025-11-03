@@ -165,8 +165,6 @@ WHERE attachments IS NOT NULL AND attachments != '[]'::jsonb;
 COMMENT ON COLUMN messages.attachments IS
   'JSONB array of attachment metadata. Migrated from legacy media_url field.';
 
-RAISE NOTICE 'Backfill migration 040 completed successfully!';
-
 -- ============================================================================
 -- ROLLBACK
 -- ============================================================================

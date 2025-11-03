@@ -33,7 +33,6 @@ import {
 } from '../../infrastructure/database/repositories/instagram-analytics.repository';
 import { ConversationRepository } from '../../infrastructure/database/repositories/conversation.repository';
 import { MessageRepository } from '../../infrastructure/database/repositories/message.repository';
-import { MessageWebhookHandler } from './handlers/message-webhook.handler';
 import { WebhookMessageHandler } from './handlers/webhook-message.handler';
 import { WorkersModule } from '../../workers/workers.module';
 import { MessagingModule } from '../messaging/messaging.module';
@@ -120,9 +119,9 @@ import { MessagingModule } from '../messaging/messaging.module';
     InstagramMediaInsightRepository,
     InstagramStoryInsightRepository,
     InstagramAnalyticsReportRepository,
+    ClientAccountRepository,
     ConversationRepository,
     MessageRepository,
-    MessageWebhookHandler,
     WebhookMessageHandler,
     {
       provide: 'IConversationRepository',

@@ -105,16 +105,6 @@ export function MessageThread({ messages, isLoading }: MessageThreadProps) {
                     </div>
                   )}
 
-                  {/* Legacy media URL support */}
-                  {message.mediaUrl && (
-                    <img
-                      src={message.mediaUrl}
-                      alt="Attachment"
-                      className="mb-2 max-w-full rounded-lg"
-                      loading="lazy"
-                    />
-                  )}
-
                   {/* Message content */}
                   {message.content && <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>}
 

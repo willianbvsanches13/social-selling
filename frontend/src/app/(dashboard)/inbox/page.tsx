@@ -86,7 +86,7 @@ export default function InboxPage() {
   };
 
   // Handle send message
-  const handleSendMessage = async (text: string, mediaUrl?: string) => {
+  const handleSendMessage = async (text: string) => {
     if (!selectedConversation) return;
 
     sendMessageMutation.mutate({

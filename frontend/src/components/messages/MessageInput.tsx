@@ -7,7 +7,7 @@ import { useToast } from '@/lib/hooks/useToast';
 import { Button } from '@/components/ui/button';
 
 interface MessageInputProps {
-  onSend: (text: string, mediaUrl?: string) => void;
+  onSend: (text: string) => void;
   disabled?: boolean;
 }
 
@@ -20,10 +20,10 @@ export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSend = async () => {
-    if (!text.trim() && !mediaPreview) return;
+    if (!text.trim()) return;
     if (disabled) return;
 
-    onSend(text.trim(), mediaPreview || undefined);
+    onSend(text.trim());
     setText('');
     setMediaPreview(null);
 
@@ -154,7 +154,7 @@ export function MessageInput({ onSend, disabled = false }: MessageInputProps) {
         {/* Send Button */}
         <Button
           onClick={handleSend}
-          disabled={(!text.trim() && !mediaPreview) || disabled}
+          disabled={!text.trim() || disabled}
           size="icon"
           className="flex-shrink-0"
         >

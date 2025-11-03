@@ -20,7 +20,13 @@ const AttachmentModal: React.FC<AttachmentModalProps> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   const currentAttachment = attachments[currentIndex];
-  const isVideo = currentAttachment?.type === AttachmentType.VIDEO;
+
+  // Detecta se é um vídeo (incluindo ig_reels que vêm como DOCUMENT)
+  const originalType = currentAttachment?.metadata?.originalType as string | undefined;
+  const isVideo = currentAttachment?.type === AttachmentType.VIDEO ||
+                  originalType === 'ig_reel' ||
+                  originalType === 'video';
+
   const hasPrevious = currentIndex > 0;
   const hasNext = currentIndex < attachments.length - 1;
   const hasMultipleAttachments = attachments.length > 1;

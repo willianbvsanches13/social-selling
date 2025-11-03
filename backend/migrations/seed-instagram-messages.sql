@@ -186,8 +186,9 @@ BEGIN
 
 END $$;
 
--- Summary
-SELECT
-  'Seed completed successfully!' as status,
-  (SELECT COUNT(*) FROM conversations WHERE metadata->>'test' = 'true') as conversations_created,
-  (SELECT COUNT(*) FROM messages WHERE metadata->>'webhook_time' IS NOT NULL) as messages_created;
+-- Summary: Seed completed successfully!
+-- Run this query manually to check results:
+-- SELECT
+--   'Seed completed successfully!' as status,
+--   (SELECT COUNT(*) FROM conversations WHERE metadata->>'test' = 'true') as conversations_created,
+--   (SELECT COUNT(*) FROM messages WHERE metadata->>'webhook_time' IS NOT NULL) as messages_created;

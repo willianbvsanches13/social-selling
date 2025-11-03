@@ -1,5 +1,5 @@
 import React from 'react';
-import { CornerUpLeft, Image, Video, FileAudio } from 'lucide-react';
+import { CornerUpLeft } from 'lucide-react';
 import { RepliedMessage, SenderType } from '../../types/message';
 
 interface QuotedMessageProps {
@@ -17,24 +17,7 @@ const QuotedMessage: React.FC<QuotedMessageProps> = ({ repliedMessage }) => {
     return senderType === SenderType.USER ? 'You' : 'Customer';
   };
 
-  const getMediaIcon = (mediaUrl?: string) => {
-    if (!mediaUrl) return null;
-
-    // Determine media type from URL or default to image
-    const url = mediaUrl.toLowerCase();
-    if (url.includes('video') || url.includes('.mp4') || url.includes('.mov')) {
-      return <Video className="h-4 w-4 text-gray-500" />;
-    } else if (url.includes('audio') || url.includes('.mp3') || url.includes('.wav')) {
-      return <FileAudio className="h-4 w-4 text-gray-500" />;
-    } else {
-      return <Image className="h-4 w-4 text-gray-500" />;
-    }
-  };
-
   const getDisplayContent = (): string => {
-    if (!repliedMessage.content && repliedMessage.mediaUrl) {
-      return 'Media message';
-    }
     if (!repliedMessage.content) {
       return 'Original message unavailable';
     }
@@ -49,11 +32,6 @@ const QuotedMessage: React.FC<QuotedMessageProps> = ({ repliedMessage }) => {
           <span className="text-xs font-medium text-gray-700">
             {getSenderLabel(repliedMessage.senderType)}
           </span>
-          {repliedMessage.mediaUrl && (
-            <div className="flex-shrink-0">
-              {getMediaIcon(repliedMessage.mediaUrl)}
-            </div>
-          )}
         </div>
         <p className="text-sm text-gray-600 truncate sm:text-xs">
           {getDisplayContent()}
