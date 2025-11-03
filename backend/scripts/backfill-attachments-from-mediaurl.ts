@@ -19,8 +19,12 @@
  *   npm run backfill:attachments -- --force
  */
 
-import { createDb } from '../src/infrastructure/database/db';
+import * as pgPromise from 'pg-promise';
 import { IDatabase } from 'pg-promise';
+import * as dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 interface BackfillStats {
   totalMessages: number;
@@ -328,6 +332,30 @@ class AttachmentsBackfillService {
 }
 
 /**
+ * Create database connection using environment variables
+ */
+function createDatabaseConnection(): IDatabase<unknown> {
+  const pgp = pgPromise({
+    error: (error: Error) => {
+      console.error('Database error:', error.message || error);
+    },
+  });
+
+  const config = {
+    host: process.env.POSTGRES_HOST || 'localhost',
+    port: parseInt(process.env.POSTGRES_PORT || '5432', 10),
+    database: process.env.POSTGRES_DB || 'social_selling',
+    user: process.env.POSTGRES_USER || 'postgres',
+    password: process.env.POSTGRES_PASSWORD || 'postgres',
+    max: 10, // Connection pool size
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+  };
+
+  return pgp(config);
+}
+
+/**
  * Main execution function
  */
 async function main() {
@@ -383,7 +411,7 @@ Examples:
 
   try {
     // Create database connection
-    db = createDb();
+    db = createDatabaseConnection();
 
     // Execute migration
     const service = new AttachmentsBackfillService(db, options);
