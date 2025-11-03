@@ -48,16 +48,63 @@
   - Command: `pg_dump social_selling_staging > backup_$(date +%Y%m%d_%H%M%S).sql`
   - Verify backup file created and not empty
 
-- [ ] Migration tested on staging database
+- [ ] Migration 039 tested on staging database
   - Command: `psql -d social_selling_staging -f backend/migrations/039-add-message-reply-and-attachments.sql`
   - Verify columns created: `\d messages`
   - Check migration logs for success
   - Verify indexes created: `\di idx_messages_replied_to` and `\di idx_messages_attachments`
 
-- [ ] Migration rollback tested
+- [ ] Migration 039 rollback tested
   - Run rollback section from migration file
   - Verify columns removed
   - Re-run migration to ensure idempotency
+
+### ⚠️ CRITICAL: Data Backfill (BEFORE Frontend Deploy)
+**THIS MUST BE EXECUTED BEFORE DEPLOYING FRONTEND!**
+
+- [ ] Review backfill deployment guide
+  - File: `.claude/artifacts/FEAT-2025-20251103111429/08-delivery/BACKFILL-DEPLOYMENT-GUIDE.md`
+  - Understand the migration process
+  - Review rollback plan
+
+- [ ] Dry-run backfill script
+  - Command: `npm run backfill:attachments -- --dry-run`
+  - Review output and preview changes
+  - Verify no errors in dry-run
+  - Check sample data looks correct
+
+- [ ] Execute backfill migration (Option A: SQL)
+  - Command: `psql -d social_selling_staging -f backend/migrations/040-backfill-attachments-from-mediaurl.sql`
+  - Monitor migration progress (watch for NOTICE messages)
+  - Verify "Migration completed successfully!"
+  - Verify "Migration verification PASSED - 100% coverage"
+  - Check duration is reasonable (<1ms per message average)
+
+- [ ] OR execute backfill (Option B: TypeScript)
+  - Command: `npm run backfill:attachments`
+  - Monitor progress output
+  - Verify "Migration completed successfully!"
+  - Check statistics match expectations
+
+- [ ] Verify backfill results
+  - Command: Check 100% coverage
+    ```sql
+    SELECT
+      COUNT(*) FILTER (WHERE media_url IS NOT NULL) as with_media,
+      COUNT(*) FILTER (WHERE attachments != '[]'::jsonb) as with_attachments,
+      ROUND(COUNT(*) FILTER (WHERE attachments != '[]'::jsonb)::numeric /
+            NULLIF(COUNT(*) FILTER (WHERE media_url IS NOT NULL), 0) * 100, 2) as coverage
+    FROM messages;
+    ```
+  - Expected: coverage = 100.00%
+  - Spot-check 5-10 random messages manually
+  - Verify attachment types look correct (image/video)
+
+- [ ] Test backfill rollback (on staging only!)
+  - Execute rollback query from BACKFILL-DEPLOYMENT-GUIDE.md
+  - Verify attachments cleared
+  - Re-run backfill to confirm it works again
+  - Leave data in backfilled state for frontend testing
 
 ### Backend Deployment (Staging)
 - [ ] Environment variables verified (none new required)
