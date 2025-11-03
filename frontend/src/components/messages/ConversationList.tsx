@@ -1,5 +1,5 @@
 import React from 'react';
-import { Archive } from 'lucide-react';
+import { Archive, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatRelativeTime } from '@/lib/utils/formatters';
 import { cn } from '@/lib/utils/cn';

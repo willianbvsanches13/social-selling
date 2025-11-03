@@ -3,7 +3,7 @@ import { Check, CheckCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatRelativeTime } from '@/lib/utils/formatters';
 import { cn } from '@/lib/utils/cn';
-import type { Message, Attachment } from '@/types/message';
+import type { Message, Attachment, Conversation } from '@/types/message';
 import QuotedMessage from './QuotedMessage';
 import MediaAttachment from './MediaAttachment';
 import AttachmentModal from './AttachmentModal';
