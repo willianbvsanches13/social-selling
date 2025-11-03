@@ -18,11 +18,26 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
 import { Database } from '../src/infrastructure/database/database';
 import { WebhookMessageHandler } from '../src/modules/instagram/handlers/webhook-message.handler';
-import { InstagramWebhookEvent } from '../src/domain/entities/instagram-webhook-event.entity';
+import {
+  InstagramWebhookEvent,
+  WebhookEventType,
+} from '../src/domain/entities/instagram-webhook-event.entity';
 
 interface HttpRequestLog {
   id: string;
-  request_body: any;
+  request_body: {
+    object: string;
+    entry: Array<{
+      id: string;
+      time: number;
+      messaging: Array<{
+        sender: { id: string };
+        recipient: { id: string };
+        timestamp: number;
+        message?: unknown;
+      }>;
+    }>;
+  };
   created_at: Date;
 }
 
@@ -44,7 +59,7 @@ async function bootstrap() {
 
     // Step 2: Fetch webhook logs
     console.log('📦 Step 2: Fetching webhook logs from http_request_logs...');
-    const logs: HttpRequestLog[] = await database.query(
+    const logsResult = await database.query(
       `SELECT id, request_body, created_at
        FROM http_request_logs
        WHERE path = '/api/instagram/webhooks'
@@ -53,6 +68,7 @@ async function bootstrap() {
        AND request_body IS NOT NULL
        ORDER BY created_at ASC`,
     );
+    const logs = logsResult as HttpRequestLog[];
 
     console.log(`   ✓ Found ${logs.length} webhook logs to process\n`);
 
@@ -88,9 +104,9 @@ async function bootstrap() {
             }
 
             // Create InstagramWebhookEvent
-            const webhookEvent: InstagramWebhookEvent = {
+            const webhookEvent = {
               id: `backfill-${log.id}-${Date.now()}`,
-              eventType: 'messages',
+              eventType: WebhookEventType.MESSAGE,
               payload: {
                 entry: [
                   {
@@ -101,17 +117,19 @@ async function bootstrap() {
                 ],
                 object: payload.object,
               },
-              timestamp: log.created_at,
-            } as any;
+            } as unknown as InstagramWebhookEvent;
 
             // Find client account ID from the entry.id
             // We need to find which client account this webhook belongs to
-            const clientAccounts = await database.query(
+            const clientAccountsResult = await database.query(
               `SELECT id FROM client_accounts
                WHERE platform_account_id = $1
                LIMIT 1`,
               [entry.id],
             );
+            const clientAccounts = clientAccountsResult as Array<{
+              id: string;
+            }>;
 
             if (clientAccounts.length === 0) {
               console.log(
@@ -157,12 +175,19 @@ async function bootstrap() {
     }
 
     // Step 5: Show results
-    const conversationCount = await database.query(
+    const conversationCountResult = await database.query(
       'SELECT COUNT(*) as count FROM conversations',
     );
-    const messageCount = await database.query(
+    const conversationCount = conversationCountResult as Array<{
+      count: string;
+    }>;
+
+    const messageCountResult = await database.query(
       'SELECT COUNT(*) as count FROM messages',
     );
+    const messageCount = messageCountResult as Array<{
+      count: string;
+    }>;
 
     console.log('\n📈 Final Statistics:');
     console.log(`   ✓ Conversations created: ${conversationCount[0].count}`);

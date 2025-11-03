@@ -740,6 +740,55 @@
         ]
       }
     },
+    "/api/instagram/profile/{participantId}": {
+      "get": {
+        "description": "Fetches Instagram user profile data (username, profile picture) by platform ID with Redis caching",
+        "operationId": "InstagramController_getUserProfile",
+        "parameters": [
+          {
+            "name": "participantId",
+            "required": true,
+            "in": "path",
+            "description": "Instagram Platform ID",
+            "schema": {
+              "example": "17841403506636395",
+              "type": "string"
+            }
+          },
+          {
+            "name": "accountId",
+            "required": false,
+            "in": "query",
+            "description": "Client account ID for access token (optional, defaults to system token)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Instagram profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstagramProfileDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Profile not found or inaccessible"
+          },
+          "500": {
+            "description": "Failed to fetch profile from Instagram API"
+          }
+        },
+        "summary": "Get Instagram user profile by ID",
+        "tags": [
+          "Instagram Integration"
+        ]
+      }
+    },
     "/api/instagram/accounts": {
       "get": {
         "operationId": "InstagramAccountController_listAccounts",
@@ -2151,6 +2200,7 @@
             "name": "clientAccountId",
             "required": true,
             "in": "query",
+            "description": "Client account ID to filter conversations",
             "schema": {
               "type": "string"
             }
@@ -2992,6 +3042,68 @@
           "username",
           "instagramBusinessAccountId",
           "message"
+        ]
+      },
+      "InstagramProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Instagram account ID"
+          },
+          "username": {
+            "type": "string",
+            "description": "Instagram username"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name"
+          },
+          "biography": {
+            "type": "string",
+            "description": "Profile biography"
+          },
+          "profile_picture_url": {
+            "type": "string",
+            "description": "Profile picture URL"
+          },
+          "website": {
+            "type": "string",
+            "description": "Website URL"
+          },
+          "followers_count": {
+            "type": "number",
+            "description": "Number of followers"
+          },
+          "follows_count": {
+            "type": "number",
+            "description": "Number of accounts following"
+          },
+          "media_count": {
+            "type": "number",
+            "description": "Number of media posts"
+          },
+          "ig_id": {
+            "type": "number",
+            "description": "Instagram Business Account ID"
+          },
+          "is_verified": {
+            "type": "boolean",
+            "description": "Verified account status"
+          },
+          "account_type": {
+            "type": "string",
+            "enum": [
+              "BUSINESS",
+              "CREATOR",
+              "PERSONAL"
+            ],
+            "description": "Account type"
+          }
+        },
+        "required": [
+          "id",
+          "username"
         ]
       },
       "AccountResponseDto": {

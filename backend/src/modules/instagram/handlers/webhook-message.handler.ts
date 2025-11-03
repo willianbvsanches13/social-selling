@@ -215,10 +215,11 @@ export class WebhookMessageHandler {
   private async findOrCreateConversation(
     clientAccountId: string,
     participantPlatformId: string,
-    recipientId: string,
+    pageId: string,
   ): Promise<Conversation> {
     // Try to find existing conversation
-    const platformConversationId = `${clientAccountId}_${participantPlatformId}`;
+    // Use pageId (platform_account_id) to group conversations correctly
+    const platformConversationId = `${pageId}_${participantPlatformId}`;
 
     let conversation = await this.conversationRepository.findByPlatformId(
       clientAccountId,
@@ -239,7 +240,7 @@ export class WebhookMessageHandler {
       platformConversationId,
       participantPlatformId,
       metadata: {
-        recipientId,
+        pageId,
         createdViaWebhook: true,
       },
     });
