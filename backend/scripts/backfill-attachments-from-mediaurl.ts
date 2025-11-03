@@ -247,8 +247,7 @@ class AttachmentsBackfillService {
                'uploadedAt', COALESCE(created_at, NOW()),
                'source', 'legacy_migration'
              )
-           ),
-           updated_at = NOW()
+           )
          ${whereClause}`
       );
 

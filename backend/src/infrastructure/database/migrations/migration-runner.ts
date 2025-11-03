@@ -13,7 +13,18 @@ export class MigrationRunner {
   private readonly migrationsDir: string;
 
   constructor(private readonly db: IDatabase<any>) {
-    this.migrationsDir = path.join(__dirname, '../../../../migrations');
+    // Check if running from dist (production) or src (development)
+    const isProduction = __dirname.includes('/dist/');
+
+    if (isProduction) {
+      // In production, __dirname is /app/dist/src/infrastructure/database/migrations
+      // We need to go up to /app and then to migrations
+      this.migrationsDir = path.join(__dirname, '../../../../../migrations');
+    } else {
+      // In development, __dirname is /app/src/infrastructure/database/migrations
+      // We need to go up to /app and then to migrations
+      this.migrationsDir = path.join(__dirname, '../../../../migrations');
+    }
   }
 
   async initialize(): Promise<void> {
