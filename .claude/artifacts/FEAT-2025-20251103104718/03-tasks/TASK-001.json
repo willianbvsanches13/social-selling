@@ -1,0 +1,55 @@
+{
+  "taskId": "TASK-001",
+  "phaseId": "P1",
+  "title": "Corrigir ordem e scroll de mensagens no MessageThread",
+  "description": "Analisar e corrigir o componente MessageThread.tsx para garantir que as mensagens sejam exibidas em ordem cronológica (antigas no topo, novas embaixo) e que o scroll inicie automaticamente no final da lista. O código atual já possui a lógica de scrollToBottom, mas pode estar falhando na execução inicial ou no comportamento com novas mensagens.",
+  "category": "frontend",
+  "priority": "high",
+  "estimatedHours": 0.5,
+  "dependencies": [],
+  "files": [
+    "frontend/src/components/messages/MessageThread.tsx"
+  ],
+  "dod": [
+    "Mensagens antigas aparecem no topo da lista visualmente",
+    "Mensagens novas aparecem no final da lista visualmente",
+    "Scroll posiciona automaticamente no final ao carregar conversa",
+    "Scroll vai para o final automaticamente quando nova mensagem chegar",
+    "Comportamento de smooth scroll preservado",
+    "Timestamps relativos continuam funcionando corretamente"
+  ],
+  "technicalDetails": {
+    "currentIssues": [
+      "scrollToBottom pode não estar executando após render completo",
+      "useEffect pode estar executando antes do DOM estar pronto",
+      "Ordem visual das mensagens pode estar invertida"
+    ],
+    "proposedFixes": [
+      "Verificar se messagesEndRef está sendo referenciado corretamente",
+      "Garantir que useEffect execute após todas as mensagens renderizarem",
+      "Adicionar dependência correta no array de deps do useEffect",
+      "Considerar usar scrollIntoView com opções específicas"
+    ],
+    "packages": [],
+    "envVars": [],
+    "migrations": null
+  },
+  "testingScenarios": [
+    {
+      "scenario": "Carregar conversa com histórico de mensagens",
+      "expected": "Scroll deve estar no final mostrando as mensagens mais recentes"
+    },
+    {
+      "scenario": "Receber nova mensagem",
+      "expected": "Scroll deve mover automaticamente para o final"
+    },
+    {
+      "scenario": "Visualizar mensagens antigas no histórico",
+      "expected": "Mensagens mais antigas devem estar no topo da lista"
+    },
+    {
+      "scenario": "Verificar timestamps",
+      "expected": "Timestamps devem aparecer entre mensagens com intervalo > 5 min"
+    }
+  ]
+}

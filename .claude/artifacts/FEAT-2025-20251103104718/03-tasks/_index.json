@@ -1,0 +1,18 @@
+{
+  "taskSetId": "TASKS-2025-20251103104848",
+  "featureId": "FEAT-2025-20251103104718",
+  "planId": "PLAN-2025-20251103104813",
+  "timestamp": "2025-11-03T10:48:48Z",
+  "summary": {
+    "totalTasks": 1,
+    "byCategory": {
+      "frontend": 1
+    },
+    "byPriority": {
+      "high": 1
+    }
+  },
+  "executionOrder": [
+    "TASK-001"
+  ]
+}

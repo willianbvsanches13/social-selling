@@ -1,0 +1,104 @@
+{
+  "planId": "PLAN-2025-20251103104813",
+  "featureId": "FEAT-2025-20251103104718",
+  "timestamp": "2025-11-03T10:48:13Z",
+  "architecture": {
+    "approach": "component-modification",
+    "patterns": [
+      "React Hooks Pattern",
+      "Component Composition",
+      "Imperative Scrolling"
+    ],
+    "components": [
+      {
+        "name": "MessageThread Component",
+        "type": "frontend-component",
+        "action": "modify",
+        "technology": "React/TypeScript",
+        "description": "Atualizar lógica de scroll para garantir posicionamento no final da lista"
+      }
+    ]
+  },
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Modificar lógica de scroll no MessageThread",
+      "order": 1,
+      "estimatedHours": 0.5,
+      "components": ["MessageThread Component"],
+      "dependencies": [],
+      "technicalDetails": {
+        "files": [
+          "frontend/src/components/messages/MessageThread.tsx"
+        ],
+        "changes": [
+          "Verificar se a ordem de renderização das mensagens está correta (antigas em cima, novas embaixo)",
+          "Garantir que scrollToBottom seja executado após o render completo",
+          "Manter o comportamento smooth scroll existente",
+          "Preservar a lógica de exibição de timestamps"
+        ]
+      }
+    },
+    {
+      "phaseId": "P2",
+      "name": "Testes manuais e validação",
+      "order": 2,
+      "estimatedHours": 0.5,
+      "components": ["MessageThread Component"],
+      "dependencies": ["P1"],
+      "technicalDetails": {
+        "testScenarios": [
+          "Verificar ordem visual das mensagens",
+          "Testar scroll inicial ao carregar conversa",
+          "Testar scroll ao receber nova mensagem",
+          "Testar comportamento com muitas mensagens",
+          "Verificar que timestamps aparecem corretamente"
+        ]
+      }
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "Mensagens mais antigas devem aparecer no topo da lista",
+      "type": "functional",
+      "testable": true
+    },
+    {
+      "id": "AC-002",
+      "description": "Mensagens mais novas devem aparecer no final da lista",
+      "type": "functional",
+      "testable": true
+    },
+    {
+      "id": "AC-003",
+      "description": "Ao abrir uma conversa, o scroll deve estar posicionado no final automaticamente",
+      "type": "functional",
+      "testable": true
+    },
+    {
+      "id": "AC-004",
+      "description": "Ao receber uma nova mensagem, o scroll deve ir para o final automaticamente",
+      "type": "functional",
+      "testable": true
+    },
+    {
+      "id": "AC-005",
+      "description": "O scroll deve ser suave e não causar saltos visuais",
+      "type": "usability",
+      "testable": true
+    },
+    {
+      "id": "AC-006",
+      "description": "Timestamps devem continuar aparecendo corretamente entre mensagens com intervalo > 5 min",
+      "type": "functional",
+      "testable": true
+    }
+  ],
+  "estimatedTotalHours": 1,
+  "technicalNotes": {
+    "currentBehavior": "O código atual já possui scrollToBottom com messagesEndRef, mas pode não estar funcionando corretamente para garantir scroll inicial no final",
+    "proposedSolution": "Verificar se há problema na execução do useEffect ou na ordem de renderização. A ordem das mensagens no array parece estar correta, o problema está apenas no scroll visual",
+    "risks": "Risco mínimo - alteração simples em componente isolado sem impacto em outros módulos"
+  }
+}

@@ -12,13 +12,22 @@ interface MessageThreadProps {
 
 export function MessageThread({ messages, isLoading }: MessageThreadProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isFirstLoad = useRef(true);
 
   useEffect(() => {
     scrollToBottom();
+
+    // Marca que não é mais o primeiro carregamento após scroll inicial
+    if (isFirstLoad.current) {
+      isFirstLoad.current = false;
+    }
   }, [messages]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // No primeiro carregamento, força scroll imediato
+    // Nas atualizações seguintes, usa smooth scroll
+    const behavior = isFirstLoad.current ? 'auto' : 'smooth';
+    messagesEndRef.current?.scrollIntoView({ behavior, block: 'end' });
   };
 
   if (isLoading) {

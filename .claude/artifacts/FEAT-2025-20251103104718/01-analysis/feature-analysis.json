@@ -1,0 +1,117 @@
+{
+  "featureId": "FEAT-2025-20251103104718",
+  "timestamp": "2025-11-03T10:47:18Z",
+  "feature": {
+    "title": "Inverter ordem de exibição das mensagens no chat",
+    "description": "Modificar o componente MessageThread para exibir mensagens em ordem cronológica crescente (antigas no topo, novas embaixo) e garantir que o scroll inicie automaticamente na parte inferior para visualizar as mensagens mais recentes",
+    "category": "enhancement",
+    "priority": "medium",
+    "businessValue": "Melhora a experiência do usuário ao apresentar as mensagens em ordem cronológica natural, facilitando o acompanhamento do fluxo de conversação"
+  },
+  "requirements": {
+    "functional": [
+      {
+        "id": "RF-001",
+        "description": "Inverter a ordem de exibição das mensagens para que as mais antigas apareçam no topo e as mais novas no final",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-002",
+        "description": "Posicionar automaticamente o scroll no final da lista ao carregar mensagens",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-003",
+        "description": "Manter o scroll no final quando novas mensagens chegarem",
+        "priority": "must-have"
+      },
+      {
+        "id": "RF-004",
+        "description": "Preservar a funcionalidade de scroll suave (smooth scroll) ao atualizar mensagens",
+        "priority": "should-have"
+      },
+      {
+        "id": "RF-005",
+        "description": "Manter a exibição de timestamps relativos entre mensagens com intervalos maiores que 5 minutos",
+        "priority": "must-have"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-001",
+        "type": "performance",
+        "description": "O scroll para o final deve ocorrer de forma imperceptível para o usuário (<100ms)"
+      },
+      {
+        "id": "NFR-002",
+        "type": "usability",
+        "description": "A transição de scroll deve ser suave e não causar saltos visuais"
+      },
+      {
+        "id": "NFR-003",
+        "type": "usability",
+        "description": "O usuário deve poder navegar livremente pelo histórico de mensagens sem interferências"
+      }
+    ]
+  },
+  "impact": {
+    "modules": [
+      "frontend/src/components/messages/MessageThread.tsx"
+    ],
+    "databases": [],
+    "externalServices": [],
+    "estimatedComplexity": "low"
+  },
+  "dependencies": [
+    {
+      "type": "library",
+      "name": "React useEffect hook",
+      "action": "required"
+    },
+    {
+      "type": "library",
+      "name": "React useRef hook",
+      "action": "required"
+    },
+    {
+      "type": "feature",
+      "name": "Message loading and rendering",
+      "action": "extend"
+    }
+  ],
+  "risks": [
+    {
+      "description": "Possível quebra de lógica de exibição de timestamps se a inversão de ordem não for tratada corretamente",
+      "severity": "low",
+      "mitigation": "Revisar cuidadosamente a lógica de cálculo de diferença de tempo entre mensagens consecutivas"
+    },
+    {
+      "description": "Performance degradada com grandes volumes de mensagens se o scroll não for otimizado",
+      "severity": "low",
+      "mitigation": "Usar smooth scroll apenas quando houver poucas mensagens ou testar performance com datasets maiores"
+    },
+    {
+      "description": "Usuário pode perder contexto se estiver lendo mensagens antigas quando novas chegarem",
+      "severity": "low",
+      "mitigation": "Considerar manter posição de scroll se usuário estiver navegando no histórico (melhoria futura)"
+    }
+  ],
+  "technicalContext": {
+    "stack": {
+      "framework": "Next.js 14.2.0",
+      "language": "TypeScript 5",
+      "ui": "React 18",
+      "styling": "Tailwind CSS"
+    },
+    "currentImplementation": {
+      "messageOrdering": "As mensagens são renderizadas na ordem original do array, sem inversão explícita",
+      "scrollBehavior": "useEffect com scrollToBottom usando scrollIntoView com behavior: 'smooth'",
+      "scrollTarget": "messagesEndRef posicionado após todas as mensagens"
+    },
+    "proposedChanges": {
+      "messageOrdering": "Nenhuma mudança necessária - a ordem já está correta no array, mas o layout visual precisa ser ajustado",
+      "scrollBehavior": "Manter useEffect e scrollToBottom, mas garantir que execute após render completo",
+      "scrollTarget": "Manter messagesEndRef no final da lista"
+    }
+  }
+}
