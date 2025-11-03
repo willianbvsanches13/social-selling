@@ -85,7 +85,7 @@ export class MessageRepository implements IMessageRepository {
       paramCount++;
     }
 
-    query += ` ORDER BY sent_at DESC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
+    query += ` ORDER BY sent_at ASC LIMIT $${paramCount} OFFSET $${paramCount + 1}`;
     params.push(limit, offset);
 
     const rows = await this.database.query(query, params);
@@ -213,7 +213,7 @@ export class MessageRepository implements IMessageRepository {
       params.push(conversationId);
     }
 
-    query += ` ORDER BY sent_at DESC`;
+    query += ` ORDER BY sent_at ASC`;
 
     const rows = await this.database.query(query, params);
 
