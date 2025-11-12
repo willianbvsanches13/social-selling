@@ -48,6 +48,11 @@ openssl rand -hex 32
 - Nunca altere essa chave depois que o n8n estiver em uso
 - Guarde essa chave em local seguro (backup)
 
+**Se você está migrando do n8n que estava no social-selling**:
+- Use a mesma `N8N_ENCRYPTION_KEY` que estava no `.env` original
+- Use as mesmas credenciais de banco (`N8N_DB_PASSWORD`)
+- Isso garantirá que você possa acessar os workflows e credenciais existentes
+
 ### 2. Configurar DNS
 
 Aponte o domínio `n8n.willianbvsanches.com` para o IP do seu servidor.
