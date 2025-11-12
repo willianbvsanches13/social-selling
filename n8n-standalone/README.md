@@ -59,28 +59,63 @@ Aponte o domínio `n8n.willianbvsanches.com` para o IP do seu servidor.
 
 ### 3. Obter Certificado SSL
 
-**Primeira vez** (antes de ter o certificado):
+**MÉTODO RÁPIDO: Script Automático** ⭐ (Recomendado)
 
 ```bash
-# Temporariamente, comente as linhas SSL no nginx/conf.d/n8n.conf
-# ou use certbot em modo standalone
+cd n8n-standalone
+./setup-ssl.sh seu-email@example.com
+```
 
-# Parar nginx se estiver rodando
-docker compose down nginx
+Este script irá:
+- ✅ Configurar nginx temporariamente para HTTP
+- ✅ Iniciar os serviços
+- ✅ Obter certificado SSL automaticamente
+- ✅ Reconfigurar para HTTPS
+- ✅ Reiniciar com SSL ativo
 
-# Obter certificado
-docker run -it --rm \
-  -v $(pwd)/data/letsencrypt:/etc/letsencrypt \
-  -v $(pwd)/data/certbot:/var/www/certbot \
-  -p 80:80 \
-  certbot/certbot certonly \
-  --standalone \
-  --preferred-challenges http \
+---
+
+**OPÇÃO A: Primeira instalação (SEM certificado ainda) - Manual**
+
+```bash
+# 1. Renomear as configurações nginx
+cd n8n-standalone
+mv nginx/conf.d/n8n.conf nginx/conf.d/n8n.conf.disabled
+mv nginx/conf.d/n8n-http-only.conf.disabled nginx/conf.d/n8n-http-only.conf
+
+# 2. Iniciar os serviços (HTTP apenas, sem SSL)
+docker compose up -d
+
+# 3. Verificar se n8n está acessível
+curl http://n8n.willianbvsanches.com/health
+
+# 4. Obter certificado SSL usando certbot
+docker compose run --rm certbot certonly \
+  --webroot \
+  --webroot-path=/var/www/certbot \
   --email seu-email@example.com \
   --agree-tos \
+  --no-eff-email \
   -d n8n.willianbvsanches.com
 
-# Após obter o certificado, descomente as linhas SSL e inicie os serviços
+# 5. Após obter o certificado, restaurar configuração HTTPS
+docker compose down
+mv nginx/conf.d/n8n-http-only.conf nginx/conf.d/n8n-http-only.conf.disabled
+mv nginx/conf.d/n8n.conf.disabled nginx/conf.d/n8n.conf
+
+# 6. Iniciar com HTTPS
+docker compose up -d
+```
+
+**OPÇÃO B: Já tem certificado (migrando do social-selling)**
+
+```bash
+# Copiar certificados existentes
+cp -r /etc/letsencrypt/live/n8n.willianbvsanches.com /caminho/para/n8n-standalone/data/letsencrypt/live/
+cp -r /etc/letsencrypt/archive/n8n.willianbvsanches.com /caminho/para/n8n-standalone/data/letsencrypt/archive/
+
+# Iniciar normalmente
+docker compose up -d
 ```
 
 ### 4. Iniciar os Serviços
