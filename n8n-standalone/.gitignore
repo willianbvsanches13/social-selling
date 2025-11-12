@@ -1,0 +1,19 @@
+# Environment variables
+.env
+
+# Data directories
+data/
+*.sql
+*.sql.gz
+*.tar.gz
+
+# Logs
+*.log
+
+# SSL certificates (managed by certbot)
+ssl/
+
+# Backups
+backup/
+backups/
+*.backup

@@ -1,0 +1,499 @@
+{
+  "testResultsId": "TEST-2025-20251103194500",
+  "featureId": "FEAT-2025-20251103191624",
+  "taskId": "TASK-002",
+  "executionId": "EXEC-2025-20251103193500",
+  "iteration": 1,
+  "timestamp": "2025-11-03T19:45:00Z",
+  "summary": {
+    "totalTests": 52,
+    "passed": 52,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 2277
+  },
+  "unitTests": {
+    "passed": 52,
+    "failed": 0,
+    "skipped": 0,
+    "testFile": "test/unit/domain/entities/data-deletion-request.entity.test.ts",
+    "duration": 2277
+  },
+  "testSuites": [
+    {
+      "name": "factory method - create()",
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should create a new deletion request with valid properties",
+          "status": "PASS",
+          "duration": 2
+        },
+        {
+          "name": "should generate confirmation code if empty string provided",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should create request with metadata",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should set initial status to PENDING",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should create request with META_CALLBACK source",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should create request with EMAIL source",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    },
+    {
+      "name": "factory method - reconstitute()",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should reconstitute deletion request from database data",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should reconstitute with metadata",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should reconstitute failed request with error message",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    },
+    {
+      "name": "validation",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should throw error when userId is missing",
+          "status": "PASS",
+          "duration": 11
+        },
+        {
+          "name": "should throw error when confirmationCode is missing during validation",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should throw error when source is invalid",
+          "status": "PASS",
+          "duration": 2
+        },
+        {
+          "name": "should throw error when status is invalid",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    },
+    {
+      "name": "status transition - start()",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should transition from PENDING to IN_PROGRESS",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should throw error when starting non-pending request",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when starting completed request",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when starting failed request",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    },
+    {
+      "name": "status transition - complete()",
+      "tests": 7,
+      "passed": 7,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should transition from PENDING to COMPLETED",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should transition from IN_PROGRESS to COMPLETED",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should set completedAt timestamp when completing",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should clear error message when completing",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when completing already completed request",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when completing failed request",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should update updatedAt timestamp when completing",
+          "status": "PASS",
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "name": "status transition - fail()",
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should transition from PENDING to FAILED with error message",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should transition from IN_PROGRESS to FAILED",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when error message is empty",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when error message is only whitespace",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should throw error when failing completed request",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should update updatedAt timestamp when failing",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    },
+    {
+      "name": "status transition - retry()",
+      "tests": 6,
+      "passed": 6,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should transition from FAILED to PENDING",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should clear error message when retrying",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when retrying non-failed request",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when retrying in-progress request",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should throw error when retrying completed request",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should update updatedAt timestamp when retrying",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    },
+    {
+      "name": "metadata management - updateMetadata()",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should add metadata to request without existing metadata",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should merge metadata with existing metadata",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should override existing metadata keys",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should update updatedAt timestamp when updating metadata",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    },
+    {
+      "name": "computed getters",
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should return true for isPending when status is PENDING",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should return true for isInProgress when status is IN_PROGRESS",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should return true for isCompleted when status is COMPLETED",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should return true for isFailed when status is FAILED",
+          "status": "PASS",
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "name": "JSON serialization - toJSON()",
+      "tests": 5,
+      "passed": 5,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should serialize all properties to JSON",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should include completedAt when request is completed",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should include errorMessage when request is failed",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should include metadata when present",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should not include metadata when not present",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    },
+    {
+      "name": "complete workflow",
+      "tests": 3,
+      "passed": 3,
+      "failed": 0,
+      "testCases": [
+        {
+          "name": "should handle complete lifecycle: pending -> in_progress -> completed",
+          "status": "PASS",
+          "duration": 0
+        },
+        {
+          "name": "should handle failure and retry workflow",
+          "status": "PASS",
+          "duration": 1
+        },
+        {
+          "name": "should handle direct completion from pending",
+          "status": "PASS",
+          "duration": 0
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "statements": 100,
+    "branches": 100,
+    "functions": 100,
+    "lines": 100,
+    "uncoveredLines": []
+  },
+  "testCategories": {
+    "factoryMethods": {
+      "tested": true,
+      "coverage": 100,
+      "tests": [
+        "create() with all valid scenarios",
+        "reconstitute() with all valid scenarios",
+        "confirmation code auto-generation"
+      ]
+    },
+    "statusTransitions": {
+      "tested": true,
+      "coverage": 100,
+      "tests": [
+        "start() - pending to in_progress",
+        "complete() - pending/in_progress to completed",
+        "fail() - any to failed with error message",
+        "retry() - failed to pending"
+      ]
+    },
+    "validations": {
+      "tested": true,
+      "coverage": 100,
+      "tests": [
+        "userId validation",
+        "confirmationCode validation",
+        "source enum validation",
+        "status enum validation"
+      ]
+    },
+    "businessRules": {
+      "tested": true,
+      "coverage": 100,
+      "tests": [
+        "Cannot start non-pending request",
+        "Cannot complete already completed request",
+        "Cannot complete failed request",
+        "Cannot fail completed request",
+        "Cannot retry non-failed request",
+        "Error message required when failing",
+        "Timestamps updated on state changes"
+      ]
+    },
+    "metadataManagement": {
+      "tested": true,
+      "coverage": 100,
+      "tests": [
+        "Add metadata to empty request",
+        "Merge with existing metadata",
+        "Override existing keys",
+        "Update timestamp on metadata change"
+      ]
+    },
+    "computedGetters": {
+      "tested": true,
+      "coverage": 100,
+      "tests": [
+        "isPending returns correct value",
+        "isInProgress returns correct value",
+        "isCompleted returns correct value",
+        "isFailed returns correct value"
+      ]
+    },
+    "serialization": {
+      "tested": true,
+      "coverage": 100,
+      "tests": [
+        "toJSON includes all properties",
+        "toJSON includes optional properties when present",
+        "toJSON excludes optional properties when absent"
+      ]
+    },
+    "workflows": {
+      "tested": true,
+      "coverage": 100,
+      "tests": [
+        "Complete happy path: pending -> in_progress -> completed",
+        "Failure and retry workflow",
+        "Direct completion from pending"
+      ]
+    }
+  },
+  "testsFollowGuidelines": {
+    "arrangeActAssert": true,
+    "independentTests": true,
+    "noExternalDependencies": true,
+    "descriptiveNames": true,
+    "oneBehaviorPerTest": true,
+    "mockForDates": true,
+    "unitTestLocation": "test/unit/domain/entities/"
+  },
+  "recommendation": "approve",
+  "reason": "All tests passed with 100% code coverage. Entity fully validated including factory methods, status transitions, validations, business rules, metadata management, computed getters, and serialization.",
+  "qualityMetrics": {
+    "testQuality": "excellent",
+    "coverageQuality": "excellent",
+    "assertionQuality": "excellent",
+    "testOrganization": "excellent"
+  },
+  "filesCreated": [
+    "/Users/williansanches/projects/personal/social-selling-2/backend/test/unit/domain/entities/data-deletion-request.entity.test.ts"
+  ],
+  "notes": [
+    "Created comprehensive unit test suite with 52 test cases",
+    "Achieved 100% code coverage on all metrics (statements, branches, functions, lines)",
+    "Tests follow Arrange-Act-Assert pattern consistently",
+    "All tests are independent and can run in any order",
+    "No external dependencies (database, HTTP, etc.)",
+    "Used jest.useFakeTimers() for timestamp testing",
+    "Tests cover all factory methods (create, reconstitute)",
+    "Tests cover all status transitions (start, complete, fail, retry)",
+    "Tests cover all validation rules",
+    "Tests cover all business rules and edge cases",
+    "Tests cover metadata management",
+    "Tests cover all computed getters",
+    "Tests cover JSON serialization",
+    "Tests cover complete workflows and scenarios",
+    "All tests pass successfully in 2.277 seconds",
+    "Test file location follows project structure: test/unit/domain/entities/"
+  ]
+}

@@ -5,6 +5,9 @@
   "timestamp": "2025-11-03T19:28:00Z",
   "summary": {
     "totalTasks": 32,
+    "completed": 6,
+    "inProgress": 0,
+    "pending": 26,
     "byCategory": {
       "database": 3,
       "backend": 16,
@@ -52,5 +55,40 @@
     "TASK-030",
     "TASK-031",
     "TASK-032"
-  ]
+  ],
+  "taskStatus": {
+    "TASK-001": "completed",
+    "TASK-002": "completed",
+    "TASK-003": "completed",
+    "TASK-004": "completed",
+    "TASK-005": "completed",
+    "TASK-006": "completed",
+    "TASK-007": "pending",
+    "TASK-008": "pending",
+    "TASK-009": "pending",
+    "TASK-010": "pending",
+    "TASK-011": "pending",
+    "TASK-012": "pending",
+    "TASK-013": "pending",
+    "TASK-014": "pending",
+    "TASK-015": "pending",
+    "TASK-016": "pending",
+    "TASK-017": "pending",
+    "TASK-018": "pending",
+    "TASK-019": "pending",
+    "TASK-020": "pending",
+    "TASK-021": "pending",
+    "TASK-022": "pending",
+    "TASK-023": "pending",
+    "TASK-024": "pending",
+    "TASK-025": "pending",
+    "TASK-026": "pending",
+    "TASK-027": "pending",
+    "TASK-028": "pending",
+    "TASK-029": "pending",
+    "TASK-030": "pending",
+    "TASK-031": "pending",
+    "TASK-032": "pending"
+  },
+  "lastUpdated": "2025-11-03T21:29:00Z"
 }
